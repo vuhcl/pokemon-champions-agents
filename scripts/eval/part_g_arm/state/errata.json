@@ -44,5 +44,11 @@
       "note": "H25 remains plan not-covered; substitution still applied when the fixture is loaded."
     }
   },
-  "stale_pin_rows": ["MT2", "H6"]
+  "stale_pin_rows": ["MT2", "H6"],
+  "notes": [
+    "MT3 seed predicate no_intimidate is hand-written judgment-only. mechanical_kind=ability means must-have that ability; there is no ban-ability kind, so the real record_constraint path from 'No Intimidate.' is also judgment-only (predicate text may differ: 'no Intimidate' vs no_intimidate).",
+    "HC2 seed predicate no_weather_ability is hand-written judgment-only (same tag family as H18b fixture). No mechanical kind bans weather setters; real path from 'No weather.' is judgment-only.",
+    "read_team does not echo constraints; MT3/HC2 expose t1 via _message_history only (same pattern as hd1_history).",
+    "cs_pending option evidence strings are emptied in the builder; read_pending never surfaces evidence."
+  ]
 }

@@ -51,7 +51,7 @@ def write_seed_manifests() -> dict[str, str]:
             "rows": [rid for rid, s in SEED_FOR_ROW.items() if s == name],
             "state": to_jsonable(state),
         }
-        if name == "hd1_history":
+        if state.get("_message_history"):
             meta["message_history"] = state.get("_message_history")
         path = seed_path(name)
         blob = json.dumps(meta, indent=2, sort_keys=True) + "\n"

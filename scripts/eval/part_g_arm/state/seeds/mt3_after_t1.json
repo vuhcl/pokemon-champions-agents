@@ -1,10 +1,30 @@
 {
-  "justification": "MT3 t1 'No Intimidate.' \u2192 judgment-only hard constraint predicate no_intimidate (no mechanical ban-ability kind); runner plays t2\u2013t3 only.",
+  "justification": "MT3 after t1 'No Intimidate.': judgment-only predicate no_intimidate (no ban-ability mechanical kind) plus message_history so the model sees t1; runner plays t2\u2013t3.",
+  "message_history": [
+    {
+      "content": "No Intimidate.",
+      "role": "user"
+    },
+    {
+      "content": "Noted: no Intimidate on this team.",
+      "role": "assistant"
+    }
+  ],
   "rows": [
     "MT3"
   ],
   "seed": "mt3_after_t1",
   "state": {
+    "_message_history": [
+      {
+        "content": "No Intimidate.",
+        "role": "user"
+      },
+      {
+        "content": "Noted: no Intimidate on this team.",
+        "role": "assistant"
+      }
+    ],
     "constraints": [
       {
         "groundedness": "judgment-only",

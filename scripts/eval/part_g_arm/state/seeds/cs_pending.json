@@ -1,5 +1,5 @@
 {
-  "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight/Garchomp are legal doubles staples with source=threat via present_candidates (H27 route).",
+  "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight from present_candidates (H27 route). Option evidence emptied so the model cannot repeat hand-written seed scores (read_pending already omits evidence).",
   "rows": [
     "MS7",
     "MT4"
@@ -11,120 +11,51 @@
       "notices": [],
       "options": [
         {
-          "evidence": [
-            {
-              "basis": "usage_backed",
-              "branch": null,
-              "confidence": "high",
-              "evidence": [
-                "verified_score:5.0",
-                "threats_countered:seed",
-                "build_source:ingame",
-                "usage_rank:1",
-                "showdown_usage_pct:None"
-              ],
-              "origin_anchor_id": null,
-              "origin_slot_index": null,
-              "producer_name": "query_threat_counters",
-              "subject_id": null
-            }
-          ],
+          "evidence": [],
           "source": "threat",
           "species": "Pelipper",
           "species_primary_role": "rain_setter",
           "target_role_decision": {
             "ambiguity": [],
             "confidence": "medium",
-            "evidence": [
-              "kit_role:support_speed_control"
-            ],
-            "needed_constraints": [
-              "role:support_speed_control"
-            ],
-            "producer_name": "slot_fill_kit_role_policy",
-            "provenance": [
-              "anchor_role:kit_role"
-            ],
+            "evidence": [],
+            "needed_constraints": [],
+            "producer_name": null,
+            "provenance": [],
             "role_id": "support_speed_control",
             "source": "other",
             "wanted_constraints": []
           }
         },
         {
-          "evidence": [
-            {
-              "basis": "usage_backed",
-              "branch": null,
-              "confidence": "high",
-              "evidence": [
-                "verified_score:4.0",
-                "threats_countered:seed",
-                "build_source:ingame",
-                "usage_rank:2",
-                "showdown_usage_pct:None"
-              ],
-              "origin_anchor_id": null,
-              "origin_slot_index": null,
-              "producer_name": "query_threat_counters",
-              "subject_id": null
-            }
-          ],
+          "evidence": [],
           "source": "threat",
           "species": "Toxapex",
           "species_primary_role": "bulky_special_attacker",
           "target_role_decision": {
             "ambiguity": [],
             "confidence": "medium",
-            "evidence": [
-              "kit_role:bulky_special_attacker"
-            ],
-            "needed_constraints": [
-              "role:bulky_special_attacker"
-            ],
-            "producer_name": "slot_fill_kit_role_policy",
-            "provenance": [
-              "anchor_role:kit_role"
-            ],
+            "evidence": [],
+            "needed_constraints": [],
+            "producer_name": null,
+            "provenance": [],
             "role_id": "bulky_special_attacker",
             "source": "other",
             "wanted_constraints": []
           }
         },
         {
-          "evidence": [
-            {
-              "basis": "usage_backed",
-              "branch": null,
-              "confidence": "high",
-              "evidence": [
-                "verified_score:3.0",
-                "threats_countered:seed",
-                "build_source:ingame",
-                "usage_rank:3",
-                "showdown_usage_pct:None"
-              ],
-              "origin_anchor_id": null,
-              "origin_slot_index": null,
-              "producer_name": "query_threat_counters",
-              "subject_id": null
-            }
-          ],
+          "evidence": [],
           "source": "threat",
           "species": "Corviknight",
           "species_primary_role": "bulk_up_attacker",
           "target_role_decision": {
             "ambiguity": [],
             "confidence": "medium",
-            "evidence": [
-              "kit_role:standard_physical_attacker"
-            ],
-            "needed_constraints": [
-              "role:standard_physical_attacker"
-            ],
-            "producer_name": "slot_fill_kit_role_policy",
-            "provenance": [
-              "anchor_role:kit_role"
-            ],
+            "evidence": [],
+            "needed_constraints": [],
+            "producer_name": null,
+            "provenance": [],
             "role_id": "standard_physical_attacker",
             "source": "other",
             "wanted_constraints": []
