@@ -1,7 +1,7 @@
 {
   "schema": "state_arm_manifest_proposal_v0",
   "frozen": false,
-  "note": "Proposal only. Freeze after Vu approval. Final tools/errata/MM covered 2026-10-27. frozen:false; clean_tree_commit_sha empty.",
+  "note": "Proposal only. Freeze after Vu approval. 2026-10-28 Vu covered 103 (+OL7a/H27/IX5/IX7); stale_pin cleared; H22 keep-out. frozen:false.",
   "model": {
     "id": "qwen3.5:latest",
     "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
@@ -77,11 +77,11 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/class_scorer.py",
-      "sha256": "b110e281c159528309e33851cd4091eee40b833ef7f1f70d90a29b1b651d60eb"
+      "sha256": "93567e19ffe8102de4e7ffc53dfd30c85128df512aeec2d17cbda205c35dddaa"
     },
     {
       "path": "scripts/eval/part_g_arm/state/errata.json",
-      "sha256": "b08146bb89de9ea25b56a032a99b5faede36895e4c77e902e8e5ec5e1f0414b7"
+      "sha256": "cb0e5505e8f8e7912feb4ed4259c7f795312e91f3fb907f1b25dcd31f334a212"
     },
     {
       "path": "scripts/eval/part_g_arm/state/tools.py",
@@ -101,7 +101,7 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/covered_list.json",
-      "sha256": "ebeef244f370688b73e2fd6e94b01c55cdb07a6e8123c43156352255a8a6ed85"
+      "sha256": "ebde0d0ad9acdd51d477b7aeab039e6494bf3081b96b22c666fedf313243c4c1"
     },
     {
       "path": "scripts/eval/part_g_v4/key_artifacts/derived_keys.json",
@@ -150,25 +150,21 @@
     {
       "path": "recommender/slot_index.py",
       "sha256": "8255baea9f51c34899af12f26280b00b1c3e6b6d13402d31789e0edb9eb10024"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/b1_discovery.json",
+      "sha256": "6787755b0ead19d5bf40319d0863028e1f168260f59c7b57348af544edd1db29"
     }
   ],
   "proposed_covered_counts": {
-    "covered": 99,
-    "not_covered": 35,
-    "b1_mechanical_only": 40,
-    "b1_hand_only": 56,
-    "b1_dual": 3,
-    "b1_dual_rows": [
-      "MS5",
-      "RB1",
-      "TB2"
-    ],
-    "b1_mechanical_incl_dual": 43,
-    "b1_hand_incl_dual": 59,
-    "audit_form_sections": 71,
-    "audit_rubric_cells": 232,
-    "mm1": "hand_audit",
-    "mm2": "scorable-mechanical"
+    "covered": 103,
+    "not_covered": 31,
+    "mechanical_only": 41,
+    "hand_audit_only": 59,
+    "dual": 3,
+    "audit_form_sections": 74,
+    "audit_form_cells": 242,
+    "ol7a_on_form": false
   },
   "prompt_choice": {
     "chosen": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
@@ -239,9 +235,11 @@
     "shows_scorer_verdict": false,
     "sample_out_dir": "/Users/nowaki027/part-g-arm-state-out-audit/",
     "sample_html_sha256": "bb2042515cdfec9f5ee68be3dae97c91375554f56125b0048d9a1efc9f5647ca",
-    "note": "scripts/eval/part_g_arm/state/LAST_HAND_AUDIT_FORM.md"
+    "note": "scripts/eval/part_g_arm/state/LAST_HAND_AUDIT_FORM.md",
+    "sections": 74,
+    "rubric_cells": 242
   },
-  "covered_list_sha256": "ebeef244f370688b73e2fd6e94b01c55cdb07a6e8123c43156352255a8a6ed85",
+  "covered_list_sha256": "ebde0d0ad9acdd51d477b7aeab039e6494bf3081b96b22c666fedf313243c4c1",
   "tools_py_sha256": "e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42",
   "note_b1": "B1 after MM1/MM2: covered 99; not_covered 35; mech-only 40; hand-only 56; dual MS5/RB1/TB2; audit sections 71 / rubric cells 232. H11 errata allowed_not_required.",
   "note_post_merge_318": "step3: check_hypothetical sibling-stage for Mega+stone; mega_stone refusals on bare Mega hyp/select",
