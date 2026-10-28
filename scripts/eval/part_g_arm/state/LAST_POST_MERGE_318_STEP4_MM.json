@@ -1,0 +1,76 @@
+{
+  "MM1": {
+    "row": "MM1",
+    "key_class": "SERVED",
+    "observed_class": "lookup only",
+    "pass": true,
+    "score": {
+      "mechanical_class_observed": "lookup only",
+      "key_class_expected": "SERVED",
+      "match": true,
+      "state_expectation_met": true
+    },
+    "trajectory": [
+      "check_hypothetical({'placements': [{'species': 'Salamence-Mega', 'item': 'Leftovers'}]})"
+    ],
+    "tool_results": [
+      {
+        "name": "check_hypothetical",
+        "result": {
+          "verdict": "mega_stone",
+          "conflicts_with_slot": null,
+          "message": "A Mega forme must hold Salamencite. Keep Salamencite, or use the base form (Salamence) with Leftovers (form change is an offer only)."
+        }
+      }
+    ],
+    "acceptance": "Build with Salamencite; state mega cannot hold another item; offer keep stone or base form+Leftovers (form change = offer only). Stone map from Showdown items.ts (standalone). legality.py has no mega-stone check \u2014 open arm tool item. derived_keys.row_g_h_salamence_mega",
+    "offer_path_ok": {
+      "verdict": "ok",
+      "conflicts_with_slot": null,
+      "message": null
+    },
+    "base_leftovers_ok": {
+      "verdict": "ok",
+      "conflicts_with_slot": null,
+      "message": null
+    }
+  },
+  "MM2": {
+    "row": "MM2",
+    "key_class": "MUTATION-REFUSED",
+    "observed_class": "refused",
+    "pass": true,
+    "score": {
+      "mechanical_class_observed": "refused",
+      "key_class_expected": "MUTATION-REFUSED",
+      "match": true,
+      "state_expectation_met": true
+    },
+    "trajectory": [
+      "edit_slot_field({'slot': 1, 'field': 'item', 'value': 'Leftovers'})"
+    ],
+    "tool_results": [
+      {
+        "name": "edit_slot_field",
+        "result": {
+          "slot_commit_error": "A Mega forme must hold Salamencite. Keep Salamencite, or use the base form (Salamence) with Leftovers (form change is an offer only)."
+        }
+      }
+    ],
+    "acceptance": "Refuse: stone is required mega item; draft unchanged; form change offer only. derived_keys.row_g_h_salamence_mega"
+  },
+  "readiness_if_added": {
+    "both_pass": true,
+    "current_covered_n": 97,
+    "with_mm_added_n": 99,
+    "would_add": [
+      "MM1",
+      "MM2"
+    ],
+    "note": "Readiness only \u2014 not written into covered_list.json",
+    "proposed_buckets": {
+      "MM1": "hand audit (SERVED + stated mega cannot hold other item / offer keep stone or base+Leftovers)",
+      "MM2": "scorable-mechanical (MUTATION-REFUSED write+read-back) \u2014 stated form-change offer is hand if required as fact"
+    }
+  }
+}
