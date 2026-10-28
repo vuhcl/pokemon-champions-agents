@@ -182,7 +182,7 @@ CASES: dict[str, dict[str, Any]] = {
 
 
 def _membership_ok(constraints: list[dict[str, Any]], nature: str, sp: dict[str, int]) -> bool:
-    preds, _, err = _parse_constraints("Archaludon", "Stamina", "Leftovers", constraints)
+    preds, _, _notes, err = _parse_constraints("Archaludon", "Stamina", "Leftovers", constraints)
     if err:
         return False
     return _feasible(preds, nature, sp)

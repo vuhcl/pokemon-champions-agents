@@ -9,8 +9,9 @@
 | field | value |
 |---|---|
 | artifact | `dev_keys_prankster_weather.json` |
-| sha256 | `cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3` |
-| builder | `build_prankster_weather_key.py` |
+| sha256 | `6dba1caac2d45135779779f7867f6f442163bdb3fef35ca6270d7c76329fb543` |
+| prior (circular builder) | `cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3` |
+| builder | `build_prankster_weather_key.py` (legality only; **no** `find_species` import) |
 | count | **6** (in band; not empty, ≤25) |
 
 **Weather list source:** `recommender.move_narrowing.WEATHER_SETTING_MOVES` (`_WEATHER_MANUAL`) — Python constant, **not** a JSON pin field. Snapshot/`static.v1.json` have no `weather` field. Scope = all five map entries (Rain Dance, Sunny Day, Sandstorm, Snowscape, Chilly Reception). All Status; no conditional setters. Aurora Veil excluded.

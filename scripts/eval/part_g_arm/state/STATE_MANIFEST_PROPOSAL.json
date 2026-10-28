@@ -166,7 +166,17 @@
     "rejected_first_draft": "c58e3ce8499d3c579899bed84ec7a450f55e0e9da83dedb7bca6582c3cd4dd18",
     "why": "Adds factual find_species tool description (no weather-move list). 40/41 eev: all prior Part 5 rows + three ordinary find_species rows pass; dev-fs-prankster-weather set-fails (model listed Prankster holders then check_learnset; never queried weather moves via find_species; 25 calls >16). Finding only — no further prompt tune without Vu.",
     "dev_transcript": "/Users/nowaki027/part-g-arm-state-out-find-species/",
-    "prankster_weather_key_sha256": "cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3"
+    "prankster_weather_key_sha256": "6dba1caac2d45135779779f7867f6f442163bdb3fef35ca6270d7c76329fb543",
+    "prankster_weather_key_prior_circular_sha256": "cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3"
+  },
+  "freeze_checklist": {
+    "note": "scripts/eval/part_g_arm/state/LAST_FREEZE_CHECKLIST.md",
+    "mega_pr_318": "OPEN",
+    "covered_list_sha256": "25b6a1cf42dfb305a0bb66e60c7b9a012fbc855281d6013d770afd84a2ba1ffa",
+    "judge_prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87",
+    "seeds_sha256sums": "9e8cc64f6265eab5758fc7e7d97bd3416a3758c5c32b7a56ea748bbfe8df0d63",
+    "b1_covered_shortfall": ["GS1", "IX1", "MS5", "RB1", "SC2", "TB2"],
+    "h11_acceptance_drift": "Castform-Rainy in find_species Water+Hurricane set; not in acceptance"
   },
   "repeat_runs": {
     "n": 3,

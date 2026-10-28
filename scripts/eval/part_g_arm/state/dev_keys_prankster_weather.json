@@ -2,6 +2,7 @@
   "class_target": "SERVED",
   "count": 6,
   "harness_class": "lookup only",
+  "independence": "no find_species import; legality + WEATHER_SETTING_MOVES only",
   "per_move_prankster_counts": {
     "chillyreception": 0,
     "raindance": 5,
@@ -98,11 +99,18 @@
     "excluded_examples": [
       "Aurora Veil (requires Snow; does not set weather)"
     ],
-    "note": "Python constant, not a JSON pin field. Snapshot moves and data/moves/static.v1.json have no weather field.",
+    "note": "Python constant, not a JSON pin field. Snapshot moves and data/moves/static.v1.json have no weather field. Key species set derived from legality snapshot + ability/learnset helpers; does not import find_species.",
     "path": "recommender/move_narrowing.py",
     "scope": "all entries in WEATHER_SETTING_MOVES (sets weather when used)",
     "status_only": true,
-    "symbol": "WEATHER_SETTING_MOVES"
+    "symbol": "WEATHER_SETTING_MOVES",
+    "weather_ids": [
+      "chillyreception",
+      "raindance",
+      "sandstorm",
+      "snowscape",
+      "sunnyday"
+    ]
   },
   "weather_moves": [
     {

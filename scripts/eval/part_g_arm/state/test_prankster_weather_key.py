@@ -1,15 +1,32 @@
-"""Reference trajectory: one find_species per weather move; union == key (no model)."""
+"""Prankster weather key independence + find_species union equality (no model)."""
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
+from pathlib import Path
 
-from scripts.eval.part_g_arm.state.build_prankster_weather_key import OUT, build
+from scripts.eval.part_g_arm.state.build_prankster_weather_key import OUT, HERE, build
 from scripts.eval.part_g_arm.state.class_scorer import score_turn
 from scripts.eval.part_g_arm.state.fixtures import empty_team
 from scripts.eval.part_g_arm.state.harness import snapshot
 from scripts.eval.part_g_arm.state.tools import find_species, mechanical_class
+
+KEY_SHA = "6dba1caac2d45135779779f7867f6f442163bdb3fef35ca6270d7c76329fb543"
+
+
+def test_builder_does_not_import_find_species():
+    src = (HERE / "build_prankster_weather_key.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            names = [a.name for a in node.names]
+            assert "find_species" not in names
+            assert not (node.module or "").endswith("tools") or "find_species" not in names
+        if isinstance(node, ast.Import):
+            for a in node.names:
+                assert "find_species" not in a.name
 
 
 def test_key_artifact_matches_rebuild_and_sha():
@@ -19,11 +36,11 @@ def test_key_artifact_matches_rebuild_and_sha():
     assert on_disk["count"] == 6
     text = OUT.read_text(encoding="utf-8")
     sha = hashlib.sha256(text.encode()).hexdigest()
-    # Pinned in LAST_FIND_SPECIES.md — fail if key drifted without regenerating the note.
-    assert sha == "cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3"
+    assert sha == KEY_SHA
 
 
-def test_reference_trajectory_union_equals_key():
+def test_key_equals_find_species_union():
+    """Equality check: independent key == five-call find_species union (builder unused)."""
     key = json.loads(OUT.read_text(encoding="utf-8"))
     st = empty_team()
     before = snapshot(st)
