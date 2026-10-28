@@ -191,5 +191,16 @@
     "design_note": "scripts/eval/part_g_arm/state/LAST_REPEAT_RUN_DESIGN.md",
     "compare_helper": "scripts/eval/part_g_arm/state/compare_runs.py"
   },
-  "clean_tree_commit_sha": ""
+  "clean_tree_commit_sha": "",
+  "hand_audit_form": {
+    "generator": "scripts/eval/part_g_arm/state/hand_audit_form.py",
+    "based_on": "scripts/eval/part_g_v4/audit_view.py",
+    "export_csv_name": "hand_audit_export.csv",
+    "csv_columns": ["row_id", "turn", "rubric_point_id", "verdict", "overall", "note"],
+    "shows_gemma_verdict": false,
+    "shows_scorer_verdict": false,
+    "sample_out_dir": "/Users/nowaki027/part-g-arm-state-out-audit/",
+    "sample_html_sha256": "bb2042515cdfec9f5ee68be3dae97c91375554f56125b0048d9a1efc9f5647ca",
+    "note": "scripts/eval/part_g_arm/state/LAST_HAND_AUDIT_FORM.md"
+  }
 }
