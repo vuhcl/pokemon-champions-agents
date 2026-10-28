@@ -1,0 +1,271 @@
+{
+  "as_of": "2026-10-28",
+  "note": "Re-triage of the 35 not-covered rows against the final tool set (find_species+ability, check_learnset, show_candidates, edit_slot_field, constraints, move priority, mega-stone). Coverable-now listed only — covered_list.json unchanged. Seed/fixture routes assessed without editing OL/v4/H27 fixture directories.",
+  "final_tools": [
+    "add_constraint", "calc_damage", "change_archetype", "check_hypothetical",
+    "check_item_legal", "check_learnset", "check_species_ability", "check_species_legal",
+    "commit_slot", "confirm_build", "edit_slot_field", "find_species", "get_abilities",
+    "get_move_static", "get_speed", "get_typing", "get_usage_items", "get_usage_teammates",
+    "lock_slot", "no_lookup_needed", "read_archetype", "read_constraints", "read_pending",
+    "read_rejected", "read_team", "reject_all", "reject_option", "reject_pending",
+    "reset_team", "restore_constraint", "select_option", "show_candidates", "solve_spread",
+    "unlock_slot"
+  ],
+  "rows": [
+    {
+      "id": "H12",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "seed needed: map state cell 'attackers undefined' → empty_team (row text only); calc_damage exists. Loader currently fails without that seed."
+    },
+    {
+      "id": "H17",
+      "coverable_now": false,
+      "blocker": "show_candidates requires an all_locked anchor including role; edit_slot_field cannot set role; empty bootstrap cannot produce candidate_selection. change_archetype(rain)+find_species(Drizzle) exist but do not close the candidates checklist item alone.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team loads; no seed"
+    },
+    {
+      "id": "H18",
+      "coverable_now": false,
+      "blocker": "checklist requires progressing HO slots with 32-SP evidence; show_candidates blocked without all_locked (role unsettable via tools).",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team loads; no seed"
+    },
+    {
+      "id": "H19",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team loads; find_species(learns_move='Trick Room') returns TR learners (n=60). No seed."
+    },
+    {
+      "id": "H20",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team loads; find_species(types=['Electric']) + add_constraint. No seed."
+    },
+    {
+      "id": "H21",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team loads; ASSUME-STATE membership only. No frozen checklist. No seed."
+    },
+    {
+      "id": "H22",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team loads; frozen binary checklist H22 (4 items) in part3_request_set_v4.md. show_candidates still blocked without all_locked; ASSUME-STATE path does not require it. No seed."
+    },
+    {
+      "id": "H25",
+      "coverable_now": false,
+      "blocker": "h25_team.json locks species/ability/item only → not all_locked (role unlocked) → show_candidates refuses 'needs a locked anchor'. Cannot fix without fixture/product change outside state/seeds.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "v4 fixture loads via try_load_fixture; incomplete for candidates"
+    },
+    {
+      "id": "H26",
+      "coverable_now": false,
+      "blocker": "h26_torkoal_locked.json same as H25: not all_locked → show_candidates refuses.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "v4 fixture loads; incomplete for candidates"
+    },
+    {
+      "id": "H27",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "load_fixture('H27') / h27_candidate_fixture.json via pending.py (CS with Garchomp/Incineroar/Rillaboom). get_typing confirms Ground."
+    },
+    {
+      "id": "MT4",
+      "coverable_now": false,
+      "blocker": "show_candidates exists but requires all_locked anchor; seeds/cs_pending is CS-only empty team (0 anchors). Real blocker is missing locked anchor, not missing tool. t1 reject_option works; t2 cannot re-show.",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "seeds/cs_pending.json loads"
+    },
+    {
+      "id": "MT7",
+      "coverable_now": false,
+      "blocker": "permanent DEV (multi-turn Archaludon compound); stay out of covered.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; solve_spread exists but row stays DEV"
+    },
+    {
+      "id": "MT8",
+      "coverable_now": false,
+      "blocker": "permanent DEV (MT7 continuation).",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team"
+    },
+    {
+      "id": "AR1",
+      "coverable_now": false,
+      "blocker": "keep out — near-dup of MT7 t1 keys; recommend stay out even though solve_spread exists.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team"
+    },
+    {
+      "id": "AR2",
+      "coverable_now": false,
+      "blocker": "keep out — near-dup of MT7 Pareto-t2; recommend stay out.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team"
+    },
+    {
+      "id": "AR3",
+      "coverable_now": false,
+      "blocker": "6-turn Mega-X Belly Drum compound not built (multi-turn fixtures + trajectory).",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team only"
+    },
+    {
+      "id": "SC1",
+      "coverable_now": false,
+      "blocker": "sc1_start.json present in v4 fixtures but not in pending._SLOT_BASE → FixtureLoadError. check_learnset can verify Snarl; draft-condition store still unwired.",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "v4 fixture exists; needs state/pending.py _SLOT_BASE entry (no OL/v4 edit) plus draft-condition tool"
+    },
+    {
+      "id": "SC3",
+      "coverable_now": false,
+      "blocker": "sc3_two_slots.json not in _SLOT_BASE; slot-2-only draft condition unwired.",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "v4 fixture exists; needs _SLOT_BASE + condition store"
+    },
+    {
+      "id": "TS1",
+      "coverable_now": false,
+      "blocker": "ts1_sequence.json unwired; no draft-retain across topic-switch (ask lock? / keep draft). empty_team alone insufficient.",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "v4 ts1_sequence.json present; not in _SLOT_BASE / no multi-turn seed"
+    },
+    {
+      "id": "GT1",
+      "coverable_now": false,
+      "blocker": "no VGCPastes / usage-moves surface tool; get_usage_items does not expose Trick+Scarf move sets (n=2 pastes).",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; no seed"
+    },
+    {
+      "id": "LZ1",
+      "coverable_now": false,
+      "blocker": "no common_moves / usage-moves tool for Top4 Protect+Detect drop; mega-stone rule exists but does not supply moveset frequencies.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; no seed"
+    },
+    {
+      "id": "IX2",
+      "coverable_now": false,
+      "blocker": "Pain Split Magical Guard interaction lives in Showdown moves.ts/abilities.ts; no arm tool surfaces sethp vs damage-pipeline.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; no seed"
+    },
+    {
+      "id": "IX3",
+      "coverable_now": false,
+      "blocker": "Dire Claw slicing=1 is in flags.v1.json; get_move_static omits flags (state only enriches priority via with_move_priority).",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; no seed"
+    },
+    {
+      "id": "IX4",
+      "coverable_now": false,
+      "blocker": "check_learnset + find_species(ability/learns_move) cover holders and learnsets, but Good as Gold blocking Skill Swap / Mold Breaker / Wandering Spirit→Contrary multi-step interaction is not in any arm tool.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; no seed"
+    },
+    {
+      "id": "IX5",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; find_species(ability=…) lists holders per ASSUME-STATE punish bucket. No seed."
+    },
+    {
+      "id": "IX6",
+      "coverable_now": false,
+      "blocker": "Unburden+White Herb conditional after Close Combat — no ability×item interaction tool.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; no seed"
+    },
+    {
+      "id": "IX7",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "empty_team; find_species(types=['Flying']) + find_species(ability=Levitate|Telepathy|Earth Eater). No seed."
+    },
+    {
+      "id": "DM5",
+      "coverable_now": false,
+      "blocker": "dm5_working_draft.json not in pending._SLOT_BASE → FixtureLoadError; defender-unstated ASSUME-STATE needs that fixture route.",
+      "scorable": "hand audit",
+      "seed_or_fixture_route": "v4 fixture exists; needs state/_SLOT_BASE wire (no OL/v4 edit)"
+    },
+    {
+      "id": "OL7a",
+      "coverable_now": true,
+      "blocker": "nothing",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "load_fixture('OL7a') CS; select_option(Jolteon) succeeds and opens FBC with provisional_slot. get_speed available for Spe 200 check."
+    },
+    {
+      "id": "OL7b",
+      "coverable_now": false,
+      "blocker": "OL7b.json FBC loads but omits provisional_slot → select_option refuses 'missing or unsupported provisional option state'. Labels readable via read_pending (Fast sweeper) but bind path fails. (Oct-27 'coverable' was stale.)",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "ol_fixtures/OL7b.json loads; needs FBC provisional wire in pending loader"
+    },
+    {
+      "id": "OL10a",
+      "coverable_now": false,
+      "blocker": "cannot detect CS staleness — fixture has current team only; no presentation fingerprint; CS gate cannot fail closed on team change.",
+      "scorable": "not scorable",
+      "seed_or_fixture_route": "OL10a.json loads"
+    },
+    {
+      "id": "OL10b",
+      "coverable_now": false,
+      "blocker": "FBC scorer-staleness: provisional_slot null after load; select_option refuses; fingerprint stale path incomplete.",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "OL10b.json loads; needs provisional wire"
+    },
+    {
+      "id": "OL1",
+      "coverable_now": false,
+      "blocker": "FBC fixture has options but no provisional_slot; select_option cannot bind spread_nature:2 (same gap as reference_trajectories.py).",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "OL1.json loads; needs FBC provisional wire"
+    },
+    {
+      "id": "OL2a",
+      "coverable_now": false,
+      "blocker": "FBC lacks provisional_slot; select_option refuses bare '2'.",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "OL2a.json loads; needs provisional wire"
+    },
+    {
+      "id": "OL3",
+      "coverable_now": false,
+      "blocker": "label bind + FBC lacks provisional_slot; select_option refuses.",
+      "scorable": "mechanical",
+      "seed_or_fixture_route": "OL3.json loads; needs provisional wire + label-select"
+    }
+  ],
+  "coverable_now_ids": ["H12", "H19", "H20", "H21", "H22", "H27", "IX5", "IX7", "OL7a"],
+  "changed_vs_2026_10_27": [
+    "H19/H20: newly coverable via find_species (were bootstrap-blocked only).",
+    "IX5/IX7: coverable via find_species ability/type filters (were 'ability-holder search' missing).",
+    "IX4: still no — learnset tool exists but Good as Gold / Mold Breaker interaction missing.",
+    "MT4: reason updated — show_candidates exists; blocker is empty CS seed (no all_locked anchor).",
+    "OL7b: demoted from coverable — FBC provisional_slot gap (select refuses).",
+    "DM5/SC1/SC3/TS1: still blocked; exact reason is _SLOT_BASE / condition store, not vague 'not built'.",
+    "H12/H21/H22/H27/OL7a: remain coverable (H12 needs trivial empty_team seed for loader)."
+  ]
+}
