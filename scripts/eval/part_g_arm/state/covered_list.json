@@ -1,10 +1,10 @@
 {
-  "source": "claude/request_set_eval_plan_2026-10-25.md via transcript; Part 5 readiness update 2026-10-27",
+  "source": "claude/request_set_eval_plan_2026-10-25.md; Part 5 readiness; MT4 dropped 2026-10-27 (no all_locked CS anchor for show_candidates t2)",
   "frozen": false,
-  "note": "Proposed list for Vu approval before registration. Readiness and scorability only. Not a FROZEN_MANIFEST entry. OL1/OL2a/OL3 moved to not_covered (Part 3 capability gaps). MM1/MM2 wait on mega-stone PR #318 merge into arm.",
+  "note": "Proposed list for Vu approval before registration. Readiness and scorability only. Not a FROZEN_MANIFEST entry. OL1/OL2a/OL3 and MT4 are capability gaps. MM1/MM2 wait on mega-stone PR #318. H25/H26 need all_locked fixtures (outside state/).",
   "not_covered": [
     "H12", "H17", "H18", "H21", "H22", "H25", "H26", "H27",
-    "MT7", "MT8", "AR1", "AR2", "AR3",
+    "MT4", "MT7", "MT8", "AR1", "AR2", "AR3",
     "SC1", "SC3", "TS1", "GT1", "LZ1",
     "MM1", "MM2",
     "IX2", "IX3", "IX4", "IX5", "IX6", "IX7",
@@ -26,7 +26,7 @@
     "MW1", "MW2", "MW3", "MW4",
     "Q9", "Q10",
     "OL2b", "OL4", "OL5", "OL6", "OL8", "OL9",
-    "MT1", "MT2", "MT3", "MT4", "MT5", "MT6",
+    "MT1", "MT2", "MT3", "MT5", "MT6",
     "IC1", "TB1", "TB2", "MC1",
     "SC2", "GS1", "RB1", "IX1"
   ]

@@ -1,20 +1,35 @@
 # Part 6 — covered list + state manifest proposal (NOT frozen)
 
+Regenerated 2026-10-27 after Part 4/5 tools and MT4 drop. Supersedes the stale “96 / MT4 missing show_candidates” draft.
+
 ## Final covered list (proposed)
 
 | bucket | count | notes |
 |---|---|---|
-| scorable-mechanical | 42 | state signature + tool outcome |
-| hand audit | 54 | claim rows; gemma second-rater only |
-| **covered total** | **96** | plan 97 minus MT4 |
-| not covered | 38 | prior 37 + **MT4** (no show-candidates tool) |
+| scorable-mechanical | 39 | Part 3 trajectories pass 39/39 after OL1/OL2a/OL3 and MT4 removed |
+| hand audit (B1 on covered) | 54 | gemma second-rater only; Vu audits |
+| **covered total** | **99** | `covered_list.json` |
+| not covered | 35 | includes MT4, H25/H26, H17/H18, OL1/OL2a/OL3, MM1/MM2, SC1/SC3, … |
 
-All 7 seeds load; MT4 seed loads but row is dropped from covered for the run. Stale-pin rows MT2/H6 stay covered but scored as stale, not failed.
+Hand-unreachable facts until `find_species`: H11, H19, H20, HU1.
 
-## Solver tests outside default pytest
+Stale-pin rows MT2/H6 stay covered but scored as stale, not failed.
 
-`pyproject.toml` `testpaths = ["tests/recommender", "tests/ci"]`. Solver tests under `scripts/eval/part_g_arm/state/test_*.py` are path-invoked only. Collecting them needs either adding that path to `testpaths` or a root `conftest`/pytest.ini `pythonpath` + explicit path — **not changed this round** (outside `state/` for pyproject).
+## Still out (readiness)
+
+| rows | reason |
+|---|---|
+| MT4 | CS seed has no all_locked anchor for `show_candidates` t2 — see `LAST_H25_H26_MT4_STATUS.md` |
+| H25 / H26 | fixtures not all_locked (outside `state/`) |
+| H17 / H18 | empty; bootstrap out of scope |
+| MM1 / MM2 | mega-stone PR #318 not merged into arm |
+| SC1 / SC3 | draft-condition store not built |
+| OL1 / OL2a / OL3 | FBC provisional wire gap |
+
+## Solver / state tests
+
+`pyproject.toml` `testpaths` still omit `scripts/eval/part_g_arm/state/test_*.py` — path-invoked only (unchanged).
 
 ## Manifest proposal
 
-See `STATE_MANIFEST_PROPOSAL.json` (frozen: false). Claude reviews; freeze commit after Vu approves.
+See `STATE_MANIFEST_PROPOSAL.json` (`frozen: false`). Proposed prompt after Part 5: `08a0917a…` until the find_species prompt revision. Freeze after Vu approval; Claude reviews seeds against row text first.
