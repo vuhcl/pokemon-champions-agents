@@ -36,6 +36,7 @@ STATE_TOOL_NAMES = frozenset({
     "select_option", "confirm_build", "reject_pending", "reject_option",
     "reject_all", "read_rejected", "edit_slot_field",
     "add_constraint", "read_constraints", "restore_constraint",
+    "show_candidates",
 })
 LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
 # Read-only against live state (hyp copies then discards; read_* do not write).
@@ -180,6 +181,18 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
         "(newest-wins undo). Writes nothing when the log is empty.",
         {},
         [],
+    ),
+    _spec(
+        "show_candidates",
+        "Run the CLI candidate producer for an open slot (discover_single_locked "
+        "or discover_multi_locked → present_candidates) and write a "
+        "candidate_selection pending screen. slot counts from 1 and must be "
+        "the next open blank slot. Optional n caps how many options are kept. "
+        "Options carry producer source and evidence only. Honors rejected "
+        "species (lineage filter). Does not write the team. Empty team "
+        "(no locked anchor) refuses — bootstrap is out of scope. allow_live=False.",
+        {"slot": dict(_INT), "n": dict(_INT)},
+        ["slot"],
     ),
 ]
 
@@ -726,6 +739,164 @@ def restore_constraint_tool(
     return after, {
         "ok": True,
         "constraints": [_constraint_row(c) for c in after.get("constraints") or []],
+    }
+
+
+def _evidence_strings(evidence: object) -> list[str]:
+    """Flatten producer evidence to strings only — no arm-added fields."""
+    out: list[str] = []
+    for item in evidence or ():
+        if hasattr(item, "evidence"):
+            out.extend(str(x) for x in (getattr(item, "evidence") or ()))
+        elif isinstance(item, dict):
+            for x in item.get("evidence") or ():
+                out.append(str(x))
+        elif isinstance(item, str):
+            out.append(item)
+    return out
+
+
+def _rejected_lineages(rejected: object) -> set[str]:
+    from recommender.usage_data import lineage_ids
+
+    out: set[str] = set()
+    for row in rejected or ():
+        if not isinstance(row, dict):
+            continue
+        species = row.get("species")
+        if isinstance(species, str) and species.strip():
+            out.update(lineage_ids(species))
+    return out
+
+
+def _filter_pending_rejected(
+    pending: dict[str, Any], rejected: object
+) -> dict[str, Any]:
+    """Drop options whose lineage is on the rejected list (MT4)."""
+    banned = _rejected_lineages(rejected)
+    if not banned:
+        return pending
+    from recommender.usage_data import lineage_ids
+
+    kept = []
+    for opt in pending.get("options") or []:
+        species = opt.get("species")
+        if not isinstance(species, str) or not species:
+            continue
+        if set(lineage_ids(species)) & banned:
+            continue
+        kept.append(opt)
+    return {**pending, "options": kept}
+
+
+def _option_rows(pending: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for i, opt in enumerate(pending.get("options") or []):
+        rows.append(
+            {
+                "number": i + 1,
+                "species": opt.get("species"),
+                "source": opt.get("source"),
+                "evidence": _evidence_strings(opt.get("evidence")),
+            }
+        )
+    return rows
+
+
+def show_candidates(
+    state: dict[str, Any],
+    user_slot: object,
+    n: object = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """CLI producer → candidate_selection pending. Does not write team_draft."""
+    from recommender.nodes import discover_multi_locked, discover_single_locked
+
+    try:
+        index = user_slot_to_index(user_slot, team_size=len(state["team_draft"]))
+    except SlotIndexError as exc:
+        return state, _refuse(str(exc))
+    draft = state["team_draft"]
+    if all_locked(draft[index]):
+        return state, _refuse(f"slot {display_slot(index)} is already fully locked")
+    # CLI fills the first blank open slot; refuse a different open index.
+    open_blank = [
+        i
+        for i, slot in enumerate(draft)
+        if not all_locked(slot)
+        and not any(
+            getattr(slot, name).locked or getattr(slot, name).value is not None
+            for name in ("role", "species", "ability", "item", "moveset", "spread", "nature")
+        )
+    ]
+    if not open_blank:
+        return state, _refuse("no blank open slot for candidate discovery")
+    if index != open_blank[0]:
+        return state, _refuse(
+            f"slot {display_slot(index)} is not the next open blank slot "
+            f"(next is {display_slot(open_blank[0])})"
+        )
+
+    anchors = [slot for slot in draft if all_locked(slot)]
+    if not anchors:
+        return state, _refuse(
+            "empty team: show_candidates needs a locked anchor; "
+            "bootstrap intake is out of scope for the arm"
+        )
+
+    # Pinned usage only — discover_* reads offline blobs; calc may degrade.
+    if len(anchors) == 1:
+        patch = discover_single_locked(state, {})
+    else:
+        patch = discover_multi_locked(state, {})
+
+    # Discovery must not mutate the draft via this tool.
+    if "team_draft" in patch:
+        patch = {k: v for k, v in patch.items() if k != "team_draft"}
+
+    pending = patch.get("pending_presentation")
+    if not isinstance(pending, dict) or pending.get("kind") != "candidate_selection":
+        err = patch.get("candidate_discovery_error")
+        msg = (
+            getattr(err, "message", None)
+            or (err.get("message") if isinstance(err, dict) else None)
+            or "no candidate_selection screen produced"
+        )
+        return state, _refuse(str(msg))
+
+    pending = {**pending, "slot_index": index}
+    pending = _filter_pending_rejected(pending, state.get("rejected"))
+    if isinstance(n, int) and not isinstance(n, bool) and n >= 1:
+        pending = {**pending, "options": list(pending.get("options") or [])[:n]}
+    elif n is not None:
+        return state, _refuse("n must be a positive integer when provided")
+
+    options = _option_rows(pending)
+    if not options:
+        # Empty after reject filter / producer — write teachable pending like CLI.
+        pending = {
+            **pending,
+            "options": [],
+            "prompt_text": pending.get("prompt_text")
+            or "No more candidates for this slot.",
+        }
+        after = _merge(state, {**patch, "pending_presentation": pending, "slot_commit_error": None})
+        return after, {
+            "ok": True,
+            "slot": index + 1,
+            "options": [],
+            "message": "no candidates",
+            "candidate_discovery_error": to_jsonable(patch.get("candidate_discovery_error")),
+        }
+
+    after = _merge(
+        state,
+        {**patch, "pending_presentation": pending, "slot_commit_error": None},
+    )
+    return after, {
+        "ok": True,
+        "slot": index + 1,
+        "options": options,
+        "candidate_discovery_error": to_jsonable(patch.get("candidate_discovery_error")),
     }
 
 

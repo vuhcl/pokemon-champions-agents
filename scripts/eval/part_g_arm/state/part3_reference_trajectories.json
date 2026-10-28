@@ -731,7 +731,7 @@
     },
     {
       "row": "MT4",
-      "tools": "unmapped \u2014 inspect request-set claim types",
+      "tools": "t1 reject_option(2); t2 show_candidates blocked \u2014 CS seed has no locked anchor (producer needs \u22651 all_locked); rejection filter verified on producer path in test_show_candidates",
       "fact_unreachable": false
     },
     {
@@ -771,8 +771,8 @@
     },
     {
       "row": "HU3",
-      "tools": "GAP: show_candidates(4c) for Fire options",
-      "fact_unreachable": true
+      "tools": "show_candidates(4c) after Fire lock; hand-audit Fire filter still model/prompt",
+      "fact_unreachable": false
     },
     {
       "row": "HU4",
@@ -961,11 +961,6 @@
     {
       "row": "HU1",
       "tools": "GAP: bulk formula scan over legal Fire types \u2014 no set enumeration tool",
-      "fact_unreachable": true
-    },
-    {
-      "row": "HU3",
-      "tools": "GAP: show_candidates(4c) for Fire options",
       "fact_unreachable": true
     },
     {

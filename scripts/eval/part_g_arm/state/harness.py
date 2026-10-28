@@ -40,6 +40,7 @@ from scripts.eval.part_g_arm.state.tools import (
     reset_team_state,
     restore_constraint_tool,
     select_option,
+    show_candidates,
     solve_spread_tool,
     steering_signature,
     unlock_slot,
@@ -150,6 +151,8 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return state, read_constraints(state)
     if name == "restore_constraint":
         return restore_constraint_tool(state)
+    if name == "show_candidates":
+        return show_candidates(state, args.get("slot"), n=args.get("n"))
     if name == "check_hypothetical":
         return state, check_hypothetical(state, args.get("placements"))
     if name == "solve_spread":

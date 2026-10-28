@@ -417,14 +417,29 @@ def hand_audit_tool_map() -> list[dict[str, Any]]:
         "MT1": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
         "MT2": "stale pin — excluded",
         "MT3": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
+        "MT4": (
+            "t1 reject_option(2); t2 show_candidates blocked — CS seed has no "
+            "locked anchor (producer needs ≥1 all_locked); rejection filter "
+            "verified on producer path in test_show_candidates"
+        ),
         "MT5": "GAP: no change_archetype / read_archetype (4f)",
         "MT6": "t1 HC1 fail-closed (no record); t2 add_constraint Water team_wide; t3 read_constraints",
+        "H25": (
+            "show_candidates blocked: fixture slots lock species/ability/item only; "
+            "producer requires all_locked (moveset+spread+nature). No fixture edit outside state/"
+        ),
+        "H26": (
+            "show_candidates blocked: Torkoal fixture not all_locked (same as H25). "
+            "Producer path verified on fully locked Venusaur in test_show_candidates"
+        ),
+        "H17": "blocked: empty team — show_candidates needs locked anchor; bootstrap out of scope",
+        "H18": "blocked: empty team — show_candidates needs locked anchor; bootstrap out of scope",
         "HF1": "get_typing",
         "HF2": "get_abilities / check_species_ability",
         "HD1": "get_typing + history",
         "HU1": "GAP: bulk formula scan over legal Fire types — no set enumeration tool",
         "HU2": "get_speed + get_usage_teammates/threats (ingame)",
-        "HU3": "GAP: show_candidates(4c) for Fire options",
+        "HU3": "show_candidates(4c) after Fire lock; hand-audit Fire filter still model/prompt",
         "HU4": "get_speed + usage (ASSUME-STATE)",
         "HN1": "get_abilities",
         "HN2": "get_speed ×2",
