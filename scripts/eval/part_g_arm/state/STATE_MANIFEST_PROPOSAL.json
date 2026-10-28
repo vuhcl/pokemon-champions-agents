@@ -231,6 +231,7 @@
     "note": "scripts/eval/part_g_arm/state/LAST_HAND_AUDIT_FORM.md"
   },
   "covered_list_sha256": "5dfa19f8ab9bbf225ef6e7b92ab1423ee60f88790be0a46a9a7bfa20fe77e543",
-  "tools_py_sha256": "1165b32ff04515da2f5f3ade1fbcc210eaee431e330b8d5b52af568b78d341fd",
-  "note_b1": "B1 refresh 2026-10-27: covered 97; mech-only 39; hand-only 55; dual MS5/RB1/TB2; audit sections 70 / rubric cells 228. H19/H20 not_covered."
+  "tools_py_sha256": "e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42",
+  "note_b1": "B1 refresh 2026-10-27: covered 97; mech-only 39; hand-only 55; dual MS5/RB1/TB2; audit sections 70 / rubric cells 228. H19/H20 not_covered.",
+  "note_post_merge_318": "step3: check_hypothetical sibling-stage for Mega+stone; mega_stone refusals on bare Mega hyp/select"
 }

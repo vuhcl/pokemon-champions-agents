@@ -1400,32 +1400,53 @@ def check_hypothetical(state: dict[str, Any], placements: object) -> dict[str, A
             return {"verdict": "bad_value", "conflicts_with_slot": None,
                     "message": "each placement needs species and/or item"}
         index: int | None = None
-        if isinstance(species, str) and species.strip():
+        has_species = isinstance(species, str) and bool(species.strip())
+        has_item = isinstance(item, str) and bool(item.strip())
+        if has_species:
             index = _slot_for_species(draft, species)
             if index is None:
                 index = _first_species_free(draft)
                 if index is None:
                     return {"verdict": "bad_slot_index", "conflicts_with_slot": None,
                             "message": "no free slot on the copy for a species not on the team"}
-                verdict = validate_team_value("species", species, slot_index=index, team_draft=draft)
-                if verdict.refusal is not None:
-                    other = verdict.refusal.conflicts_with_slot
-                    return {
-                        "verdict": verdict.refusal.kind,
-                        "conflicts_with_slot": None if other is None else int(display_slot(other)),
-                        "message": verdict.refusal.message,
-                    }
-                draft[index] = replace(
-                    draft[index], species=Attr(value=verdict.canonical, locked=True)
-                )
         else:
             index = _first_item_only_free(draft)
             if index is None:
                 return {"verdict": "bad_slot_index", "conflicts_with_slot": None,
                         "message": "no free slot on the copy for an item-only placement"}
-        if isinstance(item, str) and item.strip():
-            assert index is not None
-            verdict = validate_team_value("item", item, slot_index=index, team_draft=draft)
+        # Same as apply_lock batch: stage species+item siblings on the copy before
+        # validate_team_value so a joint Mega+stone placement is not refused as stone-less.
+        assert index is not None
+        sibling = draft[index]
+        if has_species:
+            sibling = replace(sibling, species=Attr(value=species, locked=True))
+        if has_item:
+            sibling = replace(sibling, item=Attr(value=item, locked=True))
+        sibling_draft = list(draft)
+        sibling_draft[index] = sibling
+        if has_species:
+            verdict = validate_team_value(
+                "species", species, slot_index=index, team_draft=sibling_draft
+            )
+            if verdict.refusal is not None:
+                other = verdict.refusal.conflicts_with_slot
+                return {
+                    "verdict": verdict.refusal.kind,
+                    "conflicts_with_slot": None if other is None else int(display_slot(other)),
+                    "message": verdict.refusal.message,
+                }
+            draft[index] = replace(
+                draft[index], species=Attr(value=verdict.canonical, locked=True)
+            )
+            sibling_draft[index] = draft[index]
+            if has_item:
+                sibling_draft[index] = replace(
+                    sibling_draft[index], item=Attr(value=item, locked=True)
+                )
+        if has_item:
+            verdict = validate_team_value(
+                "item", item, slot_index=index, team_draft=sibling_draft
+            )
             if verdict.refusal is not None:
                 other = verdict.refusal.conflicts_with_slot
                 return {
