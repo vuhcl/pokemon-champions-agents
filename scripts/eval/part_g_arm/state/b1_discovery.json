@@ -1,4 +1,5 @@
 {
+  "note": "B1 refresh 2026-10-27 after H19/H20 not_covered + six-row bucket assign. Dual rows (MS5/RB1/TB2): mechanical class + hand-audited stated facts.",
   "covered": [
     {
       "row": "H1",
@@ -73,24 +74,6 @@
       "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
-      "row": "Q9",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "Q10",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
       "row": "H11",
       "turns": [
         "SERVED"
@@ -145,78 +128,6 @@
       "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
-      "row": "H19",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "H20",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "MT1",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "MT2",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "MT3",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "MT4",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "MT5",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "MT6",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
       "row": "HF1",
       "turns": [
         "SERVED"
@@ -235,69 +146,6 @@
       "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
-      "row": "HC1",
-      "turns": [
-        "FAIL-CLOSED"
-      ],
-      "bucket": "scorable-mechanical",
-      "reason": "state signature + tool outcome suffice; no claim leaf required",
-      "mechanical": "refused or no change (state unchanged; refuse)"
-    },
-    {
-      "row": "HC2",
-      "turns": [
-        "ASK"
-      ],
-      "bucket": "scorable-mechanical",
-      "reason": "state signature + tool outcome suffice; no claim leaf required",
-      "mechanical": "no change (no successful state write; ask in text)"
-    },
-    {
-      "row": "HD1",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "HU1",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "HU2",
-      "turns": [
-        "SERVED"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
-    },
-    {
-      "row": "HU3",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "HU4",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
       "row": "HN1",
       "turns": [
         "SERVED"
@@ -314,6 +162,33 @@
       "bucket": "hand audit",
       "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
       "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "HN2b",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "HN2c",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "HN2d",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
     },
     {
       "row": "HN3",
@@ -361,6 +236,195 @@
       "mechanical": "refused (state equals start)"
     },
     {
+      "row": "HU1",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "HU2",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "HU2b",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "HU3",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "HU4",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "HC1",
+      "turns": [
+        "FAIL-CLOSED"
+      ],
+      "bucket": "scorable-mechanical",
+      "reason": "state signature + tool outcome suffice; no claim leaf required",
+      "mechanical": "refused or no change (state unchanged; refuse)"
+    },
+    {
+      "row": "HC2",
+      "turns": [
+        "ASK"
+      ],
+      "bucket": "scorable-mechanical",
+      "reason": "state signature + tool outcome suffice; no claim leaf required",
+      "mechanical": "no change (no successful state write; ask in text)"
+    },
+    {
+      "row": "HD1",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "DM1",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "DM2",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "DM3",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "DM4",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "DM6",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "DM7",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "IS1",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "IS2",
+      "turns": [
+        "PARTIAL+ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (partial + assumed cells)"
+    },
+    {
+      "row": "IS3",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "IS4",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "MV1",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "MV2",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "MV3",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
       "row": "MS1",
       "turns": [
         "MUTATION-OK"
@@ -395,6 +459,18 @@
       "bucket": "scorable-mechanical",
       "reason": "state signature + tool outcome suffice; no claim leaf required",
       "mechanical": "wrote (or bound then wrote)"
+    },
+    {
+      "row": "MS5",
+      "turns": [
+        "MUTATION-OK"
+      ],
+      "bucket": "mechanical + hand audit",
+      "reason": "MUTATION-OK write+read-back is mechanical; key also requires both conflict statements (Drought + Solar Beam) \u2014 class scorer does not check stated facts \u2192 also hand audit",
+      "mechanical": "wrote (or bound then wrote) + conflict audit statements",
+      "stated_facts": [
+        "both conflicts reported (Drought non-rain weather ability; Solar Beam rain-reduced); control Pelipper not flagged"
+      ]
     },
     {
       "row": "MS6",
@@ -494,6 +570,15 @@
       "bucket": "scorable-mechanical",
       "reason": "state signature + tool outcome suffice; no claim leaf required",
       "mechanical": "refused (state equals start)"
+    },
+    {
+      "row": "MRB1",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
       "row": "MU1",
@@ -604,7 +689,7 @@
       "mechanical": "no change (no successful state write; ask in text)"
     },
     {
-      "row": "MRB1",
+      "row": "Q9",
       "turns": [
         "SERVED"
       ],
@@ -613,34 +698,16 @@
       "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
-      "row": "OL1",
+      "row": "Q10",
       "turns": [
-        "MUTATION-OK"
+        "SERVED"
       ],
-      "bucket": "scorable-mechanical",
-      "reason": "state signature + tool outcome suffice; no claim leaf required",
-      "mechanical": "wrote (or bound then wrote)"
-    },
-    {
-      "row": "OL2a",
-      "turns": [
-        "MUTATION-OK"
-      ],
-      "bucket": "scorable-mechanical",
-      "reason": "state signature + tool outcome suffice; no claim leaf required",
-      "mechanical": "wrote (or bound then wrote)"
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
       "row": "OL2b",
-      "turns": [
-        "MUTATION-OK"
-      ],
-      "bucket": "scorable-mechanical",
-      "reason": "state signature + tool outcome suffice; no claim leaf required",
-      "mechanical": "wrote (or bound then wrote)"
-    },
-    {
-      "row": "OL3",
       "turns": [
         "MUTATION-OK"
       ],
@@ -694,133 +761,7 @@
       "mechanical": "no change (no successful state write; ask in text)"
     },
     {
-      "row": "HU2b",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "HN2b",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "HN2c",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "HN2d",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "IS1",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "IS2",
-      "turns": [
-        "PARTIAL+ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (partial + assumed cells)"
-    },
-    {
-      "row": "IS3",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "IS4",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "DM1",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "DM2",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "DM3",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "DM4",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "DM6",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "DM7",
-      "turns": [
-        "ASSUME-STATE"
-      ],
-      "bucket": "hand audit",
-      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
-      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
-    },
-    {
-      "row": "MV1",
+      "row": "MT1",
       "turns": [
         "SERVED"
       ],
@@ -829,7 +770,7 @@
       "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
-      "row": "MV2",
+      "row": "MT2",
       "turns": [
         "SERVED"
       ],
@@ -838,7 +779,25 @@
       "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
-      "row": "MV3",
+      "row": "MT3",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "MT5",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "MT6",
       "turns": [
         "SERVED"
       ],
@@ -866,6 +825,18 @@
       "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
     },
     {
+      "row": "TB2",
+      "turns": [
+        "MUTATION-OK"
+      ],
+      "bucket": "mechanical + hand audit",
+      "reason": "MUTATION-OK write+read-back is mechanical; key requires stated Charcoal no longer boosts \u2014 class scorer does not check statements \u2192 also hand audit",
+      "mechanical": "wrote (or bound then wrote)",
+      "stated_facts": [
+        "Charcoal no longer boosts after Fire attack removed"
+      ]
+    },
+    {
       "row": "MC1",
       "turns": [
         "ASK|ASSUME-STATE"
@@ -873,10 +844,63 @@
       "bucket": "hand audit",
       "reason": "claim/fact match needed; frozen Part G scorer scores battery answers, not arm transcripts (plan decision 7)",
       "mechanical": "no change OR lookup only under stated assume (MC1)"
+    },
+    {
+      "row": "SC2",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "Soak not learned + no false calc effects \u2014 claim/fact match needed",
+      "mechanical": "lookup only / no change (facts in text; state unchanged on question)"
+    },
+    {
+      "row": "GS1",
+      "turns": [
+        "SERVED",
+        "MUTATION-OK"
+      ],
+      "bucket": "hand audit",
+      "reason": "stated choice-lock status names under Scarf (and modal t1 facts) require hand audit; class alone insufficient",
+      "mechanical": "t1 lookup / t2 wrote; status-move naming is a stated fact",
+      "stated_facts": [
+        "name every status move in actual t1 draft as unusable under Scarf"
+      ]
+    },
+    {
+      "row": "RB1",
+      "turns": [
+        "MUTATION-OK"
+      ],
+      "bucket": "mechanical + hand audit",
+      "reason": "MUTATION-OK write+read-back is mechanical; key requires stated Calm Mind+Nasty Plot share SpA (+ CM SpD) \u2014 class scorer does not check statements \u2192 also hand audit",
+      "mechanical": "wrote (or bound then wrote)",
+      "stated_facts": [
+        "Calm Mind and Nasty Plot are Status self-boosters sharing SpA; CM also +SpD"
+      ]
+    },
+    {
+      "row": "IX1",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "priority claim (Fake Out 3 > Follow Me/Rage Powder 2) needs hand/claim check",
+      "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
     }
   ],
   "not_state_only_property": [
+    "DM1",
+    "DM2",
+    "DM3",
+    "DM4",
+    "DM6",
+    "DM7",
+    "GS1",
     "H1",
+    "H11",
+    "H15",
+    "H18b",
     "H2",
     "H3",
     "H4",
@@ -884,52 +908,45 @@
     "H6",
     "H7",
     "H8",
-    "Q9",
-    "Q10",
-    "H11",
-    "H15",
-    "H18b",
-    "H19",
-    "H20",
-    "MT1",
-    "MT2",
-    "MT3",
-    "MT4",
-    "MT5",
-    "MT6",
+    "HD1",
     "HF1",
     "HF2",
-    "HD1",
-    "HU1",
-    "HU2",
-    "HU3",
-    "HU4",
     "HN1",
     "HN2",
+    "HN2b",
+    "HN2c",
+    "HN2d",
     "HN3",
     "HN4",
     "HP1",
     "HP2",
-    "MRB1",
+    "HU1",
+    "HU2",
     "HU2b",
-    "HN2b",
-    "HN2c",
-    "HN2d",
+    "HU3",
+    "HU4",
+    "IC1",
     "IS1",
     "IS2",
     "IS3",
     "IS4",
-    "DM1",
-    "DM2",
-    "DM3",
-    "DM4",
-    "DM6",
-    "DM7",
+    "IX1",
+    "MC1",
+    "MRB1",
+    "MS5",
+    "MT1",
+    "MT2",
+    "MT3",
+    "MT5",
+    "MT6",
     "MV1",
     "MV2",
     "MV3",
-    "IC1",
+    "Q10",
+    "Q9",
+    "RB1",
+    "SC2",
     "TB1",
-    "MC1"
+    "TB2"
   ]
 }

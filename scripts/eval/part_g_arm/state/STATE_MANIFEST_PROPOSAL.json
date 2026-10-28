@@ -1,7 +1,7 @@
 {
   "schema": "state_arm_manifest_proposal_v0",
   "frozen": false,
-  "note": "Proposal only. Freeze after Vu approval. find_species prompt revision 2026-10-27 (bd2b69cd…); prior Part 5 08a0917a…. Does not edit FROZEN_MANIFEST.json.",
+  "note": "Proposal only. Freeze after Vu approval. find_species prompt revision 2026-10-27 (bd2b69cd\u2026); prior Part 5 08a0917a\u2026. Does not edit FROZEN_MANIFEST.json.",
   "model": {
     "id": "qwen3.5:latest",
     "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
@@ -164,7 +164,7 @@
     "prior_part5": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b",
     "prior_frozen": "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8",
     "rejected_first_draft": "c58e3ce8499d3c579899bed84ec7a450f55e0e9da83dedb7bca6582c3cd4dd18",
-    "why": "Adds factual find_species tool description (no weather-move list). 40/41 eev: all prior Part 5 rows + three ordinary find_species rows pass; dev-fs-prankster-weather set-fails (model listed Prankster holders then check_learnset; never queried weather moves via find_species; 25 calls >16). Finding only — no further prompt tune without Vu.",
+    "why": "Adds factual find_species tool description (no weather-move list). 40/41 eev: all prior Part 5 rows + three ordinary find_species rows pass; dev-fs-prankster-weather set-fails (model listed Prankster holders then check_learnset; never queried weather moves via find_species; 25 calls >16). Finding only \u2014 no further prompt tune without Vu.",
     "dev_transcript": "/Users/nowaki027/part-g-arm-state-out-find-species/",
     "prankster_weather_key_sha256": "6dba1caac2d45135779779f7867f6f442163bdb3fef35ca6270d7c76329fb543",
     "prankster_weather_key_prior_circular_sha256": "cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3"
@@ -175,13 +175,23 @@
     "covered_list_sha256": "25b6a1cf42dfb305a0bb66e60c7b9a012fbc855281d6013d770afd84a2ba1ffa",
     "judge_prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87",
     "seeds_sha256sums": "9e8cc64f6265eab5758fc7e7d97bd3416a3758c5c32b7a56ea748bbfe8df0d63",
-    "b1_covered_shortfall": ["GS1", "IX1", "MS5", "RB1", "SC2", "TB2"],
+    "b1_covered_shortfall": [
+      "GS1",
+      "IX1",
+      "MS5",
+      "RB1",
+      "SC2",
+      "TB2"
+    ],
     "h11_acceptance_drift": "Castform-Rainy in find_species Water+Hurricane set; not in acceptance"
   },
   "repeat_runs": {
     "n": 3,
     "primary": 1,
-    "determinism": [2, 3],
+    "determinism": [
+      2,
+      3
+    ],
     "sequential_local_ollama": true,
     "no_resume_across_runs": true,
     "comparison_fields": [
@@ -189,7 +199,7 @@
       "tool_calls (name, args) in order",
       "sha256(final_text) per turn"
     ],
-    "error_timeout_policy": "one-sided error/timeout → error_mismatch in differ list; not a pass; never averaged",
+    "error_timeout_policy": "one-sided error/timeout \u2192 error_mismatch in differ list; not a pass; never averaged",
     "planned_wall_time_per_run_min": "16-20",
     "planned_wall_time_seconds_per_turn": 8.4,
     "planned_wall_time_three_runs_min": "48-60",
@@ -206,11 +216,21 @@
     "generator": "scripts/eval/part_g_arm/state/hand_audit_form.py",
     "based_on": "scripts/eval/part_g_v4/audit_view.py",
     "export_csv_name": "hand_audit_export.csv",
-    "csv_columns": ["row_id", "turn", "rubric_point_id", "verdict", "overall", "note"],
+    "csv_columns": [
+      "row_id",
+      "turn",
+      "rubric_point_id",
+      "verdict",
+      "overall",
+      "note"
+    ],
     "shows_gemma_verdict": false,
     "shows_scorer_verdict": false,
     "sample_out_dir": "/Users/nowaki027/part-g-arm-state-out-audit/",
     "sample_html_sha256": "bb2042515cdfec9f5ee68be3dae97c91375554f56125b0048d9a1efc9f5647ca",
     "note": "scripts/eval/part_g_arm/state/LAST_HAND_AUDIT_FORM.md"
-  }
+  },
+  "covered_list_sha256": "5dfa19f8ab9bbf225ef6e7b92ab1423ee60f88790be0a46a9a7bfa20fe77e543",
+  "tools_py_sha256": "1165b32ff04515da2f5f3ade1fbcc210eaee431e330b8d5b52af568b78d341fd",
+  "note_b1": "B1 refresh 2026-10-27: covered 97; mech-only 39; hand-only 55; dual MS5/RB1/TB2; audit sections 70 / rubric cells 228. H19/H20 not_covered."
 }
