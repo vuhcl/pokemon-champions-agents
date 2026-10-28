@@ -35,3 +35,27 @@ def expected_readback(row_id: str) -> dict[str, str] | None:
 
 def stale_pin_rows() -> set[str]:
     return set(load_errata().get("stale_pin_rows") or [])
+
+
+def set_answer_errata(row_id: str) -> dict[str, Any] | None:
+    """Optional set-membership errata (e.g. H11 Gyarados-Mega allowed_not_required)."""
+    entry = (load_errata().get("set_answer") or {}).get(row_id)
+    return dict(entry) if isinstance(entry, dict) else None
+
+
+def allowed_not_required(row_id: str) -> set[str]:
+    entry = set_answer_errata(row_id)
+    if not entry:
+        return set()
+    return {str(x) for x in (entry.get("allowed_not_required") or [])}
+
+
+def set_answer_hand_note(row_id: str) -> str | None:
+    """Text to append on the hand-audit form for set-answer errata rows."""
+    entry = set_answer_errata(row_id)
+    if not entry:
+        return None
+    members = ", ".join(sorted(allowed_not_required(row_id))) or "(none)"
+    rule = entry.get("scoring_rule") or "allowed_not_required"
+    meaning = entry.get("meaning") or ""
+    return f"ERRATA set_answer ({rule}): {members}. {meaning}".strip()

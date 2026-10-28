@@ -143,6 +143,35 @@ def section_id(row_id: str, turn: int) -> str:
     return f"{row_id}__t{turn}"
 
 
+def _key_text_with_errata(row_id: str, acceptance: str) -> str:
+    from scripts.eval.part_g_arm.state.errata_read import set_answer_hand_note
+
+    note = set_answer_hand_note(row_id)
+    if not note:
+        return acceptance
+    return f"{acceptance}\n{note}" if acceptance else note
+
+
+def _points_with_set_errata(row_id: str, points: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Append one rubric point for allowed_not_required members when errata says so."""
+    from scripts.eval.part_g_arm.state.errata_read import allowed_not_required, set_answer_errata
+
+    entry = set_answer_errata(row_id)
+    members = sorted(allowed_not_required(row_id))
+    if not entry or not members:
+        return points
+    return [
+        *points,
+        {
+            "id": "set_errata_allowed_not_required",
+            "text": (
+                f"allowed_not_required {{{', '.join(members)}}}: naming is not a false claim; "
+                f"omitting is not incomplete. Required set members still required."
+            ),
+        },
+    ]
+
+
 def build_sections_from_transcript(
     transcript: list[dict[str, Any]],
     *,
@@ -161,14 +190,16 @@ def build_sections_from_transcript(
         if ids is not None and rid not in ids:
             continue
         turns = list(entry.get("turns") or [])
-        points = points_by_id.get(rid) or split_acceptance_points(acceptance_by_id.get(rid, ""))
+        base_points = points_by_id.get(rid) or split_acceptance_points(acceptance_by_id.get(rid, ""))
+        points = _points_with_set_errata(rid, base_points)
+        key_text = _key_text_with_errata(rid, acceptance_by_id.get(rid, ""))
         for i, turn in enumerate(turns, start=1):
             sections.append(
                 {
                     "id": section_id(rid, i),
                     "row_id": rid,
                     "turn": i,
-                    "key_text": acceptance_by_id.get(rid, ""),
+                    "key_text": key_text,
                     "points": points,
                     "user": turn.get("user") or "",
                     "final_text": turn.get("final_text") or "",

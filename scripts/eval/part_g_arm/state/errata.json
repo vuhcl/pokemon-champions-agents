@@ -45,6 +45,18 @@
     }
   },
   "stale_pin_rows": ["MT2", "H6"],
+  "set_answer": {
+    "H11": {
+      "frozen_key_set": ["Gyarados", "Pelipper", "Quaquaval"],
+      "frozen_key_note": "Own learnset only; no base_species walk. Naming Mega Gyarados (empty Mega learnset) = deliberate false positive.",
+      "product_resolver": "resolve_learnset / legal_moves_for / find_species / check_learnset walk base_species_id when the Mega's own learnset key is missing or empty; Gyarados-Mega resolves to Gyarados's learnset and learns Hurricane.",
+      "scoring_rule": "allowed_not_required",
+      "allowed_not_required": ["Gyarados-Mega"],
+      "meaning": "Naming Gyarados-Mega is not a false claim; omitting it is not incomplete. Required members remain {Gyarados, Pelipper, Quaquaval}.",
+      "vu": "2026-10-27 — do not edit derived_keys.json; do not change find_species; errata only.",
+      "registration_disclosure": "H11 key scope stays the raw learnset (keys sha unchanged). Errata changes only the treatment of Gyarados-Mega for arm scoring/hand audit."
+    }
+  },
   "notes": [
     "MT3 seed predicate no_intimidate is hand-written judgment-only. mechanical_kind=ability means must-have that ability; there is no ban-ability kind, so the real record_constraint path from 'No Intimidate.' is also judgment-only (predicate text may differ: 'no Intimidate' vs no_intimidate).",
     "HC2 seed predicate no_weather_ability is hand-written judgment-only (same tag family as H18b fixture). No mechanical kind bans weather setters; real path from 'No weather.' is judgment-only.",
