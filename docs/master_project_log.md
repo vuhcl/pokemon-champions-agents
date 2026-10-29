@@ -6347,6 +6347,22 @@ Decided: ADR-081 Amendment 2026-10-26a. Claude API validation (blocked on a key)
 
 Open: Work 2 (arm state tools) starts from main; Oct 29 checkpoint and stop rule unchanged. No request-set row has been run.
 
+### 2026-10-28: PRE-RS-ARM run and audit: the stateful arm did poorly on the covered request-set rows
+
+Where it landed: registration merged (PR #319, `b98568d`), freeze `17f8fdd`, three runs, hand audit by Vu, post-run row-level script. Numbers are in eval_results.md (section "PRE-RS-ARM"); no pass threshold and no verdict word were registered.
+
+Result in one line each: mechanical-only rows 30 of 41; hand-audit-only rows 18 of 58; dual rows MS5 and RB1 both fail the hand audit (class check 1 of 2); multi-turn rows 1 of 8. Intervals are wide and the rows are a pre-declared subset, not a sample.
+
+What worked: the registration and freeze discipline (the manifest verified after the runs, determinism confirmed on all 113 turns); the audit conventions fixed before marking (rubric cell as unit, no-answer fails all cells, failure-trigger points); the row-level script reproducing the hand calculation exactly.
+
+What did not: the arm made unrequested state changes in 15 of 100 turns where none was allowed, claimed mechanical facts without a tool, and never used show_candidates successfully (9 calls, 0 successes). Seven covered rows had a start state that did not match the key (DM2, RB1, TB2, MR3, MS2, MS3, MW2), two rows never ran (SC2, TB2), and two rows needed a field no tool returns (MV2 PP, MV3 target). The gemma judge was only ever more lenient than the audit, so it does not corroborate it.
+
+Decided after seeing the run 1 counts (disclosed as post-hoc): SC2 and TB2 count as not passed in the primary, with the dropped version shown beside it; the exploratory run on the 31 kept-out rows is NOT done, because the arm did badly on the covered rows. H22 stays out.
+
+Not a claim about: other models, thinking on, the Claude API, or a graph-guarded arm. The arm here is a plain tool-calling loop, not a LangGraph StateGraph.
+
+Open: GitHub issue for an arm v2 (a set-slot wrapper that edits any combination of species and field in one call) is created; options to add to it are a guard graph around the loop, a richer get_move_static (PP, accuracy, target, flags) without computing PP, and thinking-on or Claude-API configurations as separate registered evals. An ADR for the stateful arm and arm v2 comes next. The ADR-002 mega-stone amendment draft is still uncommitted. The run branch is not pushed.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

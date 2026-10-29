@@ -855,3 +855,41 @@ Commits:
 - `c005d636e80659083888b72fa5222c376da53061` — run.log
 - `22898ac1581ccc9f98905a561be5efb63672da28` — exception log (sha256 `734e9ac2b0996022e2ab5be927c253df7f38982d47e1b8d9b3b540af2f902936`). The first log `22e469df82364f3b245ae2bc12d3456612fcd5e3` (sha256 `d14bd7a7d7a6d5f30911fc12e29318eff6f5618eaea150a8dee7eea8ecfa87a8`) was refused for one row and produced no verdict.
 - `e64338ecd41025af8ed2b66a3a5847e00e35f528` — scorer output and audit view
+
+---
+
+## PRE-RS-ARM: stateful arm on the request-set covered subset (2026-10-28)
+
+Appended; nothing above is edited. Full write-up with caveats: `claude/pre_rs_arm_results_draft_2026-10-28.md`. No pass threshold and no verdict word were registered, and none is used here. The 103 covered rows are a pre-declared subset of 134, not a sample.
+
+- Registration: PR #319, merge commit `b98568d126efc67b40a28f6e3cd94a15e32470e4`; freeze commit `17f8fdd32247d67c09f325ab9c96512d7b6265ba`.
+- Arm: tool-calling loop (LangChain ChatOllama with its own turn loop), prompt `bd2b69cd`, qwen3.5:latest (digest `44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f`, Q4_K_M), temperature 0, think false, num_ctx 16384, num_predict 2048, no seed. 300 s per turn, 16 tool calls per turn, no usable answer is a fail and is never retried.
+- Run 1 (primary): 103 rows, 113 turns. Runs 2 and 3: identical to run 1 on all 113 turns (class, ordered tool calls, final-text hash). That shows determinism for this configuration only.
+- SC2 and TB2 never ran (harness load failures). Counted as not passed (post-hoc rule), with the version that drops them beside it.
+- Hand audit by one auditor who knows the keys (Vu). Gemma judge is a non-gating consistency check.
+
+Row level (two-sided 95% Clopper-Pearson):
+
+| bucket | passes / rows | interval |
+|---|---|---|
+| mechanical only | 30 / 41 | 0.571 to 0.858 |
+| hand audit only (58 audited) | 18 / 58 | 0.195 to 0.445 |
+| hand audit only, SC2 counted | 18 / 59 | 0.192 to 0.439 |
+| dual, class part (MS5, RB1) | 1 / 2 | 0.013 to 0.987 |
+| dual, hand part (MS5, RB1) | 0 / 2 | 0.000 to 0.842 |
+| dual, class part, TB2 counted | 1 / 3 | 0.008 to 0.906 |
+| dual, hand part, TB2 counted | 0 / 3 | 0.000 to 0.708 |
+| all 103 (not a headline) | 48 / 103 | 0.367 to 0.567 |
+| all rows that ran | 48 / 101 | 0.375 to 0.577 |
+
+Section level (frozen script): hand-audit sections 20/65, all audited sections 20/67 (0.193 to 0.423), rubric points 66/177 (0.301 to 0.449). Mechanical per class: ASK 7/9, FAIL-CLOSED 2/4, MUTATION-OK 7/12, MUTATION-REFUSED 8/10, NO-MUTATION 7/8. Multi-turn rows: 1 of 8 pass (MT5).
+
+Start-state mismatches (sweep over 103 rows: MATCH 7, MISMATCH 7, KEY SILENT 89): DM2, RB1, TB2, MR3, MS2, MS3, MW2. MR3 and MS2 failed because of the mismatch (empty team loaded where the key requires a locked slot). Mechanical-only sensitivity: 30/39 (0.607 to 0.889) excluding MR3 and MS2; 28/37 (0.588 to 0.882) excluding all four; 32/41 if MR3 and MS2 were passes; 28/41 if MS3 and MW2 were fails. The primary stays 30/41.
+
+Other measured tallies: 15 of 100 turns not allowed to change state did so; show_candidates 9 calls, 0 successful; 6 turns with no usable answer; the arm said Wish has 10 PP (key 8) because no tool returns PP.
+
+Gemma consistency check: agreed with the audit on 43 of 72 sections (43 of 67 with a pass/fail); 24 disagreements were gemma pass / auditor fail, 0 the reverse, 5 auditor not_applicable. No verdict changed. Earlier calibration 20/22 (Part 5 planted/correct set, false_pass 2).
+
+Reproducibility: final audit CSV sha256 `3bdbc2b6bbc1afef8134be0755170d8a2c1ad6f0695042cf6a802789acca8f07`; `row_level_verdicts.py` sha256 `fe29de7d1720c2592549e2a29a5a62bcca4c79ecfb858f7a8426ab528195cc64` (written after the run, not in the frozen manifest). Run branch `run/pre-rs-arm-b98568d`, commit `bd8e568efa8ede61cfd82c277e9cbb7ac35c582c` (not pushed, not merged). The exploratory run on the 31 kept-out rows was not done.
+
+Read this as: a local 4-bit model with thinking off, in a configuration tuned on dev rows only, on a covered subset with several known setup defects. It says nothing about the same arm on another model or with thinking on.
