@@ -1,6 +1,6 @@
 # PRE-RS-ARM results (stateful arm, request-set covered subset), 2026-10-28
 
-Status: counts are final for this registration (row-level script reproduced them). Not yet appended to eval_results.md. No pass threshold and no verdict word (Vu, 2026-10-28). The covered rows are a pre-declared subset (103 of 134), not a sample.
+Status: counts are final for this registration (row-level script reproduced them). No pass threshold and no verdict word (Vu, 2026-10-28). The covered rows are a pre-declared subset (103 of 134), not a sample.
 
 ## What ran
 - Registration PR #319, merge commit b98568d126efc67b40a28f6e3cd94a15e32470e4; freeze commit 17f8fdd32247d67c09f325ab9c96512d7b6265ba (manifest file sha256 59cde484...a7d4, files-table sha 112e3b9d...e4d0).
@@ -11,7 +11,7 @@ Status: counts are final for this registration (row-level script reproduced them
 - Exploratory run on the 31 kept-out rows: NOT run (Vu, 2026-10-28, decided after seeing run 1 counts). The 31 rows have no observation.
 
 ## Counts (95% Clopper-Pearson, two-sided; frozen clopper_pearson_two_sided)
-Row level (row passes iff every judged turn passes; my calculation from the final CSV, to be reproduced by Cursor's post-run script):
+Row level (row passes iff every judged turn passes; calculated from the final CSV by hand and reproduced by the post-run script row_level_verdicts.py):
 
 | bucket | rows judged | passes | interval |
 |---|---|---|---|
