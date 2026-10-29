@@ -1,0 +1,750 @@
+{
+  "audit_csv": "/Users/nowaki027/part-g-arm-runs/pre-rs-arm/b98568d/run_1_hand_audit/hand_audit_export_1.csv",
+  "audit_csv_sha256": "3bdbc2b6bbc1afef8134be0755170d8a2c1ad6f0695042cf6a802789acca8f07",
+  "class_scorer_sha256": "b2f158007c37f18a72a26350ffe37bde8c5412798fad3ce6af6b4c2c2de23f12",
+  "combined_103": {
+    "ci95_hi": 0.5669582910812289,
+    "ci95_lo": 0.3670852137089349,
+    "n": 103,
+    "pass_ids": [
+      "H1",
+      "H2",
+      "H4",
+      "H6",
+      "H7",
+      "H11",
+      "H16",
+      "HF1",
+      "HF2",
+      "HN1",
+      "HN2",
+      "HN4",
+      "HP3",
+      "HU1",
+      "HU3",
+      "HC1",
+      "HD1",
+      "MV1",
+      "MS1",
+      "MS3",
+      "MS4",
+      "MS6",
+      "MS7",
+      "MS8",
+      "MR1",
+      "MR4",
+      "MR5",
+      "MR6",
+      "MR7",
+      "MR8",
+      "MRB1",
+      "MU1",
+      "MU2",
+      "MU3",
+      "MU4",
+      "MU5",
+      "MU7",
+      "MU8",
+      "MW1",
+      "MW2",
+      "MW4",
+      "Q9",
+      "OL4",
+      "OL6",
+      "OL9",
+      "MT5",
+      "MM2",
+      "OL7a"
+    ],
+    "passes": 48,
+    "rate": 0.46601941747572817,
+    "sc2_tb2_passed": {
+      "SC2": false,
+      "TB2": false
+    }
+  },
+  "combined_without_sc2_tb2": {
+    "ci95_hi": 0.5770387949083645,
+    "ci95_lo": 0.3749457724875601,
+    "n": 101,
+    "passes": 48,
+    "rate": 0.4752475247524752
+  },
+  "dual_class_part": {
+    "ci95_hi": 0.987420882906575,
+    "ci95_lo": 0.012579117093425032,
+    "excluded_no_scored_turns": [
+      "TB2"
+    ],
+    "n": 2,
+    "passes": 1,
+    "rate": 0.5,
+    "rows": [
+      "MS5",
+      "RB1"
+    ],
+    "verdicts": {
+      "MS5": true,
+      "RB1": false
+    }
+  },
+  "dual_hand_part": {
+    "ci95_hi": 0.8418861169915811,
+    "ci95_lo": 0.0,
+    "n": 2,
+    "note": "TB2 not in export (load_fail)",
+    "passes": 0,
+    "rate": 0.0,
+    "rows": [
+      "MS5",
+      "RB1"
+    ],
+    "verdicts": {
+      "MS5": "fail",
+      "RB1": "fail"
+    }
+  },
+  "hand_only": {
+    "audited_rows": 58,
+    "ci95_hi": 0.44544178768364934,
+    "ci95_lo": 0.19538647738217696,
+    "covered_hand_audit_bucket": 59,
+    "fail": 40,
+    "n": 58,
+    "not_in_export": [
+      "SC2"
+    ],
+    "passes": 18,
+    "rate": 0.3103448275862069
+  },
+  "mechanical_only": {
+    "ci95_hi": 0.8577869966591287,
+    "ci95_lo": 0.5705552947339049,
+    "n": 41,
+    "passes": 30,
+    "rate": 0.7317073170731707
+  },
+  "output_sha256": "14637e9344949a908d369e8b51d5b36d01384167d827dae1d128b2afbbdefbbf",
+  "per_row": {
+    "DM1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "DM2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "DM3": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "DM4": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "DM6": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "DM7": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "GS1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "H1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "H11": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "H13": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "H14": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "H15": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "H16": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "H18b": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "H2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "H27": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "H3": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "H4": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "H5": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "H6": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "H7": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "H8": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HC1": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "HC2": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "HD1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "HF1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "HF2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "HN1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "HN2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "HN2b": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HN2c": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HN2d": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HN3": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HN4": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "HP1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HP2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HP3": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "HU1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "HU2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HU2b": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "HU3": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "HU4": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "IC1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "IS1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "IS2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "IS3": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "IS4": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "IX1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "IX5": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "IX7": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MC1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MM1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MM2": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MR1": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MR2": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "MR3": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "MR4": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MR5": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MR6": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MR7": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MR8": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MRB1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "MS1": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MS2": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "MS3": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MS4": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MS5": {
+      "bucket": "mechanical + hand audit",
+      "class_pass": true,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MS6": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MS7": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MS8": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MT1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MT2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MT3": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MT5": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "MT6": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MU1": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MU2": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MU3": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MU4": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MU5": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MU6": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "MU7": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MU8": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MV1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "MV2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MV3": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "MW1": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MW2": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "MW3": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "MW4": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "OL2b": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "OL4": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "OL5": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "OL6": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "OL7a": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "OL8": {
+      "bucket": "scorable-mechanical",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "OL9": {
+      "bucket": "scorable-mechanical",
+      "class_pass": true,
+      "combined_pass": true,
+      "hand_verdict": null
+    },
+    "Q10": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "Q9": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": true,
+      "hand_verdict": "pass"
+    },
+    "RB1": {
+      "bucket": "mechanical + hand audit",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "SC2": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": null
+    },
+    "TB1": {
+      "bucket": "hand audit",
+      "class_pass": null,
+      "combined_pass": false,
+      "hand_verdict": "fail"
+    },
+    "TB2": {
+      "bucket": "mechanical + hand audit",
+      "class_pass": false,
+      "combined_pass": false,
+      "hand_verdict": null
+    }
+  },
+  "rule": "row pass iff every section overall in {pass,fail} is pass; not_applicable excluded; no pass/fail section \u2192 no verdict. Mechanical: all scorer turns match+state_expectation_met. Dual: hand pass AND class pass. SC2/TB2 counted not passed in combined 103.",
+  "script": "/Users/nowaki027/part-g-arm-runs/pre-rs-arm/b98568d/row_level_verdicts.py"
+}

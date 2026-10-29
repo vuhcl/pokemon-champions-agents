@@ -1,0 +1,1254 @@
+{
+  "primary_dir": "/Users/nowaki027/part-g-arm-runs/pre-rs-arm/b98568d/run_1",
+  "run2_dir": "/Users/nowaki027/part-g-arm-runs/pre-rs-arm/b98568d/run_2",
+  "run3_dir": "/Users/nowaki027/part-g-arm-runs/pre-rs-arm/b98568d/run_3",
+  "note": "Run 1 is the primary result. Runs 2 and 3 are determinism checks. Differences are listed beside the primary; never averaged or replacing it.",
+  "comparison_fields": [
+    "mechanical_class (per turn)",
+    "tool_calls (name, args) in order",
+    "sha256(final_text) per turn"
+  ],
+  "vs_run_2": [
+    {
+      "id": "DM1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM6",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM7",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "GS1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H11",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H13",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H14",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H15",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H16",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H18b",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H27",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H5",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H6",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H7",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H8",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HC1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HC2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HD1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HF1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HF2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN2b",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN2c",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN2d",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HP1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HP2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HP3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU2b",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IC1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IS1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IS2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IS3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IS4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IX1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IX5",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IX7",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MC1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MM1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MM2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR5",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR6",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR7",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR8",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MRB1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS5",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS6",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS7",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS8",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT5",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT6",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU5",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU6",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU7",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU8",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MV1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MV2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MV3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MW1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MW2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MW3",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MW4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL2b",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL4",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL5",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL6",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL7a",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL8",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL9",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "Q10",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "Q9",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "RB1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "SC2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "TB1",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "TB2",
+      "vs_run": 2,
+      "status": "equal",
+      "diffs": []
+    }
+  ],
+  "vs_run_3": [
+    {
+      "id": "DM1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM6",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "DM7",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "GS1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H11",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H13",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H14",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H15",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H16",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H18b",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H27",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H5",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H6",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H7",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "H8",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HC1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HC2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HD1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HF1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HF2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN2b",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN2c",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN2d",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HN4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HP1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HP2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HP3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU2b",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "HU4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IC1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IS1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IS2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IS3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IS4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IX1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IX5",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "IX7",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MC1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MM1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MM2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR5",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR6",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR7",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MR8",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MRB1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS5",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS6",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS7",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MS8",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT5",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MT6",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU5",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU6",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU7",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MU8",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MV1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MV2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MV3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MW1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MW2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MW3",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "MW4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL2b",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL4",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL5",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL6",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL7a",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL8",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "OL9",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "Q10",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "Q9",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "RB1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "SC2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "TB1",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    },
+    {
+      "id": "TB2",
+      "vs_run": 3,
+      "status": "equal",
+      "diffs": []
+    }
+  ],
+  "differ": [],
+  "differ_count": 0,
+  "row_count": 103
+}

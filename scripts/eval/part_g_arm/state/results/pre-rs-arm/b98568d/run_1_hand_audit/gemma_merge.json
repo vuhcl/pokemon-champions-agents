@@ -1,0 +1,2271 @@
+{
+  "agree": 43,
+  "disagree": 29,
+  "disagreements": [
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"Earthquake is correctly identified as a 0.75 damage move in Doubles.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"Single-target-in-doubles is correctly identified as 0.75 (no 0.75) and matches DM3.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"On single-target 138-164 (guaranteed 2HKO) is consistent with the 0.75 multiplier.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"Off spread 152-182 (guaranteed 2HKO) is consistent with the 1.0 multipl",
+      "row_id": "DM4",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The system established the definition of the team and archetype without a re-ask.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The specific Sinistcha/Incineroar joint logic is not present in the provided text.\"}], \"overall\": \"pass\"}",
+      "row_id": "H18b",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The model establishes the definition of the locked slot without a re-ask.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"Sinistcha is provided with a passing set (32-SP) while maintaining the usual set as a non-mutation.\"}], \"overall\": \"pass\"}",
+      "row_id": "H18b",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"acceptance\", \"verdict\": \"pass\", \"reason\": \"The answer correctly confirms Life Orb is legal.\"}], \"overall\": \"pass\"}",
+      "row_id": "H3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies that Choice Scarf is legal and not restricted by Item Clause.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No mutation check was required for this query.\"}], \"overall\": \"pass\"}",
+      "row_id": "H8",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric refers to a forward grid which is not present in the provided text.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"Scarf is not mentioned in the final text.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"TW extras are not present in the final text.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"The text correctly identifies Annihilape at 156 and Gholdengo at 149.\"}, {\"id\": \"p5\", \"verdict\": \"not_applicabl",
+      "row_id": "HN2b",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"Annihilape's Speed is correctly identified as 156.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric refers to a grid in derived_keys which is not present in the provided context.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"Gholdengo's Speed is correctly identified as 149.\"}], \"overall\": \"pass\"}",
+      "row_id": "HN2c",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The percentages for Life Orb, Glimmoranite, and Focus Sash match the key text exactly.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No 'nothing' value is present in the data.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The items are labeled in-game.\"}], \"overall\": \"pass\"}",
+      "row_id": "HN3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the species as illegal for Champions VGC.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No damage was calculated, so no hypothetical label is required.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"No team touch was included in the response.\"}], \"overall\": \"pass\"}",
+      "row_id": "HP1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the species as illegal and refuses to build the team.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"No team mutation occurred as no team was built.\"}], \"overall\": \"pass\"}",
+      "row_id": "HP2",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"t1\", \"verdict\": \"not_applicable\", \"reason\": \"The model did not provide an item, so the specific item requirement is not applicable.\"}, {\"id\": \"t2\", \"verdict\": \"not_applicable\", \"reason\": \"The model did not provide an item, so the specific item requirement is not applicable.\"}], \"overall\": \"pass\"}",
+      "row_id": "IC1",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies Dragapult at 213 and Garchomp at 169.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies that no investment is needed as the goal is unreachable.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The arm correctly states that 169 is unreachable compared to 213.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the result as unreachable and suggests Tailwind/priority.\"}",
+      "row_id": "IS1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The response correctly identifies Mega Alakazam.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The response uses a 4-part calculation (Species, Nature, SP, Final Speed).\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The response correctly identifies that Pincurchin 32 SP (73) is less than Alakazam-Mega Timid 32 (or 0) 187.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"No speed-boosting moves were suggested.\"}, {\"id\": \"p5\", \"verdict\": \"pass\",",
+      "row_id": "IS4",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"No plain Charizard-Mega was included in the response.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identified 'no usable answer' because it could not fulfill the required ASSUME-STATE Y + Charizardite Y + Drought requirements.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"No plain Mega was invented.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"No dominant claim was made.\"}, {\"id\": \"p5\", \"verdict\": \"not",
+      "row_id": "MC1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The user requested Leftovers, and the arm correctly handled the Mega Salamencite conflict.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not need to state the mega item restriction because the user's request was for Leftovers.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The arm correctly offered the choice between keeping the stone or using the base form with Leftovers.\"}], \"overall\": \"pass\"}",
+      "row_id": "MM1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The archetype was changed to rain offense and the read-back confirms the new archetype.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The arm correctly reports the Drought and Solar Beam conflicts.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The locked slots were not edited and the specific conflicts were identified.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"Pelipper was not flagged as a conflict and the locked status was maintained.\"}",
+      "row_id": "MS5",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Both constraints in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The response confirms both the specific species (Blastoise) and the slot (1) as required.\"}], \"overall\": \"pass\"}",
+      "row_id": "MT1",
+      "turn": 1,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"Both constraints in t3 read-back\", \"verdict\": \"fail\", \"reason\": \"The final text only confirms the Intimidate ban and does not acknowledge the second constraint from t3.\"}], \"overall\": \"fail\"}",
+      "row_id": "MT1",
+      "turn": 2,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Both constraints in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The response correctly identifies both the Predicate and Scope constraints.\"}], \"overall\": \"pass\"}",
+      "row_id": "MT1",
+      "turn": 3,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric requires t2 unordered {Charizard,Garchomp,Sneasler} but the user turn only specifies Pelipper.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric requires set-scoring but the user turn only specifies Pelipper.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric requires label in-game but the user turn only specifies Pelipper.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"Pelipper was succes",
+      "row_id": "MT2",
+      "turn": 1,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team build, so the species check is not applicable.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team build, so the scoring check is not applicable.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team build, so the label check is not applicable.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team buil",
+      "row_id": "MT2",
+      "turn": 3,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm suggested multiple Fire types for slot 2.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No Intimidate ability was mentioned or required in the response.\"}], \"overall\": \"pass\"}",
+      "row_id": "MT3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team or species, so Fire requirement cannot be evaluated.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team or species, so Intimidate flag cannot be evaluated.\"}], \"overall\": \"pass\"}",
+      "row_id": "MT3",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Archetype string in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The final text correctly reflects the 'rain offense' archetype requested by the user.\"}], \"overall\": \"pass\"}",
+      "row_id": "MT5",
+      "turn": 1,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Archetype string in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The response provides rain setter candidates as requested.\"}], \"overall\": \"pass\"}",
+      "row_id": "MT5",
+      "turn": 2,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\n  \"points\": [\n    {\n      \"id\": \"p1\",\n      \"verdict\": \"pass\",\n      \"reason\": \"The model correctly identifies the request as a constraint for Water-type only.\"\n    },\n    {\n      \"id\": \"p2\",\n      \"verdict\": \"pass\",\n      \"reason\": \"No team data was recorded as the user has not yet selected specific Pok\u00e9mon.\"\n    },\n    {\n      \"id\": \"p3\",\n      \"verdict\": \"pass\",\n      \"reason\": \"The tool call `find_species` correctly filters for Water-type only.\"\n    },\n    {\n      \"id\": \"p4\",\n      \"verdic",
+      "row_id": "MT6",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The input does not contain a HC1 behavior constraint to evaluate.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No behavior was recorded as there were no constraints.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The tool result is empty, not Water-only.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"The tool result is empty, not Water-only.\"}], \"overall\": \"pass\"}",
+      "row_id": "MT6",
+      "turn": 3,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The response correctly explains that a slot must be locked before it can be unlocked.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"No mutation is present in the response.\"}], \"overall\": \"pass\"}",
+      "row_id": "Q10",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not apply the mutation because the team is empty.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not state the shared SpA property.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not mention SpD.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"No swap was offered.\"}, {\"id\": \"p5\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide the CM stat values.\"}, {\"id\"",
+      "row_id": "RB1",
+      "turn": 1,
+      "vu_overall": "fail"
+    }
+  ],
+  "judge_abstained": 0,
+  "judge_model": "gemma4:12b",
+  "n_sections": 72,
+  "prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87",
+  "sections": [
+    {
+      "agreement": "agree",
+      "elapsed_s": 7.71,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The arm did not state the required ASSUME-STATE for Incineroar's stats and item.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The arm did not state the required ASSUME-STATE for Hatterene's stats and item.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"Not applicable.\"}, {\"id\": \"p4\", \"verdict\": \"fail\", \"reason\": \"The arm provided a flat no/yes without the required stated conditions.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm did not state the required ASSUME-STATE for Incineroar's stats and item.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm did not state the required ASSUME-STATE for Hatterene's stats and item.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "Not applicable.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "The arm provided a flat no/yes without the required stated conditions.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "DM1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 8.81,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The arm failed to provide a full numeric grid for the common Hatterene joint; it only provided a single calculation for a Timid/Max SpA spread.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The calculation correctly identifies the non-KO result for the specified attacker.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm failed to provide a full numeric grid for the common Hatterene joint; it only provided a single calculation for a Timid/Max SpA spread.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "The calculation correctly identifies the non-KO result for the specified attacker.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "DM2",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 11.92,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The output correctly identifies the game as Doubles.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The output correctly identifies the move, targets, and assumes 2+ targets.\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"The output reports 92-110 damage for Incineroar, but the rubric requires 78-92 for the 'on' case.\"}, {\"id\": \"p4\", \"verdict\": \"fail\", \"reason\": \"The output reports 46-55 damage for Rillaboom, but the rubric requires 39-46 for ",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The output correctly identifies the game as Doubles.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The output correctly identifies the move, targets, and assumes 2+ targets.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The output reports 92-110 damage for Incineroar, but the rubric requires 78-92 for the 'on' case.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p4",
+          "reason": "The output reports 46-55 damage for Rillaboom, but the rubric requires 39-46 for the 'on' case.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p5",
+          "reason": "The 'off' cases were not requested or provided in the final text.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p6",
+          "reason": "The 'on' case was provided but the values do not match the rubric.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p7",
+          "reason": "The 'off' case was not provided.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "DM3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 19.23,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"Earthquake is correctly identified as a 0.75 damage move in Doubles.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"Single-target-in-doubles is correctly identified as 0.75 (no 0.75) and matches DM3.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"On single-target 138-164 (guaranteed 2HKO) is consistent with the 0.75 multiplier.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"Off spread 152-182 (guaranteed 2HKO) is consistent with the 1.0 multipl",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "Earthquake is correctly identified as a 0.75 damage move in Doubles.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "Single-target-in-doubles is correctly identified as 0.75 (no 0.75) and matches DM3.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "On single-target 138-164 (guaranteed 2HKO) is consistent with the 0.75 multiplier.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "Off spread 152-182 (guaranteed 2HKO) is consistent with the 1.0 multiplier.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p5",
+          "reason": "Off single-target 206-246 (guaranteed OHKO) is consistent with the 1.0 multiplier.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p6",
+          "reason": "On/spread=null (unreachable at 32) is correct.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p7",
+          "reason": "Off/spread=null (unreachable at 32) is correct.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p8",
+          "reason": "Off/single=28 matches the stored min_atk_sp for the 1.0 multiplier case.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "DM4",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 9.56,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"Arm uses Adamant/Life Orb instead of required Jolly/Galladite.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"Arm fails to state the required Jolly/Galladite/Inner Focus configuration.\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"Arm uses Adamant/Life Orb instead of the required Jolly/Galladite.\"}, {\"id\": \"p4\", \"verdict\": \"fail\", \"reason\": \"Mismatch between required Jolly/Galladite and Adamant/Life Orb.\"}, {\"id\": \"p5\", \"verdict\": \"pass\", \"re",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "Arm uses Adamant/Life Orb instead of required Jolly/Galladite.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "Arm fails to state the required Jolly/Galladite/Inner Focus configuration.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "Arm uses Adamant/Life Orb instead of the required Jolly/Galladite.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p4",
+          "reason": "Mismatch between required Jolly/Galladite and Adamant/Life Orb.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p5",
+          "reason": "Attacker conditions are stated.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p6",
+          "reason": "Result is a single case guaranteed OHKO.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "DM6",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 7.72,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"Annihilape is the correct attacker.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The arm failed to state the required Jolly nature, specific SP, and Choice Scarf item.\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"The arm failed to state the Defiant ability and the resulting net +1 Atk calculation.\"}, {\"id\": \"p4\", \"verdict\": \"fail\", \"reason\": \"The damage range 176-210 does not match the required 308-366 for the Intimidate/Defiant scenario.\"",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "Annihilape is the correct attacker.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm failed to state the required Jolly nature, specific SP, and Choice Scarf item.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm failed to state the Defiant ability and the resulting net +1 Atk calculation.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p4",
+          "reason": "The damage range 176-210 does not match the required 308-366 for the Intimidate/Defiant scenario.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p5",
+          "reason": "The arm failed to include the required state assumptions and used the wrong damage calculation.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "DM7",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 8.64,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The arm failed to provide a t1 SERVED modal build for Gholdengo.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The arm failed to provide a MUTATION-OK Scarf build.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"No build was provided to evaluate Life Orb release.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"No status moves were listed to be marked as unusable.\"}, {\"id\": \"p5\", \"verdict\": \"not_applicable\", \"reason\": \"No atta",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm failed to provide a t1 SERVED modal build for Gholdengo.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm failed to provide a MUTATION-OK Scarf build.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "No build was provided to evaluate Life Orb release.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "No status moves were listed to be marked as unusable.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p5",
+          "reason": "No attack swaps were offered.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p6",
+          "reason": "No silent move changes occurred.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p7",
+          "reason": "The arm refused to provide a build by stating 'no usable answer'.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "GS1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 8.36,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"t1 SERVED modal\", \"verdict\": \"fail\", \"reason\": \"The response does not provide the required modal (MIR/SB/Protect/Nasty Plot; Life Orb).\"}, {\"id\": \"t2 MUTATION-OK Scarf+read-back\", \"verdict\": \"pass\", \"reason\": \"The response confirms Scarf legality and provides a read-back.\"}, {\"id\": \"p3: LO released\", \"verdict\": \"not_applicable\", \"reason\": \"Life Orb was not mentioned in the input or output.\"}, {\"id\": \"p4: status moves\", \"verdict\": \"not_applicable\", \"reason\": \"No status moves w",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "t1 SERVED modal",
+          "reason": "The response does not provide the required modal (MIR/SB/Protect/Nasty Plot; Life Orb).",
+          "verdict": "fail"
+        },
+        {
+          "id": "t2 MUTATION-OK Scarf+read-back",
+          "reason": "The response confirms Scarf legality and provides a read-back.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3: LO released",
+          "reason": "Life Orb was not mentioned in the input or output.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4: status moves",
+          "reason": "No status moves were present in the draft.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p5: offer attack swaps",
+          "reason": "No attack moves were present in the draft.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p6: no silent move change",
+          "reason": "No moves were changed.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p7: no refusal",
+          "reason": "The request was fulfilled without refusal.",
+          "verdict": "pass"
+        },
+        {
+          "id": "Part 0 choice-lock hand rule",
+          "reason": "No blob field was used.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "GS1",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 2.08,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Poison\", \"verdict\": \"pass\", \"reason\": \"The final answer correctly identifies the Poison type.\"}, {\"id\": \"Water\", \"verdict\": \"pass\", \"reason\": \"The final answer correctly identifies the Water type.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Poison",
+          "reason": "The final answer correctly identifies the Poison type.",
+          "verdict": "pass"
+        },
+        {
+          "id": "Water",
+          "reason": "The final answer correctly identifies the Water type.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "H1",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 5.97,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The set contains Gyarados, Pelipper, and Quaquaval.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The answer is formatted as a set.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The answer is derived from the tool results.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"Mega Gyarados is included as a deliberate false positive.\"}, {\"id\": \"p5\", \"verdict\": \"pass\", \"reason\": \"The inclusion of Mega Gyarados is within scope.\"}, {\"id\": \"p6\", \"verdict",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The set contains Gyarados, Pelipper, and Quaquaval.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The answer is formatted as a set.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The answer is derived from the tool results.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "Mega Gyarados is included as a deliberate false positive.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p5",
+          "reason": "The inclusion of Mega Gyarados is within scope.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p6",
+          "reason": "Tailwind compound not tested.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "H11",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 7.28,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The response does not provide the required Modest top joint SP values or chaos_weight.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The response does not provide the required Modest/Timid speed comparison or benchmark reference.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"Not applicable as p2 was not met.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"Not applicable as p2 was not met.\"}, {\"id\": \"p5\", \"verdict\": \"fail\", ",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The response does not provide the required Modest top joint SP values or chaos_weight.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "The response does not provide the required Modest/Timid speed comparison or benchmark reference.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "Not applicable as p2 was not met.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "Not applicable as p2 was not met.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p5",
+          "reason": "The response provides a subjective preference without the required benchmark data.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "H15",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 6.1,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The system established the definition of the team and archetype without a re-ask.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The specific Sinistcha/Incineroar joint logic is not present in the provided text.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The system established the definition of the team and archetype without a re-ask.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The specific Sinistcha/Incineroar joint logic is not present in the provided text.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "H18b",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 4.63,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The model establishes the definition of the locked slot without a re-ask.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"Sinistcha is provided with a passing set (32-SP) while maintaining the usual set as a non-mutation.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The model establishes the definition of the locked slot without a re-ask.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "Sinistcha is provided with a passing set (32-SP) while maintaining the usual set as a non-mutation.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "H18b",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 1.62,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"acceptance\", \"verdict\": \"pass\", \"reason\": \"The answer correctly identifies that Skeledirge can have Unaware based on the tool results.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "acceptance",
+          "reason": "The answer correctly identifies that Skeledirge can have Unaware based on the tool results.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "H2",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 1.98,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"Garchomp\", \"verdict\": \"fail\", \"reason\": \"The response did not provide Garchomp as the top Ground answer.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Garchomp",
+          "reason": "The response did not provide Garchomp as the top Ground answer.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "H27",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 1.5,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"acceptance\", \"verdict\": \"pass\", \"reason\": \"The answer correctly confirms Life Orb is legal.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "acceptance",
+          "reason": "The answer correctly confirms Life Orb is legal.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "H3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 3.0,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"yes (169>149)\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies that 169 is greater than 149.\"}, {\"id\": \"acceptance: yes (169>149)\", \"verdict\": \"pass\", \"reason\": \"The arm correctly accepts the speed comparison.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "yes (169>149)",
+          "reason": "The arm correctly identifies that 169 is greater than 149.",
+          "verdict": "pass"
+        },
+        {
+          "id": "acceptance: yes (169>149)",
+          "reason": "The arm correctly accepts the speed comparison.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "H4",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 8.0,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"Incineroar is correctly assumed with Atk SP 32, Adamant, Intimidate, and Life Orb.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"Hatterene is correctly assumed with Quiet nature, specific EVs, Life Orb, and Magic Bounce.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"Flare Blitz is a single-target move.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"The answer provides a damage range (142-168) and is not a flat yes/no.\"}, {\"id\": \"p5\", \"verdict",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "Incineroar is correctly assumed with Atk SP 32, Adamant, Intimidate, and Life Orb.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "Hatterene is correctly assumed with Quiet nature, specific EVs, Life Orb, and Magic Bounce.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "Flare Blitz is a single-target move.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "The answer provides a damage range (142-168) and is not a flat yes/no.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p5",
+          "reason": "The answer states a guaranteed OHKO, but the key specifies a 6.3% chance to OHKO.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "H5",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 4.37,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The list contains Incineroar, Garchomp, Sneasler, Gholdengo, and Raichu.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The list is presented in a set-scoring format with ranks.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The source is explicitly labeled as in-game usage data.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The list contains Incineroar, Garchomp, Sneasler, Gholdengo, and Raichu.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The list is presented in a set-scoring format with ranks.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The source is explicitly labeled as in-game usage data.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "H6",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 2.45,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Physical\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies Earthquake as a Physical move.\"}, {\"id\": \"BP 100\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the base power as 100.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Physical",
+          "reason": "The arm correctly identifies Earthquake as a Physical move.",
+          "verdict": "pass"
+        },
+        {
+          "id": "BP 100",
+          "reason": "The arm correctly identifies the base power as 100.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "H7",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 3.31,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies that Choice Scarf is legal and not restricted by Item Clause.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No mutation check was required for this query.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm correctly identifies that Choice Scarf is legal and not restricted by Item Clause.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "No mutation check was required for this query.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "H8",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 1.4,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Correct types kept\", \"verdict\": \"pass\", \"reason\": \"The final text correctly identifies Toxapex as Poison/Water.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Correct types kept",
+          "reason": "The final text correctly identifies Toxapex as Poison/Water.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HD1",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 1.73,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Poison/Water\", \"verdict\": \"pass\", \"reason\": \"The final answer correctly identifies Toxapex as a Poison/Water type.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Poison/Water",
+          "reason": "The final answer correctly identifies Toxapex as a Poison/Water type.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HF1",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 2.46,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly states Incineroar does not have Drought.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies Blaze and Intimidate as the abilities.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm correctly states Incineroar does not have Drought.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm correctly identifies Blaze and Intimidate as the abilities.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HF2",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 2.53,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The answer correctly lists Cud Chew, Armor Tail, and Sap Sipper.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The answer correctly identifies all three legal abilities.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The answer correctly lists Cud Chew, Armor Tail, and Sap Sipper.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The answer correctly identifies all three legal abilities.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HN1",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 3.39,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"yes (156>149)\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies that 156 is greater than 149.\"}, {\"id\": \"acceptance: yes (156>149)\", \"verdict\": \"pass\", \"reason\": \"The arm correctly accepts the comparison of 156 vs 149.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "yes (156>149)",
+          "reason": "The arm correctly identifies that 156 is greater than 149.",
+          "verdict": "pass"
+        },
+        {
+          "id": "acceptance: yes (156>149)",
+          "reason": "The arm correctly accepts the comparison of 156 vs 149.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HN2",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 5.35,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric refers to a forward grid which is not present in the provided text.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"Scarf is not mentioned in the final text.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"TW extras are not present in the final text.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"The text correctly identifies Annihilape at 156 and Gholdengo at 149.\"}, {\"id\": \"p5\", \"verdict\": \"not_applicabl",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The rubric refers to a forward grid which is not present in the provided text.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p2",
+          "reason": "Scarf is not mentioned in the final text.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "TW extras are not present in the final text.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "The text correctly identifies Annihilape at 156 and Gholdengo at 149.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p5",
+          "reason": "Pair pooling is not applicable to this single-turn query.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "HN2b",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 3.69,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"Annihilape's Speed is correctly identified as 156.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric refers to a grid in derived_keys which is not present in the provided context.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"Gholdengo's Speed is correctly identified as 149.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "Annihilape's Speed is correctly identified as 156.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The rubric refers to a grid in derived_keys which is not present in the provided context.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "Gholdengo's Speed is correctly identified as 149.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HN2c",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 7.0,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"Mega Blaziken is correctly identified.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"Timid 32 SP is correctly identified as 167.\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"The arm calculates 184 speed instead of the required 250 for a +1 boost.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"Correctly states 167 < 169.\"}, {\"id\": \"p5\", \"verdict\": \"pass\", \"reason\": \"Correctly states it outspeeds after the boost.\"}, {\"id\": \"p6\", \"verdict\": \"fa",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "Mega Blaziken is correctly identified.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "Timid 32 SP is correctly identified as 167.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm calculates 184 speed instead of the required 250 for a +1 boost.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p4",
+          "reason": "Correctly states 167 < 169.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p5",
+          "reason": "Correctly states it outspeeds after the boost.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p6",
+          "reason": "The arm fails to state that Speed Boost applies after the turn ends.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p7",
+          "reason": "No Scarf is used.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HN2d",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 3.87,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The percentages for Life Orb, Glimmoranite, and Focus Sash match the key text exactly.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No 'nothing' value is present in the data.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The items are labeled in-game.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The percentages for Life Orb, Glimmoranite, and Focus Sash match the key text exactly.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "No 'nothing' value is present in the data.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "The items are labeled in-game.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HN3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 1.61,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"acceptance\", \"verdict\": \"pass\", \"reason\": \"The answer correctly identifies Protect as a Status move with 0 base power.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "acceptance",
+          "reason": "The answer correctly identifies Protect as a Status move with 0 base power.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HN4",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 4.11,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the species as illegal for Champions VGC.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No damage was calculated, so no hypothetical label is required.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"No team touch was included in the response.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm correctly identifies the species as illegal for Champions VGC.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "No damage was calculated, so no hypothetical label is required.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "No team touch was included in the response.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HP1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 3.42,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the species as illegal and refuses to build the team.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"No team mutation occurred as no team was built.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm correctly identifies the species as illegal and refuses to build the team.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "No team mutation occurred as no team was built.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HP2",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 5.62,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The list contains Skeledirge, Incineroar, Arcanine-Hisui, Armarouge, Emboar, and Torkoal.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"All listed Pokemon meet the 350 threshold.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The formula 2*HP + Def + SpD is correctly applied to the results.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"No out-of-roster species are included in the final list.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The list contains Skeledirge, Incineroar, Arcanine-Hisui, Armarouge, Emboar, and Torkoal.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "All listed Pokemon meet the 350 threshold.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The formula 2*HP + Def + SpD is correctly applied to the results.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "No out-of-roster species are included in the final list.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HU1",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 10.93,
+      "judge_overall": "fail",
+      "judge_reason": "{\n  \"points\": [\n    {\n      \"id\": \"p1\",\n      \"verdict\": \"not_applicable\",\n      \"reason\": \"The rubric requires EXPLICIT CONTROL paired with HU2b, but the user prompt and arm answer only address speed comparisons.\"\n    },\n    {\n      \"id\": \"p2\",\n      \"verdict\": \"fail\",\n      \"reason\": \"The arm failed to check the specific set {Incineroar, Kingambit, Golisopod} required by the rubric, instead checking the top-10 in-game threats.\"\n    },\n    {\n      \"id\": \"p3\",\n      \"verdict\": \"pass\",\n      \"rea",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The rubric requires EXPLICIT CONTROL paired with HU2b, but the user prompt and arm answer only address speed comparisons.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm failed to check the specific set {Incineroar, Kingambit, Golisopod} required by the rubric, instead checking the top-10 in-game threats.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm provides a score/count of outsped targets.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "The arm labels the results in-game.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HU2",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 8.02,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"Pelipper is in the top 10 lineage.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"Pelipper is not pooled.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the threat count n=36.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies max Speed as 128.\"}, {\"id\": \"p5\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the max_speed role.\"}, {\"id\": \"p6\", \"verdict\": \"fail\", \"reason\": \"The arm ",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "Pelipper is in the top 10 lineage.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "Pelipper is not pooled.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm correctly identifies the threat count n=36.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "The arm correctly identifies max Speed as 128.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p5",
+          "reason": "The arm correctly identifies the max_speed role.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p6",
+          "reason": "The arm failed to identify the core_non_max for outspeeds_any as required by the rubric.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "HU2b",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 6.2,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The response provides 4 Fire-type options.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"Each option includes a brief bulk-related reason.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The response asks the user to choose or lock a selection.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"The slot remains open as the user has not yet confirmed a selection.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The response provides 4 Fire-type options.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "Each option includes a brief bulk-related reason.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The response asks the user to choose or lock a selection.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "The slot remains open as the user has not yet confirmed a selection.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HU3",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 4.17,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The response does not state a specific N for top-N in-game usage or threats.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The response does not state a specific N.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The response compares the speed stat of 128 against common offensive threats.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The response does not state a specific N for top-N in-game usage or threats.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "The response does not state a specific N.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "The response compares the speed stat of 128 against common offensive threats.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "HU4",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 4.97,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"t1\", \"verdict\": \"pass\", \"reason\": \"Leftovers was successfully served after the Psychic Seed error.\"}, {\"id\": \"t2\", \"verdict\": \"pass\", \"reason\": \"The arm correctly handled the Item Clause error and moved to Leftovers.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "t1",
+          "reason": "Leftovers was successfully served after the Psychic Seed error.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "reason": "The arm correctly handled the Item Clause error and moved to Leftovers.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "IC1",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 2.33,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"t1\", \"verdict\": \"not_applicable\", \"reason\": \"The model did not provide an item, so the specific item requirement is not applicable.\"}, {\"id\": \"t2\", \"verdict\": \"not_applicable\", \"reason\": \"The model did not provide an item, so the specific item requirement is not applicable.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "t1",
+          "reason": "The model did not provide an item, so the specific item requirement is not applicable.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "t2",
+          "reason": "The model did not provide an item, so the specific item requirement is not applicable.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "IC1",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 7.31,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies Dragapult at 213 and Garchomp at 169.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies that no investment is needed as the goal is unreachable.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The arm correctly states that 169 is unreachable compared to 213.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies the result as unreachable and suggests Tailwind/priority.\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm correctly identifies Dragapult at 213 and Garchomp at 169.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm correctly identifies that no investment is needed as the goal is unreachable.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm correctly states that 169 is unreachable compared to 213.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "The arm correctly identifies the result as unreachable and suggests Tailwind/priority.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "IS1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 7.48,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The arm did not provide the Dragapult speed values (213/194/190) required by the rubric.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The arm did not state the Jolly Speed requirements (32/21/19).\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"The arm did not state the R=24 calculation or the 8 SP shortfall.\"}, {\"id\": \"p4\", \"verdict\": \"fail\", \"reason\": \"The arm failed to state assumed cells, the unbeatable cell, and the shortfall.\"}], \"overa",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm did not provide the Dragapult speed values (213/194/190) required by the rubric.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm did not state the Jolly Speed requirements (32/21/19).",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm did not state the R=24 calculation or the 8 SP shortfall.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p4",
+          "reason": "The arm failed to state assumed cells, the unbeatable cell, and the shortfall.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "IS2",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 8.94,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The arm did not provide a 4-part minimum Speed investment calculation.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The arm states Slowbro max speed is 90, not 270.\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"The arm fails to mention that it is reachable only under Scarf+TW stack.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not mention Choice Scarf data.\"}, {\"id\": \"p5\", \"verdict\": \"fail\", \"reason\": \"The arm did not",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm did not provide a 4-part minimum Speed investment calculation.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm states Slowbro max speed is 90, not 270.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm fails to mention that it is reachable only under Scarf+TW stack.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p4",
+          "reason": "The arm did not mention Choice Scarf data.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p5",
+          "reason": "The arm did not state the minimum required and recorded usage.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p6",
+          "reason": "The arm did not use the phrase 'not recommended'.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "IS3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 10.27,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The response correctly identifies Mega Alakazam.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The response uses a 4-part calculation (Species, Nature, SP, Final Speed).\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The response correctly identifies that Pincurchin 32 SP (73) is less than Alakazam-Mega Timid 32 (or 0) 187.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"No speed-boosting moves were suggested.\"}, {\"id\": \"p5\", \"verdict\": \"pass\",",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The response correctly identifies Mega Alakazam.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The response uses a 4-part calculation (Species, Nature, SP, Final Speed).",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The response correctly identifies that Pincurchin 32 SP (73) is less than Alakazam-Mega Timid 32 (or 0) 187.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "No speed-boosting moves were suggested.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p5",
+          "reason": "The response states the maximum speed is 73 and that it is unreachable.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p6",
+          "reason": "No invented speed stats were used.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p7",
+          "reason": "The response does not use the phrase 'not recommended'.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "IS4",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 5.6,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identifies Fake Out as having priority 3.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The arm recommends redirection as a counter, which is explicitly forbidden by the rubric.\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"The arm fails to state that Fake Out outprioritizes redirection.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"Not applicable\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm correctly identifies Fake Out as having priority 3.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm recommends redirection as a counter, which is explicitly forbidden by the rubric.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm fails to state that Fake Out outprioritizes redirection.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p4",
+          "reason": "Not applicable",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "IX1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 8.35,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The response addresses punishing Intimidate by switching in to exploit lowered stats.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The response establishes a rule of switching in to take advantage of the opponent's lowered Attack stat.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The response categorizes the list of 20 Pokemon as those possessing the Intimidate ability.\"}, {\"id\": \"p4\", \"verdict\": \"fail\", \"reason\": \"The list contains severa",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The response addresses punishing Intimidate by switching in to exploit lowered stats.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The response establishes a rule of switching in to take advantage of the opponent's lowered Attack stat.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The response categorizes the list of 20 Pokemon as those possessing the Intimidate ability.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "The list contains several non-existent forms and types, such as Scrafty-Mega, Squawkabilly-Yellow, and Tauros-Paldea-Aqua.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p5",
+          "reason": "The response scores the strategy by explaining how to use special attackers or secondary abilities to negate effects.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "IX5",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 5.95,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The response does not define or include the 'safe' criteria (Flying/Levitate/Telepathy/Earth Eater).\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No examples or counts were provided in the response.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The term 'resist' is not used in the response.\"}, {\"id\": \"p4\", \"verdict\": \"fail\", \"reason\": \"The set of partners provided does not match a definition of 'safe' because no such def",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The response does not define or include the 'safe' criteria (Flying/Levitate/Telepathy/Earth Eater).",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "No examples or counts were provided in the response.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "The term 'resist' is not used in the response.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "The set of partners provided does not match a definition of 'safe' because no such definition was established.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "IX7",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 8.85,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"No plain Charizard-Mega was included in the response.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The arm correctly identified 'no usable answer' because it could not fulfill the required ASSUME-STATE Y + Charizardite Y + Drought requirements.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"No plain Mega was invented.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"No dominant claim was made.\"}, {\"id\": \"p5\", \"verdict\": \"not",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "No plain Charizard-Mega was included in the response.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm correctly identified 'no usable answer' because it could not fulfill the required ASSUME-STATE Y + Charizardite Y + Drought requirements.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "No plain Mega was invented.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "No dominant claim was made.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p5",
+          "reason": "No invalid Mega Charizard-Y build was provided.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "MC1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 5.44,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The user requested Leftovers, and the arm correctly handled the Mega Salamencite conflict.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not need to state the mega item restriction because the user's request was for Leftovers.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The arm correctly offered the choice between keeping the stone or using the base form with Leftovers.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The user requested Leftovers, and the arm correctly handled the Mega Salamencite conflict.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm did not need to state the mega item restriction because the user's request was for Leftovers.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm correctly offered the choice between keeping the stone or using the base form with Leftovers.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MM1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 1.93,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Exact read-back strings\", \"verdict\": \"pass\", \"reason\": \"The response accurately reflects the content of the provided text for Slot 3.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Exact read-back strings",
+          "reason": "The response accurately reflects the content of the provided text for Slot 3.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MRB1",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 6.7,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The archetype was changed to rain offense and the read-back confirms the new archetype.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The arm correctly reports the Drought and Solar Beam conflicts.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The locked slots were not edited and the specific conflicts were identified.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"Pelipper was not flagged as a conflict and the locked status was maintained.\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The archetype was changed to rain offense and the read-back confirms the new archetype.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm correctly reports the Drought and Solar Beam conflicts.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The locked slots were not edited and the specific conflicts were identified.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "Pelipper was not flagged as a conflict and the locked status was maintained.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p5",
+          "reason": "The offered replacement of Pelipper is legal and compatible with the rain archetype.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MS5",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 2.76,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Both constraints in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The response confirms both the specific species (Blastoise) and the slot (1) as required.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Both constraints in t3 read-back",
+          "reason": "The response confirms both the specific species (Blastoise) and the slot (1) as required.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MT1",
+      "turn": 1,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 1.91,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"Both constraints in t3 read-back\", \"verdict\": \"fail\", \"reason\": \"The final text only confirms the Intimidate ban and does not acknowledge the second constraint from t3.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Both constraints in t3 read-back",
+          "reason": "The final text only confirms the Intimidate ban and does not acknowledge the second constraint from t3.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "MT1",
+      "turn": 2,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 1.69,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Both constraints in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The response correctly identifies both the Predicate and Scope constraints.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Both constraints in t3 read-back",
+          "reason": "The response correctly identifies both the Predicate and Scope constraints.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MT1",
+      "turn": 3,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 4.19,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric requires t2 unordered {Charizard,Garchomp,Sneasler} but the user turn only specifies Pelipper.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric requires set-scoring but the user turn only specifies Pelipper.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The rubric requires label in-game but the user turn only specifies Pelipper.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"Pelipper was succes",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The rubric requires t2 unordered {Charizard,Garchomp,Sneasler} but the user turn only specifies Pelipper.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p2",
+          "reason": "The rubric requires set-scoring but the user turn only specifies Pelipper.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "The rubric requires label in-game but the user turn only specifies Pelipper.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "Pelipper was successfully locked into slot 1.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MT2",
+      "turn": 1,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 4.64,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The list contains Charizard, Garchomp, and Sneasler.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"The answer provides ranks for each species.\"}, {\"id\": \"p3\", \"verdict\": \"pass\", \"reason\": \"The answer specifies the data is from in-game usage.\"}, {\"id\": \"p4\", \"verdict\": \"pass\", \"reason\": \"The answer correctly identifies the common teammates for Pelipper.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The list contains Charizard, Garchomp, and Sneasler.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The answer provides ranks for each species.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The answer specifies the data is from in-game usage.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "The answer correctly identifies the common teammates for Pelipper.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MT2",
+      "turn": 2,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 4.04,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team build, so the species check is not applicable.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team build, so the scoring check is not applicable.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team build, so the label check is not applicable.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team buil",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm did not provide a team build, so the species check is not applicable.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm did not provide a team build, so the scoring check is not applicable.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm did not provide a team build, so the label check is not applicable.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "The arm did not provide a team build, so the Pelipper check is not applicable.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "MT2",
+      "turn": 3,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 5.24,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The arm suggested multiple Fire types for slot 2.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No Intimidate ability was mentioned or required in the response.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm suggested multiple Fire types for slot 2.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "No Intimidate ability was mentioned or required in the response.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "MT3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 2.64,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team or species, so Fire requirement cannot be evaluated.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide a team or species, so Intimidate flag cannot be evaluated.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm did not provide a team or species, so Fire requirement cannot be evaluated.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm did not provide a team or species, so Intimidate flag cannot be evaluated.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "MT3",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 2.04,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Archetype string in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The final text correctly reflects the 'rain offense' archetype requested by the user.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Archetype string in t3 read-back",
+          "reason": "The final text correctly reflects the 'rain offense' archetype requested by the user.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MT5",
+      "turn": 1,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 2.86,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Archetype string in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The response provides rain setter candidates as requested.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Archetype string in t3 read-back",
+          "reason": "The response provides rain setter candidates as requested.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MT5",
+      "turn": 2,
+      "vu_overall": "not_applicable"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 1.47,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Archetype string in t3 read-back\", \"verdict\": \"pass\", \"reason\": \"The final text correctly identifies the archetype as rain and offense.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Archetype string in t3 read-back",
+          "reason": "The final text correctly identifies the archetype as rain and offense.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MT5",
+      "turn": 3,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 6.5,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"t1 is unsatisfiable as written and was not recorded.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"No data was recorded for the unsatisfiable t1.\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"t2 resolved to both Water and Fire types instead of Water only.\"}, {\"id\": \"p4\", \"verdict\": \"fail\", \"reason\": \"t3 read-back includes Fire-type species instead of Water-only.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "t1 is unsatisfiable as written and was not recorded.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "No data was recorded for the unsatisfiable t1.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "t2 resolved to both Water and Fire types instead of Water only.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p4",
+          "reason": "t3 read-back includes Fire-type species instead of Water-only.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "MT6",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 12.53,
+      "judge_overall": "pass",
+      "judge_reason": "{\n  \"points\": [\n    {\n      \"id\": \"p1\",\n      \"verdict\": \"pass\",\n      \"reason\": \"The model correctly identifies the request as a constraint for Water-type only.\"\n    },\n    {\n      \"id\": \"p2\",\n      \"verdict\": \"pass\",\n      \"reason\": \"No team data was recorded as the user has not yet selected specific Pok\u00e9mon.\"\n    },\n    {\n      \"id\": \"p3\",\n      \"verdict\": \"pass\",\n      \"reason\": \"The tool call `find_species` correctly filters for Water-type only.\"\n    },\n    {\n      \"id\": \"p4\",\n      \"verdic",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The model correctly identifies the request as a constraint for Water-type only.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "No team data was recorded as the user has not yet selected specific Pok\u00e9mon.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p3",
+          "reason": "The tool call `find_species` correctly filters for Water-type only.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p4",
+          "reason": "The final response lists only Water-type Pok\u00e9mon.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MT6",
+      "turn": 2,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 4.48,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The input does not contain a HC1 behavior constraint to evaluate.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"No behavior was recorded as there were no constraints.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The tool result is empty, not Water-only.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"The tool result is empty, not Water-only.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The input does not contain a HC1 behavior constraint to evaluate.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p2",
+          "reason": "No behavior was recorded as there were no constraints.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "The tool result is empty, not Water-only.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "The tool result is empty, not Water-only.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "MT6",
+      "turn": 3,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 2.55,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"Follow Me priority = 2\", \"verdict\": \"pass\", \"reason\": \"The final text correctly states Follow Me has a priority of 2.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Follow Me priority = 2",
+          "reason": "The final text correctly states Follow Me has a priority of 2.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "MV1",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 2.48,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"Wish displayed PP = 8\", \"verdict\": \"fail\", \"reason\": \"The final answer states Wish has 10 PP instead of the required 8.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "Wish displayed PP = 8",
+          "reason": "The final answer states Wish has 10 PP instead of the required 8.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "MV2",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 4.86,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"targets all adjacent foes\", \"verdict\": \"fail\", \"reason\": \"The arm incorrectly states Rock Slide is single-target, but the rubric requires it to target all adjacent foes.\"}, {\"id\": \"accuracy 90% caveat\", \"verdict\": \"not_applicable\", \"reason\": \"The arm failed the primary targeting requirement.\"}, {\"id\": \"0.75 damage claim\", \"verdict\": \"not_applicable\", \"reason\": \"No damage claim was made.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "targets all adjacent foes",
+          "reason": "The arm incorrectly states Rock Slide is single-target, but the rubric requires it to target all adjacent foes.",
+          "verdict": "fail"
+        },
+        {
+          "id": "accuracy 90% caveat",
+          "reason": "The arm failed the primary targeting requirement.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "0.75 damage claim",
+          "reason": "No damage claim was made.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "MV3",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 2.95,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The response correctly explains that a slot must be locked before it can be unlocked.\"}, {\"id\": \"p2\", \"verdict\": \"pass\", \"reason\": \"No mutation is present in the response.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The response correctly explains that a slot must be locked before it can be unlocked.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "No mutation is present in the response.",
+          "verdict": "pass"
+        }
+      ],
+      "row_id": "Q10",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 2.93,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"pass\", \"reason\": \"The answer correctly states that two Incineroar are not allowed.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The user did not ask about mutations.\"}], \"overall\": \"pass\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The answer correctly states that two Incineroar are not allowed.",
+          "verdict": "pass"
+        },
+        {
+          "id": "p2",
+          "reason": "The user did not ask about mutations.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "Q9",
+      "turn": 1,
+      "vu_overall": "pass"
+    },
+    {
+      "agreement": "disagree",
+      "elapsed_s": 6.79,
+      "judge_overall": "pass",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not apply the mutation because the team is empty.\"}, {\"id\": \"p2\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not state the shared SpA property.\"}, {\"id\": \"p3\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not mention SpD.\"}, {\"id\": \"p4\", \"verdict\": \"not_applicable\", \"reason\": \"No swap was offered.\"}, {\"id\": \"p5\", \"verdict\": \"not_applicable\", \"reason\": \"The arm did not provide the CM stat values.\"}, {\"id\"",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm did not apply the mutation because the team is empty.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm did not state the shared SpA property.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm did not mention SpD.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p4",
+          "reason": "No swap was offered.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p5",
+          "reason": "The arm did not provide the CM stat values.",
+          "verdict": "not_applicable"
+        },
+        {
+          "id": "p6",
+          "reason": "The arm did not provide the NP stat values.",
+          "verdict": "not_applicable"
+        }
+      ],
+      "row_id": "RB1",
+      "turn": 1,
+      "vu_overall": "fail"
+    },
+    {
+      "agreement": "agree",
+      "elapsed_s": 4.81,
+      "judge_overall": "fail",
+      "judge_reason": "{\"points\": [{\"id\": \"p1\", \"verdict\": \"fail\", \"reason\": \"The arm did not state that Charcoal has no effect for Sinistcha.\"}, {\"id\": \"p2\", \"verdict\": \"fail\", \"reason\": \"The arm did not state that status effects like Will-O-Wisp do not count.\"}, {\"id\": \"p3\", \"verdict\": \"fail\", \"reason\": \"The arm did not offer alternative items and accepted the invalid item without correction.\"}], \"overall\": \"fail\"}",
+      "parse_error": false,
+      "points": [
+        {
+          "id": "p1",
+          "reason": "The arm did not state that Charcoal has no effect for Sinistcha.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p2",
+          "reason": "The arm did not state that status effects like Will-O-Wisp do not count.",
+          "verdict": "fail"
+        },
+        {
+          "id": "p3",
+          "reason": "The arm did not offer alternative items and accepted the invalid item without correction.",
+          "verdict": "fail"
+        }
+      ],
+      "row_id": "TB1",
+      "turn": 1,
+      "vu_overall": "fail"
+    }
+  ],
+  "temperature": 0.0,
+  "transport": "ollama /api/chat think=false"
+}

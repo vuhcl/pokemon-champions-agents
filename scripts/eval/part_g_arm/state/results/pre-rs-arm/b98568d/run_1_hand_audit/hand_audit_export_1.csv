@@ -1,0 +1,233 @@
+row_id,turn,rubric_point_id,verdict,overall,note
+DM1,1,p1,fail,fail,faithful to calc; assumed set unstated and not the pinned set; no conditions stated
+DM1,1,p2,fail,fail,faithful to calc; assumed set unstated and not the pinned set; no conditions stated
+DM1,1,p3,pass,fail,faithful to calc; assumed set unstated and not the pinned set; no conditions stated
+DM1,1,p4,fail,fail,faithful to calc; assumed set unstated and not the pinned set; no conditions stated
+DM2,1,p1,fail,fail,"No grid or common-joint cells. Stated own sides (Jolly / Timid, no items), not the locked fixture or key attacker; ignored the locked slot. Unsupported claims: item would lower damage; ‘common spreads’. p2 literal pass only"
+DM2,1,p2,pass,fail,"No grid or common-joint cells. Stated own sides (Jolly / Timid, no items), not the locked fixture or key attacker; ignored the locked slot. Unsupported claims: item would lower damage; ‘common spreads’. p2 literal pass only"
+DM3,1,p1,pass,fail,faithful to calc; no Intimidate calcs. Not top joints. defenders are not in keys. key does not state attacker's spread.
+DM3,1,p2,fail,fail,faithful to calc; no Intimidate calcs. Not top joints. defenders are not in keys. key does not state attacker's spread.
+DM3,1,p3,fail,fail,faithful to calc; no Intimidate calcs. Not top joints. defenders are not in keys. key does not state attacker's spread.
+DM3,1,p4,fail,fail,faithful to calc; no Intimidate calcs. Not top joints. defenders are not in keys. key does not state attacker's spread.
+DM3,1,p5,fail,fail,faithful to calc; no Intimidate calcs. Not top joints. defenders are not in keys. key does not state attacker's spread.
+DM3,1,p6,fail,fail,faithful to calc; no Intimidate calcs. Not top joints. defenders are not in keys. key does not state attacker's spread.
+DM3,1,p7,fail,fail,faithful to calc; no Intimidate calcs. Not top joints. defenders are not in keys. key does not state attacker's spread.
+DM4,1,p1,pass,fail,answer is illegal. no intimidate. did not realize unreachable
+DM4,1,p2,fail,fail,answer is illegal. no intimidate. did not realize unreachable
+DM4,1,p3,fail,fail,answer is illegal. no intimidate. did not realize unreachable
+DM4,1,p4,pass,fail,answer is illegal. no intimidate. did not realize unreachable
+DM4,1,p5,fail,fail,answer is illegal. no intimidate. did not realize unreachable
+DM4,1,p6,fail,fail,answer is illegal. no intimidate. did not realize unreachable
+DM4,1,p7,fail,fail,answer is illegal. no intimidate. did not realize unreachable
+DM4,1,p8,fail,fail,answer is illegal. no intimidate. did not realize unreachable
+DM6,1,p1,fail,fail,"faithful to calc. wrong ability, mega cannot hold item. Stated own sides. not top-joint"
+DM6,1,p2,fail,fail,"faithful to calc. wrong ability, mega cannot hold item. Stated own sides. not top-joint"
+DM6,1,p3,fail,fail,"faithful to calc. wrong ability, mega cannot hold item. Stated own sides. not top-joint"
+DM6,1,p4,fail,fail,"faithful to calc. wrong ability, mega cannot hold item. Stated own sides. not top-joint"
+DM6,1,p5,pass,fail,"faithful to calc. wrong ability, mega cannot hold item. Stated own sides. not top-joint"
+DM6,1,p6,pass,fail,"faithful to calc. wrong ability, mega cannot hold item. Stated own sides. not top-joint"
+DM7,1,p1,fail,fail,"faithful to calc. assumed set unstated, not top-joint. no defiant or intimidate"
+DM7,1,p2,fail,fail,"faithful to calc. assumed set unstated, not top-joint. no defiant or intimidate"
+DM7,1,p3,fail,fail,"faithful to calc. assumed set unstated, not top-joint. no defiant or intimidate"
+DM7,1,p4,fail,fail,"faithful to calc. assumed set unstated, not top-joint. no defiant or intimidate"
+DM7,1,p5,fail,fail,"faithful to calc. assumed set unstated, not top-joint. no defiant or intimidate"
+GS1,1,p1,fail,fail,no full build. went ahead and locked in species only for all slots.
+GS1,1,p2,fail,fail,no full build. went ahead and locked in species only for all slots.
+GS1,1,p3,not_applicable,fail,no full build. went ahead and locked in species only for all slots.
+GS1,1,p4,not_applicable,fail,no full build. went ahead and locked in species only for all slots.
+GS1,1,p5,not_applicable,fail,no full build. went ahead and locked in species only for all slots.
+GS1,1,p6,not_applicable,fail,no full build. went ahead and locked in species only for all slots.
+GS1,1,p7,not_applicable,fail,no full build. went ahead and locked in species only for all slots.
+GS1,2,p1,not_applicable,fail,"did not write item to slot. false claim: ""U-turns more effectively"""
+GS1,2,p2,not_applicable,fail,"did not write item to slot. false claim: ""U-turns more effectively"""
+GS1,2,p3,fail,fail,"did not write item to slot. false claim: ""U-turns more effectively"""
+GS1,2,p4,fail,fail,"did not write item to slot. false claim: ""U-turns more effectively"""
+GS1,2,p5,fail,fail,"did not write item to slot. false claim: ""U-turns more effectively"""
+GS1,2,p6,fail,fail,"did not write item to slot. false claim: ""U-turns more effectively"""
+GS1,2,p7,fail,fail,"did not write item to slot. false claim: ""U-turns more effectively"""
+H1,1,acceptance,pass,pass,
+H11,1,p1,pass,pass,p2-5 not scoring points
+H11,1,p2,not_applicable,pass,p2-5 not scoring points
+H11,1,p3,not_applicable,pass,p2-5 not scoring points
+H11,1,p4,not_applicable,pass,p2-5 not scoring points
+H11,1,p5,not_applicable,pass,p2-5 not scoring points
+H11,1,p6,not_applicable,pass,p2-5 not scoring points
+H11,1,set_errata_allowed_not_required,pass,pass,p2-5 not scoring points
+H15,1,p1,fail,fail,"did not use top joint, no basis stated. answer is generally correct, with conditional Timid OK. false claims ""Its Speed is already decent enough in many cases"", ""setting up hazards before being taken down"", ""if you're facing teams with very fast threats that need to be outsped, Timid could be the better choice for specific match-ups"""
+H15,1,p2,not_applicable,fail,"did not use top joint, no basis stated. answer is generally correct, with conditional Timid OK. false claims ""Its Speed is already decent enough in many cases"", ""setting up hazards before being taken down"", ""if you're facing teams with very fast threats that need to be outsped, Timid could be the better choice for specific match-ups"""
+H15,1,p3,pass,fail,"did not use top joint, no basis stated. answer is generally correct, with conditional Timid OK. false claims ""Its Speed is already decent enough in many cases"", ""setting up hazards before being taken down"", ""if you're facing teams with very fast threats that need to be outsped, Timid could be the better choice for specific match-ups"""
+H15,1,p4,pass,fail,"did not use top joint, no basis stated. answer is generally correct, with conditional Timid OK. false claims ""Its Speed is already decent enough in many cases"", ""setting up hazards before being taken down"", ""if you're facing teams with very fast threats that need to be outsped, Timid could be the better choice for specific match-ups"""
+H15,1,p5,pass,fail,"did not use top joint, no basis stated. answer is generally correct, with conditional Timid OK. false claims ""Its Speed is already decent enough in many cases"", ""setting up hazards before being taken down"", ""if you're facing teams with very fast threats that need to be outsped, Timid could be the better choice for specific match-ups"""
+H18b,1,p1,fail,fail,contraints recorded but no definition established. recommends illegal species
+H18b,1,p2,not_applicable,fail,contraints recorded but no definition established. recommends illegal species
+H18b,2,p1,not_applicable,fail,"replaced garchomp in slot 1 with sinistcha, no other attributes changed. offered no set and did not check rule"
+H18b,2,p2,fail,fail,"replaced garchomp in slot 1 with sinistcha, no other attributes changed. offered no set and did not check rule"
+H2,1,acceptance,pass,pass,
+H27,1,acceptance,fail,fail,"did not read pending screen, false claim: ""no pending screen"""
+H3,1,acceptance,fail,fail,did not check Dragonite's legality
+H4,1,acceptance,pass,pass,
+H5,1,p1,fail,fail,"faithful to calc; did not state assumption, not top joint"
+H5,1,p2,fail,fail,"faithful to calc; did not state assumption, not top joint"
+H5,1,p3,pass,fail,"faithful to calc; did not state assumption, not top joint"
+H5,1,p4,pass,fail,"faithful to calc; did not state assumption, not top joint"
+H5,1,p5,fail,fail,"faithful to calc; did not state assumption, not top joint"
+H6,1,p1,pass,pass,
+H6,1,p2,not_applicable,pass,
+H6,1,p3,pass,pass,
+H7,1,acceptance,pass,pass,
+H8,1,p1,fail,fail,"wrong answer, false claim ""no rule preventing multiple Pokémon from holding the same item on the same team"""
+H8,1,p2,fail,fail,"wrong answer, false claim ""no rule preventing multiple Pokémon from holding the same item on the same team"""
+HD1,1,acceptance,pass,pass,
+HF1,1,acceptance,pass,pass,
+HF2,1,p1,pass,pass,
+HF2,1,p2,pass,pass,
+HN1,1,p1,pass,pass,
+HN1,1,p2,not_applicable,pass,
+HN2,1,acceptance,pass,pass,
+HN2b,1,p1,fail,fail,"only stated max speed investments, no grid."
+HN2b,1,p2,fail,fail,"only stated max speed investments, no grid."
+HN2b,1,p3,fail,fail,"only stated max speed investments, no grid."
+HN2b,1,p4,pass,fail,"only stated max speed investments, no grid."
+HN2b,1,p5,fail,fail,"only stated max speed investments, no grid."
+HN2c,1,p1,fail,fail,"did not check team slots, no grid."
+HN2c,1,p2,fail,fail,"did not check team slots, no grid."
+HN2c,1,p3,fail,fail,"did not check team slots, no grid."
+HN2d,1,p1,not_applicable,fail,made up post-Speed Boost speed claim
+HN2d,1,p2,pass,fail,made up post-Speed Boost speed claim
+HN2d,1,p3,fail,fail,made up post-Speed Boost speed claim
+HN2d,1,p4,pass,fail,made up post-Speed Boost speed claim
+HN2d,1,p5,pass,fail,made up post-Speed Boost speed claim
+HN2d,1,p6,fail,fail,made up post-Speed Boost speed claim
+HN2d,1,p7,pass,fail,made up post-Speed Boost speed claim
+HN3,1,p1,pass,fail,did not label in-game or cut off at 90%
+HN3,1,p2,fail,fail,did not label in-game or cut off at 90%
+HN3,1,p3,fail,fail,did not label in-game or cut off at 90%
+HN4,1,acceptance,pass,pass,
+HP1,1,p1,fail,fail,did not mention or check legality of Choice Specs
+HP1,1,p2,not_applicable,fail,did not mention or check legality of Choice Specs
+HP1,1,p3,pass,fail,did not mention or check legality of Choice Specs
+HP2,1,p1,fail,fail,"did not treat as question, even though no team mutation "
+HP2,1,p2,pass,fail,"did not treat as question, even though no team mutation "
+HU1,1,p1,pass,pass,unverifiable claims for all members
+HU1,1,p2,pass,pass,unverifiable claims for all members
+HU1,1,p3,pass,pass,unverifiable claims for all members
+HU1,1,p4,pass,pass,unverifiable claims for all members
+HU2,1,p1,not_applicable,fail,checked top 10 usage teammates instead of top 10 usage threats
+HU2,1,p2,fail,fail,checked top 10 usage teammates instead of top 10 usage threats
+HU2,1,p3,not_applicable,fail,checked top 10 usage teammates instead of top 10 usage threats
+HU2,1,p4,pass,fail,checked top 10 usage teammates instead of top 10 usage threats
+HU2b,1,p1,not_applicable,fail,"did not check meta threats, mentioned illegal species"
+HU2b,1,p2,fail,fail,"did not check meta threats, mentioned illegal species"
+HU2b,1,p3,fail,fail,"did not check meta threats, mentioned illegal species"
+HU2b,1,p4,fail,fail,"did not check meta threats, mentioned illegal species"
+HU2b,1,p5,not_applicable,fail,"did not check meta threats, mentioned illegal species"
+HU2b,1,p6,not_applicable,fail,"did not check meta threats, mentioned illegal species"
+HU3,1,p1,pass,pass,"passes on answer, not tool calls (did not check any claims it made)"
+HU3,1,p2,pass,pass,"passes on answer, not tool calls (did not check any claims it made)"
+HU3,1,p3,pass,pass,"passes on answer, not tool calls (did not check any claims it made)"
+HU3,1,p4,pass,pass,"passes on answer, not tool calls (did not check any claims it made)"
+HU4,1,p1,fail,fail,"did not check threats or usage. False/irrelevant claims ""Most non-Adamant/Brave Pokémon"", ""Many common offensive threats like Dragapult, Garchomp, and other fast attackers"" ""outspeed many key opponents"""
+HU4,1,p2,fail,fail,"did not check threats or usage. False/irrelevant claims ""Most non-Adamant/Brave Pokémon"", ""Many common offensive threats like Dragapult, Garchomp, and other fast attackers"" ""outspeed many key opponents"""
+HU4,1,p3,fail,fail,"did not check threats or usage. False/irrelevant claims ""Most non-Adamant/Brave Pokémon"", ""Many common offensive threats like Dragapult, Garchomp, and other fast attackers"" ""outspeed many key opponents"""
+IC1,1,p1,pass,pass,"pass only based on key, did not actually provide a set"
+IC1,1,p2,not_applicable,pass,"pass only based on key, did not actually provide a set"
+IC1,2,p1,fail,fail,"did not read team, did not call any tools"
+IC1,2,p2,fail,fail,"did not read team, did not call any tools"
+IS1,1,p1,fail,fail,did not consider choice scarf or verify speed under scarf/TW
+IS1,1,p2,not_applicable,fail,did not consider choice scarf or verify speed under scarf/TW
+IS1,1,p3,pass,fail,did not consider choice scarf or verify speed under scarf/TW
+IS1,1,p4,fail,fail,did not consider choice scarf or verify speed under scarf/TW
+IS2,1,p1,fail,fail,did not read team. refused to make assumptions.
+IS2,1,p2,fail,fail,did not read team. refused to make assumptions.
+IS2,1,p3,fail,fail,did not read team. refused to make assumptions.
+IS2,1,p4,fail,fail,did not read team. refused to make assumptions.
+IS3,1,p1,not_applicable,fail,"did not arrive at Scarf+TW stack. misleading claims ""Use Tailwind support from teammates to boost your team's speed"". self-contradicting claim ""If you need a slower Pokémon to be faster, consider species with higher base Speed stats"""
+IS3,1,p2,fail,fail,"did not arrive at Scarf+TW stack. misleading claims ""Use Tailwind support from teammates to boost your team's speed"". self-contradicting claim ""If you need a slower Pokémon to be faster, consider species with higher base Speed stats"""
+IS3,1,p3,fail,fail,"did not arrive at Scarf+TW stack. misleading claims ""Use Tailwind support from teammates to boost your team's speed"". self-contradicting claim ""If you need a slower Pokémon to be faster, consider species with higher base Speed stats"""
+IS3,1,p4,fail,fail,"did not arrive at Scarf+TW stack. misleading claims ""Use Tailwind support from teammates to boost your team's speed"". self-contradicting claim ""If you need a slower Pokémon to be faster, consider species with higher base Speed stats"""
+IS3,1,p5,fail,fail,"did not arrive at Scarf+TW stack. misleading claims ""Use Tailwind support from teammates to boost your team's speed"". self-contradicting claim ""If you need a slower Pokémon to be faster, consider species with higher base Speed stats"""
+IS3,1,p6,pass,fail,"did not arrive at Scarf+TW stack. misleading claims ""Use Tailwind support from teammates to boost your team's speed"". self-contradicting claim ""If you need a slower Pokémon to be faster, consider species with higher base Speed stats"""
+IS4,1,p1,pass,fail,did not consider max speed stack
+IS4,1,p2,not_applicable,fail,did not consider max speed stack
+IS4,1,p3,fail,fail,did not consider max speed stack
+IS4,1,p4,fail,fail,did not consider max speed stack
+IS4,1,p5,pass,fail,did not consider max speed stack
+IS4,1,p6,pass,fail,did not consider max speed stack
+IS4,1,p7,pass,fail,did not consider max speed stack
+IX1,1,p1,fail,fail,"false claims ""**Redirection moves** like U-turn, Volt Switch, and Bulldoze"", ""redirection is an effective counter to Fake Out because it forces a switch-out before Fake Out can land its hit."", etc."
+IX1,1,p2,fail,fail,"false claims ""**Redirection moves** like U-turn, Volt Switch, and Bulldoze"", ""redirection is an effective counter to Fake Out because it forces a switch-out before Fake Out can land its hit."", etc."
+IX1,1,p3,fail,fail,"false claims ""**Redirection moves** like U-turn, Volt Switch, and Bulldoze"", ""redirection is an effective counter to Fake Out because it forces a switch-out before Fake Out can land its hit."", etc."
+IX1,1,p4,pass,fail,"false claims ""**Redirection moves** like U-turn, Volt Switch, and Bulldoze"", ""redirection is an effective counter to Fake Out because it forces a switch-out before Fake Out can land its hit."", etc."
+IX5,1,p1,fail,fail,"listed Intimidate users instead of counters. False claims ""using a Pokémon with its own Intimidate to negate the effect"""
+IX5,1,p2,fail,fail,"listed Intimidate users instead of counters. False claims ""using a Pokémon with its own Intimidate to negate the effect"""
+IX5,1,p3,fail,fail,"listed Intimidate users instead of counters. False claims ""using a Pokémon with its own Intimidate to negate the effect"""
+IX5,1,p4,fail,fail,"listed Intimidate users instead of counters. False claims ""using a Pokémon with its own Intimidate to negate the effect"""
+IX5,1,p5,not_applicable,fail,"listed Intimidate users instead of counters. False claims ""using a Pokémon with its own Intimidate to negate the effect"""
+IX7,1,p1,fail,fail,"no safe definition, false claims ""it's super effective against Fire, Ice, Steel, and Poison types, while being weak to Grass and Electric types"" ""**Electric-types** (like Rotom variants) to cover Ground's weakness"""
+IX7,1,p2,fail,fail,"no safe definition, false claims ""it's super effective against Fire, Ice, Steel, and Poison types, while being weak to Grass and Electric types"" ""**Electric-types** (like Rotom variants) to cover Ground's weakness"""
+IX7,1,p3,fail,fail,"no safe definition, false claims ""it's super effective against Fire, Ice, Steel, and Poison types, while being weak to Grass and Electric types"" ""**Electric-types** (like Rotom variants) to cover Ground's weakness"""
+IX7,1,p4,fail,fail,"no safe definition, false claims ""it's super effective against Fire, Ice, Steel, and Poison types, while being weak to Grass and Electric types"" ""**Electric-types** (like Rotom variants) to cover Ground's weakness"""
+MC1,1,p1,not_applicable,fail,"did not offer a build, silent pick, locked in base with no item"
+MC1,1,p2,fail,fail,"did not offer a build, silent pick, locked in base with no item"
+MC1,1,p3,pass,fail,"did not offer a build, silent pick, locked in base with no item"
+MC1,1,p4,fail,fail,"did not offer a build, silent pick, locked in base with no item"
+MC1,1,p5,fail,fail,"did not offer a build, silent pick, locked in base with no item"
+MM1,1,p1,fail,fail,form change without offer
+MM1,1,p2,pass,fail,form change without offer
+MM1,1,p3,fail,fail,form change without offer
+MRB1,1,acceptance,pass,pass,
+MS5,1,p1,pass,fail,conflicts list has only Charizard; arm listed Pelipper as a conflict citing blanket judgment_mismatch pending_flags (all locked attrs flagged)
+MS5,1,p2,pass,fail,conflicts list has only Charizard; arm listed Pelipper as a conflict citing blanket judgment_mismatch pending_flags (all locked attrs flagged)
+MS5,1,p3,pass,fail,conflicts list has only Charizard; arm listed Pelipper as a conflict citing blanket judgment_mismatch pending_flags (all locked attrs flagged)
+MS5,1,p4,fail,fail,conflicts list has only Charizard; arm listed Pelipper as a conflict citing blanket judgment_mismatch pending_flags (all locked attrs flagged)
+MS5,1,p5,fail,fail,conflicts list has only Charizard; arm listed Pelipper as a conflict citing blanket judgment_mismatch pending_flags (all locked attrs flagged)
+MT1,1,acceptance,not_applicable,not_applicable,"did not add constraint. locked Blastoise in slot 1, unrequested"
+MT1,2,acceptance,not_applicable,not_applicable,"t2: constraint recorded, team_wide "
+MT1,3,acceptance,fail,fail,only 1 active constraint
+MT2,1,p1,not_applicable,not_applicable,t1: locked in Pelipper as requested
+MT2,1,p2,not_applicable,not_applicable,t1: locked in Pelipper as requested
+MT2,1,p3,not_applicable,not_applicable,t1: locked in Pelipper as requested
+MT2,1,p4,not_applicable,not_applicable,t1: locked in Pelipper as requested
+MT2,2,p1,pass,pass,
+MT2,2,p2,not_applicable,pass,
+MT2,2,p3,pass,pass,
+MT2,2,p4,not_applicable,pass,
+MT2,3,p1,not_applicable,fail,tried to commit slot instead of read back
+MT2,3,p2,not_applicable,fail,tried to commit slot instead of read back
+MT2,3,p3,not_applicable,fail,tried to commit slot instead of read back
+MT2,3,p4,fail,fail,tried to commit slot instead of read back
+MT3,1,p1,fail,fail,"locked Arcanine in slot 1, unrequested. False claims: ""could use Arcanine-Hisui as an alternative"", misleading claim, the 5 fire types returned are sorted alphabetically, not top 5."
+MT3,1,p2,not_applicable,fail,"locked Arcanine in slot 1, unrequested. False claims: ""could use Arcanine-Hisui as an alternative"", misleading claim, the 5 fire types returned are sorted alphabetically, not top 5."
+MT3,2,p1,fail,fail,did not check Arcanine's ability
+MT3,2,p2,not_applicable,fail,did not check Arcanine's ability
+MT5,1,acceptance,not_applicable,not_applicable,
+MT5,2,acceptance,not_applicable,not_applicable,
+MT5,3,acceptance,pass,pass,
+MT6,1,p1,fail,fail,Looked up legal species instead of record constraints
+MT6,1,p2,not_applicable,fail,Looked up legal species instead of record constraints
+MT6,1,p3,not_applicable,fail,Looked up legal species instead of record constraints
+MT6,1,p4,not_applicable,fail,Looked up legal species instead of record constraints
+MT6,2,p1,fail,fail,"did not record constraint, false claim ""All 20 Water-type Pokémon are legal"" (there are more than 20 Water-type Pokémons)"
+MT6,2,p2,not_applicable,fail,"did not record constraint, false claim ""All 20 Water-type Pokémon are legal"" (there are more than 20 Water-type Pokémons)"
+MT6,2,p3,fail,fail,"did not record constraint, false claim ""All 20 Water-type Pokémon are legal"" (there are more than 20 Water-type Pokémons)"
+MT6,2,p4,fail,fail,"did not record constraint, false claim ""All 20 Water-type Pokémon are legal"" (there are more than 20 Water-type Pokémons)"
+MT6,3,p1,not_applicable,fail,no constraints
+MT6,3,p2,not_applicable,fail,no constraints
+MT6,3,p3,not_applicable,fail,no constraints
+MT6,3,p4,fail,fail,no constraints
+MV1,1,acceptance,pass,pass,
+MV2,1,acceptance,fail,fail,"honest claim, tool response does not include PP"
+MV3,1,acceptance,fail,fail,"Wrong answer. False claims ""single-target move that hits one opponent at a time"", ""a multi-hit move like Double-Edge or Earthquake"" ""multi-hit move [...] which can hit multiple target"" (Double-Edge and Earthquake are not multi-hit moves, multi hit moves don't always hit multiple target, even though Earthquake does hit multiple targets)"
+Q10,1,p1,pass,fail,"text answer is correct, but tried to mutate"
+Q10,1,p2,fail,fail,"text answer is correct, but tried to mutate"
+Q9,1,p1,pass,pass,
+Q9,1,p2,pass,pass,
+RB1,1,p1,fail,fail,loader sent row to empty_team; fixture never loaded (state cell contains ‘empty’)
+RB1,1,p2,fail,fail,loader sent row to empty_team; fixture never loaded (state cell contains ‘empty’)
+RB1,1,p3,not_applicable,fail,loader sent row to empty_team; fixture never loaded (state cell contains ‘empty’)
+RB1,1,p4,fail,fail,loader sent row to empty_team; fixture never loaded (state cell contains ‘empty’)
+RB1,1,p5,pass,fail,loader sent row to empty_team; fixture never loaded (state cell contains ‘empty’)
+RB1,1,p6,not_applicable,fail,loader sent row to empty_team; fixture never loaded (state cell contains ‘empty’)
+TB1,1,p1,fail,fail,did not recognize item is redundant
+TB1,1,p2,not_applicable,fail,did not recognize item is redundant
+TB1,1,p3,fail,fail,did not recognize item is redundant

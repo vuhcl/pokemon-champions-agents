@@ -1,0 +1,12 @@
+{
+  "judge_model": "gemma4:12b",
+  "temperature": 0.0,
+  "prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87",
+  "transport": "ollama /api/chat think=false",
+  "n_sections": 72,
+  "agree": 43,
+  "disagree": 29,
+  "judge_abstained": 0,
+  "output_sha256": "9a813f95bfd9d4e090518f29fb5158fb76adcf59231c096dfe46f0d2556c79be",
+  "output_path": "/Users/nowaki027/part-g-arm-runs/pre-rs-arm/b98568d/run_1_hand_audit/gemma_merge.json"
+}
