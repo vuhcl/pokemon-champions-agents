@@ -55,6 +55,34 @@ renumbered to "fill the gap."
 
 ---
 
+### ADR-002 — Amendment 2026-10-27a — The Mega Stone rule is enforced by the team validator (PR #318)
+
+**Context:** `recommender/team_validation.py` checked legality of a bare species or item, the Species Clause and the Item Clause, and stated in its module docstring that the Mega Stone rule was not enforced. Species and item legality were therefore checked (ADR-002), but a Mega forme could be locked without its stone, or with another item such as Leftovers, and the validator accepted it. The stated consequence of the rule (a Mega forme holds its stone; a base form can hold another item) was only available as comparison guidance (ADR-015 Amendment 2026-07-29c). The post-v1 request-set eval has two rows that need the refusal (MM1, MM2), and a request set row cannot be passed by correct behavior while the validator accepts the illegal combination.
+
+**Decision:**
+1. A Mega forme must hold its mapped Mega Stone. The map is `item_conditions.mega_stones_by_item_id()`; no new data file. `validate_team_value` returns a new refusal kind `mega_stone` in two cases: a Mega species is locked while the slot holds no item or a different item, and an item other than the mapped stone is locked onto a slot whose species is a Mega forme.
+2. The refusal names the stone and the two honest options: keep the stone, or use the base form with the other item. A form change is an offer only; the validator never changes the species or item itself, and a refused lock writes nothing (ADR-031 Amendment 2026-10-16a).
+3. Species and item are judged together where they arrive together. `_apply_locks_batch` places every incoming species/item value on a copy of the slot before validating each one, so a Mega with its stone in one request is accepted and a Mega with another item in one request is refused. `commit_full_slot` validates the provisional species and item against a copy of the slot holding both, and now validates the item as well as the species.
+4. A base form holding a Mega Stone is not refused by this rule. A stone mapped to a different Mega (for example Charizardite X on Charizard-Mega-Y) is refused.
+5. Legality of the species and of the item on their own (`is_species_legal`, `is_item_legal`) is unchanged. Only the team-value validator changed.
+
+**Why (alternatives rejected):**
+- Leave the rule to the model or to prompt text: ADR-002 requires legality to be a tool call, and a combination the validator accepts cannot be refused by a tool.
+- Validate species and item independently in the batch path: a single-attribute check refuses a stone-less Mega even when the stone is in the same request, so the order of the two values would decide the outcome.
+- Silently swap the item or the species on refusal: it would write a change the user did not ask for. The refusal states the options and the user chooses.
+
+**Behavior change (from the PR diff and its tests):** locking a Mega species into a slot with no stone is refused; locking a non-stone item onto a Mega is refused; a Mega with its stone, in one batch or across two locks that end in the stone held, is accepted. Tests changed: the Species Clause scenarios in `test_commit_refusal_escape.py` now seed Charizardite X so the clause is the refusal under test; `test_team_validation.py` locks Charizard-Mega-X with its stone in one batch where it previously locked the species alone; in `test_empty_team_bootstrap.py` the Absol-Mega-Z case is removed from the clean-bootstrap parametrization and replaced by a test that the commit is refused (usage data may seed Life Orb on that Mega). Four new tests cover the core cases (stone-less Mega, non-stone item on a Mega, batch with the stone, batch with a wrong item).
+
+**Known limits (open, not fixed here):**
+- The bootstrap/NN-transfer path can still seed a non-stone item on a Mega (the Absol-Mega-Z case); the commit is then refused and the user has to correct the item. The producer should seed the stone. No ticket number recorded yet.
+- When the slot holds no item, the refusal text reads "use the base form (X) with that item"; the wording is awkward for that case.
+- Not tested: restoring a superseded Mega species, and selecting a Mega from a candidate screen.
+- Effect on `check_hypothetical` for a Mega species named without an item is not measured here; the arm eval's post-merge check covers the dev and request-set turns it touches.
+
+**Status:** Shipped (#318, CI green). Arm eval: the eval/part-g-arm-state branch merges main after this PR; MM1 and MM2 become coverable only after that merge and their reference trajectories pass.
+
+---
+
 ## ADR-003: Mechanical claims require verification calls
 **Decision:** Any claim involving speed comparisons, damage calculations, or matchup outcomes must be backed by an actual calculation/simulation call, not a generated statement. **Concrete tool: `@smogon/calc`** (the engine behind Pokémon Showdown's public damage calculator, calc.pokemonshowdown.com) — open source, deterministic, already implements the correct game mechanics rather than requiring a reimplementation of damage formulas.
 **Alternatives considered:** Rely on the LLM's general Pokémon mechanics knowledge with careful prompting; hand-roll a damage calculator from scratch.
@@ -12201,3 +12229,47 @@ The known-limits line "Multi-attribute forme pooling (Toxtricity, Squawkabilly) 
 **Not changed:** ADR-071's fail-closed path on the deterministic gap-fill route; ADR-002; the gate definition in ADR-078.
 
 **Status:** Accepted with the PRE-MD-CLAIM registration (2026-10-24).
+
+---
+
+## ADR-084: The stateful request-set arm is a tool-calling loop over the CLI's state tools, scored by class and hand audit on a pre-declared covered subset, with no pass threshold
+
+**Date:** 2026-10-29 (decisions of 2026-10-25 to 2026-10-28)
+**Status:** Accepted. Records what was built, how it was evaluated and what it showed; does not rate the arm as passing or failing. The eval is finished, so nothing here is pending.
+
+**Context:** The Part G gate (ADR-078, ADR-083) measured the arm's false-claim rate on lookup questions. It did not test the 134 request-set rows, which ask the arm to change or refuse to change a team, ask a clarifying question, or fail closed. Those rows need an arm with state tools (lock, edit, constraints, candidates, archetype) and a way to score state changes. The CLI is not a reference for them (see the 2026-10-16 limitation in eval_results.md). Orchestration is LangGraph by default (ADR-006).
+
+**Decision:**
+1. The arm for this eval is a tool-calling loop (LangChain ChatOllama with its own `run_turn` loop in `scripts/eval/part_g_arm/state/harness.py`) over a stateful tool set: lock_slot (species only), edit_slot_field, add_constraint, show_candidates, read_pending, select_option, reject_*, change_archetype, read_archetype, plus the lookup and calc tools from the gate. It is not a LangGraph StateGraph. The Part G gate arm (`scripts/eval/part_g_arm/loop.py`) is a StateGraph and is a different artifact.
+2. Model and settings: qwen3.5:latest (Q4_K_M), temperature 0, thinking off, num_ctx 16384, 300 s and 16 tool calls per turn, no usable answer is a fail and is never retried. Frozen prompt bd2b69cd after three revisions tuned on dev rows only.
+3. Scoring is by class (ASK, FAIL-CLOSED, MUTATION-OK, MUTATION-REFUSED, NO-MUTATION) for state, and by hand audit against the key's rubric for stated facts. Rows are reported in buckets (mechanical only, hand audit only, dual) and never pooled into one headline. Dual rows keep both scores with no override.
+4. Covered subset: 103 of 134 rows, chosen by readiness and scorability, never by row performance; 31 are not covered. Three runs: run 1 is the primary, runs 2 and 3 are determinism checks. Exact two-sided 95% Clopper-Pearson intervals. No pass threshold and no verdict word were registered (PRE-RS-ARM, PR #319).
+5. One auditor (Vu) who knows the keys; the gemma judge is a non-gating consistency check and was never used to change a verdict.
+
+**Why:** The gate answered whether the arm lies about facts; this eval asks whether it does what was asked and nothing else. Putting the state tools in front of the model in a plain loop shows where an unguarded model fails, and the covered/not-covered split and the bucket reporting keep the result descriptive. No pass threshold was registered (Vu, 2026-10-28); the rows are a pre-declared subset, not a sample.
+
+**Alternatives considered:**
+- *Build the arm as a LangGraph StateGraph with guard nodes from the start:* not done. The aim was to find out what an unguarded model does with state tools before deciding where guards belong.
+- *Claude API or thinking on:* not used (no key for this run; thinking off was registered to match the gate). Either would be a separate registered eval.
+- *A pooled pass rate with a threshold:* rejected; buckets are scored differently and the subset is not a sample.
+- *Exploratory run on the 31 kept-out rows:* frozen but not run (Vu, 2026-10-28, decided after seeing run 1 counts; disclosed as post-hoc).
+
+**Evidence (run 1, qwen3.5:latest, thinking off; results in eval_results.md, PR #321):**
+- Mechanical-only rows 30/41 (95% CI 0.571 to 0.858). Hand-audit-only rows 18/58 (0.195 to 0.445). Dual rows: class check 1/2, hand audit 0/2. Multi-turn rows 1 of 8.
+- 15 of 100 turns that were not allowed to change state changed it (for example a "Slot 1 Water" turn locked Blastoise).
+- show_candidates: 9 calls, 0 successes (8 refused for no fully-locked anchor, 1 wrong slot).
+- Mechanical or factual claims made without a tool in several rows (H15, HU4, IX1, IX5, IX7, MT6, MV3).
+- Runs 2 and 3 matched run 1 on all 113 turns (determinism of this configuration only).
+- Setup defects found: seven start-state mismatches (DM2, RB1, TB2, MR3, MS2, MS3, MW2), two rows that never loaded (SC2, TB2, counted as not passed by a post-hoc rule), two rows needing tool fields no tool returns (MV2, MV3). Sensitivity on the mechanical bucket: 28/37 to 32/41 across the alternatives, primary kept at 30/41.
+
+**Costs and limits, accepted:**
+- Dev was in-sample (three prompt revisions after the first freeze), and the result applies to a local 4-bit model with thinking off only.
+- One auditor who knows the keys; the gemma judge was more lenient than the audit in 24 sections and stricter in none, so it is not corroboration.
+- The row-level script was written after the run and is not in the frozen manifest; its counts equal a hand calculation.
+- The loop departs from ADR-006 for this eval. ADR-006 stands for the product arm.
+
+**Follow-up (not decided here):** what to do about the measured failures is tracked in the GitHub issues (arm v2 and the harness and tool gaps). No direction is adopted by this ADR; a decision gets its own ADR when it is made.
+
+**Not changed:** ADR-002, ADR-006, ADR-078, ADR-083 and the Part G gate result. The gate's PASS covers lookup tools and prompt rev3 only and does not carry over to this arm.
+
+**Status:** Accepted (2026-10-29).
