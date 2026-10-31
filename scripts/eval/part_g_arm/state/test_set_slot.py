@@ -19,9 +19,11 @@ from scripts.eval.part_g_arm.state.request_set_runner import (
 from scripts.eval.part_g_arm.state.set_slot_tool import set_slot
 from scripts.eval.part_g_arm.state.tools import (
     combined_specs,
+    mechanical_class,
     set_tool_fields,
     set_wrapper,
     slot_signature,
+    tool_call_result_status,
 )
 
 PRE_RS_ARM_TOOL_SCHEMA_SHA256 = "f0c97ad3b88cb3f118e241111bd454a4e86f7937cd4342f0969cadbe5049b845"
@@ -219,3 +221,29 @@ def test_set_slot_edit_returns_choice_lock_consequences():
     kinds = {c.get("kind") for c in result.get("consequences") or []}
     assert "choice_lock_status" in kinds
     assert result.get("edits")
+
+
+def test_set_slot_refusal_records_as_refused_not_no_change():
+    """Arm recording: set_slot ok=False is mechanical_class refused + result_status refused."""
+    from scripts.eval.part_g_arm.state.harness import snapshot
+
+    st = empty_team()
+    before = snapshot(st)
+    after, result = set_slot(st, {"slot": 1, "species": "Bulbasaur"})
+    assert result["ok"] is False
+    assert result.get("slot_commit_error")
+    after_snap = snapshot(after)
+    call = {"name": "set_slot", "args": {"slot": 1, "species": "Bulbasaur"}, "result": result}
+    assert mechanical_class(before, after_snap, [call]) == "refused"
+    assert tool_call_result_status(call) == "refused"
+    # Multi-slot list form likewise.
+    after2, result2 = set_slot(
+        empty_team(),
+        {"slots": [{"slot": 1, "species": "Mewtwo"}, {"slot": 2, "species": "Cinderace"}]},
+    )
+    assert result2["ok"] is False
+    call2 = {"name": "set_slot", "args": {"slots": []}, "result": result2}
+    assert tool_call_result_status(call2) == "refused"
+    assert (
+        mechanical_class(snapshot(empty_team()), snapshot(after2), [call2]) == "refused"
+    )
