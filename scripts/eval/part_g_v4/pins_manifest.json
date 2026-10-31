@@ -85,6 +85,31 @@
       "content_sha256": "c6ac24c277affc8852ce84ec17207b36a46fa3cec19ec0757724ac18eacfa2f7",
       "git_blob_sha": "6f7af4ba218a13496e9fe3d3043e22e9ad77c0d5",
       "path": "scripts/eval/part_g_v4/key_artifacts/battery_damage_pool.json"
+    },
+    {
+      "path": "data/showdown_text/items.ts",
+      "content_sha256": "7ddfd9f71f4a957c97be72b5eb8c3619826bb8f551bb84cfc8cd10b3dac75409",
+      "git_blob_sha": "cc89096e91df845d81e11b55afaec7fe809d6d8e"
+    },
+    {
+      "path": "data/showdown_text/moves.ts",
+      "content_sha256": "811028921074d1fd8ea8798bc0f0e29602a59f639e58bdf53b0eedf3fdcf54e5",
+      "git_blob_sha": "1978774d8d9d4acdf2d9ae732cee7bf46874759c"
+    },
+    {
+      "path": "data/showdown_text/abilities.ts",
+      "content_sha256": "f6f2a0d4fc8be06cc6051d39e11f5f0a3d3d9d11020d5855b09c9b2f34a00568",
+      "git_blob_sha": "49ee85887e2345b9bd54d42cd24849a57ab7938e"
+    },
+    {
+      "path": "data/showdown_text/champions_text_overrides.v1.json",
+      "content_sha256": "edd9e563076df0b2577879917bd9bf8d5c254852e7b67a6a851eb7198668ed72",
+      "git_blob_sha": "96c3dbbb165972f1cfebeaa449b67d1268c298b3"
+    },
+    {
+      "path": "data/legality/champions_rules.v1.json",
+      "content_sha256": "0c85e926bd4271a02357a89ffa7902c3c5ff46c8fc738654b3c1194f0d0be5d7",
+      "git_blob_sha": "98ddd705c990a0fa2f9187a6883213523c3c284a"
     }
   ],
   "refresh_merge": "6674b74c41810f63d1a25453d26ea8498d0b9341",

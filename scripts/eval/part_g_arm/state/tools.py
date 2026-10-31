@@ -313,12 +313,20 @@ SPREAD_TOOL_SPECS: list[dict[str, Any]] = [
 ]
 
 
+_DESCRIBE_SPEC = _spec(
+    "describe",
+    "Returns the stored description text for an item, move or ability. "
+    "Use it instead of recalling what something does. kind is item|move|ability.",
+    {"kind": dict(_STR), "name": dict(_STR)},
+    ["kind", "name"],
+)
+
+
 def combined_specs(*, tool_fields: bool | None = None) -> list[dict[str, Any]]:
     """A new list. Does not append to TOOL_SPECS.
 
     tool_fields=None uses the module flag set by set_tool_fields.
-    Flag off → PRE-RS-ARM schemas (byte-identical). Flag on → enriched A-rung schemas
-    (find_species / get_speed / get_move_static / show_candidates). describe lands in PR4.
+    Flag off → PRE-RS-ARM schemas (byte-identical). Flag on → enriched schemas + describe.
     """
     on = _TOOL_FIELDS if tool_fields is None else bool(tool_fields)
     lookups: list[dict[str, Any]] = []
@@ -378,6 +386,7 @@ def combined_specs(*, tool_fields: bool | None = None) -> list[dict[str, Any]]:
             )
             patched.append({**spec, "function": fn})
         state_specs = patched
+        lookups = [*lookups, _DESCRIBE_SPEC]
     return [*lookups, *state_specs, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
 
 

@@ -27,6 +27,11 @@ EXPECTED_BLOB = {
     "scripts/eval/part_g_v4/key_artifacts/move_conditionals.v1.json": "e8947088efaa7f2d1db5838028564b00aceabe07",
     "scripts/eval/part_g_v4/battery/item_stratum.json": "5bb95181c8f700bd7965f7fdcc77f46e3dd5629f",
     "scripts/eval/part_g_v4/key_artifacts/battery_damage_pool.json": "6f7af4ba218a13496e9fe3d3043e22e9ad77c0d5",
+    "data/showdown_text/items.ts": "cc89096e91df845d81e11b55afaec7fe809d6d8e",
+    "data/showdown_text/moves.ts": "1978774d8d9d4acdf2d9ae732cee7bf46874759c",
+    "data/showdown_text/abilities.ts": "49ee85887e2345b9bd54d42cd24849a57ab7938e",
+    "data/showdown_text/champions_text_overrides.v1.json": "96c3dbbb165972f1cfebeaa449b67d1268c298b3",
+    "data/legality/champions_rules.v1.json": "98ddd705c990a0fa2f9187a6883213523c3c284a"
 }
 
 

@@ -1,0 +1,79 @@
+{
+  "schema": "champions_rules_v1",
+  "source_file": "data/legality/champions.v1.json",
+  "source_path": "flat_rules",
+  "entries": [
+    {
+      "id": "species_clause",
+      "text": "Species Clause",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "validator"
+    },
+    {
+      "id": "item_clause",
+      "text": "Item Clause = 1",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "validator"
+    },
+    {
+      "id": "ban_mythical",
+      "text": "Mythical",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.banlist"},
+      "enforced_by": "validator"
+    },
+    {
+      "id": "ban_restricted_legendary",
+      "text": "Restricted Legendary",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.banlist"},
+      "enforced_by": "validator"
+    },
+    {
+      "id": "adjust_level",
+      "text": "Adjust Level = 50",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "none"
+    },
+    {
+      "id": "picked_team_size",
+      "text": "Picked Team Size = Auto",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "none"
+    },
+    {
+      "id": "min_team_size",
+      "text": "Min Team Size = 6",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "none"
+    },
+    {
+      "id": "team_preview",
+      "text": "Team Preview",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "none"
+    },
+    {
+      "id": "nickname_clause",
+      "text": "Nickname Clause",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "none"
+    },
+    {
+      "id": "obtainable",
+      "text": "Obtainable",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "none"
+    },
+    {
+      "id": "cancel_mod",
+      "text": "Cancel Mod",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.ruleset"},
+      "enforced_by": "none"
+    },
+    {
+      "id": "bring_6_pick_3_6",
+      "text": "Bring 6 Pick 3-6 depending on game type.",
+      "source": {"file": "data/legality/champions.v1.json", "path": "flat_rules.desc"},
+      "enforced_by": "none"
+    }
+  ]
+}

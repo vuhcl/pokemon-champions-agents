@@ -1,4 +1,4 @@
-"""tool_fields A rung: find_species extras, get_speed mods, move fields, show errors."""
+"""tool_fields rung: find_species extras, get_speed mods, move fields, describe, show errors."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from scripts.eval.part_g_arm.config import ArmConfig
-from scripts.eval.part_g_arm.state.errata_read import load_derived_keys_effective
+from scripts.eval.part_g_arm.state.describe_tool import describe
 from scripts.eval.part_g_arm.state.fixtures import empty_team
 from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
 from scripts.eval.part_g_arm.state.request_set_rows import (
@@ -20,6 +20,7 @@ from scripts.eval.part_g_arm.state.request_set_rows import (
 )
 from scripts.eval.part_g_arm.state.request_set_runner import (
     DEFAULT_RUN_FLAGS,
+    TOOL_FIELDS_PROMPT_FILE,
     build_run_parameters,
     pin_hashes,
 )
@@ -31,8 +32,9 @@ from scripts.eval.part_g_arm.state.tools import (
     show_candidates,
     with_move_static_fields,
 )
-
 ROOT = Path(__file__).resolve().parents[4]
+from scripts.eval.part_g_arm.state.errata_read import load_derived_keys_effective
+
 KEYS = load_derived_keys_effective()
 PRE_RS_ARM_TOOL_SCHEMA_SHA256 = "f0c97ad3b88cb3f118e241111bd454a4e86f7937cd4342f0969cadbe5049b845"
 
@@ -275,3 +277,91 @@ def test_show_candidates_refusal_cases():
     assert "2" in err  # next is slot 2
 
 
+def test_describe_cases_and_coverage():
+    set_tool_fields(True)
+    lo = describe("item", "Life Orb")
+    assert lo["status"] == "ok" and lo["short_desc"]
+    assert "source" in lo and lo["source"]["sha256"]
+    mb = describe("move", "Moonblast")
+    assert mb["status"] == "ok"
+    assert any("secondary.chance" in x for x in mb.get("champions_overrides") or [])
+    curse = describe("move", "Curse")
+    assert curse.get("text_may_not_match") is True
+    regen = describe("ability", "Regenerator")
+    assert regen["status"] == "ok" and regen.get("champions_overrides")
+    assert describe("item", "NotARealItemXYZ")["status"] == "not_found"
+
+    # coverage: every legal item/move/ability has short_desc
+    from recommender.ids import to_id
+    from recommender.legality import is_item_legal, is_move_legal, is_species_legal, load_snapshot
+
+    snap = load_snapshot()
+    missing = []
+    for iid, e in (snap.get("items") or {}).items():
+        if not is_item_legal(snap, iid):
+            continue
+        r = describe("item", e["name"])
+        if r.get("status") != "ok" or not r.get("short_desc"):
+            missing.append(("item", e["name"], r.get("status")))
+    for mid, e in (snap.get("moves") or {}).items():
+        if not is_move_legal(snap, mid):
+            continue
+        r = describe("move", e["name"])
+        if r.get("status") != "ok" or not r.get("short_desc"):
+            missing.append(("move", e["name"], r.get("status")))
+    ab_names: dict[str, str] = {}
+    for sid, e in (snap.get("species") or {}).items():
+        if not is_species_legal(snap, sid):
+            continue
+        for v in (e.get("abilities") or {}).values():
+            if isinstance(v, str) and v.strip():
+                ab_names.setdefault(to_id(v), v)
+    for aname in ab_names.values():
+        r = describe("ability", aname)
+        if r.get("status") != "ok" or not r.get("short_desc"):
+            missing.append(("ability", aname, r.get("status")))
+    assert not missing, missing[:20]
+
+
+def test_rules_registry_matches_flat_rules_and_f7():
+    rules = json.loads(
+        (ROOT / "data/legality/champions_rules.v1.json").read_text(encoding="utf-8")
+    )
+    flat = json.loads(
+        (ROOT / "data/legality/champions.v1.json").read_text(encoding="utf-8")
+    )["flat_rules"]
+    texts = {e["text"] for e in rules["entries"]}
+    for name in flat["ruleset"]:
+        assert name in texts, name
+    for name in flat["banlist"]:
+        assert name in texts, name
+    assert any("Bring 6 Pick 3-6" in e["text"] for e in rules["entries"])
+    for e in rules["entries"]:
+        assert e.get("source") and e["source"].get("path")
+    by_id = {e["id"]: e for e in rules["entries"]}
+    # Follow-up 7: Species/Item/Mythical/Restricted → validator; rest → none
+    for rid in (
+        "species_clause",
+        "item_clause",
+        "ban_mythical",
+        "ban_restricted_legendary",
+    ):
+        assert by_id[rid]["enforced_by"] == "validator"
+    for rid in (
+        "adjust_level",
+        "picked_team_size",
+        "min_team_size",
+        "team_preview",
+        "nickname_clause",
+        "obtainable",
+        "cancel_mod",
+        "bring_6_pick_3_6",
+    ):
+        assert by_id[rid]["enforced_by"] == "none"
+
+
+def test_tool_fields_prompt_sha_distinct():
+    cfg = ArmConfig(prompt_file=TOOL_FIELDS_PROMPT_FILE)
+    h = cfg.prompt_hash()
+    assert h != FROZEN_PROMPT_SHA256
+    assert h == "f40553a151d9349b400fc34e61d4caeb5c2ecfa95e145f53553f28b5d68608b7"

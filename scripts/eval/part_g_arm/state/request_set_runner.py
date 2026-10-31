@@ -436,13 +436,12 @@ def main(argv: list[str] | None = None) -> int:
     from scripts.eval.part_g_arm.state.tools import set_tool_fields
 
     set_tool_fields(bool(run_flags["tool_fields"]))
-    # Prompt variant (prompt_tool_fields.md) lands with describe/rules in the B rung.
-    prompt_file = "state/prompt.md"
+    prompt_file = TOOL_FIELDS_PROMPT_FILE if run_flags["tool_fields"] else "state/prompt.md"
     cfg = ArmConfig(prompt_file=prompt_file)
     assert_frozen_prompt(
         cfg,
         allow_dev=args.dev,
-        allow_tool_fields_prompt=False,
+        allow_tool_fields_prompt=bool(run_flags["tool_fields"]),
     )
 
     rows_by_id = {r["id"]: r for r in load_request_rows()}

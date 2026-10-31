@@ -178,6 +178,10 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             include_formes=args.get("include_formes", True),
             n=args.get("n"),
         )
+    if name == "describe":
+        from scripts.eval.part_g_arm.state.describe_tool import describe
+
+        return state, describe(args.get("kind"), args.get("name"))
     if name == "change_archetype":
         return change_archetype(state, args.get("components"))
     if name == "read_archetype":
