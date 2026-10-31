@@ -36,7 +36,7 @@ from recommender.turn_intent import _clear_pending_keys
 STATE_TOOL_NAMES = frozenset({
     "lock_slot", "unlock_slot", "reset_team", "commit_slot", "read_team",
     "select_option", "confirm_build", "reject_pending", "reject_option",
-    "reject_all", "read_rejected", "edit_slot_field",
+    "reject_all", "read_rejected", "edit_slot_field", "set_slot",
     "add_constraint", "read_constraints", "restore_constraint",
     "show_candidates", "change_archetype", "read_archetype",
 })
@@ -45,6 +45,8 @@ LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
 READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
     "check_hypothetical", "read_pending", "read_rejected", "read_constraints",
     "read_archetype", "solve_spread", "check_learnset", "find_species",
+    "describe",
+    "get_usage_spreads", "get_common_speeds", "get_meta_threats", "get_usage_stats",
 }
 
 # Arm v2 ladder: tool_fields rung. Off → PRE-RS-ARM schemas/results surface.
@@ -329,7 +331,10 @@ _DESCRIBE_SPEC = _spec(
     "Returns the stored description text for an item, move, ability, or format rule. "
     "Use it instead of recalling what something does. kind is item|move|ability|rule. "
     "For kind=rule, name is a clause or flat_rules label (e.g. Species Clause, Item Clause); "
-    "the result includes the pinned wording, source file/path, and whether the validator enforces it.",
+    "the result includes the pinned wording, source file/path, and whether the validator enforces it. "
+    "For whether two species or formes may share a team (Species Clause), or whether two mons "
+    "may hold the same item (Item Clause), call describe(kind=rule) — check_species_legal / "
+    "check_item_legal only answer single-name legality, not the clause text.",
     {"kind": dict(_STR), "name": dict(_STR)},
     ["kind", "name"],
 )
@@ -405,7 +410,9 @@ def combined_specs(
             )
             patched.append({**spec, "function": fn})
         state_specs = patched
-        lookups = [*lookups, _DESCRIBE_SPEC]
+        from scripts.eval.part_g_arm.state.usage_meta_tools import USAGE_META_SPECS
+
+        lookups = [*lookups, _DESCRIBE_SPEC, *USAGE_META_SPECS]
     if wrap:
         from scripts.eval.part_g_arm.state.set_slot_tool import SET_SLOT_SPEC
 
@@ -1861,8 +1868,38 @@ def mechanical_class(before: dict[str, Any], after: dict[str, Any], tool_calls: 
     ):
         return "dismissed"
     for call in tool_calls:
-        if call["name"] in STATE_TOOL_NAMES and (call.get("result") or {}).get("slot_commit_error"):
+        if call["name"] not in STATE_TOOL_NAMES:
+            continue
+        result = call.get("result") or {}
+        # set_slot refuses with ok=False + slot_commit_error; treat either as refused.
+        if result.get("slot_commit_error") or (
+            call["name"] == "set_slot" and result.get("ok") is False
+        ):
             return "refused"
     if tool_calls and all(call["name"] in READONLY_TOOL_NAMES for call in tool_calls):
         return "lookup only"
     return "no change"
+
+
+def tool_call_result_status(call: dict[str, Any]) -> str:
+    """Per-call status for CSV / process counts (arm recording; not class pass/fail)."""
+    result = call.get("result") or {}
+    name = call.get("name") or ""
+    if name == "set_slot":
+        if result.get("ok") is False or result.get("slot_commit_error"):
+            return "refused"
+        if result.get("ok") is True:
+            return "ok"
+        return "unknown"
+    if result.get("slot_commit_error"):
+        return "refused"
+    if result.get("error_kind") or result.get("status") == "error":
+        return "error"
+    status = result.get("status")
+    if isinstance(status, str) and status:
+        return status
+    if result.get("ok") is True:
+        return "ok"
+    if result.get("ok") is False:
+        return "refused"
+    return "ok" if result else "empty"

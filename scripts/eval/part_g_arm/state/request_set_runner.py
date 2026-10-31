@@ -30,7 +30,7 @@ from scripts.eval.part_g_arm.state.request_set_rows import (
     resolve_start_state,
     turns_for_row,
 )
-from scripts.eval.part_g_arm.state.tools import combined_specs
+from scripts.eval.part_g_arm.state.tools import combined_specs, tool_call_result_status
 
 HERE = Path(__file__).resolve().parent
 V4 = HERE.parents[1] / "part_g_v4"
@@ -409,6 +409,8 @@ def _write_tool_calls_csv(out_dir: Path, transcript: list[dict[str, Any]]) -> No
         "name",
         "replace",
         "replace_true_calls",
+        "refused_calls",
+        "result_status",
         "args_json",
     ]
     with path.open("w", encoding="utf-8", newline="") as fh:
@@ -418,10 +420,14 @@ def _write_tool_calls_csv(out_dir: Path, transcript: list[dict[str, Any]]) -> No
             rid = entry.get("id")
             for ti, turn in enumerate(entry.get("turns") or []):
                 rtc = turn.get("replace_true_calls")
+                refused = turn.get("refused_calls")
                 for ci, call in enumerate(turn.get("tool_calls") or []):
                     rep = call.get("replace")
                     if rep is None and call.get("name") == "set_slot":
                         rep = bool((call.get("args") or {}).get("replace") or False)
+                    status = call.get("result_status")
+                    if status is None:
+                        status = tool_call_result_status(call)
                     w.writerow(
                         {
                             "row_id": rid,
@@ -430,6 +436,8 @@ def _write_tool_calls_csv(out_dir: Path, transcript: list[dict[str, Any]]) -> No
                             "name": call.get("name"),
                             "replace": "" if rep is None else str(bool(rep)).lower(),
                             "replace_true_calls": rtc if rtc is not None else "",
+                            "refused_calls": refused if refused is not None else "",
+                            "result_status": status,
                             "args_json": json.dumps(call.get("args") or {}, sort_keys=True),
                         }
                     )

@@ -45,6 +45,7 @@ from scripts.eval.part_g_arm.state.tools import (
     reset_team_state,
     restore_constraint_tool,
     select_option,
+    tool_call_result_status,
     archetype_signature,
     change_archetype,
     check_learnset,
@@ -189,6 +190,27 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         from scripts.eval.part_g_arm.state.describe_tool import describe
 
         return state, describe(args.get("kind"), args.get("name"))
+    if name in {
+        "get_usage_spreads",
+        "get_common_speeds",
+        "get_meta_threats",
+        "get_usage_stats",
+    }:
+        from scripts.eval.part_g_arm.state.tools import tool_fields_enabled
+        from scripts.eval.part_g_arm.state import usage_meta_tools as um
+
+        if not tool_fields_enabled():
+            return state, {"status": "error", "message": f"{name} requires tool_fields"}
+        reg = state.get("regulation_mod") or "champions"
+        if name == "get_usage_spreads":
+            return state, um.get_usage_spreads(args.get("species"), regulation=reg)
+        if name == "get_common_speeds":
+            return state, um.get_common_speeds(args.get("species"), regulation=reg)
+        if name == "get_meta_threats":
+            return state, um.get_meta_threats(args.get("n"), regulation=reg)
+        return state, um.get_usage_stats(
+            args.get("species"), args.get("kind"), regulation=reg
+        )
     if name == "change_archetype":
         return change_archetype(state, args.get("components"))
     if name == "read_archetype":
@@ -313,6 +335,7 @@ def run_turn(
                     entry["replace"] = entry["replace"] or any(
                         bool(s.get("replace")) for s in args["slots"] if isinstance(s, dict)
                     )
+            entry["result_status"] = tool_call_result_status(entry)
             calls.append(entry)
             messages.append(ToolMessage(dumps(recorded), tool_call_id=call["id"]))
         if turn_index + 1 >= cfg.max_turns:
@@ -321,6 +344,7 @@ def run_turn(
     replace_true_calls = sum(
         1 for c in calls if c.get("name") == "set_slot" and c.get("replace") is True
     )
+    refused_calls = sum(1 for c in calls if c.get("result_status") == "refused")
     record = {
         "user": user_text,
         "tool_calls": calls,
@@ -332,6 +356,7 @@ def run_turn(
         "reasked": reasked,
         "prompt_tokens": prompt_tokens,
         "replace_true_calls": replace_true_calls,
+        "refused_calls": refused_calls,
     }
     return state, record
 
