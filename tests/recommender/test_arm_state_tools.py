@@ -360,9 +360,14 @@ def test_v4_fixture_loader_bases_ic1_mrb1_moveset():
     assert hn2c["team_draft"][0].nature.value == "Jolly"
     assert hn2c["team_draft"][0].spread.value["spe"] == 32
     assert hn2c["team_draft"][0].item.value == "Choice Scarf"
-    # Choice Scarf + Protect → reconcile wipe; moves skipped, species kept.
-    assert hn2c["team_draft"][0].moveset.value is None
-    assert any("moves skipped" in x for x in hn2c.get("_fixture_incomplete") or [])
+    # Choice Scarf + status moves: loader keeps the full moveset via direct Attr write.
+    assert hn2c["team_draft"][0].moveset.value == [
+        "Rage Fist",
+        "Drain Punch",
+        "Bulk Up",
+        "Protect",
+    ]
+    assert not any("moves skipped" in x for x in hn2c.get("_fixture_incomplete") or [])
 
     hn2d = load_fixture("HN2d")
     assert hn2d["team_draft"][0].species.value == "Blaziken-Mega"
