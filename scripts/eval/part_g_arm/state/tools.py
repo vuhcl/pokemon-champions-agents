@@ -407,6 +407,12 @@ def combined_specs(
     if wrap:
         from scripts.eval.part_g_arm.state.set_slot_tool import SET_SLOT_SPEC
 
+        # Wrapper rung: set_slot replaces lock_slot / edit_slot_field in the tool list.
+        state_specs = [
+            s
+            for s in state_specs
+            if s["function"]["name"] not in {"lock_slot", "edit_slot_field"}
+        ]
         state_specs = [*state_specs, SET_SLOT_SPEC]
     return [*lookups, *state_specs, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
 

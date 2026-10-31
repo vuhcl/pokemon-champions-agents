@@ -59,7 +59,12 @@ def test_flags_off_schemas_and_prompt_match_previous_rung():
     assert tf_sha != both_sha
     names = [s["function"]["name"] for s in combined_specs(tool_fields=True, wrapper=True)]
     assert "set_slot" in names
-    assert "lock_slot" in names  # existing tools stay
+    assert "lock_slot" not in names
+    assert "edit_slot_field" not in names
+    assert "unlock_slot" in names
+    # tool_fields-only still has the old write tools
+    tf_names = [s["function"]["name"] for s in combined_specs(tool_fields=True, wrapper=False)]
+    assert "lock_slot" in tf_names and "edit_slot_field" in tf_names
 
 
 def test_species_item_three_moves_one_call():
@@ -201,3 +206,16 @@ def test_mw1b_empty_team_no_slot():
     assert result["ok"] is True
     assert result["slots_used"] == [1]
     assert after["team_draft"][0].species.value == "Cinderace"
+
+
+def test_set_slot_edit_returns_choice_lock_consequences():
+    from scripts.eval.part_g_arm.state.harness import start_state
+
+    st = start_state(
+        {"start": "fully_locked_protect", "species": "Venusaur", "user_slot": 1}
+    )
+    _after, result = set_slot(st, {"slot": 1, "item": "Choice Scarf"})
+    assert result["ok"] is True
+    kinds = {c.get("kind") for c in result.get("consequences") or []}
+    assert "choice_lock_status" in kinds
+    assert result.get("edits")

@@ -581,12 +581,17 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
         kind = spec.get("expect_consequence_kind")
         if kind:
             cons_calls = [
-                c for c in turns[0]["tool_calls"] if c["name"] == "edit_slot_field"
+                c
+                for c in turns[0]["tool_calls"]
+                if c["name"] in {"edit_slot_field", "set_slot"}
             ]
             if not cons_calls:
-                failures.append(f"{row_id}: edit_slot_field not called")
+                failures.append(f"{row_id}: edit_slot_field/set_slot not called")
             else:
-                kinds = {x.get("kind") for x in (cons_calls[-1]["result"] or {}).get("consequences") or []}
+                kinds = {
+                    x.get("kind")
+                    for x in (cons_calls[-1]["result"] or {}).get("consequences") or []
+                }
                 if kind not in kinds:
                     failures.append(f"{row_id}: consequences {kinds!r} missing {kind!r}")
     if row_id == "dev-edit-item-refuse":

@@ -401,9 +401,35 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
             "replace": replace_flag,
         }
 
-    # Apply via underlying tools only.
+    # Apply via underlying tools only. Surface edit_slot_field consequences unchanged.
     after = state
     applied_slots: list[int] = []
+    consequences: list[dict[str, Any]] = []
+    edits: list[dict[str, Any]] = []
+
+    def _apply_edit(field: str, value: object) -> dict[str, Any] | None:
+        nonlocal after
+        after, patch = edit_slot_field(after, user_slot, field, value)
+        if patch.get("slot_commit_error"):
+            return {
+                "ok": False,
+                "slot_commit_error": str(patch["slot_commit_error"]),
+                "elements": elements,
+                "replace": replace_flag,
+            }
+        facts = list(patch.get("consequences") or [])
+        consequences.extend(facts)
+        edits.append(
+            {
+                "slot": user_slot,
+                "field": patch.get("field") or field,
+                "consequences": facts,
+                "reconcile_pending_flags": list(patch.get("reconcile_pending_flags") or []),
+                "superseded": list(patch.get("superseded") or []),
+            }
+        )
+        return None
+
     for step in resolved:
         index = step["index"]
         user_slot = index + 1  # underlying tools require int, not display str
@@ -426,51 +452,17 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
                     "elements": elements,
                     "replace": replace_flag,
                 }
-        if step["item"] is not None:
-            after, patch = edit_slot_field(after, user_slot, "item", step["item"])
-            if patch.get("slot_commit_error"):
-                return state, {
-                    "ok": False,
-                    "slot_commit_error": str(patch["slot_commit_error"]),
-                    "elements": elements,
-                    "replace": replace_flag,
-                }
-        if step["ability"] is not None:
-            after, patch = edit_slot_field(after, user_slot, "ability", step["ability"])
-            if patch.get("slot_commit_error"):
-                return state, {
-                    "ok": False,
-                    "slot_commit_error": str(patch["slot_commit_error"]),
-                    "elements": elements,
-                    "replace": replace_flag,
-                }
-        if step["moves"] is not None:
-            after, patch = edit_slot_field(after, user_slot, "moves", step["moves"])
-            if patch.get("slot_commit_error"):
-                return state, {
-                    "ok": False,
-                    "slot_commit_error": str(patch["slot_commit_error"]),
-                    "elements": elements,
-                    "replace": replace_flag,
-                }
-        if step["nature"] is not None:
-            after, patch = edit_slot_field(after, user_slot, "nature", step["nature"])
-            if patch.get("slot_commit_error"):
-                return state, {
-                    "ok": False,
-                    "slot_commit_error": str(patch["slot_commit_error"]),
-                    "elements": elements,
-                    "replace": replace_flag,
-                }
-        if step["spread"] is not None:
-            after, patch = edit_slot_field(after, user_slot, "spread", step["spread"])
-            if patch.get("slot_commit_error"):
-                return state, {
-                    "ok": False,
-                    "slot_commit_error": str(patch["slot_commit_error"]),
-                    "elements": elements,
-                    "replace": replace_flag,
-                }
+        for field, key in (
+            ("item", "item"),
+            ("ability", "ability"),
+            ("moves", "moves"),
+            ("nature", "nature"),
+            ("spread", "spread"),
+        ):
+            if step[key] is not None:
+                err = _apply_edit(field, step[key])
+                if err is not None:
+                    return state, err
         applied_slots.append(int(disp) if isinstance(disp, str) else disp)
 
     # Read-back from state, not echoed request.
@@ -512,6 +504,8 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
         "elements": elements,
         "replace": replace_flag,
         "slots_used": applied_slots,
+        "consequences": consequences,
+        "edits": edits,
     }
 
 
@@ -528,7 +522,9 @@ SET_SLOT_SPEC = {
             "replace defaults false; set replace true only after the user has confirmed "
             "replacing the species in that fully locked slot — an earlier request that "
             "names the slot is not a confirmation. "
-            "Existing lock_slot / edit_slot_field / unlock_slot remain available."
+            "Attribute edits return the same consequences as edit_slot_field (type-boost, "
+            "Choice-lock vs status, status self-boost overlap). "
+            "When this tool is available, use it instead of lock_slot or edit_slot_field."
         ),
         "parameters": {
             "type": "object",
