@@ -90,6 +90,7 @@ def test_stop_after_zero_stamps_run_id(tmp_path: Path):
         stop_after=0,
         run_id=1,
         role="primary",
+        skip_calc_preflight=True,
     )
     assert rc == 0
     progress = json.loads((out / "progress.json").read_text())

@@ -43,6 +43,7 @@ def main(argv: list[str] | None = None) -> int:
         arm=arm,
         facts={"digest": FIXED_RUN_SETTINGS["model_digest"], "stub": True},
         rows_by_id=rows_by_id,
+        skip_calc_preflight=True,
     )
     transcript = json.loads((out / "transcript.json").read_text(encoding="utf-8"))
     assert len(transcript) == len(covered), (len(transcript), len(covered))

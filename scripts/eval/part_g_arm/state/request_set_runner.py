@@ -22,6 +22,12 @@ from recommender.arm_tools import ArmTools
 from recommender.calc_client import CalcClient
 
 from scripts.eval.part_g_arm.config import ArmConfig
+from scripts.eval.part_g_arm.state.calc_infra import (
+    cheap_health,
+    classify_calc_failure,
+    run_preflight,
+    scan_turn_for_infra,
+)
 from scripts.eval.part_g_arm.state.harness import RUN_PARAMS, NON_INHERITANCE, run_turn
 from scripts.eval.part_g_arm.state.request_set_rows import (
     FROZEN_PROMPT_SHA256,
@@ -66,6 +72,13 @@ FAILURE_POLICY: dict[str, Any] = {
         "progress.json lists finished row ids; resume skips them and must not rewrite "
         "their transcript entries"
     ),
+    # Infra (calc service) is separate from answer retry: one row rerun, then halt.
+    "calc_infra": {
+        "max_reruns_per_row": 1,
+        "max_interruptions_per_run": 3,
+        "between_row_check": "GET /health",
+        "on_infra": "halt row, discard partial score attempt, restart+preflight, rerun from seed",
+    },
 }
 
 
@@ -309,6 +322,18 @@ def _save_progress(out_dir: Path, progress: dict[str, Any]) -> None:
     (out_dir / "progress.json").write_text(json.dumps(progress, indent=2) + "\n", encoding="utf-8")
 
 
+def _entry_infra_reason(entry: dict[str, Any]) -> str | None:
+    """Infrastructure calc failure inside a row attempt (tool results), else None."""
+    for turn in entry.get("turns") or []:
+        reason = scan_turn_for_infra(turn.get("tool_calls") or [])
+        if reason:
+            return reason
+        for err in turn.get("errors") or []:
+            if classify_calc_failure(err) == "infrastructure":
+                return str(err)
+    return None
+
+
 def run_batch(
     *,
     out_dir: Path,
@@ -325,8 +350,15 @@ def run_batch(
     role: str | None = None,
     run_flags: dict[str, bool] | None = None,
     additions_file: Path | None = None,
+    supervisor: Any = None,
+    skip_calc_preflight: bool = False,
+    calc_client: CalcClient | None = None,
 ) -> int:
-    """Run rows with resume. stop_after limits newly completed rows (kill-resume tests)."""
+    """Run rows with resume. stop_after limits newly completed rows (kill-resume tests).
+
+    Calc infra: preflight before the run, /health between rows, halt-and-resume on
+    infrastructure errors (one rerun per row; three interruptions per run max).
+    """
     from scripts.eval.part_g_arm.state.exploratory_runner import assert_not_exploratory_dir
     from scripts.eval.part_g_arm.state.tools import set_tool_fields, set_wrapper
 
@@ -335,17 +367,96 @@ def run_batch(
     flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
     set_tool_fields(bool(flags.get("tool_fields")))
     set_wrapper(bool(flags.get("wrapper")))
+    client = calc_client or getattr(arm, "calc", None) or CalcClient(cfg.calc_base_url)
+
+    preflight: dict[str, Any] | None = None
+    interrupted_rows: list[dict[str, Any]] = []
+    interruption_count = 0
+    max_interruptions = int(FAILURE_POLICY["calc_infra"]["max_interruptions_per_run"])
+    max_reruns = int(FAILURE_POLICY["calc_infra"]["max_reruns_per_row"])
+
+    if not skip_calc_preflight:
+        if supervisor is not None:
+            supervisor.ensure_running()
+        preflight = run_preflight(client)
+        if not preflight.get("ok"):
+            record = build_run_parameters(
+                cfg, facts, run_flags=flags, additions_file=additions_file
+            )
+            record["preflight"] = preflight
+            record["halt"] = {
+                "reason": "preflight_failed",
+                "errors": preflight.get("errors"),
+            }
+            if supervisor is not None:
+                record["calc_supervisor"] = supervisor.snapshot()
+            if run_id is not None:
+                record["run_id"] = run_id
+                record["role"] = role or run_role(run_id)
+            (out_dir / "run_record.json").write_text(
+                json.dumps(record, indent=2) + "\n", encoding="utf-8"
+            )
+            print(
+                f"HALT: calc preflight failed: {preflight.get('errors')}",
+                file=sys.stderr,
+            )
+            return 2
+
     progress = _load_progress(out_dir)
     if run_id is not None:
         progress["run_id"] = run_id
         progress["role"] = role or run_role(run_id)
     finished = list(progress.get("finished") or [])
     by_id: dict[str, Any] = dict(progress.get("transcript_by_id") or {})
+    audit_partials: dict[str, Any] = dict(progress.get("infra_partials_by_id") or {})
     newly = 0
+    halted: dict[str, Any] | None = None
+
     for rid in wanted:
         if rid in by_id and rid in finished:
             print(f"skip finished {rid}", file=sys.stderr)
             continue
+
+        # Between-row health (cheap ping). Failure → restart + full preflight.
+        if not skip_calc_preflight:
+            ping = cheap_health(client)
+            if not ping.get("ok"):
+                interruption_count += 1
+                interrupted_rows.append(
+                    {
+                        "row_id": rid,
+                        "phase": "between_row_health",
+                        "error": ping.get("error"),
+                        "rerun": False,
+                    }
+                )
+                if interruption_count > max_interruptions:
+                    halted = {
+                        "reason": "max_interruptions",
+                        "at_row": rid,
+                        "interruptions": interruption_count,
+                    }
+                    print(
+                        f"HALT: more than {max_interruptions} calc interruptions "
+                        f"(between-row health on {rid})",
+                        file=sys.stderr,
+                    )
+                    break
+                if supervisor is not None:
+                    supervisor.restart(reason=f"between_row_health:{rid}")
+                preflight = run_preflight(client)
+                if not preflight.get("ok"):
+                    halted = {
+                        "reason": "preflight_failed_after_restart",
+                        "at_row": rid,
+                        "errors": preflight.get("errors"),
+                    }
+                    print(
+                        f"HALT: preflight failed after restart before {rid}",
+                        file=sys.stderr,
+                    )
+                    break
+
         print(f"running {rid}", file=sys.stderr)
         entry = run_row(
             rows_by_id[rid],
@@ -356,6 +467,83 @@ def run_batch(
             turns_fn=turns_fn,
             run_flags=flags,
         )
+        reruns = 0
+        while True:
+            infra = _entry_infra_reason(entry)
+            if infra is None:
+                break
+            # Discard partial for scoring; keep audit copy.
+            audit_partials.setdefault(rid, []).append(
+                {"error": infra, "attempt": entry, "rerun_index": reruns}
+            )
+            interruption_count += 1
+            interrupted_rows.append(
+                {
+                    "row_id": rid,
+                    "phase": "mid_row",
+                    "error": infra,
+                    "rerun_index": reruns,
+                }
+            )
+            if interruption_count > max_interruptions:
+                halted = {
+                    "reason": "max_interruptions",
+                    "at_row": rid,
+                    "interruptions": interruption_count,
+                    "error": infra,
+                }
+                print(
+                    f"HALT: more than {max_interruptions} calc interruptions "
+                    f"(mid-row on {rid}: {infra})",
+                    file=sys.stderr,
+                )
+                entry = None
+                break
+            if reruns >= max_reruns:
+                halted = {
+                    "reason": "second_infra_on_row",
+                    "at_row": rid,
+                    "error": infra,
+                }
+                print(
+                    f"HALT: second infrastructure failure on row {rid}; not marked finished",
+                    file=sys.stderr,
+                )
+                entry = None
+                break
+            print(
+                f"infra on {rid} ({infra}); restart+preflight+rerun from seed",
+                file=sys.stderr,
+            )
+            if supervisor is not None:
+                supervisor.restart(reason=f"mid_row:{rid}")
+            preflight = run_preflight(client)
+            if not preflight.get("ok"):
+                halted = {
+                    "reason": "preflight_failed_after_restart",
+                    "at_row": rid,
+                    "errors": preflight.get("errors"),
+                }
+                entry = None
+                break
+            reruns += 1
+            entry = run_row(
+                rows_by_id[rid],
+                cfg=cfg,
+                llm=llm,
+                arm=arm,
+                resolve_fn=resolve_fn,
+                turns_fn=turns_fn,
+                run_flags=flags,
+            )
+            entry["infra_rerun"] = True
+            entry["infra_rerun_of"] = infra
+
+        if halted is not None and entry is None:
+            break
+        if entry is None:
+            break
+
         if run_id is not None:
             entry["run_id"] = run_id
             entry["role"] = role or run_role(run_id)
@@ -364,7 +552,11 @@ def run_batch(
             raise SystemExit(f"refusing to rewrite finished row {rid}")
         by_id[rid] = entry
         finished.append(rid)
-        progress = {"finished": finished, "transcript_by_id": by_id}
+        progress = {
+            "finished": finished,
+            "transcript_by_id": by_id,
+            "infra_partials_by_id": audit_partials,
+        }
         if run_id is not None:
             progress["run_id"] = run_id
             progress["role"] = role or run_role(run_id)
@@ -381,20 +573,39 @@ def run_batch(
     if run_id is not None:
         record["run_id"] = run_id
         record["role"] = role or run_role(run_id)
-    progress = {"finished": finished, "transcript_by_id": by_id}
+    if preflight is not None:
+        record["preflight"] = preflight
+    if supervisor is not None:
+        record["calc_supervisor"] = supervisor.snapshot()
+    record["interrupted_rows"] = interrupted_rows
+    record["infra_partials_by_id"] = {
+        k: [{"error": p["error"], "rerun_index": p["rerun_index"]} for p in v]
+        for k, v in audit_partials.items()
+    }
+    if halted is not None:
+        record["halt"] = halted
+    progress = {
+        "finished": finished,
+        "transcript_by_id": by_id,
+        "infra_partials_by_id": audit_partials,
+    }
     if run_id is not None:
         progress["run_id"] = run_id
         progress["role"] = role or run_role(run_id)
     _save_progress(out_dir, progress)
-    (out_dir / "transcript.json").write_text(json.dumps(transcript, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "transcript.json").write_text(
+        json.dumps(transcript, indent=2) + "\n", encoding="utf-8"
+    )
     # Per-row list of turns with replace=true set_slot calls (audit finds calls; verdict by hand).
     record["replace_true_turns_by_row"] = {
         e["id"]: e.get("replace_true_turns") or [] for e in transcript if e.get("loaded")
     }
-    (out_dir / "run_record.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "run_record.json").write_text(
+        json.dumps(record, indent=2) + "\n", encoding="utf-8"
+    )
     _write_tool_calls_csv(out_dir, transcript)
     print(f"wrote {out_dir} ({len(transcript)} rows)", file=sys.stderr)
-    return 0
+    return 1 if halted is not None else 0
 
 
 def _write_tool_calls_csv(out_dir: Path, transcript: list[dict[str, Any]]) -> None:
@@ -582,6 +793,15 @@ def main(argv: list[str] | None = None) -> int:
         calc=CalcClient(cfg.calc_base_url),
         include_damage_rolls=cfg.damage_rolls_in_result,
     )
+    from scripts.eval.part_g_arm.state.calc_supervisor import CalcSupervisor
+
+    # Attach to an already-running calc when healthy; otherwise spawn npm start.
+    # Restart logging goes under out_dir for the run record.
+    supervisor = CalcSupervisor(
+        port=4173,
+        log_path=out_dir / "calc_supervisor.jsonl",
+        attach_only=False,
+    )
 
     if args.stub:
         from scripts.eval.part_g_arm.state.stub_llm import StubLLM
@@ -668,6 +888,8 @@ def main(argv: list[str] | None = None) -> int:
         role=role,
         run_flags=run_flags,
         additions_file=additions_file,
+        supervisor=supervisor,
+        calc_client=arm.calc,
     )
 
 
