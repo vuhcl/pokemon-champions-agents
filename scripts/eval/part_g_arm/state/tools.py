@@ -46,6 +46,7 @@ READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
     "check_hypothetical", "read_pending", "read_rejected", "read_constraints",
     "read_archetype", "solve_spread", "check_learnset", "find_species",
     "describe",
+    "get_usage_spreads", "get_common_speeds", "get_meta_threats", "get_usage_stats",
 }
 
 # Arm v2 ladder: tool_fields rung. Off → PRE-RS-ARM schemas/results surface.
@@ -409,7 +410,9 @@ def combined_specs(
             )
             patched.append({**spec, "function": fn})
         state_specs = patched
-        lookups = [*lookups, _DESCRIBE_SPEC]
+        from scripts.eval.part_g_arm.state.usage_meta_tools import USAGE_META_SPECS
+
+        lookups = [*lookups, _DESCRIBE_SPEC, *USAGE_META_SPECS]
     if wrap:
         from scripts.eval.part_g_arm.state.set_slot_tool import SET_SLOT_SPEC
 

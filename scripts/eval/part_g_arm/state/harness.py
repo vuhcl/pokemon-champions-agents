@@ -190,6 +190,27 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         from scripts.eval.part_g_arm.state.describe_tool import describe
 
         return state, describe(args.get("kind"), args.get("name"))
+    if name in {
+        "get_usage_spreads",
+        "get_common_speeds",
+        "get_meta_threats",
+        "get_usage_stats",
+    }:
+        from scripts.eval.part_g_arm.state.tools import tool_fields_enabled
+        from scripts.eval.part_g_arm.state import usage_meta_tools as um
+
+        if not tool_fields_enabled():
+            return state, {"status": "error", "message": f"{name} requires tool_fields"}
+        reg = state.get("regulation_mod") or "champions"
+        if name == "get_usage_spreads":
+            return state, um.get_usage_spreads(args.get("species"), regulation=reg)
+        if name == "get_common_speeds":
+            return state, um.get_common_speeds(args.get("species"), regulation=reg)
+        if name == "get_meta_threats":
+            return state, um.get_meta_threats(args.get("n"), regulation=reg)
+        return state, um.get_usage_stats(
+            args.get("species"), args.get("kind"), regulation=reg
+        )
     if name == "change_archetype":
         return change_archetype(state, args.get("components"))
     if name == "read_archetype":
