@@ -301,13 +301,26 @@ def get_usage_stats(
         sources.append(_one(sd, "showdown"))
     if ig is not None:
         sources.append(_one(ig, "ingame"))
-    return {
+    out: dict[str, Any] = {
         "status": "ok",
         "found": True,
         "species": display,
         "kind": kind,
         "sources": sources,
     }
+    if str(kind) == "abilities":
+        from scripts.eval.part_g_arm.state.ability_default import lookup_top_ability
+
+        top = lookup_top_ability(species, regulation=regulation)
+        out["default_source"] = top["default_source"]
+        out["default_source_missing"] = top["default_source_missing"]
+        out["top_ability"] = top["top_ability"]
+        out["default_source_note"] = (
+            "default_source is top in-game ability, except Mega-capable bases and "
+            "Mega formes use top Showdown (in-game blends base/Mega). Flip "
+            "ABILITY_DEFAULT_SOURCE_MODE to 'showdown' for Showdown-everywhere."
+        )
+    return out
 
 
 # --- tool_fields specs -------------------------------------------------------
@@ -356,7 +369,9 @@ USAGE_META_SPECS: list[dict[str, Any]] = [
     _spec(
         "get_usage_stats",
         "Returns usage-ranked moves, abilities, or natures from the same pins as "
-        "get_usage_items; does not return the dex list or invent missing rows.",
+        "get_usage_items; for kind=abilities also returns default_source and "
+        "top_ability (in-game top, Showdown for Mega-capable bases/formes); does "
+        "not return the dex list or invent missing rows.",
         {"species": dict(_STR), "kind": dict(_STR)},
         ["species", "kind"],
     ),
