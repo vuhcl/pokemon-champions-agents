@@ -375,13 +375,18 @@ def run_turn(
             final_text = _text(ai.content)
             break
         for call in ai.tool_calls:
+            import time as _time
+
+            _t0 = _time.perf_counter()
             state, patch = dispatch(state, arm, call["name"], call.get("args") or {})
+            latency_ms = int((_time.perf_counter() - _t0) * 1000)
             recorded = _jsonable_result(patch)
             args = call.get("args") or {}
             entry: dict[str, Any] = {
                 "name": call["name"],
                 "args": args,
                 "result": recorded,
+                "latency_ms": latency_ms,
             }
             # Replace-flag audit: top-level field, not only inside args JSON.
             if call["name"] == "set_slot":
