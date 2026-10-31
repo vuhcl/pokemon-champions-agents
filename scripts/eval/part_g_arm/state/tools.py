@@ -1527,6 +1527,16 @@ def _constraints_signature(constraints: object) -> tuple[Any, ...]:
     return tuple(to_jsonable(c) for c in (constraints or ()))
 
 
+def _canon_archetype_sig(sig: tuple[Any, ...] | None) -> tuple[tuple[Any, ...], bool]:
+    """None and empty components both compare as ([], False)."""
+    if sig is None:
+        return ((), False)
+    if len(sig) == 2:
+        comps, locked = sig[0], sig[1]
+        return (tuple(comps or ()), bool(locked))
+    return ((), False)
+
+
 def archetype_signature(state: dict[str, Any]) -> tuple[Any, ...] | None:
     """Components + locked for Attr or snapshot dict. None when unset."""
     # Snapshots carry archetype_sig (may be None); live state carries archetype Attr.
@@ -1563,7 +1573,9 @@ def mechanical_class(before: dict[str, Any], after: dict[str, Any], tool_calls: 
     """wrote > bound > recorded > dismissed > refused > lookup only > no change."""
     if draft_signature(before) != draft_signature(after):
         return "wrote"
-    if archetype_signature(before) != archetype_signature(after):
+    if _canon_archetype_sig(archetype_signature(before)) != _canon_archetype_sig(
+        archetype_signature(after)
+    ):
         return "wrote"
     b_pending, b_intent, b_prov, b_rej, b_cons = steering_signature(before)
     a_pending, a_intent, a_prov, a_rej, a_cons = steering_signature(after)

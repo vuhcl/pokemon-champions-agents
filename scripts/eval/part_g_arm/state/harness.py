@@ -245,6 +245,8 @@ def run_turn(
     final_text = ""
     errors: list[str] = []
     reasked = False
+    # Ollama prompt_eval_count on the fullest invoke this turn (includes in-turn tools).
+    prompt_tokens: int | None = None
     for turn_index in range(cfg.max_turns):
         if time.monotonic() > deadline:
             errors.append("item_timeout")
@@ -254,6 +256,12 @@ def run_turn(
         except Exception as exc:  # noqa: BLE001 - recorded, not raised
             errors.append(f"{type(exc).__name__}: {exc}")
             break
+        meta = getattr(ai, "response_metadata", None) or {}
+        pec = meta.get("prompt_eval_count")
+        if pec is None and isinstance(meta.get("token_usage"), dict):
+            pec = meta["token_usage"].get("prompt_tokens")
+        if isinstance(pec, int):
+            prompt_tokens = pec if prompt_tokens is None else max(prompt_tokens, pec)
         if cfg.enforce_first_turn_tool and turn_index == 0 and not ai.tool_calls and not reasked:
             reasked = True
             messages.append(HumanMessage(REASK))
@@ -279,6 +287,7 @@ def run_turn(
         "mechanical_class": mechanical_class(before, after, calls),
         "errors": errors,
         "reasked": reasked,
+        "prompt_tokens": prompt_tokens,
     }
     return state, record
 

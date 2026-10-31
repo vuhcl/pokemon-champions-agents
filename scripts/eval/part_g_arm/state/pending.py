@@ -70,6 +70,8 @@ _SLOT_BASE: dict[str, SlotBase] = {
     "h26_torkoal_locked.json": "user",
     "ic1_corviknight_item_clause.json": "first_free",
     "mm2_salamence_mega.json": "internal",
+    # RB1: top-level species/item/moves (4th move empty); internal slot 0.
+    "rb1_lucario_megaz_calmmind.json": "internal",
 }
 
 _SLOT_BASE_EVIDENCE: dict[str, str] = {

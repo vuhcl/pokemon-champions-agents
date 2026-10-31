@@ -49,6 +49,14 @@ FIXED_RUN_SETTINGS: dict[str, Any] = {
     "prompt_sha256": FROZEN_PROMPT_SHA256,
 }
 
+# Arm v2 ladder flags (Vu 2026-10-30). All default off for PRE-RS-ARM-equivalent configs.
+DEFAULT_RUN_FLAGS: dict[str, bool] = {
+    "tool_fields": False,
+    "wrapper": False,
+    "guard": False,
+    "judge": False,
+}
+
 # Fixed BEFORE any covered run (Part 4). No silent retry.
 FAILURE_POLICY: dict[str, Any] = {
     "per_turn_timeout_s": 300.0,
@@ -102,6 +110,15 @@ def assert_row_allowed(row_id: str, *, allow_dev: bool, covered: set[str]) -> No
     raise SystemExit(f"refusing row {row_id!r}: not in covered_list.json (pass --dev to override)")
 
 
+def _usable_assistant_text(record: dict[str, Any]) -> str:
+    text = (record.get("final_text") or "").strip()
+    if not text or record.get("no_usable_answer"):
+        return ""
+    if text == "no usable answer":
+        return ""
+    return text
+
+
 def run_row(
     row: dict[str, Any],
     *,
@@ -110,9 +127,11 @@ def run_row(
     arm: ArmTools,
     resolve_fn: Any = None,
     turns_fn: Any = None,
+    run_flags: dict[str, bool] | None = None,
 ) -> dict[str, Any]:
     resolve = resolve_fn or resolve_start_state
     turns_fn = turns_fn or turns_for_row
+    flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
     state, meta = resolve(row)
     if state is None:
         return {
@@ -120,14 +139,18 @@ def run_row(
             "loaded": False,
             "error": meta.get("error"),
             "turns": [],
+            "run_flags": dict(flags),
         }
     turns_out: list[dict[str, Any]] = []
-    prior = list(state.get("_message_history") or [])
+    seed_prior = list(state.get("_message_history") or [])
+    # User+assistant text from completed runner turns of this row (no tool messages).
+    row_chat: list[dict[str, str]] = []
     # Apply failure-policy timeouts onto a shallow cfg copy when possible.
     turn_timeout = float(FAILURE_POLICY["per_turn_timeout_s"])
     max_tools = int(FAILURE_POLICY["max_tool_calls_per_turn"])
     for i, user_text in enumerate(turns_fn(row, state)):
-        use_prior = prior if i == 0 else []
+        # Turn 0: seed history only (unchanged). Later turns: earlier row turns' text.
+        use_prior = seed_prior if i == 0 else list(row_chat)
         # Cap model invocations via item_timeout / max_turns without mutating frozen ArmConfig.
         capped = cfg
         if hasattr(cfg, "item_timeout_s") and cfg.item_timeout_s != turn_timeout:
@@ -147,18 +170,31 @@ def run_row(
             if not (record.get("final_text") or "").strip():
                 record["final_text"] = "no usable answer"
             record["no_usable_answer"] = True
+        record["run_flags"] = dict(flags)
+        # Prompt-token logging: char proxy always; HF token count when available.
+        record["prompt_chars"] = sum(len(m.get("content") or "") for m in use_prior) + len(
+            user_text
+        ) + len(cfg.prompt_text())
         turns_out.append(record)
+        row_chat.append({"role": "user", "content": user_text})
+        assistant = _usable_assistant_text(record)
+        if assistant:
+            row_chat.append({"role": "assistant", "content": assistant})
     return {
         "id": row["id"],
         "loaded": True,
         "start_meta": meta,
         "turns": turns_out,
+        "run_flags": dict(flags),
     }
 
 
-def build_run_parameters(cfg: ArmConfig, facts: dict[str, Any]) -> dict[str, Any]:
+def build_run_parameters(
+    cfg: ArmConfig, facts: dict[str, Any], *, run_flags: dict[str, bool] | None = None
+) -> dict[str, Any]:
     specs = combined_specs()
     digest = facts.get("digest") or FIXED_RUN_SETTINGS["model_digest"]
+    flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
     return {
         "non_inheritance": NON_INHERITANCE,
         "run_params": RUN_PARAMS,
@@ -185,6 +221,7 @@ def build_run_parameters(cfg: ArmConfig, facts: dict[str, Any]) -> dict[str, Any
         },
         "allow_live": cfg.allow_live,
         "failure_policy": FAILURE_POLICY,
+        "run_flags": flags,
     }
 
 
@@ -240,12 +277,14 @@ def run_batch(
     turns_fn: Any = None,
     run_id: int | None = None,
     role: str | None = None,
+    run_flags: dict[str, bool] | None = None,
 ) -> int:
     """Run rows with resume. stop_after limits newly completed rows (kill-resume tests)."""
     from scripts.eval.part_g_arm.state.exploratory_runner import assert_not_exploratory_dir
 
     assert_not_exploratory_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
     progress = _load_progress(out_dir)
     if run_id is not None:
         progress["run_id"] = run_id
@@ -265,6 +304,7 @@ def run_batch(
             arm=arm,
             resolve_fn=resolve_fn,
             turns_fn=turns_fn,
+            run_flags=flags,
         )
         if run_id is not None:
             entry["run_id"] = run_id
@@ -285,7 +325,7 @@ def run_batch(
             break
 
     transcript = [by_id[rid] for rid in wanted if rid in by_id]
-    record = build_run_parameters(cfg, facts)
+    record = build_run_parameters(cfg, facts, run_flags=flags)
     if run_id is not None:
         record["run_id"] = run_id
         record["role"] = role or run_role(run_id)
@@ -328,7 +368,27 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--stub", action="store_true", help="use StubLLM (no Ollama)")
     parser.add_argument("--stop-after", type=int, default=None, help="stop after N new rows (resume test)")
     parser.add_argument("--dev-rows-file", type=Path, default=None, help="run harness-style dev_rows.json via --dev")
+    parser.add_argument(
+        "--tool-fields",
+        action="store_true",
+        help="arm v2: enable tool_fields rung (default off)",
+    )
+    parser.add_argument(
+        "--wrapper", action="store_true", help="arm v2: enable set-slot wrapper (default off)"
+    )
+    parser.add_argument(
+        "--guard", action="store_true", help="arm v2: enable class tool guard (default off)"
+    )
+    parser.add_argument(
+        "--judge", action="store_true", help="arm v2: enable judge-lite (default off)"
+    )
     args = parser.parse_args(argv)
+    run_flags = {
+        "tool_fields": bool(args.tool_fields),
+        "wrapper": bool(args.wrapper),
+        "guard": bool(args.guard),
+        "judge": bool(args.judge),
+    }
 
     covered = load_covered_ids()
     if args.list_covered:
@@ -437,6 +497,7 @@ def main(argv: list[str] | None = None) -> int:
         turns_fn=turns_fn,
         run_id=run_id,
         role=role,
+        run_flags=run_flags,
     )
 
 
