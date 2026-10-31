@@ -1,6 +1,7 @@
 """Part 0 speed grids, COMMON_SPEED grouping, inverse min-SP (ADR-060)."""
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 
 from _lib import (
@@ -15,6 +16,39 @@ from _lib import (
 
 SPE_PLUS = SPEED_PLUS
 SPE_MINUS = SPEED_MINUS
+
+
+def final_spe_after_mods(
+    base_spe: int,
+    spe_sp: int,
+    nature: str,
+    *,
+    stage: int = 0,
+    scarf: bool = False,
+    tw: bool = False,
+) -> int:
+    """Champions Spe with stage then Scarf×Tailwind — two floors (calc getFinalSpeed).
+
+    Independent of arm get_speed (ADR-060). (1) nature+SP then stage, floored once;
+    (2) Scarf ×1.5 and Tailwind ×2 as one multiplier, floored once.
+    """
+    if not isinstance(stage, int) or isinstance(stage, bool) or stage < -6 or stage > 6:
+        raise ValueError("stage must be an int from -6 to +6")
+    speed = champions_spe(base_spe, spe_sp, nature, scarf=False)
+    if stage > 0:
+        speed = math.floor(speed * (2 + stage) / 2)
+    elif stage < 0:
+        speed = math.floor(speed * 2 / (2 + abs(stage)))
+    mult = 1.0
+    if scarf:
+        mult *= 1.5
+    if tw:
+        mult *= 2.0
+    if mult != 1.0:
+        speed = math.floor(speed * mult)
+    return speed
+
+
 ALL_NATURES = [
     "Hardy",
     "Lonely",
@@ -211,9 +245,16 @@ def min_spe_four_part(
     items = common_item_showdown(sd, own_species)
     has_scarf = any(to_id(i.get("name", "")) == "choicescarf" for i in items)
 
-    def spe_at(nature: str, sp: int, scarf: bool = False, tw: bool = False) -> int:
-        s = champions_spe(base, sp, nature, scarf=scarf)
-        return s * 2 if tw else s
+    def spe_at(
+        nature: str,
+        sp: int,
+        scarf: bool = False,
+        tw: bool = False,
+        stage: int = 0,
+    ) -> int:
+        return final_spe_after_mods(
+            base, sp, nature, stage=stage, scarf=scarf, tw=tw
+        )
 
     def search_mode(nature: str, target_spe: int, budget: int, scarf: bool, tw: bool, label: str) -> dict:
         found = None
