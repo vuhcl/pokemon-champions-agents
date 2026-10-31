@@ -1,0 +1,618 @@
+{
+  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored. MT7 and MT8 are hand-graded against derived_keys (no class scorer yet). Prior paraphrasing rows dev-select-cs and dev-reject-dismiss are retired; their observed findings stay in LAST_DEV_RUN notes. Mega rows (dev-mega-*) use Kangaskhan-Mega / Kangaskhanite only \u2014 not Salamence, Charizard, or any covered-row species. Arm v2 draft rows (dev2-*): keys written before model run; substitutions listed per row. Numeric Spe keys hand-checked by Vu before any run.",
+  "substitutions": [
+    {
+      "from": "Kingambit",
+      "to": "Cinderace",
+      "reason": "appears in graded 134; learns Sucker Punch+Iron Head"
+    },
+    {
+      "from": "Rillaboom",
+      "to": "Mawile",
+      "reason": "appears in graded 134; legal seed"
+    },
+    {
+      "from": "Gyarados",
+      "to": "Milotic",
+      "reason": "appears in graded 134; base Spe 81, learns Dragon Dance"
+    },
+    {
+      "from": "Garchomp",
+      "to": "Pidgeot",
+      "reason": "appears in graded 134; base Spe 101 (outsped by Milotic +1)"
+    },
+    {
+      "from": "Dragonite",
+      "to": "Altaria",
+      "reason": "appears in graded 134; base Spe 80 \u2192 same 435 scarf+tw Jolly 32"
+    },
+    {
+      "from": "Raichu",
+      "to": "Ninetales",
+      "reason": "appears in graded 134"
+    },
+    {
+      "from": "Alolan Raichu / Raichu-Alola",
+      "to": "Ninetales-Alola",
+      "reason": "paired forme; both legal and free"
+    },
+    {
+      "from": "Gholdengo",
+      "to": "Clefable",
+      "reason": "appears in graded 134; learns Shadow Ball"
+    }
+  ],
+  "rows": [
+    {
+      "id": "dev-lock",
+      "turns": [
+        "Lock Venusaur into slot 2.",
+        "Lock Bulbasaur into slot 2."
+      ]
+    },
+    {
+      "id": "dev-unlock",
+      "turns": [
+        "Unlock slot 1."
+      ]
+    },
+    {
+      "id": "dev-commit",
+      "turns": [
+        "Commit the pending build."
+      ]
+    },
+    {
+      "id": "dev-lookup",
+      "turns": [
+        "What types does Venusaur have?"
+      ]
+    },
+    {
+      "id": "dev-unlock-ok",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Unlock slot 1."
+      ]
+    },
+    {
+      "id": "dev-commit-ok",
+      "start": "fbc",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Commit this build."
+      ]
+    },
+    {
+      "id": "dev-hyp-item-clause",
+      "turns": [
+        "What if Venusaur and Blastoise both held Wide Lens?"
+      ]
+    },
+    {
+      "id": "dev-hyp-species-clause",
+      "turns": [
+        "Could I put both Venusaur and Venusaur-Mega on this team?"
+      ]
+    },
+    {
+      "id": "dev-hyp-unknown-species",
+      "turns": [
+        "What if I locked Bulbasaur into a free slot?"
+      ]
+    },
+    {
+      "id": "dev-hyp-legal",
+      "turns": [
+        "What if Venusaur held Wide Lens?"
+      ]
+    },
+    {
+      "id": "dev-hyp-item-only",
+      "turns": [
+        "Could I run two Wide Lens on this team?"
+      ]
+    },
+    {
+      "id": "dev-pick-named",
+      "start": "cs",
+      "species_options": [
+        "Venusaur",
+        "Blastoise"
+      ],
+      "slot_index": 0,
+      "turns": [
+        "Put Blastoise on the provisional build from this candidate screen."
+      ]
+    },
+    {
+      "id": "dev-select-bad",
+      "start": "cs",
+      "species_options": [
+        "Venusaur",
+        "Blastoise",
+        "Beedrill"
+      ],
+      "slot_index": 0,
+      "turns": [
+        "Select option 7."
+      ]
+    },
+    {
+      "id": "dev-select-locked-target",
+      "start": "cs_locked_target",
+      "locked_species": "Venusaur",
+      "species_options": [
+        "Blastoise",
+        "Beedrill"
+      ],
+      "turns": [
+        "I'll take the first one."
+      ]
+    },
+    {
+      "id": "dev-confirm-fbc",
+      "start": "fbc",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Yes, confirm this build."
+      ]
+    },
+    {
+      "id": "dev-confirm-stale-fp",
+      "start": "fbc_stale_fp",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Yes, confirm this build."
+      ]
+    },
+    {
+      "id": "dev-reject",
+      "start": "cs",
+      "species_options": [
+        "Venusaur",
+        "Blastoise"
+      ],
+      "slot_index": 0,
+      "turns": [
+        "Reject the first option."
+      ]
+    },
+    {
+      "id": "dev-toss-all",
+      "start": "cs",
+      "species_options": [
+        "Venusaur",
+        "Blastoise",
+        "Beedrill"
+      ],
+      "slot_index": 0,
+      "turns": [
+        "Throw out every candidate on this screen."
+      ]
+    },
+    {
+      "id": "dev-show-rejected",
+      "start": "cs",
+      "species_options": [
+        "Venusaur",
+        "Blastoise"
+      ],
+      "slot_index": 0,
+      "turns": [
+        "Reject the first option.",
+        "List the species on my rejected list."
+      ]
+    },
+    {
+      "id": "dev-dismiss-later",
+      "start": "cs",
+      "species_options": [
+        "Venusaur",
+        "Blastoise"
+      ],
+      "slot_index": 0,
+      "turns": [
+        "Not now \u2014 leave the candidates and clear this screen."
+      ]
+    },
+    {
+      "id": "dev-reject-all-bad",
+      "turns": [
+        "Reject all of these options."
+      ]
+    },
+    {
+      "id": "dev-edit-item-ok",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Life Orb."
+      ]
+    },
+    {
+      "id": "dev-edit-item-refuse",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Set slot 1's item to Choice Specs."
+      ]
+    },
+    {
+      "id": "dev-edit-choice-consequence",
+      "start": "fully_locked_protect",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Choice Scarf."
+      ]
+    },
+    {
+      "id": "dev-ms6-water",
+      "turns": [
+        "Add a constraint: slot 1 must be Water type."
+      ]
+    },
+    {
+      "id": "dev-mt3-intimidate",
+      "turns": [
+        "Add a constraint: no Intimidate on this team."
+      ]
+    },
+    {
+      "id": "dev-restore-type",
+      "turns": [
+        "Add a constraint that slot 1 is Fire type.",
+        "Now change that: slot 1 must be Water type.",
+        "Restore the previous constraint."
+      ]
+    },
+    {
+      "id": "dev-show-open",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show me candidates for slot 2."
+      ]
+    },
+    {
+      "id": "dev-show-reject",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show candidates for slot 2.",
+        "Reject option 1.",
+        "Show candidates for slot 2 again."
+      ]
+    },
+    {
+      "id": "dev-show-empty",
+      "turns": [
+        "Show me candidates for slot 1."
+      ]
+    },
+    {
+      "id": "dev-show-locked",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show candidates for slot 1."
+      ]
+    },
+    {
+      "id": "dev-learnset-yes",
+      "turns": [
+        "Does Venusaur learn Sludge Bomb?"
+      ]
+    },
+    {
+      "id": "dev-learnset-no",
+      "turns": [
+        "Does Venusaur learn Surf?"
+      ]
+    },
+    {
+      "id": "dev-archetype-rain",
+      "turns": [
+        "Change the team archetype to rain offense."
+      ]
+    },
+    {
+      "id": "dev-move-priority",
+      "turns": [
+        "What priority does Follow Me have?"
+      ]
+    },
+    {
+      "id": "dev-fs-types-move",
+      "turns": [
+        "Which legal Water-type Pokemon learn Hurricane?"
+      ]
+    },
+    {
+      "id": "dev-fs-stat-bulk",
+      "turns": [
+        "Which legal Fire-type Pokemon have 2*hp+def+spd at least 350, excluding Mega formes?"
+      ]
+    },
+    {
+      "id": "dev-fs-formes",
+      "turns": [
+        "List legal Water types that learn Hurricane, including Mega formes if any."
+      ]
+    },
+    {
+      "id": "dev-fs-prankster-weather",
+      "turns": [
+        "Which Pokemon can have Prankster and learn a move that sets weather?"
+      ]
+    },
+    {
+      "id": "dev-mt7",
+      "hand_grade": true,
+      "turns": [
+        "Give me an Archaludon spread that avoids OHKO from Jolly Sneasler's Close Combat and outspeeds the mirror match.",
+        "Make it avoid Adamant Sneasler instead.",
+        "Also avoid max-SpA Mega Charizard Y's Flamethrower."
+      ]
+    },
+    {
+      "id": "dev-mt8",
+      "hand_grade": true,
+      "turns": [
+        "Give me an Archaludon spread that avoids OHKO from Jolly Sneasler's Close Combat and outspeeds the mirror match.",
+        "Make it avoid Adamant Sneasler instead.",
+        "Also avoid max-SpA Mega Charizard Y's Weather Ball.",
+        "What are my options if that does not work?"
+      ]
+    },
+    {
+      "id": "dev-mega-bare-hyp",
+      "turns": [
+        "Could I put Kangaskhan-Mega on my team?"
+      ]
+    },
+    {
+      "id": "dev-mega-edit-refuse",
+      "start": "fully_locked_mega",
+      "species": "Kangaskhan-Mega",
+      "item": "Kangaskhanite",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Leftovers."
+      ]
+    },
+    {
+      "id": "dev-mega-lock-ok",
+      "turns": [
+        "Set slot 1's item to Kangaskhanite.",
+        "Lock Kangaskhan-Mega into slot 1."
+      ]
+    },
+    {
+      "id": "dev2-wrap-attrs",
+      "turns": [
+        "Put Cinderace in slot 1 with Chople Berry, Sucker Punch and Iron Head."
+      ],
+      "expected_class": "MUTATION-OK",
+      "key": "One slot holds Cinderace, Chople Berry, Sucker Punch, Iron Head; read-back states them; attributes applied.",
+      "rung": "wrapper",
+      "substitution": {
+        "Kingambit": "Cinderace"
+      }
+    },
+    {
+      "id": "dev2-wrap-illegal-plus",
+      "turns": [
+        "Lock Mewtwo in slot 1 holding Choice Specs."
+      ],
+      "expected_class": "MUTATION-REFUSED",
+      "key": "State unchanged. Reply names both causes: Mewtwo (Restricted Legendary or Mythical per pin once PR5 merged) and Choice Specs (not legal).",
+      "rung": "wrapper"
+    },
+    {
+      "id": "dev2-wrap-itemclause",
+      "start": "fully_locked",
+      "species": "Mawile",
+      "user_slot": 1,
+      "turns": [
+        "Slot 2 Hydreigon with Sitrus Berry and Draco Meteor."
+      ],
+      "expected_class": "MUTATION-REFUSED",
+      "key": "Item Clause named; slot 2 stays empty (no partial apply).",
+      "rung": "wrapper",
+      "substitution": {
+        "Rillaboom": "Mawile"
+      }
+    },
+    {
+      "id": "dev2-speed-stage",
+      "turns": [
+        "Does Milotic outspeed Pidgeot after using Dragon Dance once? Both have max speed investments."
+      ],
+      "expected_class": "ASSUME-STATE",
+      "key": "Assumption stated (32 SP and Speed-raising nature on both). Milotic stage +1, Pidgeot stage 0; numbers match hand computation. get_speed stage 1 for Milotic only.",
+      "rung": "tool_fields",
+      "substitution": {
+        "Gyarados": "Milotic",
+        "Garchomp": "Pidgeot"
+      }
+    },
+    {
+      "id": "dev2-speed-scarf-tw",
+      "turns": [
+        "Jolly 32 SP Altaria with Choice Scarf under Tailwind: what Speed is that?"
+      ],
+      "expected_class": "SERVED",
+      "key": "Final Speed 435 (Scarf and Tailwind combined, floored once). Echo scarf and tailwind true, stage 0.",
+      "rung": "tool_fields",
+      "substitution": {
+        "Dragonite": "Altaria"
+      }
+    },
+    {
+      "id": "dev2-speed-nocond",
+      "turns": [
+        "What is Hydreigon's Speed at Timid, 32 SP?"
+      ],
+      "expected_class": "SERVED",
+      "key": "get_speed with no conditions (stage 0, scarf false, tailwind false); equals unmodified Speed.",
+      "rung": "tool_fields"
+    },
+    {
+      "id": "dev2-move-fields",
+      "turns": [
+        "How many PP does Thunderbolt have, whom does it target, and how accurate is it?"
+      ],
+      "expected_class": "SERVED",
+      "key": "pp, target and accuracy equal pinned values; no flags claim unless asked.",
+      "rung": "tool_fields"
+    },
+    {
+      "id": "dev2-find-trunc",
+      "turns": [
+        "List every Fire-type I can use."
+      ],
+      "expected_class": "SERVED",
+      "key": "Complete set; if truncated, re-call with larger n until complete; final length equals total_matches; no check_species_legal.",
+      "rung": "find_species fields"
+    },
+    {
+      "id": "dev2-describe-item",
+      "turns": [
+        "What does Leftovers do, exactly?"
+      ],
+      "expected_class": "SERVED",
+      "key": "Reply matches describe short_desc; describe called.",
+      "rung": "describe"
+    },
+    {
+      "id": "dev2-describe-override",
+      "turns": [
+        "What does Beak Blast do in this format?"
+      ],
+      "expected_class": "SERVED",
+      "key": "Uses stored text and states Champions change from override list; text_may_not_match respected. Beak Blast overrides nonempty.",
+      "rung": "describe"
+    },
+    {
+      "id": "dev2-rule-species",
+      "turns": [
+        "Can I bring both Ninetales and Alolan Ninetales on the same team?"
+      ],
+      "expected_class": "SERVED",
+      "key": "States Species Clause by name from the registry. Both formes legal in pin.",
+      "rung": "rules registry",
+      "substitution": {
+        "Raichu": "Ninetales",
+        "Alolan Raichu": "Ninetales-Alola"
+      }
+    },
+    {
+      "id": "dev2-rule-itemclause",
+      "turns": [
+        "Is it okay to give two of my mons the same held item?"
+      ],
+      "expected_class": "SERVED",
+      "key": "States Item Clause = 1 from the registry.",
+      "rung": "rules registry"
+    },
+    {
+      "id": "dev2-replace-unconfirmed",
+      "start": "fully_locked",
+      "species": "Mawile",
+      "user_slot": 1,
+      "turns": [
+        "Put Cinderace in slot 1."
+      ],
+      "expected_class": "ASK",
+      "key": "Refusal or ask naming slot 1 and Mawile; state unchanged; no set_slot with replace true.",
+      "rung": "wrapper",
+      "substitution": {
+        "Rillaboom": "Mawile",
+        "Kingambit": "Cinderace"
+      }
+    },
+    {
+      "id": "dev2-parse-two",
+      "start": "fully_locked",
+      "species": "Mawile",
+      "user_slot": 1,
+      "turns": [
+        "Show me what's on my team, and also tell me whether Clefable can learn Shadow Ball."
+      ],
+      "expected_class": "SERVED",
+      "key": "read_team and check_learnset; state unchanged.",
+      "rung": "guard / parser",
+      "substitution": {
+        "Rillaboom": "Mawile",
+        "Gholdengo": "Clefable"
+      }
+    },
+    {
+      "id": "dev2-parse-readonly-after-write",
+      "start": "fully_locked",
+      "species": "Mawile",
+      "user_slot": 1,
+      "turns": [
+        "Slot 2 Cinderace.",
+        "Confirm slot 2."
+      ],
+      "expected_class": [
+        "MUTATION-OK",
+        "SERVED"
+      ],
+      "key": "t2 no write call; read_team; Cinderace in slot 2.",
+      "rung": "guard",
+      "substitution": {
+        "Rillaboom": "Mawile",
+        "Kingambit": "Cinderace"
+      }
+    },
+    {
+      "id": "dev2-pending-remember",
+      "turns": [
+        "Lock that.",
+        "Hydreigon."
+      ],
+      "expected_class": [
+        "ASK",
+        "MUTATION-OK"
+      ],
+      "key": "t1 asks which species; t2 locks Hydreigon in slot 1.",
+      "rung": "guard"
+    },
+    {
+      "id": "dev2-unlock-remember",
+      "start": "fully_locked_pair",
+      "species_a": "Mawile",
+      "slot_a": 1,
+      "species_b": "Cinderace",
+      "slot_b": 2,
+      "turns": [
+        "Free up one of those.",
+        "The first."
+      ],
+      "expected_class": [
+        "ASK",
+        "MUTATION-OK"
+      ],
+      "key": "t1 asks which slot; t2 unlocks slot 1 only.",
+      "rung": "guard",
+      "substitution": {
+        "Rillaboom": "Mawile",
+        "Kingambit": "Cinderace"
+      }
+    }
+  ]
+}

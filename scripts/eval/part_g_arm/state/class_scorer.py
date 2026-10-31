@@ -14,6 +14,8 @@ from typing import Any
 
 from scripts.eval.part_g_arm.state.errata_read import (
     expected_turns,
+    key_override_leaves,
+    load_derived_keys_effective,
     load_errata,
     outcome_set,
     stale_pin_rows,
@@ -217,10 +219,14 @@ def score_transcript(
             }
         )
 
+    # G7 key_overrides: effective derived_keys (file untouched). Class rates do not
+    # score Spe leaves today; surface the override set so audits/exports share one path.
+    _ = load_derived_keys_effective()
     return {
         "per_row": per_row,
         "per_class": by_class,
         "errata": load_errata().get("source"),
+        "key_overrides": key_override_leaves(),
         "note": "ADR-078: rates are per class, never pooled",
     }
 

@@ -144,12 +144,17 @@ def section_id(row_id: str, turn: int) -> str:
 
 
 def _key_text_with_errata(row_id: str, acceptance: str) -> str:
-    from scripts.eval.part_g_arm.state.errata_read import set_answer_hand_note
+    from scripts.eval.part_g_arm.state.errata_read import (
+        acceptance_with_key_overrides,
+        key_override_hand_note,
+        set_answer_hand_note,
+    )
 
-    note = set_answer_hand_note(row_id)
-    if not note:
-        return acceptance
-    return f"{acceptance}\n{note}" if acceptance else note
+    text = acceptance_with_key_overrides(row_id, acceptance)
+    notes = [n for n in (set_answer_hand_note(row_id), key_override_hand_note(row_id)) if n]
+    if not notes:
+        return text
+    return "\n".join([text, *notes]) if text else "\n".join(notes)
 
 
 def _points_with_set_errata(row_id: str, points: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -190,9 +195,13 @@ def build_sections_from_transcript(
         if ids is not None and rid not in ids:
             continue
         turns = list(entry.get("turns") or [])
-        base_points = points_by_id.get(rid) or split_acceptance_points(acceptance_by_id.get(rid, ""))
+        raw_acc = acceptance_by_id.get(rid, "")
+        from scripts.eval.part_g_arm.state.errata_read import acceptance_with_key_overrides
+
+        acc = acceptance_with_key_overrides(rid, raw_acc)
+        base_points = points_by_id.get(rid) or split_acceptance_points(acc)
         points = _points_with_set_errata(rid, base_points)
-        key_text = _key_text_with_errata(rid, acceptance_by_id.get(rid, ""))
+        key_text = _key_text_with_errata(rid, raw_acc)
         for i, turn in enumerate(turns, start=1):
             sections.append(
                 {
@@ -240,7 +249,10 @@ def build_sections_from_diff(
         )
         turns = list(entry.get("turns") or [])
         indices = turn_nums or list(range(1, len(turns) + 1))
-        points = split_acceptance_points(acceptance_by_id.get(rid, ""))
+        from scripts.eval.part_g_arm.state.errata_read import acceptance_with_key_overrides
+
+        raw_acc = acceptance_by_id.get(rid, "")
+        points = split_acceptance_points(acceptance_with_key_overrides(rid, raw_acc))
         for tnum in indices:
             if tnum < 1 or tnum > len(turns):
                 continue
@@ -250,7 +262,7 @@ def build_sections_from_diff(
                     "id": f"{rid}__run{vs}__t{tnum}",
                     "row_id": rid,
                     "turn": tnum,
-                    "key_text": acceptance_by_id.get(rid, "") + f" [vs run {vs}]",
+                    "key_text": _key_text_with_errata(rid, raw_acc) + f" [vs run {vs}]",
                     "points": points,
                     "user": turn.get("user") or "",
                     "final_text": turn.get("final_text") or "",

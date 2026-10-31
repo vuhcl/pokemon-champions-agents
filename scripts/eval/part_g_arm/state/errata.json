@@ -70,6 +70,21 @@
     }
   },
   "stale_pin_rows": [],
+  "key_overrides": {
+    "section": "G7",
+    "note": "2026-10-30 Vu: Scarf+Tailwind floored once (calc/get_speed). Corrected is3_is4 leaves; do not edit derived_keys.json or rerun builders.",
+    "leaves": {
+      "is3_is4.Dragapult.plus_32_scarf_tw": 639,
+      "is3_is4.Dragapult.max_stack": 639,
+      "is3_is4.Pincurchin.plus_32_scarf_tw": 219,
+      "is3_is4.Pincurchin.max_stack": 219
+    },
+    "row_acceptance_rewrites": {
+      "IS4": [
+        {"from": "max stack=218", "to": "max stack=219"}
+      ]
+    }
+  },
   "set_answer": {
     "H11": {
       "frozen_key_set": [

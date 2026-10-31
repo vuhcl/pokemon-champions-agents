@@ -54,7 +54,7 @@ from scripts.eval.part_g_arm.state.tools import (
     solve_spread_tool,
     steering_signature,
     unlock_slot,
-    with_move_priority,
+    with_move_static_fields,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -124,6 +124,13 @@ def snapshot(state: dict[str, Any]) -> dict[str, Any]:
 def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     if name == "lock_slot":
         return lock_slot(state, args.get("slot"), args.get("species"))
+    if name == "set_slot":
+        from scripts.eval.part_g_arm.state.set_slot_tool import set_slot
+        from scripts.eval.part_g_arm.state.tools import wrapper_enabled
+
+        if not wrapper_enabled():
+            return state, {"slot_commit_error": "set_slot is disabled (wrapper flag off)"}
+        return set_slot(state, args)
     if name == "edit_slot_field":
         return edit_slot_field(
             state, args.get("slot"), args.get("field"), args.get("value")
@@ -178,6 +185,10 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             include_formes=args.get("include_formes", True),
             n=args.get("n"),
         )
+    if name == "describe":
+        from scripts.eval.part_g_arm.state.describe_tool import describe
+
+        return state, describe(args.get("kind"), args.get("name"))
     if name == "change_archetype":
         return change_archetype(state, args.get("components"))
     if name == "read_archetype":
@@ -192,9 +203,25 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             ability=args.get("ability"),
             item=args.get("item"),
         )
+    if name == "get_speed":
+        from scripts.eval.part_g_arm.state.tools import enrich_get_speed, tool_fields_enabled
+
+        call_args = dict(args or {})
+        stage = call_args.pop("stage", 0) if tool_fields_enabled() else 0
+        scarf = call_args.pop("scarf", False) if tool_fields_enabled() else False
+        tw = call_args.pop("tailwind", False) if tool_fields_enabled() else False
+        par = call_args.pop("paralyzed", False) if tool_fields_enabled() else False
+        result = arm.call(name, call_args)
+        if tool_fields_enabled():
+            result = enrich_get_speed(
+                result, stage=stage, scarf=scarf, tailwind=tw, paralyzed=par
+            )
+        return state, result
     result = arm.call(name, args or {})
     if name == "get_move_static":
-        result = with_move_priority(result)
+        from scripts.eval.part_g_arm.state.tools import with_move_static_fields
+
+        result = with_move_static_fields(result)
     return state, result
 
 
@@ -245,6 +272,8 @@ def run_turn(
     final_text = ""
     errors: list[str] = []
     reasked = False
+    # Ollama prompt_eval_count on the fullest invoke this turn (includes in-turn tools).
+    prompt_tokens: int | None = None
     for turn_index in range(cfg.max_turns):
         if time.monotonic() > deadline:
             errors.append("item_timeout")
@@ -254,6 +283,12 @@ def run_turn(
         except Exception as exc:  # noqa: BLE001 - recorded, not raised
             errors.append(f"{type(exc).__name__}: {exc}")
             break
+        meta = getattr(ai, "response_metadata", None) or {}
+        pec = meta.get("prompt_eval_count")
+        if pec is None and isinstance(meta.get("token_usage"), dict):
+            pec = meta["token_usage"].get("prompt_tokens")
+        if isinstance(pec, int):
+            prompt_tokens = pec if prompt_tokens is None else max(prompt_tokens, pec)
         if cfg.enforce_first_turn_tool and turn_index == 0 and not ai.tool_calls and not reasked:
             reasked = True
             messages.append(HumanMessage(REASK))
@@ -265,11 +300,27 @@ def run_turn(
         for call in ai.tool_calls:
             state, patch = dispatch(state, arm, call["name"], call.get("args") or {})
             recorded = _jsonable_result(patch)
-            calls.append({"name": call["name"], "args": call.get("args") or {}, "result": recorded})
+            args = call.get("args") or {}
+            entry: dict[str, Any] = {
+                "name": call["name"],
+                "args": args,
+                "result": recorded,
+            }
+            # Replace-flag audit: top-level field, not only inside args JSON.
+            if call["name"] == "set_slot":
+                entry["replace"] = bool(args.get("replace") or False)
+                if isinstance(args.get("slots"), list):
+                    entry["replace"] = entry["replace"] or any(
+                        bool(s.get("replace")) for s in args["slots"] if isinstance(s, dict)
+                    )
+            calls.append(entry)
             messages.append(ToolMessage(dumps(recorded), tool_call_id=call["id"]))
         if turn_index + 1 >= cfg.max_turns:
             errors.append("max_turns")
     after = snapshot(state)
+    replace_true_calls = sum(
+        1 for c in calls if c.get("name") == "set_slot" and c.get("replace") is True
+    )
     record = {
         "user": user_text,
         "tool_calls": calls,
@@ -279,6 +330,8 @@ def run_turn(
         "mechanical_class": mechanical_class(before, after, calls),
         "errors": errors,
         "reasked": reasked,
+        "prompt_tokens": prompt_tokens,
+        "replace_true_calls": replace_true_calls,
     }
     return state, record
 
@@ -287,6 +340,13 @@ def start_state(row: dict[str, Any]) -> dict[str, Any]:
     kind = row.get("start")
     if kind == "fully_locked":
         return build_fully_locked_slot(row["species"], user_slot=int(row["user_slot"]))
+    if kind == "fully_locked_pair":
+        from scripts.eval.part_g_arm.state.request_set_rows import _fully_locked_pair
+
+        return _fully_locked_pair(
+            (row["species_a"], int(row["slot_a"])),
+            (row["species_b"], int(row["slot_b"])),
+        )
     if kind == "fully_locked_mega":
         return build_fully_locked_mega(
             row["species"], row["item"], user_slot=int(row["user_slot"])
@@ -521,12 +581,17 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
         kind = spec.get("expect_consequence_kind")
         if kind:
             cons_calls = [
-                c for c in turns[0]["tool_calls"] if c["name"] == "edit_slot_field"
+                c
+                for c in turns[0]["tool_calls"]
+                if c["name"] in {"edit_slot_field", "set_slot"}
             ]
             if not cons_calls:
-                failures.append(f"{row_id}: edit_slot_field not called")
+                failures.append(f"{row_id}: edit_slot_field/set_slot not called")
             else:
-                kinds = {x.get("kind") for x in (cons_calls[-1]["result"] or {}).get("consequences") or []}
+                kinds = {
+                    x.get("kind")
+                    for x in (cons_calls[-1]["result"] or {}).get("consequences") or []
+                }
                 if kind not in kinds:
                     failures.append(f"{row_id}: consequences {kinds!r} missing {kind!r}")
     if row_id == "dev-edit-item-refuse":

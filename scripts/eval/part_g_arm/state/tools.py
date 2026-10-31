@@ -47,6 +47,30 @@ READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
     "read_archetype", "solve_spread", "check_learnset", "find_species",
 }
 
+# Arm v2 ladder: tool_fields rung. Off → PRE-RS-ARM schemas/results surface.
+_TOOL_FIELDS: bool = False
+# Arm v2 ladder: set_slot wrapper rung (cumulative on tool_fields).
+_WRAPPER: bool = False
+
+
+def set_tool_fields(enabled: bool) -> None:
+    global _TOOL_FIELDS
+    _TOOL_FIELDS = bool(enabled)
+
+
+def tool_fields_enabled() -> bool:
+    return _TOOL_FIELDS
+
+
+def set_wrapper(enabled: bool) -> None:
+    global _WRAPPER
+    _WRAPPER = bool(enabled)
+
+
+def wrapper_enabled() -> bool:
+    return _WRAPPER
+
+
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
     return {"type": "function", "function": {"name": name, "description": description,
             "parameters": {"type": "object", "properties": properties, "required": required}}}
@@ -300,24 +324,99 @@ SPREAD_TOOL_SPECS: list[dict[str, Any]] = [
 ]
 
 
-def combined_specs() -> list[dict[str, Any]]:
+_DESCRIBE_SPEC = _spec(
+    "describe",
+    "Returns the stored description text for an item, move, ability, or format rule. "
+    "Use it instead of recalling what something does. kind is item|move|ability|rule. "
+    "For kind=rule, name is a clause or flat_rules label (e.g. Species Clause, Item Clause); "
+    "the result includes the pinned wording, source file/path, and whether the validator enforces it.",
+    {"kind": dict(_STR), "name": dict(_STR)},
+    ["kind", "name"],
+)
+
+
+def combined_specs(
+    *,
+    tool_fields: bool | None = None,
+    wrapper: bool | None = None,
+) -> list[dict[str, Any]]:
     """A new list. Does not append to TOOL_SPECS.
 
-    State-side: get_move_static description notes priority (4h enrichment); arm_tools
-    schema text is otherwise unchanged.
+    tool_fields=None uses the module flag set by set_tool_fields.
+    wrapper=None uses the module flag set by set_wrapper.
+    Both flags off → PRE-RS-ARM schemas (byte-identical).
     """
+    on = _TOOL_FIELDS if tool_fields is None else bool(tool_fields)
+    wrap = _WRAPPER if wrapper is None else bool(wrapper)
     lookups: list[dict[str, Any]] = []
     for spec in TOOL_SPECS:
-        if spec["function"]["name"] == "get_move_static":
+        name = spec["function"]["name"]
+        if name == "get_move_static":
+            fn = dict(spec["function"])
+            if on:
+                fn["description"] = (
+                    "Type, category, base power, priority, pp, target, accuracy and flags "
+                    "of a move from the pinned move data (no formula)."
+                )
+            else:
+                fn["description"] = (
+                    "Type, category, base power and priority of a move "
+                    "(priority from data/moves/static.v1.json)."
+                )
+            lookups.append({**spec, "function": fn})
+        elif name == "get_speed" and on:
             fn = dict(spec["function"])
             fn["description"] = (
-                "Type, category, base power and priority of a move "
-                "(priority from data/moves/static.v1.json)."
+                "Final Speed stat for a species, nature and Speed SP. "
+                "Optional stage (−6..+6, default 0), scarf (default false), tailwind "
+                "(default false), and paralyzed (default false): set a parameter only "
+                "when the request states that condition; defaults mean no condition. "
+                "Stages are source-agnostic. Species names never include an ability."
             )
+            props = dict(fn["parameters"]["properties"])
+            props["stage"] = {"type": "integer"}
+            props["scarf"] = {"type": "boolean"}
+            props["tailwind"] = {"type": "boolean"}
+            props["paralyzed"] = {"type": "boolean"}
+            fn["parameters"] = {
+                "type": "object",
+                "properties": props,
+                "required": list(fn["parameters"]["required"]),
+            }
             lookups.append({**spec, "function": fn})
         else:
             lookups.append(spec)
-    return [*lookups, *STATE_TOOL_SPECS, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
+    state_specs = list(STATE_TOOL_SPECS)
+    if on:
+        # find_species description: results already legal; truncated means incomplete.
+        patched: list[dict[str, Any]] = []
+        for spec in state_specs:
+            if spec["function"]["name"] != "find_species":
+                patched.append(spec)
+                continue
+            fn = dict(spec["function"])
+            fn["description"] = (
+                "Search Champions species that are already legal (no check_species_legal "
+                "needed). Optional AND filters: types, learns_move, ability, stat_formula "
+                "{expr,op,value}, include_formes (default true), n (cap). Returns canonical "
+                "names plus legal_only, total_matches (before n), truncated (true when the "
+                "list is not the full set), and count. Does not write state. At least one "
+                "filter is required."
+            )
+            patched.append({**spec, "function": fn})
+        state_specs = patched
+        lookups = [*lookups, _DESCRIBE_SPEC]
+    if wrap:
+        from scripts.eval.part_g_arm.state.set_slot_tool import SET_SLOT_SPEC
+
+        # Wrapper rung: set_slot replaces lock_slot / edit_slot_field in the tool list.
+        state_specs = [
+            s
+            for s in state_specs
+            if s["function"]["name"] not in {"lock_slot", "edit_slot_field"}
+        ]
+        state_specs = [*state_specs, SET_SLOT_SPEC]
+    return [*lookups, *state_specs, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
 
 
 def _merge(state: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
@@ -935,6 +1034,121 @@ def with_move_priority(result: dict[str, Any]) -> dict[str, Any]:
     return {**result, "priority": entry["priority"]}
 
 
+def with_move_static_fields(result: dict[str, Any]) -> dict[str, Any]:
+    """tool_fields: attach pp, target, accuracy, flags from pins (plus priority)."""
+    from recommender.ids import to_id
+
+    result = with_move_priority(result)
+    if not _TOOL_FIELDS or result.get("status") != "ok":
+        return result
+    move = result.get("move")
+    if not isinstance(move, str):
+        return result
+    mid = to_id(move)
+    entry = _static_moves().get(mid) or {}
+    out = dict(result)
+    if "pp" in entry:
+        out["pp"] = entry["pp"]
+    if "target" in entry:
+        out["target"] = entry["target"]
+    # accuracy pin
+    import json
+
+    acc_path = Path(__file__).resolve().parents[4] / "data" / "moves" / "gen9_accuracy.v1.json"
+    acc_doc = json.loads(acc_path.read_text(encoding="utf-8"))
+    acc_entry = (acc_doc.get("moves") or acc_doc).get(mid) or {}
+    if "accuracy" in acc_entry:
+        out["accuracy"] = acc_entry["accuracy"]
+    flags_path = Path(__file__).resolve().parents[4] / "data" / "moves" / "flags.v1.json"
+    flags_doc = json.loads(flags_path.read_text(encoding="utf-8"))
+    flags_entry = (flags_doc.get("moves") or {}).get(mid) or {}
+    if "flags" in flags_entry:
+        out["flags"] = flags_entry["flags"]
+    return out
+
+
+def enrich_get_speed(
+    result: dict[str, Any],
+    *,
+    stage: object = 0,
+    scarf: object = False,
+    tailwind: object = False,
+    paralyzed: object = False,
+) -> dict[str, Any]:
+    """tool_fields: match pinned calc getFinalSpeed (stage → Scarf/TW → par).
+
+    Calc util.js: getModifiedStat floors stage; Scarf+Tailwind via one chainMods +
+    pokeRound; then if par and not Quick Feet, Math.floor(speed * 50 / 100).
+    """
+    import math
+
+    if not _TOOL_FIELDS or result.get("status") != "ok":
+        return result
+    if stage is None:
+        stage = 0
+    if scarf is None:
+        scarf = False
+    if tailwind is None:
+        tailwind = False
+    if paralyzed is None:
+        paralyzed = False
+    if (
+        isinstance(stage, bool)
+        or not isinstance(stage, int)
+        or stage < -6
+        or stage > 6
+    ):
+        return {
+            "status": "error",
+            "error_kind": "bad_arguments",
+            "message": "stage must be an integer from -6 to +6",
+        }
+    if (
+        not isinstance(scarf, bool)
+        or not isinstance(tailwind, bool)
+        or not isinstance(paralyzed, bool)
+    ):
+        return {
+            "status": "error",
+            "error_kind": "bad_arguments",
+            "message": "scarf, tailwind, and paralyzed must be booleans",
+        }
+    base = result.get("speed")
+    if not isinstance(base, int):
+        return result
+    # (1) stage — getModifiedStat modern table: floor after ×num/÷den
+    speed = base
+    if stage > 0:
+        speed = math.floor(speed * (2 + stage) / 2)
+    elif stage < 0:
+        speed = math.floor(speed * 2 / (2 + abs(stage)))
+    # (2) Scarf ×1.5 and Tailwind ×2 as one multiplier, rounded once
+    mult = 1.0
+    if scarf:
+        mult *= 1.5
+    if tailwind:
+        mult *= 2.0
+    if mult != 1.0:
+        speed = math.floor(speed * mult)
+    # (3) paralysis — separate calc step after the mod chain (util.js L167-169)
+    if paralyzed:
+        speed = math.floor(speed / 2)
+    return {
+        **result,
+        "unmodified_speed": base,
+        "speed": speed,
+        "stage": stage,
+        "scarf": scarf,
+        "tailwind": tailwind,
+        "paralyzed": paralyzed,
+        "note": (
+            "final Speed after stage floor, scarf×tailwind round once, then paralysis "
+            "floor(/2) when set; Quick Feet, Electric-type paralysis immunity, Iron Ball, "
+            "Unburden, and weather or terrain abilities are not applied"
+        ),
+    }
+
+
 _STAT_NAMES = frozenset({"hp", "atk", "def", "spa", "spd", "spe"})
 _STAT_OPS = {
     ">=": lambda a, b: a >= b,
@@ -1088,6 +1302,7 @@ def find_species(
         names.append(name)
 
     names = sorted(set(names), key=lambda s: s.casefold())
+    total_matches = len(names)
     if cap is not None:
         names = names[:cap]
     filters: dict[str, Any] = {}
@@ -1102,13 +1317,18 @@ def find_species(
     filters["include_formes"] = keep_formes
     if cap is not None:
         filters["n"] = cap
-    return {
+    out: dict[str, Any] = {
         "status": "ok",
         "species": names,
         "count": len(names),
         "filters_applied": filters,
         "source": "legality snapshot (Showdown Champions mod extract)",
     }
+    if _TOOL_FIELDS:
+        out["legal_only"] = True
+        out["total_matches"] = total_matches
+        out["truncated"] = bool(cap is not None and total_matches > cap)
+    return out
 
 
 def read_archetype(state: dict[str, Any]) -> dict[str, Any]:
@@ -1232,6 +1452,46 @@ def show_candidates(
 
     anchors = [slot for slot in draft if all_locked(slot)]
     if not anchors:
+        if _TOOL_FIELDS:
+            partial = [
+                (i, slot)
+                for i, slot in enumerate(draft)
+                if any(
+                    getattr(slot, name).locked or getattr(slot, name).value is not None
+                    for name in (
+                        "role",
+                        "species",
+                        "ability",
+                        "item",
+                        "moveset",
+                        "spread",
+                        "nature",
+                    )
+                )
+            ]
+            if not partial:
+                return state, _refuse(
+                    "no slot locked: show_candidates needs a fully locked anchor"
+                )
+            idx, slot = partial[0]
+            missing = [
+                name
+                for name in (
+                    "role",
+                    "species",
+                    "ability",
+                    "item",
+                    "moveset",
+                    "nature",
+                    "spread",
+                )
+                if not getattr(slot, name).locked
+            ]
+            missing_txt = " and ".join(missing) if missing else "fields"
+            return state, _refuse(
+                f"slot {display_slot(idx)} is locked but not fully locked "
+                f"(missing {missing_txt})"
+            )
         return state, _refuse(
             "empty team: show_candidates needs a locked anchor; "
             "bootstrap intake is out of scope for the arm"
@@ -1527,6 +1787,16 @@ def _constraints_signature(constraints: object) -> tuple[Any, ...]:
     return tuple(to_jsonable(c) for c in (constraints or ()))
 
 
+def _canon_archetype_sig(sig: tuple[Any, ...] | None) -> tuple[tuple[Any, ...], bool]:
+    """None and empty components both compare as ([], False)."""
+    if sig is None:
+        return ((), False)
+    if len(sig) == 2:
+        comps, locked = sig[0], sig[1]
+        return (tuple(comps or ()), bool(locked))
+    return ((), False)
+
+
 def archetype_signature(state: dict[str, Any]) -> tuple[Any, ...] | None:
     """Components + locked for Attr or snapshot dict. None when unset."""
     # Snapshots carry archetype_sig (may be None); live state carries archetype Attr.
@@ -1563,7 +1833,9 @@ def mechanical_class(before: dict[str, Any], after: dict[str, Any], tool_calls: 
     """wrote > bound > recorded > dismissed > refused > lookup only > no change."""
     if draft_signature(before) != draft_signature(after):
         return "wrote"
-    if archetype_signature(before) != archetype_signature(after):
+    if _canon_archetype_sig(archetype_signature(before)) != _canon_archetype_sig(
+        archetype_signature(after)
+    ):
         return "wrote"
     b_pending, b_intent, b_prov, b_rej, b_cons = steering_signature(before)
     a_pending, a_intent, a_prov, a_rej, a_cons = steering_signature(after)

@@ -1,0 +1,476 @@
+{
+  "schema": "champions_text_overrides_v1",
+  "showdown_commit": "942cda71d14bf0618bd57991708a2e2734b6daba",
+  "generator": "scripts/eval/part_g_arm/state/gen_champions_text_overrides.py",
+  "count": 57,
+  "entries": [
+    {
+      "id": "appleacid",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 80\u219290"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "banefulbunker",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 10\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "beakblast",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 100\u2192120",
+        "pp 15\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "belch",
+      "kind": "move",
+      "champions_overrides": [
+        "onDisableMove handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "bonerush",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 25\u219230"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "clangoroussoul",
+      "kind": "move",
+      "champions_overrides": [
+        "accuracy 100\u2192true"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "crabhammer",
+      "kind": "move",
+      "champions_overrides": [
+        "accuracy 90\u219295"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "crushclaw",
+      "kind": "move",
+      "champions_overrides": [
+        "flags changed"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "curse",
+      "kind": "move",
+      "champions_overrides": [
+        "volatileStatus cleared",
+        "onModifyMove handler",
+        "onTryHit handler",
+        "onHit handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "direclaw",
+      "kind": "move",
+      "champions_overrides": [
+        "flags changed",
+        "secondary.chance 50\u219230"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "disable",
+      "kind": "move",
+      "champions_overrides": [
+        "condition handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "doubleshock",
+      "kind": "move",
+      "champions_overrides": [
+        "flags changed"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "dragoncheer",
+      "kind": "move",
+      "champions_overrides": [
+        "flags changed"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "dragonclaw",
+      "kind": "move",
+      "champions_overrides": [
+        "flags changed"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "encore",
+      "kind": "move",
+      "champions_overrides": [
+        "condition cleared"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "fakeout",
+      "kind": "move",
+      "champions_overrides": [
+        "onDisableMove handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "firelash",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 80\u219290"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "firstimpression",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 90\u2192100",
+        "onDisableMove handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "freezedry",
+      "kind": "move",
+      "champions_overrides": [
+        "secondary cleared"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "gravapple",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 80\u219290"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "growth",
+      "kind": "move",
+      "champions_overrides": [
+        "type \"Normal\"\u2192\"Grass\""
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "howl",
+      "kind": "move",
+      "champions_overrides": [
+        "flags changed"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "infernalparade",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 60\u219265"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "ironhead",
+      "kind": "move",
+      "champions_overrides": [
+        "secondary.chance 30\u219220"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "kingsshield",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 10\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "makeitrain",
+      "kind": "move",
+      "champions_overrides": [
+        "accuracy 100\u219295",
+        "self changed"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "meteorassault",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 150\u2192170"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "milkdrink",
+      "kind": "move",
+      "champions_overrides": [
+        "target \"self\"\u2192\"adjacentAllyOrSelf\""
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "moonblast",
+      "kind": "move",
+      "champions_overrides": [
+        "secondary.chance 30\u219210"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "mountaingale",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 100\u2192120"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "nightdaze",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 85\u219290"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "nightslash",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 15\u219220"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "protect",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 10\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "psyshieldbash",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 70\u219290"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "saltcure",
+      "kind": "move",
+      "champions_overrides": [
+        "condition handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "sandstorm",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 10\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "shadowclaw",
+      "kind": "move",
+      "champions_overrides": [
+        "flags changed"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "slash",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 70\u219280"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "snaptrap",
+      "kind": "move",
+      "champions_overrides": [
+        "type \"Grass\"\u2192\"Steel\""
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "snipeshot",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 80\u219285"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "snowscape",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 10\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "spikyshield",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 10\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "spiritshackle",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 80\u219290"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "strengthsap",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 10\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "stuffcheeks",
+      "kind": "move",
+      "champions_overrides": [
+        "onDisableMove handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "syrupbomb",
+      "kind": "move",
+      "champions_overrides": [
+        "accuracy 85\u219290"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "toxicthread",
+      "kind": "move",
+      "champions_overrides": [
+        "boosts changed"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "tropkick",
+      "kind": "move",
+      "champions_overrides": [
+        "basePower 70\u219285"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "wish",
+      "kind": "move",
+      "champions_overrides": [
+        "pp 10\u21925"
+      ],
+      "text_may_not_match": false
+    },
+    {
+      "id": "berserk",
+      "kind": "ability",
+      "champions_overrides": [
+        "onDamage handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "emergencyexit",
+      "kind": "ability",
+      "champions_overrides": [
+        "onEmergencyExit handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "healer",
+      "kind": "ability",
+      "champions_overrides": [
+        "onResidual handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "naturalcure",
+      "kind": "ability",
+      "champions_overrides": [
+        "onCheckShow handler",
+        "onSwitchOut handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "regenerator",
+      "kind": "ability",
+      "champions_overrides": [
+        "onSwitchOut handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "runaway",
+      "kind": "ability",
+      "champions_overrides": [
+        "onTrapPokemonPriority handler",
+        "onTrapPokemon handler",
+        "onMaybeTrapPokemonPriority handler",
+        "onMaybeTrapPokemon handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "unseenfist",
+      "kind": "ability",
+      "champions_overrides": [
+        "onModifyMove handler",
+        "onHitProtect handler"
+      ],
+      "text_may_not_match": true
+    },
+    {
+      "id": "ejectbutton",
+      "kind": "item",
+      "champions_overrides": [
+        "onAfterMoveSecondary handler"
+      ],
+      "text_may_not_match": true
+    }
+  ]
+}

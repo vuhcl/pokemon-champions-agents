@@ -59,6 +59,137 @@ def turns_for_row(row: dict[str, Any], state: dict[str, Any] | None) -> list[str
     return turns
 
 
+# Explicit start seeds (Vu 2026-10-30). Checked before substring heuristics so
+# e.g. RB1's "4th empty" cannot select empty_team.
+EXPLICIT_START_SEEDS: frozenset[str] = frozenset(
+    {
+        "MS2",
+        "MS3",
+        "MR3",
+        "MR4",
+        "MR5",
+        "MU6",
+        "MW1",
+        "MW2",
+        "MW4",
+        "MT5",
+        "RB1",
+    }
+)
+
+
+# Slot-2 default when pair would otherwise share Sitrus Berry (Item Clause = 1).
+# Not Choice Scarf (MR4). Leftovers is legal on Garchomp and distinct from Sitrus.
+_PAIR_SLOT2_ITEM = "Leftovers"
+
+
+def _fully_locked_pair(
+    first: tuple[str, int], second: tuple[str, int] | None = None
+) -> dict[str, Any]:
+    """Build one or two fully locked slots via build_fully_locked_slot (no fixture edits)."""
+    from dataclasses import replace
+
+    from recommender.slot_index import user_slot_to_index
+    from recommender.state import Attr
+    from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
+
+    species_a, slot_a = first
+    state = build_fully_locked_slot(species_a, user_slot=slot_a)
+    if second is None:
+        return state
+    species_b, slot_b = second
+    other = build_fully_locked_slot(species_b, user_slot=slot_b)
+    idx_b = user_slot_to_index(slot_b, team_size=len(state["team_draft"]))
+    slot_b_obj = other["team_draft"][idx_b]
+    item_a = state["team_draft"][
+        user_slot_to_index(slot_a, team_size=len(state["team_draft"]))
+    ].item.value
+    # build_fully_locked_slot hardcodes Sitrus Berry — pair without a rewrite
+    # duplicated it and violated Item Clause. Give slot 2 a distinct legal item.
+    if slot_b_obj.item.value == item_a:
+        slot_b_obj = replace(
+            slot_b_obj,
+            item=Attr(
+                value=_PAIR_SLOT2_ITEM,
+                locked=True,
+                reason=slot_b_obj.item.reason,
+                exempt_from_theme=slot_b_obj.item.exempt_from_theme,
+            ),
+        )
+    state["team_draft"][idx_b] = slot_b_obj
+    return state
+
+
+def _resolve_explicit_start(
+    rid: str, meta: dict[str, Any]
+) -> tuple[dict[str, Any] | None, dict[str, Any]] | None:
+    """Return (state, meta) for EXPLICIT_START_SEEDS rows, or None if rid not listed."""
+    if rid not in EXPLICIT_START_SEEDS:
+        return None
+    from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
+
+    if rid in ("MW1", "MT5"):
+        meta.update({"loaded": True, "complete": True, "source": "empty_team (explicit)"})
+        return empty_team(), meta
+    if rid == "MS2" or rid == "MR3":
+        meta.update(
+            {
+                "loaded": True,
+                "complete": True,
+                "source": "explicit:build_fully_locked_slot(Incineroar@1)",
+            }
+        )
+        return build_fully_locked_slot("Incineroar", user_slot=1), meta
+    if rid in ("MS3", "MR4", "MU6", "MW2"):
+        meta.update(
+            {
+                "loaded": True,
+                "complete": True,
+                "source": "explicit:Incineroar@1+Garchomp@2 fully locked",
+            }
+        )
+        return _fully_locked_pair(("Incineroar", 1), ("Garchomp", 2)), meta
+    if rid == "MR5":
+        meta.update(
+            {
+                "loaded": True,
+                "complete": True,
+                "source": "explicit:build_fully_locked_slot(Garchomp@2)",
+            }
+        )
+        return build_fully_locked_slot("Garchomp", user_slot=2), meta
+    if rid == "MW4":
+        from scripts.eval.part_g_arm.state.seeds import BUILDERS
+
+        meta.update(
+            {
+                "loaded": True,
+                "complete": True,
+                "source": "explicit:seeds/cs_pending",
+                "seed": "cs_pending",
+            }
+        )
+        return BUILDERS["cs_pending"](), meta
+    if rid == "RB1":
+        path = "scripts/eval/part_g_v4/fixtures/rb1_lucario_megaz_calmmind.json"
+        result = try_load_fixture(path)
+        if result["loaded"] and result["state"] is not None:
+            state = result["state"]
+            incomplete = list(state.get("_fixture_incomplete") or [])
+            meta.update(
+                {
+                    "loaded": True,
+                    "complete": not incomplete,
+                    "source": path,
+                    "error": None if not incomplete else "; ".join(incomplete),
+                }
+            )
+            return state, meta
+        meta["error"] = result.get("error") or "RB1 fixture failed to load"
+        return None, meta
+    return None
+
+
 def resolve_start_state(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dict[str, Any]]:
     """Return (state|None, meta). meta has loaded/complete/error/source/readback."""
     rid = row["id"]
@@ -70,6 +201,10 @@ def resolve_start_state(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dic
         "error": None,
         "readback": None,
     }
+    explicit = _resolve_explicit_start(rid, meta)
+    if explicit is not None:
+        return explicit
+
     # Part 3 seeds for previously unloaded rows (MT3/MT4/MS4/MS7/MU7/HC2/HD1).
     from scripts.eval.part_g_arm.state.seeds import SEED_FOR_ROW, load_seed_state
 

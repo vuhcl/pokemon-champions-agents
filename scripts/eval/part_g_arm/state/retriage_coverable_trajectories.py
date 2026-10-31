@@ -174,7 +174,14 @@ def _start(rid: str, row: dict[str, Any]) -> tuple[dict[str, Any] | None, dict[s
 
 
 def _form_cost(rid: str, row: dict[str, Any], n_turns: int) -> dict[str, Any]:
-    pts = _points_with_set_errata(rid, split_acceptance_points(row.get("acceptance") or ""))
+    from scripts.eval.part_g_arm.state.errata_read import acceptance_with_key_overrides
+
+    pts = _points_with_set_errata(
+        rid,
+        split_acceptance_points(
+            acceptance_with_key_overrides(rid, row.get("acceptance") or "")
+        ),
+    )
     sections = n_turns  # one section per played turn
     cells = sections * len(pts)
     extra: dict[str, Any] = {}
