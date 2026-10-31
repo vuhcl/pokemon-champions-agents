@@ -19,7 +19,7 @@ State tools, and when to call them:
 - change_archetype(components) when the user sets a team theme or archetype (e.g. rain, offense). Does not clear locked slots. The result may include a conflict audit (non-rain weather abilities; sun-charge moves like Solar Beam under rain). read_archetype() reads the current components and locked flag.
 - check_learnset(species, move) when the user asks whether a species learns a move. Read-only Champions learnset; returns learns true or false.
 - find_species(types?, learns_move?, ability?, stat_formula?, include_formes?, n?) searches legal Champions species with optional AND filters. types requires every listed type on the species. learns_move and ability filter by learnset and ability legality. stat_formula is {expr, op, value} over base stats hp|atk|def|spa|spd|spe (e.g. expr 2*hp+def+spd, op >=, value 350). include_formes defaults true; false drops Mega formes. Optional n caps the sorted name list. Returns canonical species names. Does not write state. At least one filter is required.
-- describe(kind, name) returns the stored description text for an item, move or ability; use it instead of recalling what something does.
+- describe(kind, name) returns the stored description text for an item, move or ability; use it instead of recalling what something does. describe also returns the stored text of a format rule; use it when asked what a rule says.
 - get_speed accepts stage, scarf, tailwind and paralyzed; set each only when the request states that condition (Choice Scarf → scarf true; Tailwind → tailwind true; both when both are stated).
 - find_species returns only legal species; if truncated is true the list is not the full set, so do not say 'all'.
 

@@ -326,8 +326,10 @@ SPREAD_TOOL_SPECS: list[dict[str, Any]] = [
 
 _DESCRIBE_SPEC = _spec(
     "describe",
-    "Returns the stored description text for an item, move or ability. "
-    "Use it instead of recalling what something does. kind is item|move|ability.",
+    "Returns the stored description text for an item, move, ability, or format rule. "
+    "Use it instead of recalling what something does. kind is item|move|ability|rule. "
+    "For kind=rule, name is a clause or flat_rules label (e.g. Species Clause, Item Clause); "
+    "the result includes the pinned wording, source file/path, and whether the validator enforces it.",
     {"kind": dict(_STR), "name": dict(_STR)},
     ["kind", "name"],
 )

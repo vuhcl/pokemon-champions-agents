@@ -364,8 +364,29 @@ def test_rules_registry_matches_flat_rules_and_f7():
         assert by_id[rid]["enforced_by"] == "none"
 
 
+def test_describe_rule_cases():
+    set_tool_fields(True)
+    sp = describe("rule", "Species Clause")
+    assert sp["status"] == "ok"
+    assert sp["text"] == "Species Clause"
+    assert sp["enforced_by"] == "validator"
+    assert "validator" in (sp.get("enforcement_note") or "").lower()
+    assert sp["source"].get("path")
+    ic = describe("rule", "Item Clause")
+    assert ic["status"] == "ok" and ic["text"].startswith("Item Clause")
+    myth = describe("rule", "Mythical")
+    assert myth["status"] == "ok" and myth["enforced_by"] == "validator"
+    rl = describe("rule", "Restricted Legendary")
+    assert rl["status"] == "ok" and rl["id"] == "ban_restricted_legendary"
+    bring = describe("rule", "Bring 6 Pick 3-6")
+    assert bring["status"] == "ok"
+    assert bring["enforced_by"] == "none"
+    assert "not enforced" in (bring.get("enforcement_note") or "").lower()
+    assert describe("rule", "NotARealRuleXYZ")["status"] == "not_found"
+
+
 def test_tool_fields_prompt_sha_distinct():
     cfg = ArmConfig(prompt_file=TOOL_FIELDS_PROMPT_FILE)
     h = cfg.prompt_hash()
     assert h != FROZEN_PROMPT_SHA256
-    assert h == "f40553a151d9349b400fc34e61d4caeb5c2ecfa95e145f53553f28b5d68608b7"
+    assert h == "bcc907b08ae3e5f156b9b72cc1f385d0dab8dd545d612bc1a4710fa0f8533b9d"
