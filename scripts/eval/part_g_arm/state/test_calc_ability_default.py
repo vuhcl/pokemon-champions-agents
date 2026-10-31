@@ -98,6 +98,35 @@ def test_single_ability_autofill_mega(arm):
     assert res.get("damage_range") == [270, 318]
 
 
+def test_illegal_ability_refused(arm):
+    set_tool_fields(True)
+    state = empty_team()
+    _, res = dispatch(
+        state,
+        arm,
+        "calc_damage",
+        {
+            "attacker": {
+                "species": "Hawlucha-Mega",
+                "nature": "Jolly",
+                "ability": "Gale Wings",
+                "item": "Hawluchanite",
+                "sp": {"hp": 0, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+            },
+            "defender": {
+                "species": "Steelix",
+                "nature": "Impish",
+                "ability": "Sturdy",
+                "sp": {"hp": 32, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+            },
+            "move": "Close Combat",
+            "field": {"gameType": "Doubles"},
+        },
+    )
+    assert res.get("error_kind") == "illegal_ability"
+    assert "No Guard" in (res.get("legal_abilities") or [])
+
+
 def test_stated_ability_echo(arm):
     set_tool_fields(True)
     state = empty_team()

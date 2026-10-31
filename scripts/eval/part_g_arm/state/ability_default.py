@@ -122,7 +122,7 @@ def prepare_side_ability(
 
     Missing ability + exactly one legal → fill auto_single.
     Missing + multiple → refusal naming legal abilities.
-    Present → stated (caller still passes through; legality of value is calc's).
+    Present + legal → stated. Present + illegal → refusal with legal list.
     """
     if not isinstance(species, str) or not species.strip():
         return None, None, {
@@ -130,9 +130,30 @@ def prepare_side_ability(
             "error_kind": "bad_arguments",
             "message": "attacker/defender species is required when checking ability",
         }
-    if isinstance(ability, str) and ability.strip():
-        return ability.strip(), "stated", None
     legal = legal_ability_names(species)
+    if isinstance(ability, str) and ability.strip():
+        ab = ability.strip()
+        if ab not in legal and not any(a.casefold() == ab.casefold() for a in legal):
+            return None, None, {
+                "status": "error",
+                "error_kind": "illegal_ability",
+                "message": (
+                    f"{ab!r} is not a legal ability for {species}. "
+                    f"Legal abilities: {', '.join(legal) if legal else '(none)'}. "
+                    'Call get_usage_stats(species, kind="abilities") for usage-ranked abilities, '
+                    "or omit ability when the species has exactly one legal ability."
+                ),
+                "species": species,
+                "ability": ab,
+                "legal_abilities": legal,
+                "hint": 'Omit ability for a single-ability Mega forme (auto_single), or pass a legal ability.',
+            }
+        # Prefer the legality snapshot's canonical casing.
+        for a in legal:
+            if a.casefold() == ab.casefold():
+                ab = a
+                break
+        return ab, "stated", None
     if len(legal) == 1:
         return legal[0], "auto_single", None
     if not legal:
