@@ -21,6 +21,7 @@ def test_default_flags_all_off():
     assert DEFAULT_RUN_FLAGS == {
         "tool_fields": False,
         "wrapper": False,
+        "draft": False,
         "guard": False,
         "judge": False,
     }

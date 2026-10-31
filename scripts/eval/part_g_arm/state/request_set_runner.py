@@ -59,6 +59,7 @@ FIXED_RUN_SETTINGS: dict[str, Any] = {
 DEFAULT_RUN_FLAGS: dict[str, bool] = {
     "tool_fields": False,
     "wrapper": False,
+    "draft": False,
     "guard": False,
     "judge": False,
 }
@@ -108,6 +109,8 @@ def pin_hashes(*, additions_file: Path | None = None) -> dict[str, str]:
 TOOL_FIELDS_PROMPT_FILE = "state/prompt_tool_fields.md"
 # Prompt variant when --wrapper is on (tool_fields text + one set_slot sentence).
 WRAPPER_PROMPT_FILE = "state/prompt_wrapper.md"
+# Prompt variant when --draft is on (wrapper text + draft/lock sentences).
+DRAFT_PROMPT_FILE = "state/prompt_draft.md"
 
 
 def assert_frozen_prompt(
@@ -116,9 +119,16 @@ def assert_frozen_prompt(
     allow_dev: bool,
     allow_tool_fields_prompt: bool = False,
     allow_wrapper_prompt: bool = False,
+    allow_draft_prompt: bool = False,
 ) -> None:
     got = cfg.prompt_hash()
     if got == FROZEN_PROMPT_SHA256:
+        return
+    if allow_draft_prompt and cfg.prompt_file == DRAFT_PROMPT_FILE:
+        print(
+            f"draft prompt: {got} (frozen PRE-RS-ARM remains {FROZEN_PROMPT_SHA256})",
+            file=sys.stderr,
+        )
         return
     if allow_wrapper_prompt and cfg.prompt_file == WRAPPER_PROMPT_FILE:
         print(
@@ -697,6 +707,11 @@ def main(argv: list[str] | None = None) -> int:
         "--wrapper", action="store_true", help="arm v2: enable set-slot wrapper (default off)"
     )
     parser.add_argument(
+        "--draft",
+        action="store_true",
+        help="arm v2: enable draft/lock rung (cumulative on wrapper; default off)",
+    )
+    parser.add_argument(
         "--guard", action="store_true", help="arm v2: enable class tool guard (default off)"
     )
     parser.add_argument(
@@ -706,20 +721,28 @@ def main(argv: list[str] | None = None) -> int:
     run_flags = {
         "tool_fields": bool(args.tool_fields),
         "wrapper": bool(args.wrapper),
+        "draft": bool(args.draft),
         "guard": bool(args.guard),
         "judge": bool(args.judge),
     }
+    # draft is cumulative on wrapper (+ tool_fields for the ladder).
+    if run_flags["draft"]:
+        run_flags["wrapper"] = True
+        run_flags["tool_fields"] = True
 
     covered = load_covered_ids()
     if args.list_covered:
         print("\n".join(sorted(covered)))
         return 0
 
-    from scripts.eval.part_g_arm.state.tools import set_tool_fields, set_wrapper
+    from scripts.eval.part_g_arm.state.tools import set_draft, set_tool_fields, set_wrapper
 
     set_tool_fields(bool(run_flags["tool_fields"]))
     set_wrapper(bool(run_flags["wrapper"]))
-    if run_flags["wrapper"]:
+    set_draft(bool(run_flags["draft"]))
+    if run_flags["draft"]:
+        prompt_file = DRAFT_PROMPT_FILE
+    elif run_flags["wrapper"]:
         prompt_file = WRAPPER_PROMPT_FILE
     elif run_flags["tool_fields"]:
         prompt_file = TOOL_FIELDS_PROMPT_FILE
@@ -729,8 +752,11 @@ def main(argv: list[str] | None = None) -> int:
     assert_frozen_prompt(
         cfg,
         allow_dev=args.dev or bool(args.dev_rows_file),
-        allow_tool_fields_prompt=bool(run_flags["tool_fields"]) and not run_flags["wrapper"],
-        allow_wrapper_prompt=bool(run_flags["wrapper"]),
+        allow_tool_fields_prompt=bool(run_flags["tool_fields"])
+        and not run_flags["wrapper"]
+        and not run_flags["draft"],
+        allow_wrapper_prompt=bool(run_flags["wrapper"]) and not run_flags["draft"],
+        allow_draft_prompt=bool(run_flags["draft"]),
     )
 
     rows_by_id = {r["id"]: r for r in load_request_rows()}
@@ -832,6 +858,7 @@ def main(argv: list[str] | None = None) -> int:
             combined_specs(
                 tool_fields=bool(run_flags["tool_fields"]),
                 wrapper=bool(run_flags["wrapper"]),
+                draft=bool(run_flags["draft"]),
             )
         )
 
