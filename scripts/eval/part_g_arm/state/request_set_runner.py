@@ -632,6 +632,7 @@ def _write_tool_calls_csv(out_dir: Path, transcript: list[dict[str, Any]]) -> No
         "replace_true_calls",
         "refused_calls",
         "result_status",
+        "latency_ms",
         "args_json",
     ]
     with path.open("w", encoding="utf-8", newline="") as fh:
@@ -659,6 +660,7 @@ def _write_tool_calls_csv(out_dir: Path, transcript: list[dict[str, Any]]) -> No
                             "replace_true_calls": rtc if rtc is not None else "",
                             "refused_calls": refused if refused is not None else "",
                             "result_status": status,
+                            "latency_ms": call.get("latency_ms", ""),
                             "args_json": json.dumps(call.get("args") or {}, sort_keys=True),
                         }
                     )

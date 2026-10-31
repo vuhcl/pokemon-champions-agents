@@ -259,6 +259,17 @@ def resolve_start_state(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dic
 
         meta.update({"loaded": True, "complete": True, "source": "build_fully_locked_slot(Incineroar)"})
         return build_fully_locked_slot("Incineroar", user_slot=1), meta
+    if "arch on team" in state_l or rid == "SC2":
+        from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
+
+        meta.update(
+            {
+                "loaded": True,
+                "complete": True,
+                "source": "build_fully_locked_slot(Archaludon)",
+            }
+        )
+        return build_fully_locked_slot("Archaludon", user_slot=1), meta
     if "tyranitar" in state_l or rid == "DM3":
         meta.update({"loaded": True, "complete": True, "source": "empty_team (ASSUME-STATE sides from pin)"})
         return empty_team(), meta

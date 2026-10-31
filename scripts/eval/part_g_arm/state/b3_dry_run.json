@@ -144,24 +144,6 @@
     "expected_readback": null
   },
   {
-    "row": "H19",
-    "loaded": true,
-    "complete": true,
-    "source": "empty_team",
-    "error": null,
-    "readback": null,
-    "expected_readback": null
-  },
-  {
-    "row": "H20",
-    "loaded": true,
-    "complete": true,
-    "source": "empty_team",
-    "error": null,
-    "readback": null,
-    "expected_readback": null
-  },
-  {
     "row": "MT1",
     "loaded": true,
     "complete": true,
@@ -185,26 +167,15 @@
     "complete": true,
     "source": "seeds/mt3_after_t1",
     "seed": "mt3_after_t1",
-    "justification": "MT3 t1 'No Intimidate.' \u2192 judgment-only hard constraint predicate no_intimidate (no mechanical ban-ability kind); runner plays t2\u2013t3 only.",
+    "justification": "MT3 after t1 'No Intimidate.': judgment-only predicate no_intimidate (no ban-ability mechanical kind) plus message_history so the model sees t1; runner plays t2\u2013t3.",
     "error": null,
-    "expected_readback": null
-  },
-  {
-    "row": "MT4",
-    "loaded": true,
-    "complete": true,
-    "source": "seeds/cs_pending",
-    "seed": "cs_pending",
-    "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight/Garchomp are legal doubles staples with source=threat via present_candidates (H27 route).",
-    "error": null,
-    "not_covered_note": "CS seed loads, but MT4 t2 'Show candidates' has no arm tool (no present/show_candidates); row stays not-covered for the run.",
     "expected_readback": null
   },
   {
     "row": "MT5",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "empty_team (explicit)",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -214,6 +185,15 @@
     "loaded": true,
     "complete": true,
     "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H27",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('H27')",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -251,7 +231,7 @@
     "complete": true,
     "source": "seeds/hc2_after_t1",
     "seed": "hc2_after_t1",
-    "justification": "HC2 t1 'No weather.' \u2192 judgment-only hard constraint no_weather_ability (same groundedness as H18b fixture tags); runner plays t2 only.",
+    "justification": "HC2 after t1 'No weather.': judgment-only no_weather_ability (same tag family as H18b) plus message_history; runner plays t2.",
     "error": null,
     "expected_readback": null
   },
@@ -377,7 +357,7 @@
     "row": "MS2",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "explicit:build_fully_locked_slot(Incineroar@1)",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -386,7 +366,7 @@
     "row": "MS3",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "explicit:Incineroar@1+Garchomp@2 fully locked",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -399,6 +379,15 @@
     "seed": "fbc_pending",
     "justification": "MS4/MU7 need a valid FBC for one complete build; Garchomp + Sand Veil + Sitrus Berry + four legal moves is a full provisional the commit node can accept.",
     "error": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MS5",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('MS5')",
+    "error": null,
+    "readback": null,
     "expected_readback": null
   },
   {
@@ -416,7 +405,7 @@
     "complete": true,
     "source": "seeds/cs_pending",
     "seed": "cs_pending",
-    "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight/Garchomp are legal doubles staples with source=threat via present_candidates (H27 route).",
+    "justification": "MS7 (covered) needs a CS screen with option 2; Pelipper/Toxapex/Corviknight from present_candidates (H27 route). MT4 remains mapped for dry-run only (not covered \u2014 no show-candidates tool). Option evidence emptied so the model cannot repeat hand-written seed scores (read_pending already omits evidence).",
     "error": null,
     "expected_readback": null
   },
@@ -451,7 +440,7 @@
     "row": "MR3",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "explicit:build_fully_locked_slot(Incineroar@1)",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -460,7 +449,7 @@
     "row": "MR4",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "explicit:Incineroar@1+Garchomp@2 fully locked",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -469,7 +458,7 @@
     "row": "MR5",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "explicit:build_fully_locked_slot(Garchomp@2)",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -531,9 +520,9 @@
   {
     "row": "MU4",
     "loaded": true,
-    "complete": false,
+    "complete": true,
     "source": "load_fixture('MU4')",
-    "error": "slot 1: skipped unlocked 'Pelipper'",
+    "error": null,
     "readback": null,
     "expected_readback": null
   },
@@ -550,7 +539,7 @@
     "row": "MU6",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "explicit:Incineroar@1+Garchomp@2 fully locked",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -578,7 +567,7 @@
     "row": "MW1",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "empty_team (explicit)",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -587,7 +576,7 @@
     "row": "MW2",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "explicit:Incineroar@1+Garchomp@2 fully locked",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -605,9 +594,10 @@
     "row": "MW4",
     "loaded": true,
     "complete": true,
-    "source": "empty_team",
+    "source": "explicit:seeds/cs_pending",
     "error": null,
     "readback": null,
+    "seed": "cs_pending",
     "expected_readback": null
   },
   {
@@ -628,37 +618,10 @@
     }
   },
   {
-    "row": "OL1",
-    "loaded": true,
-    "complete": true,
-    "source": "load_fixture('OL1')",
-    "error": null,
-    "readback": null,
-    "expected_readback": null
-  },
-  {
-    "row": "OL2a",
-    "loaded": true,
-    "complete": true,
-    "source": "load_fixture('OL2a')",
-    "error": null,
-    "readback": null,
-    "expected_readback": null
-  },
-  {
     "row": "OL2b",
     "loaded": true,
     "complete": true,
     "source": "load_fixture('OL2b')",
-    "error": null,
-    "readback": null,
-    "expected_readback": null
-  },
-  {
-    "row": "OL3",
-    "loaded": true,
-    "complete": true,
-    "source": "load_fixture('OL3')",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -686,6 +649,15 @@
     "loaded": true,
     "complete": true,
     "source": "load_fixture('OL6')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL7a",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL7a')",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -729,9 +701,9 @@
   {
     "row": "HN2c",
     "loaded": true,
-    "complete": false,
+    "complete": true,
     "source": "load_fixture('HN2c')",
-    "error": "slot 0: moves skipped (apply_lock moveset wiped siblings; Choice item + non-damaging move)",
+    "error": null,
     "readback": null,
     "expected_readback": null
   },
@@ -835,6 +807,15 @@
     "expected_readback": null
   },
   {
+    "row": "SC2",
+    "loaded": true,
+    "complete": true,
+    "source": "build_fully_locked_slot(Archaludon)",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
     "row": "MV1",
     "loaded": true,
     "complete": true,
@@ -862,10 +843,46 @@
     "expected_readback": null
   },
   {
+    "row": "IX1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "IX5",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "IX7",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
     "row": "IC1",
     "loaded": true,
     "complete": true,
     "source": "load_fixture('IC1')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "GS1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
     "error": null,
     "readback": null,
     "expected_readback": null
@@ -880,10 +897,46 @@
     "expected_readback": null
   },
   {
+    "row": "TB2",
+    "loaded": true,
+    "complete": true,
+    "source": "scripts/eval/part_g_v4/fixtures/tb2_incineroar_charcoal.json",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MM1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MM2",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('MM2')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
     "row": "MC1",
     "loaded": true,
     "complete": true,
     "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "RB1",
+    "loaded": true,
+    "complete": true,
+    "source": "scripts/eval/part_g_v4/fixtures/rb1_lucario_megaz_calmmind.json",
     "error": null,
     "readback": null,
     "expected_readback": null
