@@ -389,4 +389,4 @@ def test_tool_fields_prompt_sha_distinct():
     cfg = ArmConfig(prompt_file=TOOL_FIELDS_PROMPT_FILE)
     h = cfg.prompt_hash()
     assert h != FROZEN_PROMPT_SHA256
-    assert h == "911845a631e165f3162f901cee1d3580860205860508e7c6c126be97b53c135d"
+    assert h == "ae826dec78c8916a0b5ca66f8f91d4210164409bf57f0637c89eacbe68c62c40"

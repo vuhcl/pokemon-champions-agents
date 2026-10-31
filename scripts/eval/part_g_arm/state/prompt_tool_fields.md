@@ -24,7 +24,8 @@ State tools, and when to call them:
 - get_usage_spreads(species) returns pinned Showdown and in-game top_spreads (nature, SP, rank, weight, pct_kind); chaos weight is not a percent, and in-game nature is rank-paired not a joint.
 - get_common_speeds(species) returns Part 0 COMMON_SPEED (top distinct Spe cells from Showdown joints); use it for common Spe assumptions, not invented Spe values.
 - get_meta_threats(n?) returns the CLI in-game ladder threat list with Showdown forme expand; it is not the Showdown ≥4.52% key set unless those happen to match.
-- get_usage_stats(species, kind) returns usage-ranked moves, abilities, or natures from the pins (kind=moves|abilities|natures), not the dex list.
+- get_usage_stats(species, kind) returns usage-ranked moves, abilities, or natures from the pins (kind=moves|abilities|natures), not the dex list. For kind=abilities it also returns default_source and top_ability (name, pct, source).
+- calc_damage requires an ability on both attacker and defender. If the user does not name one, call get_usage_stats(species, "abilities"), pass top_ability.name, and state that ability, its percentage, and its source in the reply. If a species has exactly one legal ability the tool fills it (ability_source=auto_single). For a conditional ability (e.g. Defiant after Intimidate), run the calc with and without the condition when the key or question needs both.
 - get_speed accepts stage, scarf, tailwind and paralyzed; set them only when the request states them.
 - find_species returns only legal species; if truncated is true the list is not the full set, so do not say 'all'.
 

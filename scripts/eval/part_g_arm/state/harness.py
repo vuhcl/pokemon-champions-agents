@@ -239,6 +239,23 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
                 result, stage=stage, scarf=scarf, tailwind=tw, paralyzed=par
             )
         return state, result
+    if name == "calc_damage":
+        from scripts.eval.part_g_arm.state.ability_default import prepare_calc_damage_args
+        from scripts.eval.part_g_arm.state.tools import tool_fields_enabled
+
+        call_args = dict(args or {})
+        ability_source = None
+        if tool_fields_enabled():
+            prepared, refusal = prepare_calc_damage_args(call_args)
+            if refusal is not None:
+                return state, refusal
+            assert prepared is not None
+            ability_source = prepared.pop("_ability_source", None)
+            call_args = prepared
+        result = arm.call(name, call_args)
+        if tool_fields_enabled() and isinstance(result, dict) and ability_source is not None:
+            result = {**result, "ability_source": ability_source}
+        return state, result
     result = arm.call(name, args or {})
     if name == "get_move_static":
         from scripts.eval.part_g_arm.state.tools import with_move_static_fields
