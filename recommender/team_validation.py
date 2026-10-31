@@ -84,6 +84,28 @@ def _refuse(kind: RefusalKind, attr: str, value: object, message: str, other: in
     return TeamValueVerdict(TeamRefusal(kind, attr, str(value), other, message))
 
 
+def _illegal_species_message(name: str, entry: dict[str, Any], where: str) -> str:
+    """Name the pin condition that made is_species_legal false (order: tags → nonstandard → tier).
+
+    Keep the substring \"not legal\" so existing refusal assertions stay valid.
+    """
+    tags = set(entry.get("effective_tags") or [])
+    if "Mythical" in tags:
+        return f"{name} is not legal in {where} (Mythical), so I can't lock it."
+    if "Restricted Legendary" in tags:
+        return (
+            f"{name} is not legal in {where} (Restricted Legendary), so I can't lock it."
+        )
+    nonstd = entry.get("is_nonstandard")
+    if nonstd is not None:
+        return (
+            f"{name} is not legal in {where} "
+            f"(not in the format's roster, is_nonstandard={nonstd!r}), so I can't lock it."
+        )
+    if entry.get("tier") == "Illegal":
+        return f"{name} is not legal in {where} (tier Illegal), so I can't lock it."
+    return f"{name} is not legal in {where}, so I can't lock it."
+
 def validate_team_value(
     attr: str,
     value: object,
@@ -117,7 +139,7 @@ def validate_team_value(
         if not is_species_legal(snap, sid):
             return _refuse(
                 "illegal_species", attr, value,
-                f"{name} is not legal in {where}, so I can't lock it.",
+                _illegal_species_message(name, snap["species"][sid], where),
             )
         # Assumes every species value in team_draft is locked: the only writers are
         # lock single/batch, restore and commit, all locked=True (test_team_validation).
