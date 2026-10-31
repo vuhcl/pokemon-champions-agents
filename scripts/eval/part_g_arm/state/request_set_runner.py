@@ -73,7 +73,7 @@ def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def pin_hashes() -> dict[str, str]:
+def pin_hashes(*, additions_file: Path | None = None) -> dict[str, str]:
     """Content hashes for pins the run record must name."""
     out: dict[str, str] = {
         "prompt_sha256": FROZEN_PROMPT_SHA256,
@@ -85,12 +85,27 @@ def pin_hashes() -> dict[str, str]:
     joint = HERE / "LAST_JOINT_COVERAGE.md"
     if joint.is_file():
         out["joint_coverage_note_sha256"] = _sha256_file(joint)
+    if additions_file is not None:
+        out["additions_file_sha256"] = _sha256_file(additions_file)
+        out["additions_file"] = str(additions_file)
     return out
 
 
-def assert_frozen_prompt(cfg: ArmConfig, *, allow_dev: bool) -> None:
+# Prompt variant when --tool-fields is on (own sha; not the PRE-RS-ARM freeze).
+TOOL_FIELDS_PROMPT_FILE = "state/prompt_tool_fields.md"
+
+
+def assert_frozen_prompt(
+    cfg: ArmConfig, *, allow_dev: bool, allow_tool_fields_prompt: bool = False
+) -> None:
     got = cfg.prompt_hash()
     if got == FROZEN_PROMPT_SHA256:
+        return
+    if allow_tool_fields_prompt and cfg.prompt_file == TOOL_FIELDS_PROMPT_FILE:
+        print(
+            f"tool_fields prompt: {got} (frozen PRE-RS-ARM remains {FROZEN_PROMPT_SHA256})",
+            file=sys.stderr,
+        )
         return
     if allow_dev:
         print(f"dev override: prompt {got} != frozen {FROZEN_PROMPT_SHA256}", file=sys.stderr)
@@ -101,8 +116,16 @@ def assert_frozen_prompt(cfg: ArmConfig, *, allow_dev: bool) -> None:
     )
 
 
-def assert_row_allowed(row_id: str, *, allow_dev: bool, covered: set[str]) -> None:
+def assert_row_allowed(
+    row_id: str,
+    *,
+    allow_dev: bool,
+    covered: set[str],
+    additions_ids: set[str] | None = None,
+) -> None:
     if row_id in covered:
+        return
+    if additions_ids and row_id in additions_ids:
         return
     if allow_dev:
         print(f"dev override: running non-covered row {row_id}", file=sys.stderr)
@@ -190,11 +213,15 @@ def run_row(
 
 
 def build_run_parameters(
-    cfg: ArmConfig, facts: dict[str, Any], *, run_flags: dict[str, bool] | None = None
+    cfg: ArmConfig,
+    facts: dict[str, Any],
+    *,
+    run_flags: dict[str, bool] | None = None,
+    additions_file: Path | None = None,
 ) -> dict[str, Any]:
-    specs = combined_specs()
-    digest = facts.get("digest") or FIXED_RUN_SETTINGS["model_digest"]
     flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
+    specs = combined_specs(tool_fields=bool(flags.get("tool_fields")))
+    digest = facts.get("digest") or FIXED_RUN_SETTINGS["model_digest"]
     return {
         "non_inheritance": NON_INHERITANCE,
         "run_params": RUN_PARAMS,
@@ -212,7 +239,7 @@ def build_run_parameters(
         "tool_schema_sha256": hashlib.sha256(
             json.dumps(specs, sort_keys=True).encode()
         ).hexdigest(),
-        "pin_hashes": pin_hashes(),
+        "pin_hashes": pin_hashes(additions_file=additions_file),
         "arm_side_adaptations": {
             "select_option_source_default": RUN_PARAMS["select_option_source_default"],
             "primitive_pending_tools": RUN_PARAMS["primitive_tools"],
@@ -278,13 +305,16 @@ def run_batch(
     run_id: int | None = None,
     role: str | None = None,
     run_flags: dict[str, bool] | None = None,
+    additions_file: Path | None = None,
 ) -> int:
     """Run rows with resume. stop_after limits newly completed rows (kill-resume tests)."""
     from scripts.eval.part_g_arm.state.exploratory_runner import assert_not_exploratory_dir
+    from scripts.eval.part_g_arm.state.tools import set_tool_fields
 
     assert_not_exploratory_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
+    set_tool_fields(bool(flags.get("tool_fields")))
     progress = _load_progress(out_dir)
     if run_id is not None:
         progress["run_id"] = run_id
@@ -325,7 +355,9 @@ def run_batch(
             break
 
     transcript = [by_id[rid] for rid in wanted if rid in by_id]
-    record = build_run_parameters(cfg, facts, run_flags=flags)
+    record = build_run_parameters(
+        cfg, facts, run_flags=flags, additions_file=additions_file
+    )
     if run_id is not None:
         record["run_id"] = run_id
         record["role"] = role or run_role(run_id)
@@ -369,6 +401,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--stop-after", type=int, default=None, help="stop after N new rows (resume test)")
     parser.add_argument("--dev-rows-file", type=Path, default=None, help="run harness-style dev_rows.json via --dev")
     parser.add_argument(
+        "--additions-file",
+        type=Path,
+        default=None,
+        help="extra rows JSON (usable in a covered run); sha256 recorded in pin_hashes",
+    )
+    parser.add_argument(
         "--tool-fields",
         action="store_true",
         help="arm v2: enable tool_fields rung (default off)",
@@ -395,10 +433,38 @@ def main(argv: list[str] | None = None) -> int:
         print("\n".join(sorted(covered)))
         return 0
 
-    cfg = ArmConfig(prompt_file="state/prompt.md")
-    assert_frozen_prompt(cfg, allow_dev=args.dev)
+    from scripts.eval.part_g_arm.state.tools import set_tool_fields
+
+    set_tool_fields(bool(run_flags["tool_fields"]))
+    # Prompt variant (prompt_tool_fields.md) lands with describe/rules in the B rung.
+    prompt_file = "state/prompt.md"
+    cfg = ArmConfig(prompt_file=prompt_file)
+    assert_frozen_prompt(
+        cfg,
+        allow_dev=args.dev,
+        allow_tool_fields_prompt=False,
+    )
 
     rows_by_id = {r["id"]: r for r in load_request_rows()}
+    additions_ids: set[str] = set()
+    additions_file: Path | None = args.additions_file
+    if additions_file is not None:
+        add_doc = json.loads(additions_file.read_text(encoding="utf-8"))
+        add_rows = add_doc.get("rows") or []
+        for r in add_rows:
+            rid = r["id"]
+            additions_ids.add(rid)
+            rows_by_id[rid] = {
+                "id": rid,
+                "prompt": " | ".join(r.get("turns") or [r.get("prompt") or ""]),
+                "state": r.get("state") or "idle",
+                "class": r.get("class") or "ADDITION",
+                "acceptance": r.get("acceptance") or "",
+                "claim_types": r.get("claim_types") or "",
+                "raw": "",
+                "_addition_row": r,
+            }
+
     if args.dev_rows_file:
         dev_doc = json.loads(args.dev_rows_file.read_text(encoding="utf-8"))
         all_dev = [r["id"] for r in dev_doc["rows"]]
@@ -416,8 +482,15 @@ def main(argv: list[str] | None = None) -> int:
             }
     else:
         wanted = args.row or sorted(covered)
+        if additions_ids and not args.row:
+            wanted = [*wanted, *sorted(additions_ids)]
     for rid in wanted:
-        assert_row_allowed(rid, allow_dev=args.dev or bool(args.dev_rows_file), covered=covered)
+        assert_row_allowed(
+            rid,
+            allow_dev=args.dev or bool(args.dev_rows_file),
+            covered=covered,
+            additions_ids=additions_ids,
+        )
         if rid not in rows_by_id:
             raise SystemExit(f"unknown row id {rid!r}")
 
@@ -458,11 +531,11 @@ def main(argv: list[str] | None = None) -> int:
             num_ctx=cfg.num_ctx,
             num_predict=cfg.num_predict,
             client_kwargs={"timeout": cfg.call_timeout_s},
-        ).bind_tools(combined_specs())
+        ).bind_tools(combined_specs(tool_fields=bool(run_flags["tool_fields"])))
 
     resolve_fn = None
     turns_fn = None
-    if args.dev_rows_file:
+    if args.dev_rows_file or additions_ids:
         from scripts.eval.part_g_arm.state.harness import start_state as harness_start
 
         def _resolve_dev(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dict[str, Any]]:
@@ -474,11 +547,25 @@ def main(argv: list[str] | None = None) -> int:
                     "complete": True,
                     "source": "harness.start_state",
                 }
+            if row.get("_addition_row"):
+                # Later briefs may attach start descriptors; default empty until then.
+                add = row["_addition_row"]
+                if add.get("start"):
+                    st = harness_start(add)
+                    return st, {
+                        "row": row["id"],
+                        "loaded": True,
+                        "complete": True,
+                        "source": "additions harness.start_state",
+                    }
+                return resolve_start_state(row)
             return resolve_start_state(row)
 
         def _turns_dev(row: dict[str, Any], state: dict[str, Any] | None) -> list[str]:
             if row.get("_dev_row"):
                 return list(row["_dev_row"]["turns"])
+            if row.get("_addition_row") and row["_addition_row"].get("turns"):
+                return list(row["_addition_row"]["turns"])
             return turns_for_row(row, state)
 
         resolve_fn = _resolve_dev
@@ -498,6 +585,7 @@ def main(argv: list[str] | None = None) -> int:
         run_id=run_id,
         role=role,
         run_flags=run_flags,
+        additions_file=additions_file,
     )
 
 

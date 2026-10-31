@@ -54,7 +54,7 @@ from scripts.eval.part_g_arm.state.tools import (
     solve_spread_tool,
     steering_signature,
     unlock_slot,
-    with_move_priority,
+    with_move_static_fields,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -192,9 +192,25 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             ability=args.get("ability"),
             item=args.get("item"),
         )
+    if name == "get_speed":
+        from scripts.eval.part_g_arm.state.tools import enrich_get_speed, tool_fields_enabled
+
+        call_args = dict(args or {})
+        stage = call_args.pop("stage", 0) if tool_fields_enabled() else 0
+        scarf = call_args.pop("scarf", False) if tool_fields_enabled() else False
+        tw = call_args.pop("tailwind", False) if tool_fields_enabled() else False
+        par = call_args.pop("paralyzed", False) if tool_fields_enabled() else False
+        result = arm.call(name, call_args)
+        if tool_fields_enabled():
+            result = enrich_get_speed(
+                result, stage=stage, scarf=scarf, tailwind=tw, paralyzed=par
+            )
+        return state, result
     result = arm.call(name, args or {})
     if name == "get_move_static":
-        result = with_move_priority(result)
+        from scripts.eval.part_g_arm.state.tools import with_move_static_fields
+
+        result = with_move_static_fields(result)
     return state, result
 
 

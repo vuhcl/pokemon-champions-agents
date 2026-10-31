@@ -78,10 +78,19 @@ EXPLICIT_START_SEEDS: frozenset[str] = frozenset(
 )
 
 
+# Slot-2 default when pair would otherwise share Sitrus Berry (Item Clause = 1).
+# Not Choice Scarf (MR4). Leftovers is legal on Garchomp and distinct from Sitrus.
+_PAIR_SLOT2_ITEM = "Leftovers"
+
+
 def _fully_locked_pair(
     first: tuple[str, int], second: tuple[str, int] | None = None
 ) -> dict[str, Any]:
     """Build one or two fully locked slots via build_fully_locked_slot (no fixture edits)."""
+    from dataclasses import replace
+
+    from recommender.slot_index import user_slot_to_index
+    from recommender.state import Attr
     from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
 
     species_a, slot_a = first
@@ -90,10 +99,24 @@ def _fully_locked_pair(
         return state
     species_b, slot_b = second
     other = build_fully_locked_slot(species_b, user_slot=slot_b)
-    from recommender.slot_index import user_slot_to_index
-
     idx_b = user_slot_to_index(slot_b, team_size=len(state["team_draft"]))
-    state["team_draft"][idx_b] = other["team_draft"][idx_b]
+    slot_b_obj = other["team_draft"][idx_b]
+    item_a = state["team_draft"][
+        user_slot_to_index(slot_a, team_size=len(state["team_draft"]))
+    ].item.value
+    # build_fully_locked_slot hardcodes Sitrus Berry — pair without a rewrite
+    # duplicated it and violated Item Clause. Give slot 2 a distinct legal item.
+    if slot_b_obj.item.value == item_a:
+        slot_b_obj = replace(
+            slot_b_obj,
+            item=Attr(
+                value=_PAIR_SLOT2_ITEM,
+                locked=True,
+                reason=slot_b_obj.item.reason,
+                exempt_from_theme=slot_b_obj.item.exempt_from_theme,
+            ),
+        )
+    state["team_draft"][idx_b] = slot_b_obj
     return state
 
 

@@ -48,10 +48,12 @@ def test_mr4_two_locked_no_choice_scarf():
     st, meta = resolve_start_state(rows["MR4"])
     assert meta["loaded"] and st
     assert _locked_species(st) == {1: "Incineroar", 2: "Garchomp"}
+    items = []
     for slot in st["team_draft"]:
         if slot.species.value:
             assert slot.item.value != "Choice Scarf"
-            assert slot.item.value == "Sitrus Berry"
+            items.append(slot.item.value)
+    assert items == ["Sitrus Berry", "Leftovers"]  # Item Clause: slot2 not Sitrus
 
 
 def test_mr5_garchomp_slot2_slot1_empty():
