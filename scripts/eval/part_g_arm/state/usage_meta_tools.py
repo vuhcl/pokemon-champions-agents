@@ -308,6 +308,15 @@ def get_usage_stats(
         "kind": kind,
         "sources": sources,
     }
+    source_names = {s["source"] for s in sources}
+    if source_names == {"showdown"}:
+        out["ingame_missing"] = True
+        out["ingame_missing_note"] = (
+            "No in-game ladder rows for this species id. Do not label these figures "
+            "as in-game. For Mega formes, try the legal base forme (e.g. Floette-Eternal) "
+            "for in-game data (blends base and Mega-holder usage), or keep Showdown and "
+            "name that source."
+        )
     if str(kind) == "abilities":
         from scripts.eval.part_g_arm.state.ability_default import lookup_top_ability
 

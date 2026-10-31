@@ -241,11 +241,15 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return state, result
     if name == "calc_damage":
         from scripts.eval.part_g_arm.state.ability_default import prepare_calc_damage_args
+        from scripts.eval.part_g_arm.state.mega_stone_calc import prepare_calc_damage_mega_args
         from scripts.eval.part_g_arm.state.tools import tool_fields_enabled
 
         call_args = dict(args or {})
         ability_source = None
+        forme_resolution = None
         if tool_fields_enabled():
+            call_args, forme_resolution = prepare_calc_damage_mega_args(call_args)
+            call_args.pop("_forme_resolution", None)
             prepared, refusal = prepare_calc_damage_args(call_args)
             if refusal is not None:
                 return state, refusal
@@ -253,14 +257,26 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             ability_source = prepared.pop("_ability_source", None)
             call_args = prepared
         result = arm.call(name, call_args)
-        if tool_fields_enabled() and isinstance(result, dict) and ability_source is not None:
-            result = {**result, "ability_source": ability_source}
+        if tool_fields_enabled() and isinstance(result, dict):
+            extra: dict = {}
+            if ability_source is not None:
+                extra["ability_source"] = ability_source
+            if forme_resolution is not None:
+                extra["forme_resolution"] = forme_resolution
+            if extra:
+                result = {**result, **extra}
         return state, result
     result = arm.call(name, args or {})
     if name == "get_move_static":
         from scripts.eval.part_g_arm.state.tools import with_move_static_fields
 
         result = with_move_static_fields(result)
+    if name == "check_species_legal":
+        from scripts.eval.part_g_arm.state.tools import tool_fields_enabled
+        from scripts.eval.part_g_arm.state.species_legal_cause import enrich_check_species_legal
+
+        if tool_fields_enabled() and isinstance(result, dict):
+            result = enrich_check_species_legal(result)
     return state, result
 
 
