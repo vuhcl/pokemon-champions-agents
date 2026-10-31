@@ -53,6 +53,8 @@ READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
 _TOOL_FIELDS: bool = False
 # Arm v2 ladder: set_slot wrapper rung (cumulative on tool_fields).
 _WRAPPER: bool = False
+# Arm v2 ladder: draft/lock rung (cumulative on wrapper).
+_DRAFT: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -71,6 +73,15 @@ def set_wrapper(enabled: bool) -> None:
 
 def wrapper_enabled() -> bool:
     return _WRAPPER
+
+
+def set_draft(enabled: bool) -> None:
+    global _DRAFT
+    _DRAFT = bool(enabled)
+
+
+def draft_enabled() -> bool:
+    return _DRAFT
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -344,15 +355,18 @@ def combined_specs(
     *,
     tool_fields: bool | None = None,
     wrapper: bool | None = None,
+    draft: bool | None = None,
 ) -> list[dict[str, Any]]:
     """A new list. Does not append to TOOL_SPECS.
 
     tool_fields=None uses the module flag set by set_tool_fields.
     wrapper=None uses the module flag set by set_wrapper.
-    Both flags off → PRE-RS-ARM schemas (byte-identical).
+    draft=None uses the module flag set by set_draft.
+    All flags off → PRE-RS-ARM schemas (byte-identical).
     """
     on = _TOOL_FIELDS if tool_fields is None else bool(tool_fields)
     wrap = _WRAPPER if wrapper is None else bool(wrapper)
+    dr = _DRAFT if draft is None else bool(draft)
     lookups: list[dict[str, Any]] = []
     for spec in TOOL_SPECS:
         name = spec["function"]["name"]
@@ -422,7 +436,39 @@ def combined_specs(
             for s in state_specs
             if s["function"]["name"] not in {"lock_slot", "edit_slot_field"}
         ]
-        state_specs = [*state_specs, SET_SLOT_SPEC]
+        set_spec = SET_SLOT_SPEC
+        if dr:
+            from scripts.eval.part_g_arm.state.draft_lock import (
+                LOCK_FIELDS_SPEC,
+                UNLOCK_FIELDS_SPEC,
+            )
+            from scripts.eval.part_g_arm.state.set_slot_tool import SET_SLOT_SPEC_DRAFT
+
+            set_spec = SET_SLOT_SPEC_DRAFT
+            # unlock_slot description under draft: wipe with replace.
+            patched_u: list[dict[str, Any]] = []
+            for s in state_specs:
+                if s["function"]["name"] != "unlock_slot":
+                    patched_u.append(s)
+                    continue
+                fn = dict(s["function"])
+                fn["description"] = (
+                    "Clear an occupied team slot (draft or locked). "
+                    "Requires replace=true when the slot holds values, and only after "
+                    "the user confirms. slot counts from 1."
+                )
+                props = dict(fn["parameters"]["properties"])
+                props["replace"] = {"type": "boolean"}
+                fn["parameters"] = {
+                    "type": "object",
+                    "properties": props,
+                    "required": list(fn["parameters"]["required"]),
+                }
+                patched_u.append({**s, "function": fn})
+            state_specs = patched_u
+            state_specs = [*state_specs, set_spec, LOCK_FIELDS_SPEC, UNLOCK_FIELDS_SPEC]
+        else:
+            state_specs = [*state_specs, set_spec]
     return [*lookups, *state_specs, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
 
 
@@ -447,14 +493,33 @@ def slot_signature(slot: Slot) -> tuple[Any, ...]:
 
 
 def read_team(state: dict[str, Any]) -> dict[str, Any]:
+    from scripts.eval.part_g_arm.state.draft_lock import attr_status
+
     slots = []
     for index, slot in enumerate(state["team_draft"]):
-        slots.append({
+        row: dict[str, Any] = {
             "slot": display_slot(index),
             "species": slot.species.value,
             "species_locked": slot.species.locked,
             "attrs": slot_signature(slot),
-        })
+        }
+        if draft_enabled():
+            row["attributes"] = {
+                name: {
+                    "value": getattr(slot, name).value,
+                    "status": attr_status(getattr(slot, name)),
+                }
+                for name in (
+                    "role",
+                    "species",
+                    "ability",
+                    "item",
+                    "moveset",
+                    "spread",
+                    "nature",
+                )
+            }
+        slots.append(row)
     return {"slots": slots}
 
 
@@ -1495,9 +1560,25 @@ def show_candidates(
                 if not getattr(slot, name).locked
             ]
             missing_txt = " and ".join(missing) if missing else "fields"
+            draft_n = sum(
+                1
+                for name in (
+                    "role",
+                    "species",
+                    "ability",
+                    "item",
+                    "moveset",
+                    "spread",
+                    "nature",
+                )
+                if getattr(slot, name).value is not None and not getattr(slot, name).locked
+            )
+            extra = (
+                f"; {draft_n} attributes are draft, not locked" if draft_n else ""
+            )
             return state, _refuse(
                 f"slot {display_slot(idx)} is locked but not fully locked "
-                f"(missing {missing_txt})"
+                f"(missing {missing_txt}){extra}"
             )
         return state, _refuse(
             "empty team: show_candidates needs a locked anchor; "

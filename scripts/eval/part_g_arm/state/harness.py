@@ -137,7 +137,29 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             state, args.get("slot"), args.get("field"), args.get("value")
         )
     if name == "unlock_slot":
+        from scripts.eval.part_g_arm.state.tools import draft_enabled
+
+        if draft_enabled():
+            from scripts.eval.part_g_arm.state.draft_lock import unlock_slot_draft
+
+            return unlock_slot_draft(
+                state, args.get("slot"), replace=bool(args.get("replace") or False)
+            )
         return unlock_slot(state, args.get("slot"))
+    if name == "lock_fields":
+        from scripts.eval.part_g_arm.state.draft_lock import lock_fields
+        from scripts.eval.part_g_arm.state.tools import draft_enabled
+
+        if not draft_enabled():
+            return state, {"slot_commit_error": "lock_fields requires draft flag"}
+        return lock_fields(state, args.get("slot"), args.get("fields"))
+    if name == "unlock_fields":
+        from scripts.eval.part_g_arm.state.draft_lock import unlock_fields
+        from scripts.eval.part_g_arm.state.tools import draft_enabled
+
+        if not draft_enabled():
+            return state, {"slot_commit_error": "unlock_fields requires draft flag"}
+        return unlock_fields(state, args.get("slot"), args.get("fields"))
     if name == "reset_team":
         return reset_team_state(state)
     if name == "commit_slot":
@@ -368,6 +390,8 @@ def run_turn(
                     entry["replace"] = entry["replace"] or any(
                         bool(s.get("replace")) for s in args["slots"] if isinstance(s, dict)
                     )
+            if call["name"] == "unlock_slot":
+                entry["replace"] = bool(args.get("replace") or False)
             entry["result_status"] = tool_call_result_status(entry)
             calls.append(entry)
             messages.append(ToolMessage(dumps(recorded), tool_call_id=call["id"]))
@@ -375,7 +399,9 @@ def run_turn(
             errors.append("max_turns")
     after = snapshot(state)
     replace_true_calls = sum(
-        1 for c in calls if c.get("name") == "set_slot" and c.get("replace") is True
+        1
+        for c in calls
+        if c.get("name") in {"set_slot", "unlock_slot"} and c.get("replace") is True
     )
     refused_calls = sum(1 for c in calls if c.get("result_status") == "refused")
     record = {
