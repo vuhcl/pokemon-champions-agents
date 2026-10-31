@@ -391,10 +391,11 @@ def test_v4_fixture_loader_bases_ic1_mrb1_moveset():
     assert len(h18b.get("constraints") or []) == 2
     assert all(c.groundedness == "judgment-only" for c in h18b["constraints"])
 
-    # MU4: unlocked Pelipper skipped; Torkoal at user slot 1
+    # MU4: unlocked Pelipper loads as draft (locked=False); Torkoal locked at user slot 1
     mu4 = load_fixture("MU4")
     assert mu4["team_draft"][0].species.value == "Torkoal"
-    assert mu4["team_draft"][1].species.value is None
+    assert mu4["team_draft"][1].species.value == "Pelipper"
+    assert mu4["team_draft"][1].species.locked is False
 
     # IC1 loader rule: first free slots in list order
     ic1 = load_fixture("IC1")
