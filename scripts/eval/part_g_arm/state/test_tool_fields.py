@@ -41,9 +41,13 @@ PRE_RS_ARM_TOOL_SCHEMA_SHA256 = "f0c97ad3b88cb3f118e241111bd454a4e86f7937cd4342f
 
 @pytest.fixture(autouse=True)
 def _reset_flag():
+    from scripts.eval.part_g_arm.state.tools import set_wrapper
+
     set_tool_fields(False)
+    set_wrapper(False)
     yield
     set_tool_fields(False)
+    set_wrapper(False)
 
 
 def test_flags_off_still_pre_rs_arm_schema():

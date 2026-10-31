@@ -93,13 +93,25 @@ def pin_hashes(*, additions_file: Path | None = None) -> dict[str, str]:
 
 # Prompt variant when --tool-fields is on (own sha; not the PRE-RS-ARM freeze).
 TOOL_FIELDS_PROMPT_FILE = "state/prompt_tool_fields.md"
+# Prompt variant when --wrapper is on (tool_fields text + one set_slot sentence).
+WRAPPER_PROMPT_FILE = "state/prompt_wrapper.md"
 
 
 def assert_frozen_prompt(
-    cfg: ArmConfig, *, allow_dev: bool, allow_tool_fields_prompt: bool = False
+    cfg: ArmConfig,
+    *,
+    allow_dev: bool,
+    allow_tool_fields_prompt: bool = False,
+    allow_wrapper_prompt: bool = False,
 ) -> None:
     got = cfg.prompt_hash()
     if got == FROZEN_PROMPT_SHA256:
+        return
+    if allow_wrapper_prompt and cfg.prompt_file == WRAPPER_PROMPT_FILE:
+        print(
+            f"wrapper prompt: {got} (frozen PRE-RS-ARM remains {FROZEN_PROMPT_SHA256})",
+            file=sys.stderr,
+        )
         return
     if allow_tool_fields_prompt and cfg.prompt_file == TOOL_FIELDS_PROMPT_FILE:
         print(
@@ -203,12 +215,16 @@ def run_row(
         assistant = _usable_assistant_text(record)
         if assistant:
             row_chat.append({"role": "assistant", "content": assistant})
+    replace_true_turns = [
+        i + 1 for i, t in enumerate(turns_out) if int(t.get("replace_true_calls") or 0) > 0
+    ]
     return {
         "id": row["id"],
         "loaded": True,
         "start_meta": meta,
         "turns": turns_out,
         "run_flags": dict(flags),
+        "replace_true_turns": replace_true_turns,
     }
 
 
@@ -220,7 +236,10 @@ def build_run_parameters(
     additions_file: Path | None = None,
 ) -> dict[str, Any]:
     flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
-    specs = combined_specs(tool_fields=bool(flags.get("tool_fields")))
+    specs = combined_specs(
+        tool_fields=bool(flags.get("tool_fields")),
+        wrapper=bool(flags.get("wrapper")),
+    )
     digest = facts.get("digest") or FIXED_RUN_SETTINGS["model_digest"]
     return {
         "non_inheritance": NON_INHERITANCE,
@@ -309,12 +328,13 @@ def run_batch(
 ) -> int:
     """Run rows with resume. stop_after limits newly completed rows (kill-resume tests)."""
     from scripts.eval.part_g_arm.state.exploratory_runner import assert_not_exploratory_dir
-    from scripts.eval.part_g_arm.state.tools import set_tool_fields
+    from scripts.eval.part_g_arm.state.tools import set_tool_fields, set_wrapper
 
     assert_not_exploratory_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
     set_tool_fields(bool(flags.get("tool_fields")))
+    set_wrapper(bool(flags.get("wrapper")))
     progress = _load_progress(out_dir)
     if run_id is not None:
         progress["run_id"] = run_id
@@ -367,9 +387,52 @@ def run_batch(
         progress["role"] = role or run_role(run_id)
     _save_progress(out_dir, progress)
     (out_dir / "transcript.json").write_text(json.dumps(transcript, indent=2) + "\n", encoding="utf-8")
+    # Per-row list of turns with replace=true set_slot calls (audit finds calls; verdict by hand).
+    record["replace_true_turns_by_row"] = {
+        e["id"]: e.get("replace_true_turns") or [] for e in transcript if e.get("loaded")
+    }
     (out_dir / "run_record.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    _write_tool_calls_csv(out_dir, transcript)
     print(f"wrote {out_dir} ({len(transcript)} rows)", file=sys.stderr)
     return 0
+
+
+def _write_tool_calls_csv(out_dir: Path, transcript: list[dict[str, Any]]) -> None:
+    """One row per tool call; includes top-level replace for set_slot audit."""
+    import csv
+
+    path = out_dir / "tool_calls.csv"
+    fields = [
+        "row_id",
+        "turn",
+        "call_index",
+        "name",
+        "replace",
+        "replace_true_calls",
+        "args_json",
+    ]
+    with path.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=fields)
+        w.writeheader()
+        for entry in transcript:
+            rid = entry.get("id")
+            for ti, turn in enumerate(entry.get("turns") or []):
+                rtc = turn.get("replace_true_calls")
+                for ci, call in enumerate(turn.get("tool_calls") or []):
+                    rep = call.get("replace")
+                    if rep is None and call.get("name") == "set_slot":
+                        rep = bool((call.get("args") or {}).get("replace") or False)
+                    w.writerow(
+                        {
+                            "row_id": rid,
+                            "turn": ti + 1,
+                            "call_index": ci,
+                            "name": call.get("name"),
+                            "replace": "" if rep is None else str(bool(rep)).lower(),
+                            "replace_true_calls": rtc if rtc is not None else "",
+                            "args_json": json.dumps(call.get("args") or {}, sort_keys=True),
+                        }
+                    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -433,15 +496,22 @@ def main(argv: list[str] | None = None) -> int:
         print("\n".join(sorted(covered)))
         return 0
 
-    from scripts.eval.part_g_arm.state.tools import set_tool_fields
+    from scripts.eval.part_g_arm.state.tools import set_tool_fields, set_wrapper
 
     set_tool_fields(bool(run_flags["tool_fields"]))
-    prompt_file = TOOL_FIELDS_PROMPT_FILE if run_flags["tool_fields"] else "state/prompt.md"
+    set_wrapper(bool(run_flags["wrapper"]))
+    if run_flags["wrapper"]:
+        prompt_file = WRAPPER_PROMPT_FILE
+    elif run_flags["tool_fields"]:
+        prompt_file = TOOL_FIELDS_PROMPT_FILE
+    else:
+        prompt_file = "state/prompt.md"
     cfg = ArmConfig(prompt_file=prompt_file)
     assert_frozen_prompt(
         cfg,
-        allow_dev=args.dev,
-        allow_tool_fields_prompt=bool(run_flags["tool_fields"]),
+        allow_dev=args.dev or bool(args.dev_rows_file),
+        allow_tool_fields_prompt=bool(run_flags["tool_fields"]) and not run_flags["wrapper"],
+        allow_wrapper_prompt=bool(run_flags["wrapper"]),
     )
 
     rows_by_id = {r["id"]: r for r in load_request_rows()}
@@ -530,7 +600,12 @@ def main(argv: list[str] | None = None) -> int:
             num_ctx=cfg.num_ctx,
             num_predict=cfg.num_predict,
             client_kwargs={"timeout": cfg.call_timeout_s},
-        ).bind_tools(combined_specs(tool_fields=bool(run_flags["tool_fields"])))
+        ).bind_tools(
+            combined_specs(
+                tool_fields=bool(run_flags["tool_fields"]),
+                wrapper=bool(run_flags["wrapper"]),
+            )
+        )
 
     resolve_fn = None
     turns_fn = None

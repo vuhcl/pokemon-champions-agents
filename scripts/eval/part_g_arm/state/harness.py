@@ -124,6 +124,13 @@ def snapshot(state: dict[str, Any]) -> dict[str, Any]:
 def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     if name == "lock_slot":
         return lock_slot(state, args.get("slot"), args.get("species"))
+    if name == "set_slot":
+        from scripts.eval.part_g_arm.state.set_slot_tool import set_slot
+        from scripts.eval.part_g_arm.state.tools import wrapper_enabled
+
+        if not wrapper_enabled():
+            return state, {"slot_commit_error": "set_slot is disabled (wrapper flag off)"}
+        return set_slot(state, args)
     if name == "edit_slot_field":
         return edit_slot_field(
             state, args.get("slot"), args.get("field"), args.get("value")
@@ -293,11 +300,27 @@ def run_turn(
         for call in ai.tool_calls:
             state, patch = dispatch(state, arm, call["name"], call.get("args") or {})
             recorded = _jsonable_result(patch)
-            calls.append({"name": call["name"], "args": call.get("args") or {}, "result": recorded})
+            args = call.get("args") or {}
+            entry: dict[str, Any] = {
+                "name": call["name"],
+                "args": args,
+                "result": recorded,
+            }
+            # Replace-flag audit: top-level field, not only inside args JSON.
+            if call["name"] == "set_slot":
+                entry["replace"] = bool(args.get("replace") or False)
+                if isinstance(args.get("slots"), list):
+                    entry["replace"] = entry["replace"] or any(
+                        bool(s.get("replace")) for s in args["slots"] if isinstance(s, dict)
+                    )
+            calls.append(entry)
             messages.append(ToolMessage(dumps(recorded), tool_call_id=call["id"]))
         if turn_index + 1 >= cfg.max_turns:
             errors.append("max_turns")
     after = snapshot(state)
+    replace_true_calls = sum(
+        1 for c in calls if c.get("name") == "set_slot" and c.get("replace") is True
+    )
     record = {
         "user": user_text,
         "tool_calls": calls,
@@ -308,6 +331,7 @@ def run_turn(
         "errors": errors,
         "reasked": reasked,
         "prompt_tokens": prompt_tokens,
+        "replace_true_calls": replace_true_calls,
     }
     return state, record
 
@@ -316,6 +340,13 @@ def start_state(row: dict[str, Any]) -> dict[str, Any]:
     kind = row.get("start")
     if kind == "fully_locked":
         return build_fully_locked_slot(row["species"], user_slot=int(row["user_slot"]))
+    if kind == "fully_locked_pair":
+        from scripts.eval.part_g_arm.state.request_set_rows import _fully_locked_pair
+
+        return _fully_locked_pair(
+            (row["species_a"], int(row["slot_a"])),
+            (row["species_b"], int(row["slot_b"])),
+        )
     if kind == "fully_locked_mega":
         return build_fully_locked_mega(
             row["species"], row["item"], user_slot=int(row["user_slot"])

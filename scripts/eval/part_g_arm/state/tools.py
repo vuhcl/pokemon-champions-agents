@@ -49,6 +49,8 @@ READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
 
 # Arm v2 ladder: tool_fields rung. Off → PRE-RS-ARM schemas/results surface.
 _TOOL_FIELDS: bool = False
+# Arm v2 ladder: set_slot wrapper rung (cumulative on tool_fields).
+_WRAPPER: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -58,6 +60,15 @@ def set_tool_fields(enabled: bool) -> None:
 
 def tool_fields_enabled() -> bool:
     return _TOOL_FIELDS
+
+
+def set_wrapper(enabled: bool) -> None:
+    global _WRAPPER
+    _WRAPPER = bool(enabled)
+
+
+def wrapper_enabled() -> bool:
+    return _WRAPPER
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -322,13 +333,19 @@ _DESCRIBE_SPEC = _spec(
 )
 
 
-def combined_specs(*, tool_fields: bool | None = None) -> list[dict[str, Any]]:
+def combined_specs(
+    *,
+    tool_fields: bool | None = None,
+    wrapper: bool | None = None,
+) -> list[dict[str, Any]]:
     """A new list. Does not append to TOOL_SPECS.
 
     tool_fields=None uses the module flag set by set_tool_fields.
-    Flag off → PRE-RS-ARM schemas (byte-identical). Flag on → enriched schemas + describe.
+    wrapper=None uses the module flag set by set_wrapper.
+    Both flags off → PRE-RS-ARM schemas (byte-identical).
     """
     on = _TOOL_FIELDS if tool_fields is None else bool(tool_fields)
+    wrap = _WRAPPER if wrapper is None else bool(wrapper)
     lookups: list[dict[str, Any]] = []
     for spec in TOOL_SPECS:
         name = spec["function"]["name"]
@@ -387,6 +404,10 @@ def combined_specs(*, tool_fields: bool | None = None) -> list[dict[str, Any]]:
             patched.append({**spec, "function": fn})
         state_specs = patched
         lookups = [*lookups, _DESCRIBE_SPEC]
+    if wrap:
+        from scripts.eval.part_g_arm.state.set_slot_tool import SET_SLOT_SPEC
+
+        state_specs = [*state_specs, SET_SLOT_SPEC]
     return [*lookups, *state_specs, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
 
 
