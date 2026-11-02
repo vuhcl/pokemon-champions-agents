@@ -327,6 +327,15 @@ def _text(content: Any) -> str:
     return "" if content is None else str(content)
 
 
+def _llm_without_tools(llm: Any) -> Any:
+    """Judge retry must not bind tools — tool_calls yield empty content."""
+    # langchain RunnableBinding from bind_tools: unwrap to the base chat model.
+    bound = getattr(llm, "bound", None)
+    if bound is not None:
+        return bound
+    return llm
+
+
 def run_turn(
     cfg: ArmConfig,
     llm: Any,
@@ -552,29 +561,41 @@ def run_turn(
         retried_answer = None
         retries = 0
         if judge_rec.get("verdicts"):
-            # One structured retry: feed verdicts back to the model.
+            # One structured retry: feed verdicts back; model may only revise text.
             retries = 1
-            verdict_blob = dumps(judge_rec["verdicts"])
+            first_verdicts = list(judge_rec.get("verdicts") or [])
+            verdict_blob = dumps(first_verdicts)
             retry_prompt = (
                 "Your previous answer had judge verdicts that need fixing. "
-                "Revise the answer using only tool results and state; do not invent facts.\n"
+                "Revise the answer using only tool results and state; do not invent facts. "
+                "Do not call tools — retract, qualify, or ask.\n"
                 f"Verdicts JSON:\n{verdict_blob}\n"
                 f"Previous answer:\n{raw}"
             )
             try:
-                retry_ai = llm.invoke([*messages, HumanMessage(retry_prompt)])
+                # Unbound: tool-bound llm.invoke can return tool_calls with empty content.
+                retry_ai = _llm_without_tools(llm).invoke(
+                    [*messages, HumanMessage(retry_prompt)]
+                )
                 retried_answer = _text(getattr(retry_ai, "content", retry_ai))
             except Exception as exc:  # noqa: BLE001
                 errors.append(f"judge_retry:{type(exc).__name__}: {exc}")
                 retried_answer = raw
-            judge_rec = run_judge(reply=retried_answer or "", **judge_kwargs)
-            judge_rec["retry_used"] = True
-            if judge_rec.get("verdicts"):
-                post = apply_unverified_labels(
-                    retried_answer or "", judge_rec.get("verdicts") or []
-                )
+            if not (retried_answer or "").strip():
+                # Empty / tool-call-only retry: keep raw and label it (terminal guarantee).
+                retried_answer = ""
+                post = apply_unverified_labels(raw, first_verdicts)
+                judge_rec["retry_used"] = True
+                judge_rec["verdicts"] = first_verdicts
             else:
-                post = retried_answer or ""
+                judge_rec = run_judge(reply=retried_answer, **judge_kwargs)
+                judge_rec["retry_used"] = True
+                if judge_rec.get("verdicts"):
+                    post = apply_unverified_labels(
+                        retried_answer, judge_rec.get("verdicts") or []
+                    )
+                else:
+                    post = retried_answer
         else:
             judge_rec["retry_used"] = False
             post = raw

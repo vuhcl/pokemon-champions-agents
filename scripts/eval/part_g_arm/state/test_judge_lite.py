@@ -180,3 +180,190 @@ def test_judge_retry_then_post_cap_labels_mutation_claim():
         set_draft(False)
         set_wrapper(False)
         set_tool_fields(False)
+
+
+def _judge_retry_llm(*, retry_ai):
+    """Shared fake LLM: first answer claims a lock; later invokes return retry_ai."""
+
+    class _AI:
+        def __init__(self, content="", tool_calls=None):
+            self.content = content
+            self.tool_calls = tool_calls or []
+            self.response_metadata = {}
+
+    class LLM:
+        def __init__(self):
+            self.n = 0
+            self.retry_invoke_on = None
+
+        def invoke(self, messages):
+            self.n += 1
+            if self.n == 1:
+                return _AI(content="I locked Pelipper in slot 1.")
+            self.retry_invoke_on = self
+            return retry_ai if not callable(retry_ai) else retry_ai(self, messages)
+
+        def bind_tools(self, _specs):
+            return self
+
+        def with_structured_output(self, _schema):
+            class _S:
+                def invoke(self_inner, _msgs):
+                    return {
+                        "uncertain": False,
+                        "sub_requests": [
+                            {
+                                "class": "WRITE",
+                                "action": "lock_fields",
+                                "numeric_or_explain": False,
+                                "confirms_replacement": False,
+                            }
+                        ],
+                    }
+
+            return _S()
+
+    return LLM()
+
+
+def test_judge_empty_retry_keeps_raw_with_labels():
+    """FU24 §3: empty retry content → keep raw + apply labels (not final_text '')."""
+    from scripts.eval.part_g_arm.config import ArmConfig
+    from scripts.eval.part_g_arm.state.harness import run_turn
+    from scripts.eval.part_g_arm.state.tools import (
+        set_draft,
+        set_guard,
+        set_judge,
+        set_tool_fields,
+        set_wrapper,
+    )
+
+    class _AI:
+        def __init__(self, content="", tool_calls=None):
+            self.content = content
+            self.tool_calls = tool_calls or []
+            self.response_metadata = {}
+
+    llm = _judge_retry_llm(retry_ai=_AI(content=""))
+    set_tool_fields(True)
+    set_wrapper(True)
+    set_draft(True)
+    set_guard(True)
+    set_judge(True)
+    try:
+        cfg = ArmConfig(prompt_file="state/prompt_guard.md", enforce_first_turn_tool=False)
+        st2, rec = run_turn(
+            cfg, llm, None, empty_team(), "Lock Pelipper in slot 1.", prior_messages=[]
+        )
+        j = rec["judge"]
+        assert j.get("retry_used") is True
+        assert j.get("retried_answer") == ""
+        assert j.get("raw_answer")
+        assert (rec.get("final_text") or "").strip()
+        assert rec["final_text"] != ""
+        assert j["post_judge_answer"] == rec["final_text"]
+        # Labels applied to raw (mutation line or unverified), not blank.
+        assert "locked" in (j["raw_answer"] or "").casefold()
+    finally:
+        set_judge(False)
+        set_guard(False)
+        set_draft(False)
+        set_wrapper(False)
+        set_tool_fields(False)
+
+
+def test_judge_tool_call_retry_uses_unbound_and_keeps_raw_if_empty():
+    """FU24 §3: retry unwraps bind_tools; tool-call-only empty content keeps raw."""
+    from scripts.eval.part_g_arm.config import ArmConfig
+    from scripts.eval.part_g_arm.state.harness import _llm_without_tools, run_turn
+    from scripts.eval.part_g_arm.state.tools import (
+        set_draft,
+        set_guard,
+        set_judge,
+        set_tool_fields,
+        set_wrapper,
+    )
+
+    class _AI:
+        def __init__(self, content="", tool_calls=None):
+            self.content = content
+            self.tool_calls = tool_calls or []
+            self.response_metadata = {}
+
+    class Bare:
+        def __init__(self):
+            self.invokes = 0
+
+        def invoke(self, messages):
+            self.invokes += 1
+            # Unbound path: still empty text (no tools to call).
+            return _AI(content="")
+
+        def with_structured_output(self, _schema):
+            class _S:
+                def invoke(self_inner, _msgs):
+                    return {
+                        "uncertain": False,
+                        "sub_requests": [
+                            {
+                                "class": "WRITE",
+                                "action": "lock_fields",
+                                "numeric_or_explain": False,
+                                "confirms_replacement": False,
+                            }
+                        ],
+                    }
+
+            return _S()
+
+    class Bound:
+        """Simulates llm.bind_tools(...): outer would emit tool_calls."""
+
+        def __init__(self, bare: Bare):
+            self.bound = bare
+            self.outer_invokes = 0
+            self.n = 0
+
+        def invoke(self, messages):
+            self.n += 1
+            self.outer_invokes += 1
+            if self.n == 1:
+                return _AI(content="I locked Pelipper in slot 1.")
+            # If retry incorrectly uses the bound llm:
+            return _AI(
+                content="",
+                tool_calls=[{"id": "1", "name": "lock_fields", "args": {"slot": 1}}],
+            )
+
+        def bind_tools(self, _specs):
+            return self
+
+        def with_structured_output(self, _schema):
+            return self.bound.with_structured_output(_schema)
+
+    bare = Bare()
+    llm = Bound(bare)
+    assert _llm_without_tools(llm) is bare
+
+    set_tool_fields(True)
+    set_wrapper(True)
+    set_draft(True)
+    set_guard(True)
+    set_judge(True)
+    try:
+        cfg = ArmConfig(prompt_file="state/prompt_guard.md", enforce_first_turn_tool=False)
+        _st, rec = run_turn(
+            cfg, llm, None, empty_team(), "Lock Pelipper in slot 1.", prior_messages=[]
+        )
+        j = rec["judge"]
+        assert j.get("retry_used") is True
+        assert bare.invokes >= 1  # retry hit unbound
+        assert (rec.get("final_text") or "").strip()
+        assert j.get("retried_answer") == ""
+        assert "locked" in (j.get("raw_answer") or "").casefold()
+    finally:
+        set_judge(False)
+        set_guard(False)
+        set_draft(False)
+        set_wrapper(False)
+        set_tool_fields(False)
