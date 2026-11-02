@@ -177,6 +177,18 @@ def _usable_assistant_text(record: dict[str, Any]) -> str:
     return text
 
 
+def stamp_t1_process_flags(row_id: object, turns_out: list[dict[str, Any]]) -> None:
+    """Record whether t1 called the tool t2's audit needs (FU18 live splits)."""
+    if len(turns_out) < 2:
+        return
+    t1_calls = turns_out[0].get("tool_calls") or []
+    names = {(c.get("name") or "") for c in t1_calls}
+    if row_id == "MT3":
+        turns_out[1]["t1_add_constraint_called"] = "add_constraint" in names
+    if row_id == "HD1":
+        turns_out[1]["t1_get_typing_called"] = "get_typing" in names
+
+
 def run_row(
     row: dict[str, Any],
     *,
@@ -238,6 +250,7 @@ def run_row(
         assistant = _usable_assistant_text(record)
         if assistant:
             row_chat.append({"role": "assistant", "content": assistant})
+    stamp_t1_process_flags(row.get("id"), turns_out)
     replace_true_turns = [
         i + 1 for i, t in enumerate(turns_out) if int(t.get("replace_true_calls") or 0) > 0
     ]

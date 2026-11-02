@@ -20,9 +20,7 @@ SEED_FOR_ROW: dict[str, str] = {
     "MT4": "cs_pending",  # dry-run only; not covered — see LAST_PART3_SEEDS.md / cs_pending justification
     "MS4": "fbc_pending",
     "MU7": "fbc_pending",
-    "MT3": "mt3_after_t1",
-    "HC2": "hc2_after_t1",
-    "HD1": "hd1_history",
+    # HC2 / HD1 / MT3: play all request-set turns live (FU18); seed JSON kept for history.
 }
 
 BUILDERS: dict[str, Callable[[], dict[str, Any]]] = {

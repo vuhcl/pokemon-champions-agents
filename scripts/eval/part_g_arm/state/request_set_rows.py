@@ -50,12 +50,14 @@ def turns_for_row(row: dict[str, Any], state: dict[str, Any] | None) -> list[str
     """User turns the runner actually plays (seeds may skip already-applied t1)."""
     if state and state.get("_runner_turns"):
         return list(state["_runner_turns"])
-    turns = parse_user_turns(row.get("prompt") or "")
     rid = row.get("id")
-    if rid == "MT3" and len(turns) >= 3:
-        return turns[1:]  # t1 applied as seed constraint
-    if rid == "HC2" and len(turns) >= 2:
-        return turns[1:]  # t1 applied as seed constraint
+    # HD1: request-set prompt is the correction only; play H1's typing ask live first.
+    if rid == "HD1":
+        return [
+            "What type is Toxapex?",
+            "No, Toxapex is not Water/Poison",
+        ]
+    turns = parse_user_turns(row.get("prompt") or "")
     return turns
 
 
@@ -278,6 +280,16 @@ def resolve_start_state(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dic
     if "cs pending" in state_l or "fbc pending" in state_l:
         meta["error"] = f"pending start {state_cell!r} needs a named OL/v4 fixture; not invented"
         return None, meta
+    # FU18: HC2 / HD1 / MT3 play prior turns live; start empty (no seed replay).
+    if rid in ("HC2", "HD1", "MT3"):
+        meta.update(
+            {
+                "loaded": True,
+                "complete": True,
+                "source": "empty_team (live multi-turn; no t1 seed)",
+            }
+        )
+        return empty_team(), meta
     if state_l.startswith("after ") or state_l.startswith("after\t"):
         meta["error"] = f"multi-turn seed {state_cell!r} not built (prior turn not replayed)"
         return None, meta

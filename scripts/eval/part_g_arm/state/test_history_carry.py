@@ -39,14 +39,12 @@ class TextOnlyLLM:
         return _AI(content=f"answer-{self.n}")
 
 
-def test_mt3_t2_receives_seed_t1_text_no_tool_message():
-    """Runner turn 0 for MT3 is request-set t2; seed history is t1 user+assistant."""
+def test_mt3_t2_receives_live_t1_text_no_tool_message():
+    """FU18: MT3 plays t1 live; t2 prior_messages are t1 user+assistant text only."""
     rows = {r["id"]: r for r in load_request_rows()}
     st, meta = resolve_start_state(rows["MT3"])
     assert st and meta["loaded"]
-    hist = st.get("_message_history") or []
-    assert hist[0]["role"] == "user" and "Intimidate" in hist[0]["content"]
-    assert hist[1]["role"] == "assistant"
+    assert "empty_team" in (meta.get("source") or "")
 
     cfg = ArmConfig(prompt_file="state/prompt.md", enforce_first_turn_tool=False)
     llm = TextOnlyLLM()
@@ -55,15 +53,18 @@ def test_mt3_t2_receives_seed_t1_text_no_tool_message():
         cfg=cfg,
         llm=llm,
         arm=_arm(),
-        turns_fn=lambda _row, _state: ["Suggest a teammate for slot 2."],
+        turns_fn=lambda _row, _state: [
+            "No Intimidate.",
+            "Suggest a teammate for slot 2.",
+        ],
     )
     assert entry["loaded"]
-    assert llm.seen, "llm was not invoked"
-    msgs = llm.seen[0]
-    assert not any(type(m).__name__ == "ToolMessage" for m in msgs)
-    texts = [getattr(m, "content", "") for m in msgs]
+    assert len(llm.seen) >= 2
+    msgs_t2 = llm.seen[1]
+    assert not any(type(m).__name__ == "ToolMessage" for m in msgs_t2)
+    texts = [getattr(m, "content", "") for m in msgs_t2]
     assert any("Intimidate" in (t or "") for t in texts)
-    assert any("Noted" in (t or "") for t in texts)
+    assert any("answer-1" in (t or "") for t in texts)
 
 
 def test_turn0_seed_unchanged_when_second_turn_runs():
