@@ -18,7 +18,10 @@ from recommender.nodes import apply_lock, record_constraint
 from recommender.nodes_classify import classify_pending
 from recommender.slot_fill import SlotFillContext, annotate_overlap, run_slot_fill_terminal
 from recommender.slot_index import user_slot_to_index
+from dataclasses import replace
+
 from recommender.state import (
+    Attr,
     PendingSlotIntent,
     ProvisionalSlot,
     TargetRoleDecision,
@@ -72,6 +75,8 @@ _SLOT_BASE: dict[str, SlotBase] = {
     "mm2_salamence_mega.json": "internal",
     # RB1: top-level species/item/moves (4th move empty); internal slot 0.
     "rb1_lucario_megaz_calmmind.json": "internal",
+    # TB2: top-level Incineroar+Charcoal (internal slot 0).
+    "tb2_incineroar_charcoal.json": "internal",
 }
 
 _SLOT_BASE_EVIDENCE: dict[str, str] = {
@@ -88,6 +93,7 @@ _SLOT_BASE_EVIDENCE: dict[str, str] = {
         "no slot fields; loader rule: first free slots in list order "
         "(Item Clause does not depend on slot)"
     ),
+    "tb2_incineroar_charcoal.json": "top-level species/item/moves; internal slot 0",
 }
 
 
@@ -124,19 +130,37 @@ def _lock_internal(state: dict[str, Any], slot_index: int, attr: str, value: obj
     return {**state, **patch}
 
 
+def _write_attr(
+    state: dict[str, Any],
+    slot_index: int,
+    attr: str,
+    value: object,
+    *,
+    locked: bool,
+) -> dict[str, Any]:
+    """Direct Attr write (no apply_lock reconcile). Used for drafts and Choice+status."""
+    slot = state["team_draft"][slot_index]
+    new_slot = replace(slot, **{attr: Attr(value=value, locked=locked)})
+    draft = list(state["team_draft"])
+    draft[slot_index] = new_slot
+    return {**state, "team_draft": draft, "slot_commit_error": None}
+
+
 def _lock_moveset_safe(
     state: dict[str, Any], slot_index: int, moves: list[str]
 ) -> tuple[dict[str, Any], bool]:
-    """Lock moveset; revert if reconcile wipes species (Choice + status move).
+    """Lock moveset; fall back to direct Attr write if reconcile would wipe siblings.
 
-    Returns (state, moves_kept). Locking moveset first does not avoid the wipe:
-    locking Choice item afterward clears species/ability/moveset the same way.
+    Returns (state, moves_kept). Choice + status moves wipe via apply_lock reconcile;
+    the fixture still needs the moveset on the slot for HN2c-style keys.
     """
     before = state
     species_before = state["team_draft"][slot_index].species.value
     state = _lock_internal(state, slot_index, "moveset", moves)
     if species_before and state["team_draft"][slot_index].species.value is None:
-        return before, False
+        # Preserve siblings; write moveset locked without reconcile.
+        state = _write_attr(before, slot_index, "moveset", list(moves), locked=True)
+        return state, True
     return state, True
 
 
@@ -152,9 +176,21 @@ def _apply_team_row(
     if not species:
         return state
     if row.get("locked") is False:
-        # apply_lock always locks; leave the slot empty so "unlocked" stays honest.
-        if incomplete is not None:
-            incomplete.append(f"slot {index}: skipped unlocked {species!r}")
+        # Draft values (locked=False) so MU4-style unlocked rows are present.
+        state = _write_attr(state, index, "species", species, locked=False)
+        for attr, key in (
+            ("ability", "ability"),
+            ("item", "item"),
+            ("nature", "nature"),
+        ):
+            if row.get(key):
+                state = _write_attr(state, index, attr, row[key], locked=False)
+        spr = row.get("spread") or row.get("evs")
+        if spr:
+            state = _write_attr(state, index, "spread", spr, locked=False)
+        moves = row.get("moves") or row.get("moveset")
+        if moves:
+            state = _write_attr(state, index, "moveset", list(moves), locked=False)
         return state
     # Mega Stone rule: species+item from the same fixture row must be visible
     # together (same as apply_lock batch). Item-only then species also works.
@@ -183,6 +219,14 @@ def _apply_team_row(
     ability = row.get("ability")
     if ability:
         state = _lock_internal(state, index, "ability", ability)
+    for attr, value in (
+        ("nature", row.get("nature")),
+        ("spread", row.get("spread") or row.get("evs")),
+    ):
+        if value:
+            state = _lock_internal(state, index, attr, value)
+    # Moves last: Choice + status moves wipe siblings under apply_lock; fall back
+    # to a direct Attr write so HN2c-style fixtures keep the moveset.
     moves = row.get("moves") or row.get("moveset")
     if moves:
         state, kept = _lock_moveset_safe(state, index, list(moves))
@@ -191,12 +235,6 @@ def _apply_team_row(
                 f"slot {index}: moves skipped (apply_lock moveset wiped siblings; "
                 "Choice item + non-damaging move)"
             )
-    for attr, value in (
-        ("nature", row.get("nature")),
-        ("spread", row.get("spread") or row.get("evs")),
-    ):
-        if value:
-            state = _lock_internal(state, index, attr, value)
     return state
 
 

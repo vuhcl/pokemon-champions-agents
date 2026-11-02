@@ -149,31 +149,63 @@ def test_get_common_speeds_missing():
     assert r["found"] is False
 
 
-def test_get_meta_threats_shape_and_diff_vs_hu2b_key():
-    r = get_meta_threats(50)
+def test_get_meta_threats_in_game_unchanged_rows():
+    """source=in_game (default) keeps the CLI ladder path; n=10 is HU2's call."""
+    from scripts.eval.part_g_arm.state.usage_meta_tools import SHOWDOWN_THREAT_MIN_PCT
+
+    _ = SHOWDOWN_THREAT_MIN_PCT
+    r = get_meta_threats(10)
     assert r["status"] == "ok"
-    assert r["listed"] >= 1
+    assert r["source"] == "in_game"
     assert "get_relevant_threats" in r["how_built"]
+    assert r["n_requested"] == 10
+    assert r["listed"] >= 1
     assert r["threats"][0]["usage_rank"] is not None
+    # Explicit source=in_game matches default rows.
+    r2 = get_meta_threats(10, source="in_game")
+    assert [t["species"] for t in r["threats"]] == [t["species"] for t in r2["threats"]]
+
+
+def test_get_meta_threats_showdown_equals_hu2b_key():
+    """Default showdown path must equal showdown_threats_ge_452 exactly."""
+    r = get_meta_threats(source="showdown")
+    assert r["status"] == "ok"
+    assert r["source"] == "showdown"
+    assert r["default_min_pct_applied"] is True
+    assert r["min_pct"] == 4.52
     tool_names = {to_id(t["species"]) for t in r["threats"]}
     key = KEYS["showdown_threats_ge_452"]
     key_names = {to_id(t["name"]) for t in key["threats"]}
     only_tool = sorted(tool_names - key_names)
     only_key = sorted(key_names - tool_names)
-    # Honest report: CLI ladder ≠ HU2b Showdown ≥4.52% set. Record the diff; do not force.
-    assert only_tool or only_key or tool_names == key_names  # always true; diffs printed
     diff = {
         "tool_n": len(tool_names),
         "key_n": len(key_names),
-        "only_tool_n": len(only_tool),
-        "only_key_n": len(only_key),
-        "only_tool_sample": only_tool[:10],
-        "only_key_sample": only_key[:10],
+        "only_tool": only_tool,
+        "only_key": only_key,
         "equal": tool_names == key_names,
     }
-    print("meta_threats_vs_hu2b", diff)
-    # Do not force equality with HU2b (brief 3c). Current pins differ; record that.
-    assert isinstance(diff["equal"], bool)
+    print("meta_threats_showdown_vs_hu2b", diff)
+    assert tool_names == key_names, diff
+    assert r["listed"] == key["count"]
+    for t in r["threats"]:
+        assert t["pct_kind"] == "percent"
+        assert t["source"] == "showdown"
+        assert isinstance(t["pct"], (int, float))
+
+
+def test_get_meta_threats_showdown_explicit_min_pct_and_n_cap():
+    r_hi = get_meta_threats(source="showdown", min_pct=20.0)
+    assert r_hi["default_min_pct_applied"] is False
+    assert r_hi["min_pct"] == 20.0
+    assert r_hi["listed"] >= 1
+    assert all(t["pct"] + 1e-12 >= 20.0 for t in r_hi["threats"])
+    r_all = get_meta_threats(source="showdown")
+    r_cap = get_meta_threats(source="showdown", n=5)
+    assert r_cap["listed"] == 5
+    assert [t["species"] for t in r_cap["threats"]] == [
+        t["species"] for t in r_all["threats"][:5]
+    ]
 
 
 def test_get_usage_stats_kinds_and_missing():

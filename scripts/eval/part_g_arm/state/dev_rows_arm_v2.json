@@ -1,5 +1,5 @@
 {
-  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored. MT7 and MT8 are hand-graded against derived_keys (no class scorer yet). Prior paraphrasing rows dev-select-cs and dev-reject-dismiss are retired; their observed findings stay in LAST_DEV_RUN notes. Mega rows (dev-mega-*) use Kangaskhan-Mega / Kangaskhanite only \u2014 not Salamence, Charizard, or any covered-row species. Arm v2 draft rows (dev2-*): keys written before model run; substitutions listed per row. Numeric Spe keys hand-checked by Vu before any run.",
+  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored. MT7 and MT8 are hand-graded against derived_keys (no class scorer yet). Prior paraphrasing rows dev-select-cs and dev-reject-dismiss are retired; their observed findings stay in LAST_DEV_RUN notes. Mega rows (dev-mega-*) use Kangaskhan-Mega / Kangaskhanite only \u2014 not Salamence, Charizard, or any covered-row species. Arm v2 draft rows (dev2-*): keys written before model run; substitutions listed per row. Numeric Spe keys hand-checked by Vu before any run. Arm v3 draft rows (dev3-*): FU14 ability/Mega + 3c usage tools; keys before model run; 19 rows added 2026-10-31.",
   "substitutions": [
     {
       "from": "Kingambit",
@@ -613,6 +613,201 @@
         "Rillaboom": "Mawile",
         "Kingambit": "Cinderace"
       }
+    },
+    {
+      "id": "dev3-abil-omit-ingame",
+      "turns": [
+        "Modest 32 SpA Goodra with no item: how hard does Sludge Bomb hit a Volcarona with 32 HP and no Special Defense investment?"
+      ],
+      "expected_class": "ASSUME-STATE",
+      "key": "Arm calls get_usage_stats(Goodra, abilities), passes top_ability.name to calc_damage, and states Gooey (in-game 44.7), not Sap Sipper. Range equals pinned calc. Omitting ability from calc_damage is a fail.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-abil-omit-showdown",
+      "turns": [
+        "Modest 32 SpA Sceptile with no item: how hard does Energy Ball hit a Garganacl with 32 HP and no Special Defense investment?"
+      ],
+      "expected_class": "ASSUME-STATE",
+      "key": "Sceptile is Mega-capable. Arm states Unburden (Showdown 89.583), not Overgrow (in-game 81.9), naming the source. Range equals pinned calc.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-abil-stated",
+      "turns": [
+        "Modest 32 SpA Goodra with Sap Sipper and no item: how hard does Sludge Bomb hit a Volcarona with 32 HP and no Special Defense investment?"
+      ],
+      "expected_class": "SERVED",
+      "key": "calc_damage with Sap Sipper (ability_source stated); reply uses Sap Sipper. get_usage_stats(abilities) not required. Same range as omit-ingame (ability does not change damage).",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-abil-mega-hawlucha",
+      "turns": [
+        "Jolly 32 Atk Mega Hawlucha: how hard does Close Combat hit a Steelix with 32 HP and no Defense investment?"
+      ],
+      "expected_class": "SERVED",
+      "key": "calc_damage uses Hawlucha-Mega. Ability No Guard (auto_single or stated), never Limber. Range equals pinned calc.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-abil-mega-skarmory",
+      "turns": [
+        "Modest 32 SpA Typhlosion: how hard does Fire Blast hit a Mega Skarmory with 32 HP and no Special Defense investment?"
+      ],
+      "expected_class": "SERVED",
+      "key": "calc_damage uses Skarmory-Mega as defender. Ability Stalwart (auto_single or stated), never Keen Eye. Range equals pinned calc.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-abil-meowstic-f",
+      "turns": [
+        "Which ability does Meowstic-F usually run?"
+      ],
+      "expected_class": "SERVED",
+      "key": "get_usage_stats(Meowstic-F, abilities). Default Competitive from in-game (99.1) with default_source_missing true; does not quote Showdown figure.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-abil-illegal-species",
+      "turns": [
+        "How much damage does Darkrai's Dark Pulse do to a Typhlosion?"
+      ],
+      "expected_class": "SERVED",
+      "key": "check_species_legal (or find_species); Darkrai not usable; cause Mythical. No damage claim; no calc_damage as final answer.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-abil-conditional",
+      "turns": [
+        "Modest 32 SpA Meowstic-F using Psychic into an Arbok with 32 HP and no Special Defense investment: how much does it do?"
+      ],
+      "expected_class": "ASSUME-STATE",
+      "key": "Meowstic-F Competitive (in-game default_source_missing path); Arbok Intimidate from usage. Two labelled cases: no trigger SpA+0 and Intimidate-on Competitive +2 SpA, each with pinned range.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-abil-conditional-defiant",
+      "turns": [
+        "Adamant 32 Atk Passimian using Earthquake into an Arbok with 32 HP and no Defense investment: how much does it do?"
+      ],
+      "expected_class": "ASSUME-STATE",
+      "key": "Passimian Defiant (in-game); Arbok Intimidate. Two cases: Atk+0 and Intimidate-on net +1 Atk (not +2). Ranges pinned.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-mega-base-stone",
+      "turns": [
+        "Adamant 32 Atk Aggron holding Aggronite: how hard does Earthquake hit a Volcarona with 32 HP and no Defense investment?"
+      ],
+      "expected_class": "SERVED",
+      "key": "calc_damage maps to Aggron-Mega (forme_resolution); Mega ability auto_single Filter; reply is Mega Aggron number. Base number is a fail.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-mega-base-nostone",
+      "turns": [
+        "Adamant 32 Atk Aggron holding Leftovers: how hard does Earthquake hit a Volcarona with 32 HP and no Defense investment?"
+      ],
+      "expected_class": "SERVED",
+      "key": "Base Aggron (not Mega); ability from Showdown top (Mega-capable); forme echoed Aggron.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-spreads-showdown",
+      "turns": [
+        "What spreads does Volcarona usually run?"
+      ],
+      "expected_class": "SERVED",
+      "key": "get_usage_spreads(Volcarona); chaos weight not percent; rank-1 equals pin.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-spreads-ingame-nature",
+      "turns": [
+        "What nature goes with the most popular in-game Excadrill spread?"
+      ],
+      "expected_class": "SERVED",
+      "key": "States in-game nature is rank-paired not observed joint, or answers from Showdown joint naming that source. No % of players claim for the pair.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-common-speeds",
+      "turns": [
+        "What Speed numbers do Excadrill players usually hit?"
+      ],
+      "expected_class": "SERVED",
+      "key": "get_common_speeds(Excadrill); up to three cells; chaos weight; Showdown source.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-meta-threats",
+      "turns": [
+        "Which Pok\u00e9mon should I worry about most in the current meta?"
+      ],
+      "expected_class": "SERVED",
+      "key": "get_meta_threats; in-game ladder + Showdown forme expansion; no invented rank.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-meta-threats-n",
+      "turns": [
+        "Just give me the top 10 threats."
+      ],
+      "expected_class": "SERVED",
+      "key": "get_meta_threats n=10; states listed count from expansion; ranks from usage_rank.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-usage-moves",
+      "turns": [
+        "What moves does Tyrantrum usually run?"
+      ],
+      "expected_class": "SERVED",
+      "key": "get_usage_stats(Tyrantrum, moves); both sources labelled; percent as returned.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-usage-natures",
+      "turns": [
+        "Which natures are most common on Infernape?"
+      ],
+      "expected_class": "SERVED",
+      "key": "get_usage_stats(Infernape, natures); separate distribution; source named.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    },
+    {
+      "id": "dev3-usage-missing",
+      "turns": [
+        "What moves does Floette-Mega usually run in game?"
+      ],
+      "expected_class": "SERVED",
+      "key": "Resolve to Floette-Eternal in-game (blend caveat) or Showdown Floette-Mega with source stated. No invented moves.",
+      "rung": "tool_fields",
+      "seed": "empty"
+    }
+  ],
+  "dev3_substitutions": [
+    {
+      "note": "2026-10-31 FU15 step 0: no substitutions; all proposed species free vs 134 request-set + 61 prior dev and legal (Darkrai intentionally illegal)."
     }
   ]
 }

@@ -137,7 +137,29 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             state, args.get("slot"), args.get("field"), args.get("value")
         )
     if name == "unlock_slot":
+        from scripts.eval.part_g_arm.state.tools import draft_enabled
+
+        if draft_enabled():
+            from scripts.eval.part_g_arm.state.draft_lock import unlock_slot_draft
+
+            return unlock_slot_draft(
+                state, args.get("slot"), replace=bool(args.get("replace") or False)
+            )
         return unlock_slot(state, args.get("slot"))
+    if name == "lock_fields":
+        from scripts.eval.part_g_arm.state.draft_lock import lock_fields
+        from scripts.eval.part_g_arm.state.tools import draft_enabled
+
+        if not draft_enabled():
+            return state, {"slot_commit_error": "lock_fields requires draft flag"}
+        return lock_fields(state, args.get("slot"), args.get("fields"))
+    if name == "unlock_fields":
+        from scripts.eval.part_g_arm.state.draft_lock import unlock_fields
+        from scripts.eval.part_g_arm.state.tools import draft_enabled
+
+        if not draft_enabled():
+            return state, {"slot_commit_error": "unlock_fields requires draft flag"}
+        return unlock_fields(state, args.get("slot"), args.get("fields"))
     if name == "reset_team":
         return reset_team_state(state)
     if name == "commit_slot":
@@ -207,7 +229,12 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         if name == "get_common_speeds":
             return state, um.get_common_speeds(args.get("species"), regulation=reg)
         if name == "get_meta_threats":
-            return state, um.get_meta_threats(args.get("n"), regulation=reg)
+            return state, um.get_meta_threats(
+                args.get("n"),
+                source=args.get("source", "in_game"),
+                min_pct=args.get("min_pct"),
+                regulation=reg,
+            )
         return state, um.get_usage_stats(
             args.get("species"), args.get("kind"), regulation=reg
         )
@@ -239,11 +266,44 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
                 result, stage=stage, scarf=scarf, tailwind=tw, paralyzed=par
             )
         return state, result
+    if name == "calc_damage":
+        from scripts.eval.part_g_arm.state.ability_default import prepare_calc_damage_args
+        from scripts.eval.part_g_arm.state.mega_stone_calc import prepare_calc_damage_mega_args
+        from scripts.eval.part_g_arm.state.tools import tool_fields_enabled
+
+        call_args = dict(args or {})
+        ability_source = None
+        forme_resolution = None
+        if tool_fields_enabled():
+            call_args, forme_resolution = prepare_calc_damage_mega_args(call_args)
+            call_args.pop("_forme_resolution", None)
+            prepared, refusal = prepare_calc_damage_args(call_args)
+            if refusal is not None:
+                return state, refusal
+            assert prepared is not None
+            ability_source = prepared.pop("_ability_source", None)
+            call_args = prepared
+        result = arm.call(name, call_args)
+        if tool_fields_enabled() and isinstance(result, dict):
+            extra: dict = {}
+            if ability_source is not None:
+                extra["ability_source"] = ability_source
+            if forme_resolution is not None:
+                extra["forme_resolution"] = forme_resolution
+            if extra:
+                result = {**result, **extra}
+        return state, result
     result = arm.call(name, args or {})
     if name == "get_move_static":
         from scripts.eval.part_g_arm.state.tools import with_move_static_fields
 
         result = with_move_static_fields(result)
+    if name == "check_species_legal":
+        from scripts.eval.part_g_arm.state.tools import tool_fields_enabled
+        from scripts.eval.part_g_arm.state.species_legal_cause import enrich_check_species_legal
+
+        if tool_fields_enabled() and isinstance(result, dict):
+            result = enrich_check_species_legal(result)
     return state, result
 
 
@@ -320,13 +380,18 @@ def run_turn(
             final_text = _text(ai.content)
             break
         for call in ai.tool_calls:
+            import time as _time
+
+            _t0 = _time.perf_counter()
             state, patch = dispatch(state, arm, call["name"], call.get("args") or {})
+            latency_ms = int((_time.perf_counter() - _t0) * 1000)
             recorded = _jsonable_result(patch)
             args = call.get("args") or {}
             entry: dict[str, Any] = {
                 "name": call["name"],
                 "args": args,
                 "result": recorded,
+                "latency_ms": latency_ms,
             }
             # Replace-flag audit: top-level field, not only inside args JSON.
             if call["name"] == "set_slot":
@@ -335,6 +400,8 @@ def run_turn(
                     entry["replace"] = entry["replace"] or any(
                         bool(s.get("replace")) for s in args["slots"] if isinstance(s, dict)
                     )
+            if call["name"] == "unlock_slot":
+                entry["replace"] = bool(args.get("replace") or False)
             entry["result_status"] = tool_call_result_status(entry)
             calls.append(entry)
             messages.append(ToolMessage(dumps(recorded), tool_call_id=call["id"]))
@@ -342,7 +409,9 @@ def run_turn(
             errors.append("max_turns")
     after = snapshot(state)
     replace_true_calls = sum(
-        1 for c in calls if c.get("name") == "set_slot" and c.get("replace") is True
+        1
+        for c in calls
+        if c.get("name") in {"set_slot", "unlock_slot"} and c.get("replace") is True
     )
     refused_calls = sum(1 for c in calls if c.get("result_status") == "refused")
     record = {

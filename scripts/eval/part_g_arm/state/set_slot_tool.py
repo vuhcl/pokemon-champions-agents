@@ -11,10 +11,16 @@ from typing import Any
 
 from recommender.legality import load_snapshot, resolve_learnset, species_can_have_ability
 from recommender.slot_index import SlotIndexError, display_slot, user_slot_to_index
+from recommender.ids import to_id
 from recommender.state import Attr, Slot, all_locked
 from recommender.team_validation import validate_team_value
 
+from scripts.eval.part_g_arm.state.draft_lock import (
+    draft_contents_summary,
+    slot_is_blank,
+)
 from scripts.eval.part_g_arm.state.tools import (
+    draft_enabled,
     edit_slot_field,
     lock_slot,
     read_team,
@@ -22,6 +28,7 @@ from scripts.eval.part_g_arm.state.tools import (
 )
 
 _ATTR_FIELDS = ("item", "ability", "nature", "spread", "moves")
+_SEVEN = ("role", "species", "ability", "item", "moveset", "spread", "nature")
 
 
 def _slot_occupied_partial(slot: Slot) -> bool:
@@ -30,8 +37,15 @@ def _slot_occupied_partial(slot: Slot) -> bool:
         return False
     return any(
         getattr(slot, name).locked or getattr(slot, name).value is not None
-        for name in ("role", "species", "ability", "item", "moveset", "spread", "nature")
+        for name in _SEVEN
     )
+
+
+def _slot_open_for_default(slot: Slot) -> bool:
+    """Default-first-open-slot rule. Under draft, any valued slot is not open."""
+    if draft_enabled():
+        return slot_is_blank(slot)
+    return not all_locked(slot) and slot.species.value is None
 
 
 def _normalize_requests(args: dict[str, Any]) -> list[dict[str, Any]] | str:
@@ -113,7 +127,7 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
             for i, slot in enumerate(draft):
                 if i in reserved_opens:
                     continue
-                if not all_locked(slot) and slot.species.value is None:
+                if _slot_open_for_default(slot):
                     open_i = i
                     break
             if open_i is None:
@@ -146,10 +160,23 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
         disp = display_slot(index)
         slot_obj = draft[index]
         species = req.get("species")
+        held = slot_obj.species.value
 
-        # Fully locked + species named + replace false → refuse (attribute-only edits still OK).
-        if all_locked(slot_obj) and species is not None and not req_replace:
-            held = slot_obj.species.value
+        # Species swap on a held species (locked or draft) needs replace=true.
+        species_swap = (
+            species is not None
+            and held is not None
+            and to_id(str(species)) != to_id(str(held))
+        )
+        needs_replace = species_swap and (
+            all_locked(slot_obj) or (draft_enabled() and held is not None)
+        )
+        if needs_replace and not req_replace:
+            contents = (
+                draft_contents_summary(slot_obj)
+                if draft_enabled()
+                else f"fully locked holding {held}"
+            )
             elements.append(
                 _element(
                     slot=disp,
@@ -157,8 +184,8 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
                     value=held,
                     ok=False,
                     cause=(
-                        f"slot {disp} is fully locked holding {held}; "
-                        "it can be replaced on confirmation (set replace true only after the user confirms)"
+                        f"slot {disp} holds {contents}; "
+                        "swapping species needs replace=true only after the user confirms"
                     ),
                 )
             )
@@ -168,7 +195,7 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
                     field="species",
                     value=species,
                     ok=False,
-                    cause=f"not applied: slot {disp} is fully locked (needs replace after confirmation)",
+                    cause=f"not applied: slot {disp} needs replace after confirmation",
                 )
             )
             for field in _ATTR_FIELDS:
@@ -179,7 +206,7 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
                             field=field,
                             value=req.get(field),
                             ok=False,
-                            cause=f"not applied: slot {disp} is fully locked (needs replace after confirmation)",
+                            cause=f"not applied: slot {disp} needs replace after confirmation",
                         )
                     )
             continue
@@ -188,8 +215,10 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
         _ = _slot_occupied_partial(slot_obj)
 
         projected = list(draft)
-        if req_replace and all_locked(slot_obj) and species is not None:
-            # Project empty slot for clause checks (unlock then lock).
+        if req_replace and species_swap and (
+            all_locked(slot_obj) or (draft_enabled() and held is not None)
+        ):
+            # Project empty slot for clause checks (unlock then rewrite).
             from recommender.state import empty_slot
 
             projected[index] = empty_slot()
@@ -296,7 +325,6 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
                 )
             else:
                 learnset = set(resolve_learnset(snap, str(sp_for_mv)) or [])
-                from recommender.ids import to_id
 
                 all_ok = True
                 for mv in moves:
@@ -376,7 +404,13 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
                     "replace": (
                         req_replace
                         and species is not None
-                        and all_locked(state["team_draft"][index])
+                        and (
+                            all_locked(state["team_draft"][index])
+                            or (
+                                draft_enabled()
+                                and state["team_draft"][index].species.value is not None
+                            )
+                        )
                     ),
                 }
             )
@@ -434,35 +468,58 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
         index = step["index"]
         user_slot = index + 1  # underlying tools require int, not display str
         disp = step["display"]
-        if step["replace"]:
-            after, patch = unlock_slot(after, user_slot)
-            if patch.get("slot_commit_error"):
-                return state, {
-                    "ok": False,
-                    "slot_commit_error": str(patch["slot_commit_error"]),
-                    "elements": elements,
-                    "replace": replace_flag,
-                }
-        if step["species"] is not None:
-            after, patch = lock_slot(after, user_slot, step["species"])
-            if patch.get("slot_commit_error"):
-                return state, {
-                    "ok": False,
-                    "slot_commit_error": str(patch["slot_commit_error"]),
-                    "elements": elements,
-                    "replace": replace_flag,
-                }
-        for field, key in (
-            ("item", "item"),
-            ("ability", "ability"),
-            ("moves", "moves"),
-            ("nature", "nature"),
-            ("spread", "spread"),
-        ):
-            if step[key] is not None:
-                err = _apply_edit(field, step[key])
-                if err is not None:
-                    return state, err
+        if draft_enabled():
+            # Write drafts only (locked=False). Never call lock_slot / edit_slot_field.
+            from recommender.state import empty_slot as _empty
+
+            draft_list = list(after["team_draft"])
+            slot = draft_list[index]
+            if step["replace"]:
+                slot = _empty()
+            if step["species"] is not None:
+                slot = replace(slot, species=Attr(value=step["species"], locked=False))
+            if step["item"] is not None:
+                slot = replace(slot, item=Attr(value=step["item"], locked=False))
+            if step["ability"] is not None:
+                slot = replace(slot, ability=Attr(value=step["ability"], locked=False))
+            if step["nature"] is not None:
+                slot = replace(slot, nature=Attr(value=step["nature"], locked=False))
+            if step["spread"] is not None:
+                slot = replace(slot, spread=Attr(value=step["spread"], locked=False))
+            if step["moves"] is not None:
+                slot = replace(slot, moveset=Attr(value=list(step["moves"]), locked=False))
+            draft_list[index] = slot
+            after = {**after, "team_draft": draft_list, "slot_commit_error": None}
+        else:
+            if step["replace"]:
+                after, patch = unlock_slot(after, user_slot)
+                if patch.get("slot_commit_error"):
+                    return state, {
+                        "ok": False,
+                        "slot_commit_error": str(patch["slot_commit_error"]),
+                        "elements": elements,
+                        "replace": replace_flag,
+                    }
+            if step["species"] is not None:
+                after, patch = lock_slot(after, user_slot, step["species"])
+                if patch.get("slot_commit_error"):
+                    return state, {
+                        "ok": False,
+                        "slot_commit_error": str(patch["slot_commit_error"]),
+                        "elements": elements,
+                        "replace": replace_flag,
+                    }
+            for field, key in (
+                ("item", "item"),
+                ("ability", "ability"),
+                ("moves", "moves"),
+                ("nature", "nature"),
+                ("spread", "spread"),
+            ):
+                if step[key] is not None:
+                    err = _apply_edit(field, step[key])
+                    if err is not None:
+                        return state, err
         applied_slots.append(int(disp) if isinstance(disp, str) else disp)
 
     # Read-back from state, not echoed request.
@@ -498,7 +555,7 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
             }
         )
 
-    return after, {
+    out: dict[str, Any] = {
         "ok": True,
         "applied": applied,
         "elements": elements,
@@ -507,6 +564,12 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
         "consequences": consequences,
         "edits": edits,
     }
+    if draft_enabled():
+        out["write_mode"] = "draft"
+        # Draft writes never lock.
+        for row in applied:
+            row["locked"] = False
+    return after, out
 
 
 SET_SLOT_SPEC = {
@@ -556,5 +619,22 @@ SET_SLOT_SPEC = {
             },
             "required": [],
         },
+    },
+}
+
+SET_SLOT_SPEC_DRAFT = {
+    "type": "function",
+    "function": {
+        "name": "set_slot",
+        "description": (
+            "Write draft values into one or more team slots (locked=false). "
+            "Validates every element first and applies nothing unless all pass. "
+            "Never locks — call lock_fields when the user asks to lock or confirm. "
+            "slot is optional and defaults to the first blank slot (a draft slot is not open). "
+            "Swapping the species of a slot that already holds a draft or locked species "
+            "needs replace=true only after the user confirms; attribute-only edits need no replace. "
+            "For several slots at once, pass slots=[{...}, {...}]."
+        ),
+        "parameters": SET_SLOT_SPEC["function"]["parameters"],
     },
 }

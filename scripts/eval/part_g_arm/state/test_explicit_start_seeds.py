@@ -149,12 +149,15 @@ def test_unchanged_loaders_still_match():
         "MS4": "fbc_pending",
         "MS7": "cs_pending",
         "MU7": "fbc_pending",
-        "HC2": "hc2_after_t1",
-        "MT3": "mt3_after_t1",
     }.items():
         _st, meta = resolve_start_state(rows[rid])
         assert meta["loaded"], rid
         assert seed in (meta.get("source") or "") or meta.get("seed") == seed, meta
+    # FU18: HC2 / HD1 / MT3 play all turns live from empty_team (no t1 seed).
+    for rid in ("HC2", "HD1", "MT3"):
+        _st, meta = resolve_start_state(rows[rid])
+        assert meta["loaded"], rid
+        assert "empty_team" in (meta.get("source") or ""), meta
     # fixture / OL
     for rid in ("H18b", "IC1", "OL2b", "OL4", "OL5", "OL6", "OL8", "OL9"):
         if rid not in rows:

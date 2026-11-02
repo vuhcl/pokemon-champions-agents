@@ -78,6 +78,7 @@ def test_registered_runner_refuses_exploratory_dir(tmp_path: Path):
             stop_after=0,
             run_id=1,
             role="primary",
+            skip_calc_preflight=True,
         )
 
 
