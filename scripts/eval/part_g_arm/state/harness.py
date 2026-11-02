@@ -194,6 +194,12 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return state, read_constraints(state)
     if name == "restore_constraint":
         return restore_constraint_tool(state)
+    if name == "set_constraint_active":
+        from scripts.eval.part_g_arm.state.tools import set_constraint_active, tool_fields_enabled
+
+        if not tool_fields_enabled():
+            return state, {"slot_commit_error": "set_constraint_active requires tool_fields flag"}
+        return set_constraint_active(state, args.get("constraint"), args.get("active"))
     if name == "show_candidates":
         return show_candidates(state, args.get("slot"), n=args.get("n"))
     if name == "check_learnset":
