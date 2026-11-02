@@ -220,6 +220,11 @@ def run_row(
             "turns": [],
             "run_flags": dict(flags),
         }
+    # Guard OL10a: seeded pending screens are "created" on the loaded team — stamp here.
+    if flags.get("guard"):
+        from scripts.eval.part_g_arm.state.guard_allowed import prepare_start_state_for_guard
+
+        prepare_start_state_for_guard(state)
     turns_out: list[dict[str, Any]] = []
     seed_prior = list(state.get("_message_history") or [])
     # User+assistant text from completed runner turns of this row (no tool messages).

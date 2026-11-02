@@ -1,0 +1,508 @@
+{
+  "add_constraint": {
+    "constraint": {
+      "groundedness": "mechanically-checkable",
+      "mechanical_kind": "type",
+      "mechanical_value": "Fire",
+      "predicate": "prefer Fire types",
+      "scope": "team_wide",
+      "source_turn": 0,
+      "still_active": true,
+      "type": "hard"
+    },
+    "constraints": [
+      {
+        "groundedness": "mechanically-checkable",
+        "mechanical_kind": "type",
+        "mechanical_value": "Water",
+        "predicate": "prefer Water types",
+        "scope": "team_wide",
+        "source_turn": 0,
+        "still_active": false,
+        "type": "hard"
+      },
+      {
+        "groundedness": "mechanically-checkable",
+        "mechanical_kind": "type",
+        "mechanical_value": "Fire",
+        "predicate": "prefer Fire types",
+        "scope": "team_wide",
+        "source_turn": 0,
+        "still_active": true,
+        "type": "hard"
+      }
+    ],
+    "ok": true
+  },
+  "find_species": {
+    "count": 3,
+    "filters_applied": {
+      "include_formes": true,
+      "n": 3,
+      "types": [
+        "Grass"
+      ]
+    },
+    "source": "legality snapshot (Showdown Champions mod extract)",
+    "species": [
+      "Abomasnow",
+      "Abomasnow-Mega",
+      "Appletun"
+    ],
+    "status": "ok"
+  },
+  "pending_has_fingerprint": false,
+  "pending_keys": [
+    "kind",
+    "notices",
+    "options",
+    "schema_version",
+    "slot_index"
+  ],
+  "read_constraints": {
+    "constraints": [
+      {
+        "groundedness": "mechanically-checkable",
+        "mechanical_kind": "type",
+        "mechanical_value": "Water",
+        "predicate": "prefer Water types",
+        "scope": "team_wide",
+        "source_turn": 0,
+        "still_active": true,
+        "type": "hard"
+      },
+      {
+        "groundedness": "mechanically-checkable",
+        "mechanical_kind": "type",
+        "mechanical_value": "Fire",
+        "predicate": "prefer Fire types",
+        "scope": "team_wide",
+        "source_turn": 0,
+        "still_active": false,
+        "type": "hard"
+      }
+    ]
+  },
+  "restore_constraint": {
+    "constraints": [
+      {
+        "groundedness": "mechanically-checkable",
+        "mechanical_kind": "type",
+        "mechanical_value": "Water",
+        "predicate": "prefer Water types",
+        "scope": "team_wide",
+        "source_turn": 0,
+        "still_active": true,
+        "type": "hard"
+      },
+      {
+        "groundedness": "mechanically-checkable",
+        "mechanical_kind": "type",
+        "mechanical_value": "Fire",
+        "predicate": "prefer Fire types",
+        "scope": "team_wide",
+        "source_turn": 0,
+        "still_active": false,
+        "type": "hard"
+      }
+    ],
+    "ok": true
+  },
+  "show_candidates": {
+    "candidate_discovery_error": null,
+    "ok": true,
+    "options": [
+      {
+        "evidence": [
+          "need:healing_cleric",
+          "trigger:tank_no_self_heal",
+          "move:healpulse",
+          "commitment_pct:4.9",
+          "usage_pct:22.40543",
+          "delivery:natural_speed"
+        ],
+        "number": 1,
+        "source": "need",
+        "species": "Indeedee-F"
+      },
+      {
+        "evidence": [
+          "need:healing_cleric",
+          "trigger:tank_no_self_heal",
+          "move:healpulse",
+          "commitment_pct:77.652",
+          "usage_pct:0.17877",
+          "delivery:natural_speed",
+          "need:healing_cleric",
+          "trigger:tank_no_self_heal",
+          "move:lifedew",
+          "commitment_pct:16.195",
+          "usage_pct:0.17877",
+          "delivery:natural_speed"
+        ],
+        "number": 2,
+        "source": "need",
+        "species": "Audino"
+      },
+      {
+        "evidence": [
+          "need:healing_cleric",
+          "trigger:tank_no_self_heal",
+          "move:healpulse",
+          "commitment_pct:34.624",
+          "usage_pct:0.10689",
+          "delivery:natural_speed",
+          "need:healing_cleric",
+          "trigger:tank_no_self_heal",
+          "move:lifedew",
+          "commitment_pct:45.128",
+          "usage_pct:0.10689",
+          "delivery:natural_speed"
+        ],
+        "number": 3,
+        "source": "need",
+        "species": "Audino-Mega"
+      }
+    ],
+    "slot": 2
+  },
+  "snapshot": {
+    "archetype_sig": null,
+    "pending_kind": "candidate_selection",
+    "pending_presentation": true,
+    "pending_slot_intent_species": null,
+    "provisional_species": null,
+    "rejected": [],
+    "slot_commit_error": null,
+    "slots": [
+      {
+        "attrs": [
+          [
+            "role",
+            "bulky_offense",
+            true
+          ],
+          [
+            "species",
+            "Venusaur",
+            true
+          ],
+          [
+            "ability",
+            "Overgrow",
+            true
+          ],
+          [
+            "item",
+            "Sitrus Berry",
+            true
+          ],
+          [
+            "moveset",
+            [
+              "acidspray",
+              "amnesia",
+              "bodyslam",
+              "bulldoze"
+            ],
+            true
+          ],
+          [
+            "spread",
+            {
+              "atk": 0,
+              "def": 0,
+              "hp": 32,
+              "spa": 32,
+              "spd": 2,
+              "spe": 0
+            },
+            true
+          ],
+          [
+            "nature",
+            "Modest",
+            true
+          ],
+          [
+            "rationale",
+            ""
+          ],
+          [
+            "verification",
+            []
+          ]
+        ],
+        "slot": "1",
+        "species": "Venusaur",
+        "species_locked": true
+      },
+      {
+        "attrs": [
+          [
+            "role",
+            null,
+            false
+          ],
+          [
+            "species",
+            null,
+            false
+          ],
+          [
+            "ability",
+            null,
+            false
+          ],
+          [
+            "item",
+            null,
+            false
+          ],
+          [
+            "moveset",
+            null,
+            false
+          ],
+          [
+            "spread",
+            null,
+            false
+          ],
+          [
+            "nature",
+            null,
+            false
+          ],
+          [
+            "rationale",
+            ""
+          ],
+          [
+            "verification",
+            []
+          ]
+        ],
+        "slot": "2",
+        "species": null,
+        "species_locked": false
+      },
+      {
+        "attrs": [
+          [
+            "role",
+            null,
+            false
+          ],
+          [
+            "species",
+            null,
+            false
+          ],
+          [
+            "ability",
+            null,
+            false
+          ],
+          [
+            "item",
+            null,
+            false
+          ],
+          [
+            "moveset",
+            null,
+            false
+          ],
+          [
+            "spread",
+            null,
+            false
+          ],
+          [
+            "nature",
+            null,
+            false
+          ],
+          [
+            "rationale",
+            ""
+          ],
+          [
+            "verification",
+            []
+          ]
+        ],
+        "slot": "3",
+        "species": null,
+        "species_locked": false
+      },
+      {
+        "attrs": [
+          [
+            "role",
+            null,
+            false
+          ],
+          [
+            "species",
+            null,
+            false
+          ],
+          [
+            "ability",
+            null,
+            false
+          ],
+          [
+            "item",
+            null,
+            false
+          ],
+          [
+            "moveset",
+            null,
+            false
+          ],
+          [
+            "spread",
+            null,
+            false
+          ],
+          [
+            "nature",
+            null,
+            false
+          ],
+          [
+            "rationale",
+            ""
+          ],
+          [
+            "verification",
+            []
+          ]
+        ],
+        "slot": "4",
+        "species": null,
+        "species_locked": false
+      },
+      {
+        "attrs": [
+          [
+            "role",
+            null,
+            false
+          ],
+          [
+            "species",
+            null,
+            false
+          ],
+          [
+            "ability",
+            null,
+            false
+          ],
+          [
+            "item",
+            null,
+            false
+          ],
+          [
+            "moveset",
+            null,
+            false
+          ],
+          [
+            "spread",
+            null,
+            false
+          ],
+          [
+            "nature",
+            null,
+            false
+          ],
+          [
+            "rationale",
+            ""
+          ],
+          [
+            "verification",
+            []
+          ]
+        ],
+        "slot": "5",
+        "species": null,
+        "species_locked": false
+      },
+      {
+        "attrs": [
+          [
+            "role",
+            null,
+            false
+          ],
+          [
+            "species",
+            null,
+            false
+          ],
+          [
+            "ability",
+            null,
+            false
+          ],
+          [
+            "item",
+            null,
+            false
+          ],
+          [
+            "moveset",
+            null,
+            false
+          ],
+          [
+            "spread",
+            null,
+            false
+          ],
+          [
+            "nature",
+            null,
+            false
+          ],
+          [
+            "rationale",
+            ""
+          ],
+          [
+            "verification",
+            []
+          ]
+        ],
+        "slot": "6",
+        "species": null,
+        "species_locked": false
+      }
+    ],
+    "steering": [
+      [
+        "candidate_selection",
+        1,
+        [
+          "Indeedee-F",
+          "Audino",
+          "Audino-Mega"
+        ],
+        null
+      ],
+      null,
+      null,
+      [],
+      []
+    ]
+  }
+}
