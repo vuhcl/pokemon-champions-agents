@@ -96,9 +96,10 @@ def _fixture_for_row(row_id: str, turn: str, request_rows: list[dict[str, Any]])
     state, meta = resolve_start_state(match)
     if state is None:
         return empty_team()
-    # PENDING_ANSWER / select rows: ensure CS pending has a fresh team fingerprint.
-    if isinstance(state.get("pending_presentation"), dict):
-        stamp_pending_team_fingerprint(state)
+    # Same helper the runner uses when guard is on (not a test-only stamp).
+    from scripts.eval.part_g_arm.state.guard_allowed import prepare_start_state_for_guard
+
+    prepare_start_state_for_guard(state)
     return state
 
 
@@ -440,3 +441,54 @@ def test_write_numeric_binds_numbers_not_no_lookup_needed():
     assert "calc_damage" in with_n
     assert "describe" in with_n
     assert "no_lookup_needed" not in with_n
+
+
+def test_runner_seed_stamps_pending_fingerprint_for_select_option():
+    """FU24 §1: seeded CS screens get fingerprint at runner load (not test-only).
+
+    For each seeded candidate_selection row, load via resolve_start_state +
+    prepare_start_state_for_guard (the run_row path) with no extra test stamp.
+    select_option must bind and not refuse at the guard rung. A team edit after
+    the stamp must still refuse.
+    """
+    from scripts.eval.part_g_arm.state.guard_allowed import prepare_start_state_for_guard
+    from scripts.eval.part_g_arm.state.guard_exec import check_call
+
+    rows = load_request_rows()
+    seeded_cs: list[str] = []
+    for row in rows:
+        state, meta = resolve_start_state(row)
+        if state is None:
+            continue
+        pending = state.get("pending_presentation")
+        if not isinstance(pending, dict):
+            continue
+        if pending.get("kind") != "candidate_selection":
+            continue
+        # No fingerprint before runner prepare (loader does not stamp).
+        assert pending.get("team_fingerprint") is None, row["id"]
+        prepare_start_state_for_guard(state)
+        assert pending_fingerprint_matches(state), row["id"]
+        subs = [{"class": "WRITE", "action": "select_option"}]
+        allowed = allowed_tools(subs, state)
+        assert "select_option" in allowed, row["id"]
+        refusal = check_call(
+            "select_option",
+            {"number": 1},
+            allowed=allowed,
+            guard_class="WRITE",
+            confirms_replacement=False,
+            pending_asked=None,
+            state=state,
+        )
+        assert refusal is None, (row["id"], refusal)
+        seeded_cs.append(row["id"])
+        # Stale after team change.
+        draft0 = state["team_draft"][0]
+        if getattr(getattr(draft0, "species", None), "value", None):
+            draft0.item = Attr("Life Orb", True)
+            assert not pending_fingerprint_matches(state), row["id"]
+            assert "select_option" not in allowed_tools(subs, state), row["id"]
+    # Known seeded CS rows from request set (loader + seeds).
+    assert "OL2b" in seeded_cs and "OL4" in seeded_cs and "MW4" in seeded_cs
+    assert len(seeded_cs) >= 8

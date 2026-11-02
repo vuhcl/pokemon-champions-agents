@@ -893,7 +893,8 @@ def _constraint_row(c: Any, *, index_1based: int | None = None) -> dict[str, Any
     m = _SLOT_PRED_RE.match(pred)
     if m:
         row["slot"] = int(m.group(1))
-    if index_1based is not None:
+    # index/id are tool_fields surface; flags-off matches main (no fields).
+    if index_1based is not None and tool_fields_enabled():
         row["index"] = index_1based
         row["id"] = str(index_1based)
     return row
@@ -1638,10 +1639,11 @@ def show_candidates(
     elif n is not None:
         return state, _refuse("n must be a positive integer when provided")
 
-    # OL10a: fingerprint the team at pending create (guard select_option gate).
-    from scripts.eval.part_g_arm.state.guard_allowed import team_fingerprint
+    # OL10a: fingerprint only when guard is on (invisible at flags-off / draft).
+    if guard_enabled():
+        from scripts.eval.part_g_arm.state.guard_allowed import team_fingerprint
 
-    pending = {**pending, "team_fingerprint": team_fingerprint(state)}
+        pending = {**pending, "team_fingerprint": team_fingerprint(state)}
 
     options = _option_rows(pending)
     if not options:
