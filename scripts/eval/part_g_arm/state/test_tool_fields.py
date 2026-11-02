@@ -285,6 +285,9 @@ def test_describe_cases_and_coverage():
     set_tool_fields(True)
     lo = describe("item", "Life Orb")
     assert lo["status"] == "ok" and lo["short_desc"]
+    charcoal = describe("item", "Charcoal")
+    assert charcoal["status"] == "ok"
+    assert "1.2×" in charcoal["short_desc"]
     assert "source" in lo and lo["source"]["sha256"]
     mb = describe("move", "Moonblast")
     assert mb["status"] == "ok"

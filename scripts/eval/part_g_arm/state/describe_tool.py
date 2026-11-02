@@ -67,7 +67,12 @@ def _parse_text_file(kind: str) -> tuple[dict[str, dict[str, str]], str, str]:
         for key in ("shortDesc", "desc", "name"):
             km = re.search(rf"(?m)^\t\t{key}:\s*\"((?:\\.|[^\"])*)\"", body)
             if km:
-                fields[key] = bytes(km.group(1), "utf-8").decode("unicode_escape")
+                # Showdown text may use JS escapes (\n, \uXXXX). raw_unicode_escape
+                # round-trip keeps already-decoded UTF-8 (e.g. '×') intact; the
+                # old bytes(...,"utf-8").decode("unicode_escape") mangled them.
+                fields[key] = (
+                    km.group(1).encode("raw_unicode_escape").decode("unicode_escape")
+                )
         if fields:
             entries[name] = fields
     return entries, rel, sha
