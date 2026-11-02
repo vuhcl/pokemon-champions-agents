@@ -749,7 +749,9 @@ def main(argv: list[str] | None = None) -> int:
         "guard": bool(args.guard),
         "judge": bool(args.judge),
     }
-    # Ladder is cumulative: guard → draft → wrapper → tool_fields.
+    # Ladder is cumulative: judge → guard → draft → wrapper → tool_fields.
+    if run_flags["judge"]:
+        run_flags["guard"] = True
     if run_flags["guard"]:
         run_flags["draft"] = True
     if run_flags["draft"]:
@@ -764,6 +766,7 @@ def main(argv: list[str] | None = None) -> int:
     from scripts.eval.part_g_arm.state.tools import (
         set_draft,
         set_guard,
+        set_judge,
         set_tool_fields,
         set_wrapper,
     )
@@ -772,6 +775,7 @@ def main(argv: list[str] | None = None) -> int:
     set_wrapper(bool(run_flags["wrapper"]))
     set_draft(bool(run_flags["draft"]))
     set_guard(bool(run_flags["guard"]))
+    set_judge(bool(run_flags["judge"]))
     if run_flags["guard"]:
         prompt_file = GUARD_PROMPT_FILE
     elif run_flags["draft"]:

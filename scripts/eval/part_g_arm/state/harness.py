@@ -531,6 +531,60 @@ def run_turn(
         record["blocked_calls"] = list(turn_ctx.get("blocked_calls") or [])
         record["pending_asked"] = turn_ctx.get("pending_asked")
         record["guard_class"] = turn_ctx.get("guard_class")
+    from scripts.eval.part_g_arm.state.tools import judge_enabled
+
+    if judge_enabled() and turn_ctx is not None:
+        from scripts.eval.part_g_arm.state.judge_lite import apply_unverified_labels, run_judge
+
+        raw = final_text
+        judge_kwargs = dict(
+            sub_requests=turn_ctx.get("sub_requests") or [],
+            tool_calls=calls,
+            state=state,
+            state_before=before,
+            state_after=after,
+            allowed=set(turn_ctx.get("allowed") or ()),
+            confirms_replacement=bool(turn_ctx.get("confirms_replacement")),
+            blocked_calls=turn_ctx.get("blocked_calls") or [],
+            user_text=user_text,
+        )
+        judge_rec = run_judge(reply=raw, **judge_kwargs)
+        retried_answer = None
+        retries = 0
+        if judge_rec.get("verdicts"):
+            # One structured retry: feed verdicts back to the model.
+            retries = 1
+            verdict_blob = dumps(judge_rec["verdicts"])
+            retry_prompt = (
+                "Your previous answer had judge verdicts that need fixing. "
+                "Revise the answer using only tool results and state; do not invent facts.\n"
+                f"Verdicts JSON:\n{verdict_blob}\n"
+                f"Previous answer:\n{raw}"
+            )
+            try:
+                retry_ai = llm.invoke([*messages, HumanMessage(retry_prompt)])
+                retried_answer = _text(getattr(retry_ai, "content", retry_ai))
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"judge_retry:{type(exc).__name__}: {exc}")
+                retried_answer = raw
+            judge_rec = run_judge(reply=retried_answer or "", **judge_kwargs)
+            judge_rec["retry_used"] = True
+            if judge_rec.get("verdicts"):
+                post = apply_unverified_labels(
+                    retried_answer or "", judge_rec.get("verdicts") or []
+                )
+            else:
+                post = retried_answer or ""
+        else:
+            judge_rec["retry_used"] = False
+            post = raw
+        judge_rec["raw_answer"] = raw
+        judge_rec["retried_answer"] = retried_answer
+        judge_rec["post_judge_answer"] = post
+        judge_rec["retries"] = retries
+        final_text = post
+        record["final_text"] = final_text
+        record["judge"] = judge_rec
     return state, record
 
 

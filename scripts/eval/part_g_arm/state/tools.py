@@ -57,6 +57,9 @@ _WRAPPER: bool = False
 _DRAFT: bool = False
 # Arm v2 ladder: class tool guard (cumulative on draft).
 _GUARD: bool = False
+# Arm v2 ladder: judge-lite (cumulative on guard).
+_JUDGE: bool = False
+
 
 def set_tool_fields(enabled: bool) -> None:
     global _TOOL_FIELDS
@@ -94,6 +97,13 @@ def guard_enabled() -> bool:
     return _GUARD
 
 
+def set_judge(enabled: bool) -> None:
+    global _JUDGE
+    _JUDGE = bool(enabled)
+
+
+def judge_enabled() -> bool:
+    return _JUDGE
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
