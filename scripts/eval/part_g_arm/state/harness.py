@@ -229,7 +229,12 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         if name == "get_common_speeds":
             return state, um.get_common_speeds(args.get("species"), regulation=reg)
         if name == "get_meta_threats":
-            return state, um.get_meta_threats(args.get("n"), regulation=reg)
+            return state, um.get_meta_threats(
+                args.get("n"),
+                source=args.get("source", "in_game"),
+                min_pct=args.get("min_pct"),
+                regulation=reg,
+            )
         return state, um.get_usage_stats(
             args.get("species"), args.get("kind"), regulation=reg
         )

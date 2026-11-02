@@ -12,14 +12,22 @@ from recommender.usage_data import (
     showdown_species_map,
 )
 from recommender.usage_spreads import effective_spe
+from scripts.eval.part_g_v4.builders._lib import (
+    SHOWDOWN_THREAT_USAGE_CUTOFF,
+    showdown_threats_ge_cutoff,
+)
 
 # Showdown pin retains at most 8 joints (Part 0).
 _SHOWDOWN_SPREAD_LIMIT = 8
 # Part 0 COMMON_SPEED: top 3 distinct Spe cells.
 _COMMON_SPEED_N = 3
+# Documented Showdown threat floor (pct). Default path uses SHOWDOWN_THREAT_USAGE_CUTOFF
+# (1 - 0.5^(1/15) ≈ 4.5158%) via showdown_threats_ge_cutoff — same as HU2b key builder.
+SHOWDOWN_THREAT_MIN_PCT = 4.52
 
 _SOURCE_LABEL = {
     "ingame": "in-game doubles ladder (offline snapshot)",
+    "in_game": "in-game doubles ladder (offline snapshot)",
     "showdown": "Showdown doubles usage (offline snapshot)",
 }
 
@@ -198,45 +206,99 @@ def get_common_speeds(species: object, *, regulation: str = "champions") -> dict
     }
 
 
-def get_meta_threats(n: object = None, *, regulation: str = "champions") -> dict[str, Any]:
-    """CLI threat list via get_relevant_threats (in-game ladder + Showdown forme expand)."""
-    if n is None:
-        n_i = TEAM_THREAT_N
-    elif isinstance(n, bool) or not isinstance(n, int) or n < 1:
+def get_meta_threats(
+    n: object = None,
+    source: object = "in_game",
+    min_pct: object = None,
+    *,
+    regulation: str = "champions",
+) -> dict[str, Any]:
+    """In-game ladder threats, or Showdown doubles usage ≥ min_pct (HU2b key path)."""
+    if source is None:
+        source = "in_game"
+    if not isinstance(source, str) or source not in ("in_game", "showdown"):
+        return {
+            "status": "error",
+            "message": 'source must be "in_game" or "showdown"',
+        }
+    if n is not None and (isinstance(n, bool) or not isinstance(n, int) or n < 1):
         return {"status": "error", "message": "n must be a positive integer"}
+
+    if source == "in_game":
+        n_i = TEAM_THREAT_N if n is None else n
+        state = {"regulation_mod": regulation}
+        threats = get_relevant_threats(state, n=n_i)  # type: ignore[arg-type]
+        out_rows = []
+        for t in threats:
+            pct = t.showdown_usage_pct
+            out_rows.append(
+                {
+                    "species": t.form,
+                    "ladder_species": t.ladder_species,
+                    "usage_rank": t.usage_rank,
+                    "showdown_usage_pct": pct,
+                    "pct_kind": "percent" if pct is not None else None,
+                    "build_source": t.build_source,
+                }
+            )
+        return {
+            "status": "ok",
+            "source": "in_game",
+            "source_label": _SOURCE_LABEL["in_game"],
+            "how_built": (
+                "get_relevant_threats: top-n in-game doubles ladder species by usage_rank "
+                "(ascending), each expanded to Showdown formes when multi-form; n counts "
+                "ladder species that survive expand+filter (return length may exceed n)."
+            ),
+            "n_requested": n_i,
+            "listed": len(out_rows),
+            "threats": out_rows,
+            "note": (
+                "usage_rank is an in-game ordinal, not a percent. showdown_usage_pct is a "
+                "percent when present. source=in_game is the CLI ladder list; "
+                'source=showdown is the ≥min_pct Showdown form set (default min_pct=4.52).'
+            ),
+        }
+
+    # source == "showdown": Part 0 / HU2b threshold set via key-builder helper.
+    default_min_pct_applied = min_pct is None
+    if min_pct is None:
+        rows_raw = showdown_threats_ge_cutoff()  # SHOWDOWN_THREAT_USAGE_CUTOFF
+        min_pct_used = SHOWDOWN_THREAT_MIN_PCT
     else:
-        n_i = n
-    state = {"regulation_mod": regulation}
-    threats = get_relevant_threats(state, n=n_i)  # type: ignore[arg-type]
-    out_rows = []
-    for t in threats:
-        pct = t.showdown_usage_pct
-        out_rows.append(
-            {
-                "species": t.form,
-                "ladder_species": t.ladder_species,
-                "usage_rank": t.usage_rank,
-                "showdown_usage_pct": pct,
-                "pct_kind": "percent" if pct is not None else None,
-                "build_source": t.build_source,
-            }
-        )
+        if isinstance(min_pct, bool) or not isinstance(min_pct, (int, float)) or min_pct < 0:
+            return {"status": "error", "message": "min_pct must be a non-negative number"}
+        min_pct_used = float(min_pct)
+        rows_raw = showdown_threats_ge_cutoff(cutoff=min_pct_used / 100.0)
+    if n is not None:
+        rows_raw = rows_raw[:n]
+    out_rows = [
+        {
+            "species": t["name"],
+            "pct": t["usage_pct"],
+            "pct_kind": "percent",
+            "source": "showdown",
+        }
+        for t in rows_raw
+    ]
     return {
         "status": "ok",
-        "source": "ingame",
-        "source_label": _SOURCE_LABEL["ingame"],
+        "source": "showdown",
+        "source_label": _SOURCE_LABEL["showdown"],
+        "min_pct": min_pct_used,
+        "default_min_pct_applied": default_min_pct_applied,
         "how_built": (
-            "get_relevant_threats: top-n in-game doubles ladder species by usage_rank "
-            "(ascending), each expanded to Showdown formes when multi-form; n counts "
-            "ladder species that survive expand+filter (return length may exceed n)."
+            "showdown_threats_ge_cutoff: every Showdown-listed form with "
+            f"usage_pct ≥ min_pct (default {SHOWDOWN_THREAT_MIN_PCT} labels "
+            f"SHOWDOWN_THREAT_USAGE_CUTOFF={SHOWDOWN_THREAT_USAGE_CUTOFF!r}); "
+            "same helper as HU2b / showdown_threats_ge_452. Optional n caps after threshold."
         ),
-        "n_requested": n_i,
+        "n_requested": n,
         "listed": len(out_rows),
         "threats": out_rows,
         "note": (
-            "usage_rank is an in-game ordinal, not a percent. showdown_usage_pct is a "
-            "percent when present. This list is the CLI ladder path, not the HU2b "
-            "Showdown ≥4.52% form set."
+            "pct is Showdown doubles usage percent. State source=showdown and the "
+            "min_pct used when answering from this list."
         ),
     }
 
@@ -370,9 +432,15 @@ USAGE_META_SPECS: list[dict[str, Any]] = [
     ),
     _spec(
         "get_meta_threats",
-        "Returns the CLI get_relevant_threats list (in-game ladder + Showdown forme expand) "
-        "with source and usage figures; does not force the HU2b ≥4.52% Showdown set.",
-        {"n": dict(_INT)},
+        "Returns meta threats: source=in_game (default) is the CLI in-game ladder list "
+        "(n-based, Showdown forme expand); source=showdown is the Showdown doubles "
+        f"usage set at or above min_pct (default {SHOWDOWN_THREAT_MIN_PCT}). "
+        "State which source you used. Optional n caps the showdown list after the threshold.",
+        {
+            "n": dict(_INT),
+            "source": dict(_STR),
+            "min_pct": {"type": "number"},
+        },
         [],
     ),
     _spec(
