@@ -1427,24 +1427,29 @@ def find_species(
         if not isinstance(ability, str) or not ability.strip():
             return {"status": "error", "message": "ability must be a nonempty string", "species": [], "count": 0}
         ability_s = ability.strip()
-    # FU21: AND active mechanical type/ability constraints from state (inactive ignored).
-    for c in state.get("constraints") or []:
-        active = (
-            c.get("still_active", True)
-            if isinstance(c, dict)
-            else getattr(c, "still_active", True)
-        )
-        if not active:
-            continue
-        mech = c.get("mechanical") if isinstance(c, dict) else getattr(c, "mechanical", None)
-        if mech is None:
-            continue
-        kind = mech.get("kind") if isinstance(mech, dict) else getattr(mech, "kind", None)
-        val = mech.get("value") if isinstance(mech, dict) else getattr(mech, "value", None)
-        if kind == "type" and isinstance(val, str) and val.strip():
-            type_need.append(val.strip())
-        elif kind == "ability" and isinstance(val, str) and val.strip() and ability_s is None:
-            ability_s = val.strip()
+    # FU21: AND active mechanical type/ability constraints (tool_fields only; flags-off ignores state).
+    if tool_fields_enabled():
+        for c in state.get("constraints") or []:
+            active = (
+                c.get("still_active", True)
+                if isinstance(c, dict)
+                else getattr(c, "still_active", True)
+            )
+            if not active:
+                continue
+            mech = (
+                c.get("mechanical") if isinstance(c, dict) else getattr(c, "mechanical", None)
+            )
+            if mech is None:
+                continue
+            kind = mech.get("kind") if isinstance(mech, dict) else getattr(mech, "kind", None)
+            val = mech.get("value") if isinstance(mech, dict) else getattr(mech, "value", None)
+            if kind == "type" and isinstance(val, str) and val.strip():
+                type_need.append(val.strip())
+            elif kind == "ability" and isinstance(val, str) and val.strip() and ability_s is None:
+                ability_s = val.strip()
+    else:
+        _ = state
     formula: dict[str, Any] | None = None
     if stat_formula is not None:
         if not isinstance(stat_formula, dict):
