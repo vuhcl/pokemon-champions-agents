@@ -297,6 +297,15 @@ def stamp_pending_team_fingerprint(state: MutableMapping[str, Any]) -> None:
         state["pending_presentation"] = pending
 
 
+def prepare_start_state_for_guard(state: MutableMapping[str, Any]) -> None:
+    """Stamp fingerprint on a seeded pending screen (created with the seeded team).
+
+    Called from the request-set runner when ``guard`` is on — not from unit tests.
+    """
+    if isinstance(state.get("pending_presentation"), dict):
+        stamp_pending_team_fingerprint(state)
+
+
 def replace_allowed(
     *,
     confirms_replacement: bool,
