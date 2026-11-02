@@ -11,6 +11,13 @@ HERE = Path(__file__).resolve().parent
 TOOL_FIELDS = HERE / "prompt_tool_fields.md"
 WRAPPER = HERE / "prompt_wrapper.md"
 DRAFT = HERE / "prompt_draft.md"
+GUARD = HERE / "prompt_guard.md"
+
+# Guard = draft + refusal / ask guidance (mapping brief FU19).
+_GUARD_DELTA = (
+    "A tool call can be refused with a message naming the class of the request; "
+    "do not retry it. Answer from what the tools returned, or ask for the missing detail."
+)
 
 # Wrapper replaces lock_slot + edit_slot_field with set_slot; unlock_slot unchanged.
 _WRAPPER_SET_SLOT = (
@@ -95,7 +102,20 @@ def build_draft_from_wrapper(wrapper_text: str | None = None) -> str:
     return "\n".join(out) + "\n"
 
 
+def build_guard_from_draft(draft_text: str | None = None) -> str:
+    """draft body plus the guard refusal/ask sentences."""
+    body = (
+        draft_text
+        if draft_text is not None
+        else build_draft_from_wrapper()
+    )
+    text = body.rstrip() + "\n\n" + _GUARD_DELTA + "\n"
+    return text
+
+
 def write_ladder_prompts() -> None:
     wrapper = build_wrapper_from_tool_fields()
     WRAPPER.write_text(wrapper, encoding="utf-8")
-    DRAFT.write_text(build_draft_from_wrapper(wrapper), encoding="utf-8")
+    draft = build_draft_from_wrapper(wrapper)
+    DRAFT.write_text(draft, encoding="utf-8")
+    GUARD.write_text(build_guard_from_draft(draft), encoding="utf-8")

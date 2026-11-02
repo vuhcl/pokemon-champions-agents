@@ -55,7 +55,8 @@ _TOOL_FIELDS: bool = False
 _WRAPPER: bool = False
 # Arm v2 ladder: draft/lock rung (cumulative on wrapper).
 _DRAFT: bool = False
-
+# Arm v2 ladder: class tool guard (cumulative on draft).
+_GUARD: bool = False
 
 def set_tool_fields(enabled: bool) -> None:
     global _TOOL_FIELDS
@@ -82,6 +83,17 @@ def set_draft(enabled: bool) -> None:
 
 def draft_enabled() -> bool:
     return _DRAFT
+
+
+def set_guard(enabled: bool) -> None:
+    global _GUARD
+    _GUARD = bool(enabled)
+
+
+def guard_enabled() -> bool:
+    return _GUARD
+
+
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -349,6 +361,7 @@ _DESCRIBE_SPEC = _spec(
     {"kind": dict(_STR), "name": dict(_STR)},
     ["kind", "name"],
 )
+
 
 
 def combined_specs(
@@ -849,7 +862,7 @@ _SCOPES = frozenset({"per_slot", "team_wide"})
 _MECH_KINDS = frozenset({"type", "ability", "item", "no_duplicate_items"})
 
 
-def _constraint_row(c: Any) -> dict[str, Any]:
+def _constraint_row(c: Any, *, index_1based: int | None = None) -> dict[str, Any]:
     """JSON row for one Constraint (dataclass or already-dict)."""
     if hasattr(c, "predicate"):
         pred = str(c.predicate or "")
@@ -880,12 +893,19 @@ def _constraint_row(c: Any) -> dict[str, Any]:
     m = _SLOT_PRED_RE.match(pred)
     if m:
         row["slot"] = int(m.group(1))
+    if index_1based is not None:
+        row["index"] = index_1based
+        row["id"] = str(index_1based)
     return row
 
 
 def read_constraints(state: dict[str, Any]) -> dict[str, Any]:
     """Read-only constraint list. Slot echo comes from predicate prefix when present."""
-    return {"constraints": [_constraint_row(c) for c in state.get("constraints") or []]}
+    rows = [
+        _constraint_row(c, index_1based=i + 1)
+        for i, c in enumerate(state.get("constraints") or [])
+    ]
+    return {"constraints": rows}
 
 
 def add_constraint(
@@ -950,11 +970,14 @@ def add_constraint(
     if patch.get("slot_commit_error"):
         return state, _refuse(str(patch["slot_commit_error"]))
     after = _merge(state, patch)
-    latest = (after.get("constraints") or [])[-1]
+    rows = after.get("constraints") or []
+    latest = rows[-1]
     result = {
         "ok": True,
-        "constraint": _constraint_row(latest),
-        "constraints": [_constraint_row(c) for c in after.get("constraints") or []],
+        "constraint": _constraint_row(latest, index_1based=len(rows)),
+        "constraints": [
+            _constraint_row(c, index_1based=i + 1) for i, c in enumerate(rows)
+        ],
     }
     if slot_echo is not None:
         result["slot"] = slot_echo
@@ -974,7 +997,10 @@ def restore_constraint_tool(
         return state, _refuse("restore_constraint could not apply (stale log entry)")
     return after, {
         "ok": True,
-        "constraints": [_constraint_row(c) for c in after.get("constraints") or []],
+        "constraints": [
+            _constraint_row(c, index_1based=i + 1)
+            for i, c in enumerate(after.get("constraints") or [])
+        ],
     }
 
 
@@ -1611,6 +1637,11 @@ def show_candidates(
         pending = {**pending, "options": list(pending.get("options") or [])[:n]}
     elif n is not None:
         return state, _refuse("n must be a positive integer when provided")
+
+    # OL10a: fingerprint the team at pending create (guard select_option gate).
+    from scripts.eval.part_g_arm.state.guard_allowed import team_fingerprint
+
+    pending = {**pending, "team_fingerprint": team_fingerprint(state)}
 
     options = _option_rows(pending)
     if not options:

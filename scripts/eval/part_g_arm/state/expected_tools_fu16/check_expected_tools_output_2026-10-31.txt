@@ -1,0 +1,24 @@
+rows with an expected list: 113 of 113
+
+write tool REQUIRED on a non-mutation key class (check against the key): 13
+   GS1 t1 [SERVED]
+   GS1 t2 [SERVED]
+   IC1 t1 [SERVED]
+   MM1 t1 [SERVED]
+   MT1 t1 [SERVED]
+   MT1 t2 [SERVED]
+   MT2 t1 [SERVED]
+   MT2 t3 [SERVED]
+   MT3 t1 [SERVED]
+   MT5 t1 [SERVED]
+   MT6 t2 [SERVED]
+   OL7a t1 [PARTIAL]
+   TB1 t1 [SERVED]
+
+WRITE row expects a numeric tool: parser must emit a numeric sub-request (+845 tokens): 6
+   IC1 t1: describe
+   MM1 t1: describe
+   MR3 t1: describe
+   MR4 t1: describe
+   OL7a t1: get_speed
+   TB1 t1: describe

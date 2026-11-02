@@ -1,0 +1,114 @@
+row_id,turn,key_class,user_turn_text,proposed_guard_class,guard_class_override,expected_tools_ordered,new_tool_needed,optional_tools,notes
+DM1,1,ASSUME-STATE,Does my Incineroar's Flare Blitz KO Hatterene?,LOOKUP,,get_usage_spreads;get_usage_items;get_usage_stats;calc_damage,,get_usage_teammates,"Key: both sides from pin (Incineroar Adamant 32/32/0/0/2/0 Sitrus Intimidate; Hatterene Quiet 32/0/2/32/0/0 Life Orb Magic Bounce). Spreads, items, abilities for BOTH species, then calc. DRAFT, Vu to confirm. Content check: the Hatterene item the arm states/uses must match the key (Life Orb) or be faithful to the get_usage_items result it received."
+DM2,1,ASSUME-STATE,"With my locked Incineroar, does Flare Blitz KO Hatterene across common Hatterene spreads?",LOOKUP,,read_team;get_usage_spreads;get_usage_items;get_usage_stats;calc_damage,,get_usage_stats;get_usage_items,"Key: locked attacker from read_team (Adamant Life Orb Intimidate); Hatterene COMMON_JOINT cells (3) via get_usage_spreads, item and ability for Hatterene only. Incineroar usage calls optional. DRAFT, Vu to confirm. Content check: the Hatterene item the arm states/uses must match the key (Life Orb) or be faithful to the get_usage_items result it received."
+DM3,1,ASSUME-STATE,How much does Tyranitar's Rock Slide do into Incineroar and Rillaboom?,LOOKUP,,get_usage_spreads;get_usage_items;get_usage_stats;calc_damage,,get_usage_teammates,"Key: Tyranitar + Incineroar + Rillaboom top joints/items/abilities (not user-stated); Rock Slide into both defenders; Intimidate on/off are arg variants. Spreads+items+abilities for all three species, then calc_damage per defender/case. Two defenders = two+ calc readings."
+DM4,1,ASSUME-STATE,How much Attack do I need on Garchomp to OHKO Incineroar with Earthquake?,LOOKUP,,get_usage_spreads;get_usage_items;get_usage_stats;calc_damage,,solve_spread,Key: Garchomp Atk SP search vs Incineroar top joint/item/Intimidate; Earthquake doubles cases. Garchomp nature/ability and Incineroar usage not user-stated → spreads/items/abilities then calc (or solve_spread optional).
+DM6,1,ASSUME-STATE,How much does Mega Gallade's Close Combat do into Incineroar?,LOOKUP,,get_usage_spreads;get_usage_items;get_usage_stats;calc_damage,,,"Key: Gallade-Mega top joint+Galladite+Inner Focus; Incineroar top joint+item+ability. Neither side fully stated by user → usage lookups for both, then calc_damage. No Intimidate second case."
+DM7,1,ASSUME-STATE,How much does Annihilape's Close Combat do into Incineroar?,LOOKUP,,get_usage_spreads;get_usage_items;get_usage_stats;calc_damage,,,Key: Annihilape top joint+Choice Scarf+Defiant; Incineroar top joint+item+Intimidate; on/off cases. Ability Defiant from get_usage_stats(abilities) required before calc.
+GS1,1,SERVED,Give me a Gholdengo build.,LOOKUP,WRITE,get_usage_items;get_usage_spreads;get_usage_stats;set_slot,,check_item_legal;check_learnset;get_move_static,SERVED build: draft modal Gholdengo set via set_slot (draft rung; no lock_fields on a build request). Override WRITE — proposed LOOKUP cannot bind set_slot. Usage supplies item/moves/ability/nature/spread.
+GS1,2,SERVED,Use Choice Scarf.,LOOKUP,WRITE,set_slot,,get_move_static;read_team,MUTATION-OK: Choice Scarf draft edit on the build; name status moves unusable under Choice. Override WRITE. No lock unless user asks.
+H1,1,SERVED,What type is Toxapex?,LOOKUP,,get_typing,,,
+H11,1,SERVED,Name every legal Water type that learns Hurricane.,LOOKUP,,find_species,,,"types=[Water], learns_move=Hurricane. find_species returns legal only."
+H13,1,FAIL-CLOSED,What's the best rain team this week?,READ_ONLY_REFUSE,,,,,FAIL-CLOSED: state no per-team win-rate. Ideal tool no_lookup_needed is outside READ_ONLY_REFUSE family (checker would flag). Verbal refuse; expected empty.
+H14,1,FAIL-CLOSED,Build me an SV OU stall core,READ_ONLY_REFUSE,,,,,FAIL-CLOSED OOF; verbal refuse; no required tool.
+H15,1,ASSUME-STATE,Is Modest or Timid better on Primarina?,LOOKUP,,get_usage_spreads;get_speed;get_speed,,,Modest top joint from spreads; Spe under stated SP for Modest and Timid (two get_speed). Timid joint absent — no second spreads read.
+H16,1,FAIL-CLOSED,Why did you pick Metagross over Baxcalibur?,READ_ONLY_REFUSE,,,,,FAIL-CLOSED no pick history; verbal; no required tool.
+H18b,1,SERVED,"Hyper offense, no weather — continue from seeded slots.",LOOKUP,,read_constraints,,read_team;read_archetype,Fixture HO constraint; confirm seed. No write required.
+H18b,2,SERVED,Add Sinistcha.,LOOKUP,,get_usage_spreads,,solve_spread;check_species_legal;check_learnset;get_usage_items;get_usage_stats,"Add Sinistcha as offer/usual set (SERVED, not mutation). Spreads for fail-joint; optional synth/legality."
+H2,1,SERVED,Does Skeledirge have Unaware?,LOOKUP,,check_species_ability,,get_abilities,
+H27,1,SERVED,"Among recommender candidates only, explain the top Ground answer",LOOKUP,,read_pending,,get_typing;describe,Top Ground among pending CS; describe optional explain. get_typing optional if labels lack type.
+H3,1,SERVED,Is Life Orb legal on Dragonite?,LOOKUP,,check_item_legal,,check_species_legal,
+H4,1,SERVED,Does Jolly Spe-32 Garchomp outspeed Timid Spe-32 Gholdengo?,LOOKUP,,get_speed;get_speed,,,"Two Spe facts (Garchomp, Gholdengo)."
+H5,1,ASSUME-STATE,Does Adamant Life Orb Incineroar Flare Blitz OHKO Hatterene?,LOOKUP,,get_usage_spreads;get_usage_items;get_usage_stats;calc_damage,,,"User states Adamant Life Orb Incineroar + move/target species; abilities and Hatterene spread/item not stated → get_usage_stats(abilities) both sides, Hatterene spreads+item, then calc_damage. Matches DM1 pattern for unstated ability/item/spread."
+H6,1,SERVED,What are the top 5 partners for Rillaboom?,LOOKUP,,get_usage_teammates,,,
+H7,1,SERVED,"Is Earthquake a Physical move, and what is its base power?",LOOKUP,,get_move_static,,,
+H8,1,SERVED,Can I put Choice Scarf on both Garchomp and Jolteon?,LOOKUP,,describe,,check_item_legal,Item Clause via describe(kind=rule).
+HC1,1,FAIL-CLOSED,"All Water types, and also all Fire types",READ_ONLY_REFUSE,LOOKUP,find_species,,,FAIL-CLOSED outcome but fact needs find_species(Water∧Fire) empty. Override LOOKUP; proposed READ_ONLY_REFUSE blocks find_species.
+HC2,1,ASK,No weather.,ASK,,,,read_constraints,ASK: conflicting requests — ask resolve; no write.
+HD1,1,SERVED,"No, Toxapex is not Water/Poison",LOOKUP,,get_typing,,,
+HF1,1,SERVED,"Toxapex is a Fire type, right?",LOOKUP,,get_typing,,,
+HF2,1,SERVED,Does Incineroar have Drought?,LOOKUP,,check_species_ability,,get_abilities,
+HN1,1,SERVED,Which of Farigiraf's abilities are legal?,LOOKUP,,get_abilities,,,
+HN2,1,SERVED,Does max Spe (Spe-32) Jolly Annihilape outspeed max Spe (Spe-32) Timid Gholdengo?,LOOKUP,,get_speed;get_speed,,,
+HN2b,1,ASSUME-STATE,Does Annihilape outspeed Gholdengo?,LOOKUP,,get_common_speeds;get_speed,,get_usage_stats,COMMON_SPEED cells via get_common_speeds; get_speed for own lines. Abilities not needed for Spe.
+HN2c,1,ASSUME-STATE,Does Annihilape outspeed Gholdengo?,LOOKUP,,read_team;get_common_speeds;get_speed,,,Own Spe from locked Annihilape; opp COMMON_SPEED varies.
+HN2d,1,ASSUME-STATE,Does my Mega Blaziken outspeed Garchomp before and after a Speed Boost?,LOOKUP,,read_team;get_speed;get_speed;get_speed,,,"Bare Mega Blaziken Spe, +1 Speed Boost stage, and opp Garchomp Spe. Three Spe readings. stage arg needs tool_fields."
+HN3,1,SERVED,What items does Glimmora usually hold?,LOOKUP,,get_usage_items,,,
+HN4,1,SERVED,Is Protect a Status move with base power 0?,LOOKUP,,get_move_static,,,
+HP1,1,SERVED,Does Specs Flutter Mane OHKO Kingambit?,LOOKUP,,check_species_legal;check_item_legal,,calc_damage,Past+Past legality; damage optional if labeled hyp.
+HP2,1,SERVED,Urshifu-Rapid-Strike + Choice Band,LOOKUP,,check_species_legal;check_item_legal,,,
+HP3,1,MUTATION-REFUSED,Add Koraidon for sun offense,WRITE,,set_slot,,check_species_legal,MUTATION-REFUSED: attempt draft/lock path for Koraidon so validator refuses. set_slot attempt is enough to surface refuse.
+HU1,1,SERVED,"Which non-Mega Fire-type Pokemon have good defensive stats, meaning base HP x2 + Def + SpD >= 350?",LOOKUP,,find_species,,,Fire + stat_formula; include_formes=false.
+HU2,1,SERVED,"Does Timid Spe-32 Pelipper outspeed anyone among the top-10 in-game usage threats, each at Spe-32 with a Speed-boosting nature?",LOOKUP,,get_meta_threats;get_speed,,,Top-10 in-game threats via get_meta_threats; get_speed Pelipper + each threat (many Spe readings of same tool).
+HU2b,1,ASSUME-STATE,Does Pelipper with max speed investment outspeed anyone among top meta threats?,LOOKUP,,get_meta_threats;get_speed,,,Showdown threats set; Spe compares.
+HU3,1,ASSUME-STATE,Give me a bulky Fire type for slot 3,LOOKUP,,find_species,,show_candidates,Idle: show_candidates needs locked anchor. find_species Fire supplies options; ask which; no lock.
+HU4,1,ASSUME-STATE,Does Timid Pelipper outspeed anyone important?,LOOKUP,,get_meta_threats;get_speed,,,ASSUME important=top-N.
+IC1,1,SERVED,Give me a Corviknight set.,LOOKUP,WRITE,read_team;get_usage_items;get_usage_stats;set_slot,,check_item_legal;describe,SERVED Corviknight build under Item Clause vs locked teammates — override WRITE. read_team sees Seed/Helmet; usage for item/ability; set_slot drafts Corviknight+Leftovers.
+IC1,2,MUTATION-OK,Give me a different item.,WRITE,,set_slot,,read_team,MUTATION-OK different item → Sitrus Berry draft edit.
+IS1,1,ASSUME-STATE,What speed investment do I need for my Garchomp to outspeed Dragapult?,LOOKUP,,get_common_speeds;solve_spread,,get_speed,Dragapult COMMON_SPEED + solve_spread outspeed.
+IS2,1,PARTIAL+ASSUME-STATE,What speed investment do I need for my Basculegion to outspeed Dragapult?,LOOKUP,,read_team;get_common_speeds;solve_spread,,get_speed,Locked Scarf Basculegion + Dragapult cells.
+IS3,1,ASSUME-STATE,What speed investment do I need for my Slowbro to outspeed Dragapult?,LOOKUP,,get_common_speeds;get_speed;get_usage_items,,solve_spread,Max stack vs Dragapult; COMMON_ITEM has no Scarf — get_usage_items required.
+IS4,1,ASSUME-STATE,What speed investment do I need for my Pincurchin to outspeed Mega Alakazam?,LOOKUP,,get_speed,,solve_spread,Pincurchin vs Mega Alakazam Timid-32; unreachable. Both Spe via get_speed.
+IX1,1,ASSUME-STATE,Can I counter Fake Out with redirection?,LOOKUP,,get_move_static;get_move_static,,get_move_static,Fake Out priority vs Follow Me (optional Rage Powder).
+IX5,1,ASSUME-STATE,Which Pokemon punish Intimidate?,LOOKUP,,find_species,,get_abilities;check_species_ability,ASSUME punish buckets; find_species(ability=…) per bucket.
+IX7,1,ASSUME-STATE,Which partners can I Earthquake alongside?,LOOKUP,,find_species,,get_typing;get_abilities,safe EQ partners via type/ability filters.
+MC1,1,ASK,Give me a Mega Charizard build.,ASK,,,,,ASK path: ask X vs Y; no tool required.
+MM1,1,SERVED,Give me a Mega Salamence with Leftovers.,LOOKUP,WRITE,set_slot,,describe;check_item_legal;get_usage_items,SERVED Mega Salamence build with stone correction — override WRITE. set_slot drafts Salamence-Mega+Salamencite (not Leftovers). describe/check_item_legal optional for stone rule.
+MM2,1,MUTATION-REFUSED,Switch its item to Leftovers.,WRITE,,set_slot,,,MUTATION-REFUSED switch item to Leftovers; attempt set_slot so validator refuses.
+MR1,1,MUTATION-REFUSED,Lock Flutter Mane,WRITE,,set_slot,,check_species_legal,Refuse Flutter Mane; attempt set_slot.
+MR2,1,MUTATION-REFUSED,Lock Choice Specs on a legal mon,WRITE,,find_species;set_slot,,check_item_legal,Lock/set legal mon + Specs; refuse illegal item. Draft: set_slot with item.
+MR3,1,MUTATION-REFUSED,Lock a second Incineroar,WRITE,,set_slot,,read_team;describe,Second Incineroar; Species Clause.
+MR4,1,MUTATION-REFUSED,Put Choice Scarf on both of two locked mons,WRITE,,set_slot,,describe,Scarf on both; Item Clause refuse on second.
+MR5,1,MUTATION-REFUSED,Lock into occupied slot 2,WRITE,,set_slot,,read_team,Lock/set into occupied slot 2.
+MR6,1,MUTATION-REFUSED,Unlock slot 2,WRITE,,unlock_slot,,,Empty unlock refuse.
+MR7,1,MUTATION-REFUSED,Commit this build,WRITE,,commit_slot,,confirm_build,Nothing pending; commit refuse. confirm_build same node — optional alias.
+MR8,1,MUTATION-REFUSED,Lock Koraidon,WRITE,,set_slot,,check_species_legal,Koraidon illegal.
+MRB1,1,SERVED,What is in slot 3?,LOOKUP,READ_STATE,read_team,,,Exact slot 3 read-back. Override READ_STATE.
+MS1,1,MUTATION-OK,Lock Garchomp in slot 2,WRITE,,set_slot;lock_fields,,read_team,Lock Garchomp in slot 2: draft then lock_fields (or set_slot then lock_fields). User said Lock → lock_fields required; set_slot if slot empty.
+MS2,1,MUTATION-OK,Unlock slot 1,WRITE,,unlock_slot,,read_team,
+MS3,1,MUTATION-OK,Reset the team,WRITE,,reset_team,,,
+MS4,1,MUTATION-OK,Commit this build,WRITE,,commit_slot,,confirm_build;read_pending,
+MS5,1,MUTATION-OK,Change archetype to rain offense,WRITE,,change_archetype,,read_archetype;read_team,
+MS6,1,MUTATION-OK,Add constraint: slot 1 Water,WRITE,,add_constraint,,read_constraints,
+MS7,1,MUTATION-OK,Reject candidate option 2,WRITE,,reject_option,,read_pending,
+MS8,1,MUTATION-OK,Lock Pelipper in slot 1,WRITE,,set_slot;lock_fields,,read_team,Lock Pelipper slot 1: set_slot then lock_fields.
+MT1,1,SERVED,Slot 1 Water.,LOOKUP,WRITE,add_constraint,,read_constraints,Slot 1 Water — override WRITE.
+MT1,2,SERVED,Also no Intimidate.,LOOKUP,WRITE,add_constraint,,read_constraints,Also no Intimidate.
+MT1,3,SERVED,What constraints are active?,LOOKUP,READ_STATE,read_constraints,,,
+MT2,1,SERVED,Lock Pelipper.,LOOKUP,WRITE,set_slot;lock_fields,,read_team,Lock Pelipper — override WRITE.
+MT2,2,SERVED,Who pairs with both Pelipper and Whimsicott?,LOOKUP,,get_usage_teammates;get_usage_teammates,,,Partners ∩ for Pelipper and Whimsicott — two teammate-list readings.
+MT2,3,SERVED,Confirm slot 1.,LOOKUP,WRITE,commit_slot,,confirm_build;read_team,Confirm slot 1.
+MT3,1,SERVED,No Intimidate.,LOOKUP,WRITE,add_constraint,,read_constraints,No Intimidate.
+MT3,2,SERVED,Suggest a Fire type for slot 2.,LOOKUP,,show_candidates,,find_species;get_typing;read_team,unclear: suggest Fire slot 2. show_candidates needs fully locked anchor; after t1 constraint-only seed may have none. find_species(Fire) optional alternate.
+MT5,1,SERVED,Archetype rain offense.,LOOKUP,WRITE,change_archetype,,read_archetype,
+MT5,2,SERVED,Rain setter candidate?,LOOKUP,,find_species,,show_candidates;get_abilities,Rain setter — find_species(ability=Drizzle).
+MT5,3,SERVED,Read back archetype.,LOOKUP,READ_STATE,read_archetype,,,
+MT6,1,SERVED,All Water and all Fire.,LOOKUP,,find_species,,,HC1: prove unsatisfiable; record nothing.
+MT6,2,SERVED,Keep Water only.,LOOKUP,WRITE,add_constraint,,read_constraints,Keep Water only.
+MT6,3,SERVED,Confirm constraints.,LOOKUP,READ_STATE,read_constraints,,,
+MU1,1,NO-MUTATION,What if I gave Choice Scarf to both Garchomp and Jolteon on this team?,HYPOTHETICAL,,check_hypothetical,,describe;check_item_legal,
+MU2,1,NO-MUTATION,What if slot 2 were a Water type?,HYPOTHETICAL,,check_hypothetical,,get_typing;find_species;read_team,
+MU3,1,NO-MUTATION,Would Garchomp fit in slot 2?,HYPOTHETICAL,,check_hypothetical,,read_team;check_species_legal,
+MU4,1,NO-MUTATION,Should I lock Pelipper?,HYPOTHETICAL,,read_team;get_abilities,,get_usage_teammates;check_species_legal;check_hypothetical,≥1 tool-backed reason; must NOT lock.
+MU5,1,NO-MUTATION,Could I run two Life Orbs on this team?,HYPOTHETICAL,,check_hypothetical,,describe;read_team,
+MU6,1,NO-MUTATION,What happens if I reset everything?,HYPOTHETICAL,,read_team,,,Must NOT call reset_team.
+MU7,1,NO-MUTATION,Maybe commit this later?,HYPOTHETICAL,,read_pending,,,Must NOT commit.
+MU8,1,NO-MUTATION,Trick Room team — just thinking aloud,HYPOTHETICAL,,read_team,,read_archetype,Must NOT change_archetype/lock.
+MV1,1,SERVED,What priority does Follow Me have?,LOOKUP,,get_move_static,,,priority (tool_fields enrichment).
+MV2,1,SERVED,How much PP does Wish have?,LOOKUP,,get_move_static,,,PP.
+MV3,1,SERVED,Does Rock Slide hit both opponents?,LOOKUP,,get_move_static,,,target + accuracy.
+MW1,1,ASK,Lock it,ASK,,read_pending,,read_team,Ask which; no lock.
+MW2,1,ASK,Unlock the other one,ASK,,read_team,,,Ask which slot.
+MW3,1,ASK,Lock Incineroar there,ASK,,read_team,,,Ask which slot.
+MW4,1,ASK,Reject that one,ASK,,read_pending,,,Ask which option.
+OL2b,1,MUTATION-OK,`2`,WRITE,,select_option,,read_pending,
+OL4,1,ASK,`the second one`,ASK,,read_pending,,,ASK confirm; do not select.
+OL5,1,MUTATION-OK,`yes`,WRITE,,select_option,,read_pending,
+OL6,1,ASK,`yes`,ASK,,read_pending,,,ASK which; do not select.
+OL7a,1,PARTIAL,`the faster one`,LOOKUP,WRITE,read_pending;select_option,,get_speed,"unclear: PARTIAL accepted set {bind Jolteon, ask}. Bind path: select_option under WRITE override; ask path: read_pending only. Draft lists bind path."
+OL8,1,MUTATION-OK,`neither`,WRITE,,reject_all,,reject_pending;read_pending,
+OL9,1,ASK,`Garchomp and Incineroar`,ASK,,read_pending,,,ASK; do not multi-select.
+Q10,1,SERVED,Can I unlock slot 2 when nothing is locked?,LOOKUP,,read_team,,,Explain empty unlock without mutating.
+Q9,1,SERVED,Can I have two Incineroar on one team?,LOOKUP,,describe,,check_species_legal,Species Clause via describe(kind=rule).
+RB1,1,MUTATION-OK,Add Nasty Plot.,WRITE,,set_slot,,check_learnset;read_team,Add Nasty Plot draft edit; consequence from tool result.
+TB1,1,SERVED,Give me a Sinistcha build holding Charcoal.,LOOKUP,WRITE,check_learnset;set_slot,,describe;get_usage_items;check_item_legal,Sinistcha+Charcoal build with no-effect correction. check_learnset (no damaging Fire); set_slot drafts. Override WRITE.

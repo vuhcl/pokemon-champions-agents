@@ -111,6 +111,8 @@ TOOL_FIELDS_PROMPT_FILE = "state/prompt_tool_fields.md"
 WRAPPER_PROMPT_FILE = "state/prompt_wrapper.md"
 # Prompt variant when --draft is on (wrapper text + draft/lock sentences).
 DRAFT_PROMPT_FILE = "state/prompt_draft.md"
+# Prompt variant when --guard is on (draft text + refusal/ask sentences).
+GUARD_PROMPT_FILE = "state/prompt_guard.md"
 
 
 def assert_frozen_prompt(
@@ -120,9 +122,16 @@ def assert_frozen_prompt(
     allow_tool_fields_prompt: bool = False,
     allow_wrapper_prompt: bool = False,
     allow_draft_prompt: bool = False,
+    allow_guard_prompt: bool = False,
 ) -> None:
     got = cfg.prompt_hash()
     if got == FROZEN_PROMPT_SHA256:
+        return
+    if allow_guard_prompt and cfg.prompt_file == GUARD_PROMPT_FILE:
+        print(
+            f"guard prompt: {got} (frozen PRE-RS-ARM remains {FROZEN_PROMPT_SHA256})",
+            file=sys.stderr,
+        )
         return
     if allow_draft_prompt and cfg.prompt_file == DRAFT_PROMPT_FILE:
         print(
@@ -740,7 +749,9 @@ def main(argv: list[str] | None = None) -> int:
         "guard": bool(args.guard),
         "judge": bool(args.judge),
     }
-    # draft is cumulative on wrapper (+ tool_fields for the ladder).
+    # Ladder is cumulative: guard → draft → wrapper → tool_fields.
+    if run_flags["guard"]:
+        run_flags["draft"] = True
     if run_flags["draft"]:
         run_flags["wrapper"] = True
         run_flags["tool_fields"] = True
@@ -750,12 +761,20 @@ def main(argv: list[str] | None = None) -> int:
         print("\n".join(sorted(covered)))
         return 0
 
-    from scripts.eval.part_g_arm.state.tools import set_draft, set_tool_fields, set_wrapper
+    from scripts.eval.part_g_arm.state.tools import (
+        set_draft,
+        set_guard,
+        set_tool_fields,
+        set_wrapper,
+    )
 
     set_tool_fields(bool(run_flags["tool_fields"]))
     set_wrapper(bool(run_flags["wrapper"]))
     set_draft(bool(run_flags["draft"]))
-    if run_flags["draft"]:
+    set_guard(bool(run_flags["guard"]))
+    if run_flags["guard"]:
+        prompt_file = GUARD_PROMPT_FILE
+    elif run_flags["draft"]:
         prompt_file = DRAFT_PROMPT_FILE
     elif run_flags["wrapper"]:
         prompt_file = WRAPPER_PROMPT_FILE
@@ -769,9 +788,13 @@ def main(argv: list[str] | None = None) -> int:
         allow_dev=args.dev or bool(args.dev_rows_file),
         allow_tool_fields_prompt=bool(run_flags["tool_fields"])
         and not run_flags["wrapper"]
-        and not run_flags["draft"],
-        allow_wrapper_prompt=bool(run_flags["wrapper"]) and not run_flags["draft"],
-        allow_draft_prompt=bool(run_flags["draft"]),
+        and not run_flags["draft"]
+        and not run_flags["guard"],
+        allow_wrapper_prompt=bool(run_flags["wrapper"])
+        and not run_flags["draft"]
+        and not run_flags["guard"],
+        allow_draft_prompt=bool(run_flags["draft"]) and not run_flags["guard"],
+        allow_guard_prompt=bool(run_flags["guard"]),
     )
 
     rows_by_id = {r["id"]: r for r in load_request_rows()}
