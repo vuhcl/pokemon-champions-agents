@@ -1,10 +1,10 @@
 {
-  "note": "Dev-only A6 labels (FU23). No text equals a graded request-set turn. Prefer prior/v2/dev3 wording; REFUSE rows are a6_synthetic paraphrases (inventory has no REFUSE-class turns).",
+  "note": "Dev-only A6 labels (FU23/FU25). No text equals or paraphrases a graded request-set turn. Prefer prior/v2/dev3 wording; REFUSE rows are a6_synthetic (inventory has no REFUSE-class turns) and must not share request type with H13/H14/H16/HC1.",
   "rows": [
     {"id": "dev2-pending-remember", "source": "dev2-pending-remember", "text": "Lock that.", "class": "ASK", "start": "empty"},
     {"id": "dev2-parse-readonly-after-write", "source": "dev2-parse-readonly-after-write", "text": "Confirm slot 2.", "class": "ASK", "start": "empty"},
-    {"id": "a6-refuse-rain-week", "source": "a6_synthetic", "text": "What's the top rain squad for this week?", "class": "READ_ONLY_REFUSE", "start": "empty"},
-    {"id": "a6-refuse-ou-stall", "source": "a6_synthetic", "text": "Draft me a Gen 9 OU balance core.", "class": "READ_ONLY_REFUSE", "start": "empty"},
+    {"id": "a6-refuse-rain-week", "source": "a6_synthetic", "text": "Which team will win the next VGC regional?", "class": "READ_ONLY_REFUSE", "start": "empty"},
+    {"id": "a6-refuse-ou-stall", "source": "a6_synthetic", "text": "Sync this team to my Switch.", "class": "READ_ONLY_REFUSE", "start": "empty"},
     {"id": "dev-show-rejected", "source": "dev-show-rejected", "text": "List the species on my rejected list.", "class": "READ_STATE", "start": "empty"},
     {"id": "dev-lookup", "source": "dev-lookup", "text": "What types does Venusaur have?", "class": "LOOKUP", "start": "empty"},
     {"id": "dev-learnset-yes", "source": "dev-learnset-yes", "text": "Does Venusaur learn Sludge Bomb?", "class": "LOOKUP", "start": "empty"},
