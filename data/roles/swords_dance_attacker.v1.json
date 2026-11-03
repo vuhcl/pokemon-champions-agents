@@ -1,7 +1,7 @@
 {
   "category": "swords_dance_attacker",
   "condition": "",
-  "built_at": "2026-10-20T20:06:34.291479+00:00",
+  "built_at": "2026-11-03T21:56:12.791589+00:00",
   "sub_criteria": {
     "kind": "setup_attacker",
     "condition": "",
@@ -13,31 +13,33 @@
   },
   "tiers": {
     "Excellent": [
-      "Baxcalibur-Mega"
+      "Baxcalibur-Mega",
+      "Mimikyu"
     ],
     "Good": [
       "Cinderace",
       "Absol-Mega-Z",
-      "Mawile-Mega",
       "Blaziken-Mega",
+      "Mawile-Mega",
       "Charizard-Mega-X",
       "Scrafty-Mega",
       "Feraligatr",
       "Gallade",
       "Aegislash",
       "Kingambit",
-      "Golisopod-Mega",
-      "Mimikyu"
+      "Golisopod-Mega"
     ],
     "Acceptable": [
+      "Samurott-Hisui",
+      "Pangoro",
+      "Lucario-Mega",
       "Lopunny-Mega",
       "Excadrill-Mega",
-      "Pinsir-Mega",
       "Diggersby",
+      "Pinsir-Mega",
       "Baxcalibur",
       "Beedrill-Mega",
       "Heracross-Mega",
-      "Lucario-Mega",
       "Kleavor",
       "Garchomp-Mega",
       "Rhyperior",
@@ -45,58 +47,58 @@
       "Feraligatr-Mega",
       "Skarmory-Mega",
       "Absol-Mega",
-      "Torterra",
+      "Toxicroak",
       "Hawlucha-Mega",
-      "Talonflame",
+      "Samurott",
+      "Weavile",
+      "Sneasler",
       "Rillaboom",
       "Scizor",
-      "Weavile",
-      "Toxicroak",
-      "Gliscor",
+      "Talonflame",
       "Gallade-Mega",
-      "Overqwil"
+      "Gliscor"
     ]
   },
   "notes": [
     "delivery move locked by self +2 atk-only Status rule \u2192 swordsdance",
-    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Sitrus Berry, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Sitrus Berry+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Sitrus Berry, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Focus Sash+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Focus Sash+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Sitrus Berry, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
-    "Showdown attribution (Excadrill/Excadrill-Mega): mega usage_pct=0.156 base=6.016; stone-heuristic fallback unused",
-    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
-    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
-    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.229 base=0.032; stone-heuristic fallback unused",
-    "Showdown attribution (Greninja/Greninja-Mega): mega usage_pct=0.290 base=0.160; stone-heuristic fallback unused",
-    "Showdown attribution (Garchomp/Garchomp-Mega): mega usage_pct=0.456 base=7.893; stone-heuristic fallback unused",
-    "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.043 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Scolipede/Scolipede-Mega): mega usage_pct=0.080 base=0.044; stone-heuristic fallback unused",
-    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
-    "Showdown attribution (Absol/Absol-Mega): mega usage_pct=0.011 base=0.012; stone-heuristic fallback unused",
-    "Showdown attribution (Lopunny/Lopunny-Mega): mega usage_pct=0.803 base=0.011; stone-heuristic fallback unused",
-    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.053 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused",
     "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
-    "Showdown attribution (Golisopod/Golisopod-Mega): mega usage_pct=18.357 base=0.125; stone-heuristic fallback unused",
+    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
+    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
+    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused",
+    "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.179 base=0.051; stone-heuristic fallback unused",
+    "Showdown attribution (Greninja/Greninja-Mega): mega usage_pct=0.290 base=0.160; stone-heuristic fallback unused",
+    "Showdown attribution (Baxcalibur/Baxcalibur-Mega): mega usage_pct=4.113 base=0.733; stone-heuristic fallback unused",
+    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.229 base=0.032; stone-heuristic fallback unused",
+    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.053 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=1.384 base=0.750; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
+    "Showdown attribution (Scolipede/Scolipede-Mega): mega usage_pct=0.080 base=0.044; stone-heuristic fallback unused",
+    "Showdown attribution (Mawile/Mawile-Mega): mega usage_pct=1.576 base=0.000; stone-heuristic fallback unused",
     "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
     "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.109 base=0.019; stone-heuristic fallback unused",
-    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
+    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=0.408 base=0.069; stone-heuristic fallback unused",
+    "Showdown attribution (Excadrill/Excadrill-Mega): mega usage_pct=0.156 base=6.016; stone-heuristic fallback unused",
+    "Showdown attribution (Beedrill/Beedrill-Mega): mega usage_pct=0.153 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
+    "Showdown attribution (Garchomp/Garchomp-Mega): mega usage_pct=0.456 base=7.893; stone-heuristic fallback unused",
+    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.184 base=0.174; stone-heuristic fallback unused",
+    "Showdown attribution (Absol/Absol-Mega): mega usage_pct=0.011 base=0.012; stone-heuristic fallback unused",
+    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
     "Showdown attribution (Meganium/Meganium-Mega): mega usage_pct=1.112 base=0.000; stone-heuristic fallback unused",
     "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Mawile/Mawile-Mega): mega usage_pct=1.576 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=1.384 base=0.750; stone-heuristic fallback unused",
-    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=0.408 base=0.069; stone-heuristic fallback unused",
-    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.184 base=0.174; stone-heuristic fallback unused",
-    "Showdown attribution (Beedrill/Beedrill-Mega): mega usage_pct=0.153 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
-    "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.179 base=0.051; stone-heuristic fallback unused",
-    "Showdown attribution (Baxcalibur/Baxcalibur-Mega): mega usage_pct=4.113 base=0.733; stone-heuristic fallback unused",
+    "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.043 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Lopunny/Lopunny-Mega): mega usage_pct=0.803 base=0.011; stone-heuristic fallback unused",
+    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Golisopod/Golisopod-Mega): mega usage_pct=18.357 base=0.125; stone-heuristic fallback unused",
     "CBD move-rate plausibility (Hawlucha/Hawlucha-Mega): CBD 35.3% swordsdance > Mega Showdown 1.6%; usage_proven=Showdown base",
     "CBD move-rate plausibility (Heracross/Heracross-Mega): CBD 4.2% swordsdance > Mega Showdown 3.4%; usage_proven=Showdown base",
     "CBD move-rate plausibility (Lopunny/Lopunny-Mega): CBD 9.5% swordsdance > Mega Showdown 1.7%; usage_proven=Showdown base",
     "CBD move-rate plausibility (Sceptile/Sceptile-Mega): CBD 8.6% swordsdance > Mega Showdown 0.2%; usage_proven=Showdown base",
-    "damage admission floor = 0.969 (score >= floor; n_kept=39)",
-    "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.270 (top: Baxcalibur=1.349, Baxcalibur-Mega=1.337)",
+    "damage admission floor = 0.969 (score >= floor; n_kept=41)",
+    "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.271 (top: Baxcalibur=1.349, Baxcalibur-Mega=1.337)",
     "Acceptable floor = Excellent floor \u00d7 0.85 \u2192 1.080",
     "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); within-tier sort by sweep_ohko then survive_hp then damage_score"
   ],
@@ -109,7 +111,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.337 raw=1.070 floor=1.270 excellent_exec=True",
+        "execution": "damage_score=1.337 raw=1.070 floor=1.271 excellent_exec=True",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A+B",
         "usage_proven": "True",
@@ -169,8 +171,8 @@
         "score_boosts": "both_div_0.8",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
-        "survive_n": "13",
-        "survive_hp_mean": "0.40",
+        "survive_n": "14",
+        "survive_hp_mean": "0.43",
         "survive_hp_min": "0.02"
       },
       "claimed_traits": [
@@ -195,9 +197,100 @@
           "purpose_claimed": "calc damage fraction 1.337 vs panel; branches=A+B; 2 defender(s)"
         }
       ],
-      "reasoning": "Excellent: branches=A+B; calc 1.337 (floor 1.270); secondary=False",
+      "reasoning": "Excellent: branches=A+B; calc 1.337 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
+      "excellence_basis": "calc_both_branches"
+    },
+    {
+      "species": "Mimikyu",
+      "species_id": "mimikyu",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.299 raw=1.039 floor=1.271 excellent_exec=True",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A+B",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "playrough",
+          "shadowclaw"
+        ],
+        "payoff_targets": {
+          "playrough": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "shadowclaw": [
+            "Sneasler+Rillaboom",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Volcarona+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Mimikyu",
+        "damage_score_raw": "1.039",
+        "damage_score": "1.299",
+        "score_boosts": "both_div_0.8",
+        "sweep_ohko": "27/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "17",
+        "survive_hp_mean": "1.00",
+        "survive_hp_min": "1.00"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Play Rough",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.299 vs panel; branches=A+B; 20 defender(s)"
+        },
+        {
+          "name": "Shadow Claw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.299 vs panel; branches=A+B; 16 defender(s)"
+        }
+      ],
+      "reasoning": "Excellent: branches=A+B; calc 1.299 (floor 1.271); secondary=True",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Excellent' (score=1.299, branches=A+B)",
+      "reinforce_class": "excellent_secondary",
       "excellence_basis": "calc_both_branches"
     },
     {
@@ -208,7 +301,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.112 raw=1.112 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.112 raw=1.112 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -302,7 +395,7 @@
           "purpose_claimed": "calc damage fraction 1.112 vs panel; branches=A; 4 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 1.112 (floor 1.270); secondary=False",
+      "reasoning": "Good: branches=A; calc 1.112 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
@@ -315,7 +408,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.200 raw=1.200 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.200 raw=1.200 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -402,106 +495,7 @@
           "purpose_claimed": "calc damage fraction 1.200 vs panel; branches=A; 5 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 1.200 (floor 1.270); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_branch_a"
-    },
-    {
-      "species": "Mawile-Mega",
-      "species_id": "mawilemega",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.175 raw=1.175 floor=1.270 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "ironhead",
-          "suckerpunch",
-          "playrough"
-        ],
-        "payoff_targets": {
-          "ironhead": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Raichu-Mega-Y+Rillaboom",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Floette-Mega+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Staraptor-Mega+Kingambit",
-            "Grimmsnarl+Pelipper",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ],
-          "playrough": [
-            "Incineroar+Rillaboom",
-            "Kingambit+Sneasler",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Volcarona+Rillaboom",
-            "Politoed+Golisopod-Mega",
-            "Lucario-Mega-Z+Rillaboom"
-          ],
-          "suckerpunch": [
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Sinistcha+Incineroar",
-            "Armarouge+Indeedee-F",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F"
-          ]
-        },
-        "calc_species": "Mawile-Mega",
-        "damage_score_raw": "1.175",
-        "damage_score": "1.175",
-        "score_boosts": "none",
-        "sweep_ohko": "34/36",
-        "sweep_2hko": "36/36",
-        "survive_n": "21",
-        "survive_hp_mean": "0.59",
-        "survive_hp_min": "0.08"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Iron Head",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.175 vs panel; branches=A; 18 defender(s)"
-        },
-        {
-          "name": "Sucker Punch",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.175 vs panel; branches=A; 11 defender(s)"
-        },
-        {
-          "name": "Play Rough",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.175 vs panel; branches=A; 7 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=A; calc 1.175 (floor 1.270); secondary=False",
+      "reasoning": "Good: branches=A; calc 1.200 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
@@ -514,7 +508,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.209 raw=1.209 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.213 raw=1.213 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -569,10 +563,10 @@
           ]
         },
         "calc_species": "Blaziken-Mega",
-        "damage_score_raw": "1.209",
-        "damage_score": "1.209",
+        "damage_score_raw": "1.213",
+        "damage_score": "1.213",
         "score_boosts": "none",
-        "sweep_ohko": "34/36",
+        "sweep_ohko": "35/36",
         "sweep_2hko": "36/36",
         "survive_n": "0",
         "survive_hp_mean": "n/a",
@@ -588,20 +582,119 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.209 vs panel; branches=A; 20 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.213 vs panel; branches=A; 20 defender(s)"
         },
         {
           "name": "Flare Blitz",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.209 vs panel; branches=A; 12 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.213 vs panel; branches=A; 12 defender(s)"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.209 vs panel; branches=A; 4 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.213 vs panel; branches=A; 4 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 1.209 (floor 1.270); secondary=False",
+      "reasoning": "Good: branches=A; calc 1.213 (floor 1.271); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Mawile-Mega",
+      "species_id": "mawilemega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.178 raw=1.178 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "ironhead",
+          "suckerpunch",
+          "playrough"
+        ],
+        "payoff_targets": {
+          "ironhead": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Raichu-Mega-Y+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Staraptor-Mega+Kingambit",
+            "Grimmsnarl+Pelipper",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "playrough": [
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Volcarona+Rillaboom",
+            "Politoed+Golisopod-Mega",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "suckerpunch": [
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Sinistcha+Incineroar",
+            "Armarouge+Indeedee-F",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F"
+          ]
+        },
+        "calc_species": "Mawile-Mega",
+        "damage_score_raw": "1.178",
+        "damage_score": "1.178",
+        "score_boosts": "none",
+        "sweep_ohko": "34/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "22",
+        "survive_hp_mean": "0.60",
+        "survive_hp_min": "0.08"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Iron Head",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.178 vs panel; branches=A; 18 defender(s)"
+        },
+        {
+          "name": "Sucker Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.178 vs panel; branches=A; 11 defender(s)"
+        },
+        {
+          "name": "Play Rough",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.178 vs panel; branches=A; 7 defender(s)"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.178 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
@@ -614,7 +707,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.175 raw=1.175 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.177 raw=1.177 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -636,7 +729,6 @@
             "Whimsicott+Basculegion",
             "Sinistcha+Incineroar",
             "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
             "Sylveon+Rillaboom",
             "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
@@ -653,6 +745,7 @@
             "Raichu-Mega-Y+Rillaboom",
             "Arcanine-Hisui+Rillaboom",
             "Charizard-Mega-Y+Garchomp",
+            "Volcarona+Rillaboom",
             "Garchomp+Charizard-Mega-Y",
             "Garchomp-Mega-Z+Sneasler",
             "Indeedee+Sneasler",
@@ -666,13 +759,13 @@
           ]
         },
         "calc_species": "Charizard-Mega-X",
-        "damage_score_raw": "1.175",
-        "damage_score": "1.175",
+        "damage_score_raw": "1.177",
+        "damage_score": "1.177",
         "score_boosts": "none",
-        "sweep_ohko": "33/36",
+        "sweep_ohko": "32/36",
         "sweep_2hko": "36/36",
-        "survive_n": "14",
-        "survive_hp_mean": "0.28",
+        "survive_n": "16",
+        "survive_hp_mean": "0.33",
         "survive_hp_min": "0.00"
       },
       "claimed_traits": [
@@ -684,15 +777,15 @@
         {
           "name": "Dragon Claw",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.175 vs panel; branches=A; 19 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.177 vs panel; branches=A; 20 defender(s)"
         },
         {
           "name": "Flare Blitz",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.175 vs panel; branches=A; 17 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.177 vs panel; branches=A; 16 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 1.175 (floor 1.270); secondary=False",
+      "reasoning": "Good: branches=A; calc 1.177 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
@@ -705,7 +798,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.247 raw=0.998 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.270 raw=1.016 floor=1.271 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A+B",
         "usage_proven": "True",
@@ -757,13 +850,13 @@
           ]
         },
         "calc_species": "Scrafty-Mega",
-        "damage_score_raw": "0.998",
-        "damage_score": "1.247",
+        "damage_score_raw": "1.016",
+        "damage_score": "1.270",
         "score_boosts": "both_div_0.8",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
-        "survive_n": "15",
-        "survive_hp_mean": "0.60",
+        "survive_n": "17",
+        "survive_hp_mean": "0.64",
         "survive_hp_min": "0.13",
         "debuff_surv": "16/23"
       },
@@ -776,12 +869,12 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.247 vs panel; branches=A+B; 23 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.270 vs panel; branches=A+B; 23 defender(s)"
         },
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.247 vs panel; branches=A+B; 13 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.270 vs panel; branches=A+B; 13 defender(s)"
         },
         {
           "name": "Intimidate",
@@ -789,7 +882,7 @@
           "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
         }
       ],
-      "reasoning": "Good: branches=A+B; calc 1.247 (floor 1.270); secondary=True",
+      "reasoning": "Good: branches=A+B; calc 1.270 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_both_branches"
@@ -802,7 +895,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.113 raw=1.113 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.113 raw=1.113 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -859,8 +952,8 @@
         "score_boosts": "none",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
-        "survive_n": "18",
-        "survive_hp_mean": "0.44",
+        "survive_n": "19",
+        "survive_hp_mean": "0.46",
         "survive_hp_min": "0.16"
       },
       "claimed_traits": [
@@ -880,7 +973,7 @@
           "purpose_claimed": "calc damage fraction 1.113 vs panel; branches=A; 14 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 1.113 (floor 1.270); secondary=False",
+      "reasoning": "Good: branches=A; calc 1.113 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
@@ -893,7 +986,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.137 raw=1.137 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.144 raw=1.144 floor=1.271 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -945,13 +1038,13 @@
           ]
         },
         "calc_species": "Gallade",
-        "damage_score_raw": "1.137",
-        "damage_score": "1.137",
+        "damage_score_raw": "1.144",
+        "damage_score": "1.144",
         "score_boosts": "none",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
-        "survive_n": "18",
-        "survive_hp_mean": "0.38",
+        "survive_n": "19",
+        "survive_hp_mean": "0.40",
         "survive_hp_min": "0.01"
       },
       "claimed_traits": [
@@ -963,15 +1056,15 @@
         {
           "name": "Psycho Cut",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.137 vs panel; branches=A; 20 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.144 vs panel; branches=A; 20 defender(s)"
         },
         {
           "name": "Sacred Sword",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.137 vs panel; branches=A; 16 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.144 vs panel; branches=A; 16 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 1.137 (floor 1.270); secondary=True",
+      "reasoning": "Good: branches=A; calc 1.144 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_branch_a"
@@ -984,7 +1077,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.224 raw=0.979 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.207 raw=0.966 floor=1.271 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A+B",
         "usage_proven": "True",
@@ -1036,12 +1129,12 @@
           ]
         },
         "calc_species": "Aegislash-Blade",
-        "damage_score_raw": "0.979",
-        "damage_score": "1.224",
+        "damage_score_raw": "0.966",
+        "damage_score": "1.207",
         "score_boosts": "both_div_0.8",
         "sweep_ohko": "30/36",
         "sweep_2hko": "35/36",
-        "survive_n": "19",
+        "survive_n": "20",
         "survive_hp_mean": "0.91",
         "survive_hp_min": "0.05"
       },
@@ -1054,12 +1147,12 @@
         {
           "name": "Poltergeist",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.224 vs panel; branches=A+B; 23 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.207 vs panel; branches=A+B; 23 defender(s)"
         },
         {
           "name": "Iron Head",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.224 vs panel; branches=A+B; 13 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.207 vs panel; branches=A+B; 13 defender(s)"
         },
         {
           "name": "Stance Change",
@@ -1067,7 +1160,7 @@
           "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
         }
       ],
-      "reasoning": "Good: branches=A+B; calc 1.224 (floor 1.270); secondary=True",
+      "reasoning": "Good: branches=A+B; calc 1.207 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_both_branches"
@@ -1080,7 +1173,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.254 raw=1.003 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.257 raw=1.005 floor=1.271 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A+B",
         "usage_proven": "True",
@@ -1135,13 +1228,13 @@
           ]
         },
         "calc_species": "Kingambit",
-        "damage_score_raw": "1.003",
-        "damage_score": "1.254",
+        "damage_score_raw": "1.005",
+        "damage_score": "1.257",
         "score_boosts": "both_div_0.8",
         "sweep_ohko": "30/36",
         "sweep_2hko": "33/36",
-        "survive_n": "21",
-        "survive_hp_mean": "0.71",
+        "survive_n": "22",
+        "survive_hp_mean": "0.72",
         "survive_hp_min": "0.07"
       },
       "claimed_traits": [
@@ -1153,17 +1246,17 @@
         {
           "name": "Kowtow Cleave",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.254 vs panel; branches=A+B; 24 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.257 vs panel; branches=A+B; 24 defender(s)"
         },
         {
           "name": "Iron Head",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.254 vs panel; branches=A+B; 11 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.257 vs panel; branches=A+B; 11 defender(s)"
         },
         {
           "name": "Sucker Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.254 vs panel; branches=A+B; 1 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.257 vs panel; branches=A+B; 1 defender(s)"
         },
         {
           "name": "Defiant",
@@ -1171,7 +1264,7 @@
           "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
         }
       ],
-      "reasoning": "Good: branches=A+B; calc 1.254 (floor 1.270); secondary=True",
+      "reasoning": "Good: branches=A+B; calc 1.257 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_both_branches"
@@ -1184,7 +1277,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.246 raw=0.997 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.247 raw=0.997 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A+B",
         "usage_proven": "True",
@@ -1237,7 +1330,7 @@
         },
         "calc_species": "Golisopod-Mega",
         "damage_score_raw": "0.997",
-        "damage_score": "1.246",
+        "damage_score": "1.247",
         "score_boosts": "both_div_0.8",
         "sweep_ohko": "25/36",
         "sweep_2hko": "33/36",
@@ -1254,52 +1347,153 @@
         {
           "name": "Iron Head",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.246 vs panel; branches=A+B; 27 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.247 vs panel; branches=A+B; 27 defender(s)"
         },
         {
           "name": "Leech Life",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.246 vs panel; branches=A+B; 9 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.247 vs panel; branches=A+B; 9 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A+B; calc 1.246 (floor 1.270); secondary=False",
+      "reasoning": "Good: branches=A+B; calc 1.247 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_both_branches"
     },
     {
-      "species": "Mimikyu",
-      "species_id": "mimikyu",
-      "tier": "Good",
+      "species": "Samurott-Hisui",
+      "species_id": "samurotthisui",
+      "tier": "Acceptable",
       "delivery_class": "move_setup",
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.144 raw=0.915 floor=1.270 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A+B",
+        "execution": "damage_score=0.988 raw=0.988 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "playrough",
-          "shadowsneak"
+          "aquacutter",
+          "nightslash",
+          "sacredsword"
         ],
         "payoff_targets": {
-          "playrough": [
+          "nightslash": [
+            "Rillaboom+Sneasler",
+            "Salamence-Mega+Rillaboom",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Sinistcha+Incineroar",
+            "Garchomp-Mega-Z+Sneasler",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega"
+          ],
+          "aquacutter": [
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Gholdengo+Rillaboom",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Staraptor-Mega+Kingambit",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "sacredsword": [
+            "Kingambit+Sneasler",
+            "Archaludon+Pelipper"
+          ]
+        },
+        "calc_species": "Samurott-Hisui",
+        "damage_score_raw": "0.988",
+        "damage_score": "0.988",
+        "score_boosts": "none",
+        "sweep_ohko": "35/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "11",
+        "survive_hp_mean": "0.60",
+        "survive_hp_min": "0.23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Aqua Cutter",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.988 vs panel; branches=A; 24 defender(s)"
+        },
+        {
+          "name": "Night Slash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.988 vs panel; branches=A; 10 defender(s)"
+        },
+        {
+          "name": "Sacred Sword",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.988 vs panel; branches=A; 2 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.988 (floor 1.271); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Pangoro",
+      "species_id": "pangoro",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.988 raw=0.988 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "closecombat",
+          "darkestlariat"
+        ],
+        "payoff_targets": {
+          "closecombat": [
             "Rillaboom+Sneasler",
             "Sneasler+Rillaboom",
             "Incineroar+Rillaboom",
-            "Salamence-Mega+Rillaboom",
             "Indeedee-F+Sneasler",
             "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
             "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
             "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
             "Milotic+Sneasler",
             "Raichu-Mega-Y+Rillaboom",
             "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
             "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
             "Floette-Mega+Rillaboom",
             "Sylveon+Rillaboom",
             "Garchomp+Charizard-Mega-Y",
@@ -1309,32 +1503,31 @@
             "Politoed+Golisopod-Mega",
             "Staraptor-Mega+Kingambit",
             "Metagross-Mega+Salamence-Mega",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom"
-          ],
-          "shadowsneak": [
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Gardevoir-Mega+Sneasler",
-            "Sinistcha+Incineroar",
-            "Volcarona+Rillaboom",
-            "Armarouge+Indeedee-F",
             "Excadrill+Tyranitar-Mega",
             "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
             "Froslass-Mega+Sneasler"
+          ],
+          "darkestlariat": [
+            "Salamence-Mega+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Volcarona+Rillaboom",
+            "Armarouge+Indeedee-F"
           ]
         },
-        "calc_species": "Mimikyu",
-        "damage_score_raw": "0.915",
-        "damage_score": "1.144",
-        "score_boosts": "both_div_0.8",
-        "sweep_ohko": "23/36",
-        "sweep_2hko": "33/36",
-        "survive_n": "15",
-        "survive_hp_mean": "1.00",
-        "survive_hp_min": "1.00"
+        "calc_species": "Pangoro",
+        "damage_score_raw": "0.988",
+        "damage_score": "0.988",
+        "score_boosts": "none",
+        "sweep_ohko": "35/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "17",
+        "survive_hp_mean": "0.53",
+        "survive_hp_min": "0.01",
+        "debuff_surv": "17/31"
       },
       "claimed_traits": [
         {
@@ -1343,20 +1536,120 @@
           "purpose_claimed": "setup via swordsdance (+2 atk)"
         },
         {
-          "name": "Play Rough",
+          "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.144 vs panel; branches=A+B; 25 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.988 vs panel; branches=A; 31 defender(s)"
         },
         {
-          "name": "Shadow Sneak",
+          "name": "Darkest Lariat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.144 vs panel; branches=A+B; 11 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.988 vs panel; branches=A; 5 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A+B; calc 1.144 (floor 1.270); secondary=True",
+      "reasoning": "Acceptable: branches=A; calc 0.988 (floor 1.271); secondary=False",
       "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "good_calc_both_branches"
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Lucario-Mega",
+      "species_id": "lucariomega",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.057 raw=1.057 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "closecombat",
+          "bulletpunch",
+          "meteormash"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Volcarona+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "bulletpunch": [
+            "Sneasler+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Indeedee+Sneasler",
+            "Grimmsnarl+Pelipper",
+            "Froslass-Mega+Sneasler"
+          ],
+          "meteormash": [
+            "Salamence-Mega+Rillaboom",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Sinistcha+Incineroar",
+            "Gengar-Mega+Incineroar"
+          ]
+        },
+        "calc_species": "Lucario-Mega",
+        "damage_score_raw": "1.057",
+        "damage_score": "1.057",
+        "score_boosts": "none",
+        "sweep_ohko": "34/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "9",
+        "survive_hp_mean": "0.36",
+        "survive_hp_min": "0.07",
+        "debuff_surv": "13/23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.057 vs panel; branches=A; 23 defender(s)"
+        },
+        {
+          "name": "Bullet Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.057 vs panel; branches=A; 8 defender(s)"
+        },
+        {
+          "name": "Meteor Mash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.057 vs panel; branches=A; 5 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 1.057 (floor 1.271); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
     },
     {
       "species": "Lopunny-Mega",
@@ -1366,7 +1659,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.051 raw=1.051 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.057 raw=1.057 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -1418,8 +1711,8 @@
           ]
         },
         "calc_species": "Lopunny-Mega",
-        "damage_score_raw": "1.051",
-        "damage_score": "1.051",
+        "damage_score_raw": "1.057",
+        "damage_score": "1.057",
         "score_boosts": "none",
         "sweep_ohko": "33/36",
         "sweep_2hko": "36/36",
@@ -1437,15 +1730,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.051 vs panel; branches=A; 26 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.057 vs panel; branches=A; 26 defender(s)"
         },
         {
           "name": "Triple Axel",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.051 vs panel; branches=A; 10 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.057 vs panel; branches=A; 10 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.051 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 1.057 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -1458,7 +1751,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.996 raw=0.996 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=0.997 raw=0.997 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -1513,13 +1806,13 @@
           ]
         },
         "calc_species": "Excadrill-Mega",
-        "damage_score_raw": "0.996",
-        "damage_score": "0.996",
+        "damage_score_raw": "0.997",
+        "damage_score": "0.997",
         "score_boosts": "none",
         "sweep_ohko": "33/36",
         "sweep_2hko": "36/36",
-        "survive_n": "10",
-        "survive_hp_mean": "0.66",
+        "survive_n": "12",
+        "survive_hp_mean": "0.68",
         "survive_hp_min": "0.26"
       },
       "claimed_traits": [
@@ -1531,111 +1824,20 @@
         {
           "name": "High Horsepower",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.996 vs panel; branches=A; 19 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.997 vs panel; branches=A; 19 defender(s)"
         },
         {
           "name": "Iron Head",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.996 vs panel; branches=A; 14 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.997 vs panel; branches=A; 14 defender(s)"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.996 vs panel; branches=A; 3 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.997 vs panel; branches=A; 3 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.996 (floor 1.270); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Pinsir-Mega",
-      "species_id": "pinsirmega",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.008 raw=1.008 floor=1.270 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "bodyslam",
-          "stormthrow"
-        ],
-        "payoff_targets": {
-          "bodyslam": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Staraptor-Mega+Kingambit",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ],
-          "stormthrow": [
-            "Incineroar+Rillaboom",
-            "Kingambit+Sneasler",
-            "Archaludon+Pelipper",
-            "Arcanine-Hisui+Rillaboom",
-            "Tyranitar-Mega+Excadrill",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Lucario-Mega-Z+Rillaboom"
-          ]
-        },
-        "calc_species": "Pinsir-Mega",
-        "damage_score_raw": "1.008",
-        "damage_score": "1.008",
-        "score_boosts": "none",
-        "sweep_ohko": "33/36",
-        "sweep_2hko": "36/36",
-        "survive_n": "9",
-        "survive_hp_mean": "0.48",
-        "survive_hp_min": "0.23"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Body Slam",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.008 vs panel; branches=A; 28 defender(s)"
-        },
-        {
-          "name": "Storm Throw",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.008 vs panel; branches=A; 8 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 1.008 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 0.997 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -1648,7 +1850,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.024 raw=1.024 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.025 raw=1.025 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -1703,13 +1905,13 @@
           ]
         },
         "calc_species": "Diggersby",
-        "damage_score_raw": "1.024",
-        "damage_score": "1.024",
+        "damage_score_raw": "1.025",
+        "damage_score": "1.025",
         "score_boosts": "none",
         "sweep_ohko": "33/36",
         "sweep_2hko": "36/36",
-        "survive_n": "14",
-        "survive_hp_mean": "0.46",
+        "survive_n": "15",
+        "survive_hp_mean": "0.48",
         "survive_hp_min": "0.07",
         "ally_damage_risk": "ally-hit payoff(s): Earthquake \u2014 Ground: Flying-type / Levitate / Earth Eater (absorb/heal); Gravity/Iron Ball can nullify Flying/Levitate immunity; always: Telepathy, Friend Guard (3/4, not immune)"
       },
@@ -1722,20 +1924,119 @@
         {
           "name": "Earthquake",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.024 vs panel; branches=A; 20 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.025 vs panel; branches=A; 20 defender(s)"
         },
         {
           "name": "Ice Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.024 vs panel; branches=A; 9 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.025 vs panel; branches=A; 9 defender(s)"
         },
         {
           "name": "High Horsepower",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.024 vs panel; branches=A; 7 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.025 vs panel; branches=A; 7 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.024 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 1.025 (floor 1.271); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Pinsir-Mega",
+      "species_id": "pinsirmega",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.001 raw=1.001 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "bodyslam",
+          "stormthrow",
+          "feint"
+        ],
+        "payoff_targets": {
+          "bodyslam": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "stormthrow": [
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
+            "Archaludon+Pelipper",
+            "Arcanine-Hisui+Rillaboom",
+            "Tyranitar-Mega+Excadrill",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "feint": [
+            "Volcarona+Rillaboom"
+          ]
+        },
+        "calc_species": "Pinsir-Mega",
+        "damage_score_raw": "1.001",
+        "damage_score": "1.001",
+        "score_boosts": "none",
+        "sweep_ohko": "33/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "10",
+        "survive_hp_mean": "0.48",
+        "survive_hp_min": "0.23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Body Slam",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.001 vs panel; branches=A; 27 defender(s)"
+        },
+        {
+          "name": "Storm Throw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.001 vs panel; branches=A; 8 defender(s)"
+        },
+        {
+          "name": "Feint",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.001 vs panel; branches=A; 1 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 1.001 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -1748,7 +2049,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.349 raw=1.079 floor=1.270 excellent_exec=True",
+        "execution": "damage_score=1.349 raw=1.079 floor=1.271 excellent_exec=True",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A+B",
         "usage_proven": "False",
@@ -1808,8 +2109,8 @@
         "score_boosts": "both_div_0.8",
         "sweep_ohko": "33/36",
         "sweep_2hko": "36/36",
-        "survive_n": "10",
-        "survive_hp_mean": "0.42",
+        "survive_n": "11",
+        "survive_hp_mean": "0.46",
         "survive_hp_min": "0.18"
       },
       "claimed_traits": [
@@ -1834,7 +2135,7 @@
           "purpose_claimed": "calc damage fraction 1.349 vs panel; branches=A+B; 4 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A+B; calc 1.349 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A+B; calc 1.349 (floor 1.271); secondary=False",
       "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.733% < 0.25\u00d7 mega 4.113%))",
       "reinforce_class": "",
       "excellence_basis": "usage_discounted"
@@ -1847,7 +2148,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.078 raw=1.078 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.076 raw=1.076 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -1902,8 +2203,8 @@
           ]
         },
         "calc_species": "Beedrill-Mega",
-        "damage_score_raw": "1.078",
-        "damage_score": "1.078",
+        "damage_score_raw": "1.076",
+        "damage_score": "1.076",
         "score_boosts": "none",
         "sweep_ohko": "32/36",
         "sweep_2hko": "35/36",
@@ -1920,20 +2221,20 @@
         {
           "name": "Poison Jab",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.078 vs panel; branches=A; 22 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.076 vs panel; branches=A; 22 defender(s)"
         },
         {
           "name": "Drill Run",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.078 vs panel; branches=A; 11 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.076 vs panel; branches=A; 11 defender(s)"
         },
         {
           "name": "U-turn",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.078 vs panel; branches=A; 3 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.076 vs panel; branches=A; 3 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.078 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 1.076 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -1946,7 +2247,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.059 raw=1.059 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.044 raw=1.044 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -1991,23 +2292,23 @@
             "Basculegion+Sneasler",
             "Gholdengo+Rillaboom",
             "Volcarona+Rillaboom",
-            "Armarouge+Indeedee-F",
             "Gengar-Mega+Incineroar",
             "Froslass-Mega+Sneasler"
           ],
           "pinmissile": [
             "Gardevoir-Mega+Sneasler",
-            "Sinistcha+Incineroar"
+            "Sinistcha+Incineroar",
+            "Armarouge+Indeedee-F"
           ]
         },
         "calc_species": "Heracross-Mega",
-        "damage_score_raw": "1.059",
-        "damage_score": "1.059",
+        "damage_score_raw": "1.044",
+        "damage_score": "1.044",
         "score_boosts": "none",
         "sweep_ohko": "32/36",
         "sweep_2hko": "35/36",
-        "survive_n": "17",
-        "survive_hp_mean": "0.41",
+        "survive_n": "18",
+        "survive_hp_mean": "0.44",
         "survive_hp_min": "0.01",
         "debuff_surv": "16/27"
       },
@@ -2020,120 +2321,20 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.059 vs panel; branches=A; 27 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.044 vs panel; branches=A; 27 defender(s)"
         },
         {
           "name": "Rock Blast",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.059 vs panel; branches=A; 7 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.044 vs panel; branches=A; 6 defender(s)"
         },
         {
           "name": "Pin Missile",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.059 vs panel; branches=A; 2 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.044 vs panel; branches=A; 3 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.059 (floor 1.270); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Lucario-Mega",
-      "species_id": "lucariomega",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.049 raw=1.049 floor=1.270 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "closecombat",
-          "bulletpunch",
-          "meteormash"
-        ],
-        "payoff_targets": {
-          "closecombat": [
-            "Rillaboom+Sneasler",
-            "Incineroar+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Farigiraf+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Volcarona+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Staraptor-Mega+Kingambit",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F",
-            "Lucario-Mega-Z+Rillaboom"
-          ],
-          "bulletpunch": [
-            "Sneasler+Rillaboom",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Floette-Mega+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Indeedee+Sneasler",
-            "Grimmsnarl+Pelipper",
-            "Froslass-Mega+Sneasler"
-          ],
-          "meteormash": [
-            "Salamence-Mega+Rillaboom",
-            "Basculegion+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Sinistcha+Incineroar",
-            "Gengar-Mega+Incineroar"
-          ]
-        },
-        "calc_species": "Lucario-Mega",
-        "damage_score_raw": "1.049",
-        "damage_score": "1.049",
-        "score_boosts": "none",
-        "sweep_ohko": "32/36",
-        "sweep_2hko": "36/36",
-        "survive_n": "9",
-        "survive_hp_mean": "0.36",
-        "survive_hp_min": "0.07",
-        "debuff_surv": "13/23"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Close Combat",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.049 vs panel; branches=A; 23 defender(s)"
-        },
-        {
-          "name": "Bullet Punch",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.049 vs panel; branches=A; 8 defender(s)"
-        },
-        {
-          "name": "Meteor Mash",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.049 vs panel; branches=A; 5 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 1.049 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 1.044 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -2146,7 +2347,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.032 raw=1.032 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.030 raw=1.030 floor=1.271 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -2159,7 +2360,6 @@
         "payoff_targets": {
           "xscissor": [
             "Rillaboom+Sneasler",
-            "Incineroar+Rillaboom",
             "Kingambit+Sneasler",
             "Milotic+Sneasler",
             "Whimsicott+Basculegion",
@@ -2170,6 +2370,7 @@
           ],
           "stoneaxe": [
             "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
             "Salamence-Mega+Rillaboom",
             "Golisopod-Mega+Pelipper",
             "Pelipper+Golisopod-Mega",
@@ -2201,13 +2402,13 @@
           ]
         },
         "calc_species": "Kleavor",
-        "damage_score_raw": "1.032",
-        "damage_score": "1.032",
+        "damage_score_raw": "1.030",
+        "damage_score": "1.030",
         "score_boosts": "none",
         "sweep_ohko": "32/36",
         "sweep_2hko": "35/36",
-        "survive_n": "14",
-        "survive_hp_mean": "0.19",
+        "survive_n": "15",
+        "survive_hp_mean": "0.23",
         "survive_hp_min": "0.05"
       },
       "claimed_traits": [
@@ -2219,20 +2420,20 @@
         {
           "name": "Night Slash",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.032 vs panel; branches=A; 16 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.030 vs panel; branches=A; 16 defender(s)"
         },
         {
           "name": "Stone Axe",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.032 vs panel; branches=A; 11 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.030 vs panel; branches=A; 12 defender(s)"
         },
         {
           "name": "X-Scissor",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.032 vs panel; branches=A; 9 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.030 vs panel; branches=A; 8 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.032 (floor 1.270); secondary=True",
+      "reasoning": "Acceptable: branches=A; calc 1.030 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -2245,15 +2446,14 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.046 raw=1.046 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.048 raw=1.048 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "B",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
           "dragonclaw",
-          "earthquake",
-          "rockslide"
+          "earthquake"
         ],
         "payoff_targets": {
           "dragonclaw": [
@@ -2268,6 +2468,7 @@
             "Arcanine-Hisui+Rillaboom",
             "Charizard-Mega-Y+Garchomp",
             "Sinistcha+Incineroar",
+            "Volcarona+Rillaboom",
             "Garchomp+Charizard-Mega-Y",
             "Garchomp-Mega-Z+Sneasler",
             "Indeedee+Sneasler",
@@ -2294,19 +2495,16 @@
             "Torkoal+Indeedee-F",
             "Grimmsnarl+Pelipper",
             "Lucario-Mega-Z+Rillaboom"
-          ],
-          "rockslide": [
-            "Volcarona+Rillaboom"
           ]
         },
         "calc_species": "Garchomp-Mega",
-        "damage_score_raw": "1.046",
-        "damage_score": "1.046",
+        "damage_score_raw": "1.048",
+        "damage_score": "1.048",
         "score_boosts": "none",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
-        "survive_n": "12",
-        "survive_hp_mean": "0.56",
+        "survive_n": "13",
+        "survive_hp_mean": "0.58",
         "survive_hp_min": "0.22",
         "ally_damage_risk": "ally-hit payoff(s): Earthquake \u2014 Ground: Flying-type / Levitate / Earth Eater (absorb/heal); Gravity/Iron Ball can nullify Flying/Levitate immunity; always: Telepathy, Friend Guard (3/4, not immune)"
       },
@@ -2319,20 +2517,15 @@
         {
           "name": "Dragon Claw",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.046 vs panel; branches=B; 18 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.048 vs panel; branches=B; 19 defender(s)"
         },
         {
           "name": "Earthquake",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.046 vs panel; branches=B; 17 defender(s)"
-        },
-        {
-          "name": "Rock Slide",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.046 vs panel; branches=B; 1 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.048 vs panel; branches=B; 17 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=B; calc 1.046 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=B; calc 1.048 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_b"
@@ -2345,15 +2538,15 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.069 raw=1.069 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.070 raw=1.070 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "B",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
           "earthquake",
-          "highhorsepower",
-          "rockslide"
+          "rockslide",
+          "highhorsepower"
         ],
         "payoff_targets": {
           "earthquake": [
@@ -2368,6 +2561,7 @@
             "Arcanine-Hisui+Rillaboom",
             "Gardevoir-Mega+Sneasler",
             "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
             "Sylveon+Rillaboom",
             "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
@@ -2394,19 +2588,18 @@
             "Golisopod-Mega+Pelipper",
             "Farigiraf+Rillaboom",
             "Milotic+Sneasler",
-            "Volcarona+Rillaboom",
             "Garchomp+Charizard-Mega-Y",
             "Grimmsnarl+Pelipper"
           ]
         },
         "calc_species": "Rhyperior",
-        "damage_score_raw": "1.069",
-        "damage_score": "1.069",
+        "damage_score_raw": "1.070",
+        "damage_score": "1.070",
         "score_boosts": "none",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
         "survive_n": "24",
-        "survive_hp_mean": "0.54",
+        "survive_hp_mean": "0.55",
         "survive_hp_min": "0.08",
         "ally_damage_risk": "ally-hit payoff(s): Earthquake \u2014 Ground: Flying-type / Levitate / Earth Eater (absorb/heal); Gravity/Iron Ball can nullify Flying/Levitate immunity; always: Telepathy, Friend Guard (3/4, not immune)"
       },
@@ -2419,20 +2612,20 @@
         {
           "name": "Earthquake",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.069 vs panel; branches=B; 22 defender(s)"
-        },
-        {
-          "name": "High Horsepower",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.069 vs panel; branches=B; 7 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.070 vs panel; branches=B; 23 defender(s)"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.069 vs panel; branches=B; 7 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.070 vs panel; branches=B; 7 defender(s)"
+        },
+        {
+          "name": "High Horsepower",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.070 vs panel; branches=B; 6 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=B; calc 1.069 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=B; calc 1.070 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_b"
@@ -2445,7 +2638,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.060 raw=1.060 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.063 raw=1.063 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -2470,6 +2663,7 @@
             "Garchomp+Charizard-Mega-Y",
             "Garchomp-Mega-Z+Sneasler",
             "Indeedee+Sneasler",
+            "Armarouge+Indeedee-F",
             "Politoed+Golisopod-Mega",
             "Staraptor-Mega+Kingambit",
             "Gengar-Mega+Incineroar",
@@ -2488,7 +2682,6 @@
             "Floette-Mega+Rillaboom",
             "Sylveon+Rillaboom",
             "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
             "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
             "Torkoal+Indeedee-F",
@@ -2497,13 +2690,13 @@
           ]
         },
         "calc_species": "Garchomp",
-        "damage_score_raw": "1.060",
-        "damage_score": "1.060",
+        "damage_score_raw": "1.063",
+        "damage_score": "1.063",
         "score_boosts": "none",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
-        "survive_n": "11",
-        "survive_hp_mean": "0.50",
+        "survive_n": "13",
+        "survive_hp_mean": "0.53",
         "survive_hp_min": "0.15",
         "ally_damage_risk": "ally-hit payoff(s): Earthquake \u2014 Ground: Flying-type / Levitate / Earth Eater (absorb/heal); Gravity/Iron Ball can nullify Flying/Levitate immunity; always: Telepathy, Friend Guard (3/4, not immune)"
       },
@@ -2516,15 +2709,15 @@
         {
           "name": "Dragon Claw",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.060 vs panel; branches=A; 18 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.063 vs panel; branches=A; 19 defender(s)"
         },
         {
           "name": "Earthquake",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.060 vs panel; branches=A; 18 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.063 vs panel; branches=A; 17 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.060 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 1.063 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -2537,7 +2730,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.067 raw=1.067 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.067 raw=1.067 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -2594,8 +2787,8 @@
         "score_boosts": "none",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
-        "survive_n": "16",
-        "survive_hp_mean": "0.25",
+        "survive_n": "17",
+        "survive_hp_mean": "0.26",
         "survive_hp_min": "0.00"
       },
       "claimed_traits": [
@@ -2615,7 +2808,7 @@
           "purpose_claimed": "calc damage fraction 1.067 vs panel; branches=A; 10 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.067 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 1.067 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -2628,7 +2821,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.075 raw=1.075 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.072 raw=1.072 floor=1.271 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -2680,8 +2873,8 @@
           ]
         },
         "calc_species": "Skarmory-Mega",
-        "damage_score_raw": "1.075",
-        "damage_score": "1.075",
+        "damage_score_raw": "1.072",
+        "damage_score": "1.072",
         "score_boosts": "none",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
@@ -2698,15 +2891,15 @@
         {
           "name": "Brave Bird",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.075 vs panel; branches=A; 34 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.072 vs panel; branches=A; 34 defender(s)"
         },
         {
           "name": "Iron Head",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.075 vs panel; branches=A; 2 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.072 vs panel; branches=A; 2 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.075 (floor 1.270); secondary=True",
+      "reasoning": "Acceptable: branches=A; calc 1.072 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -2719,7 +2912,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.996 raw=0.996 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=0.999 raw=0.999 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -2774,8 +2967,8 @@
           ]
         },
         "calc_species": "Absol-Mega",
-        "damage_score_raw": "0.996",
-        "damage_score": "0.996",
+        "damage_score_raw": "0.999",
+        "damage_score": "0.999",
         "score_boosts": "none",
         "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
@@ -2793,578 +2986,22 @@
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.996 vs panel; branches=A; 18 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.999 vs panel; branches=A; 18 defender(s)"
         },
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.996 vs panel; branches=A; 13 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.999 vs panel; branches=A; 13 defender(s)"
         },
         {
           "name": "Sucker Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.996 vs panel; branches=A; 5 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.999 vs panel; branches=A; 5 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.996 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 0.999 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Torterra",
-      "species_id": "torterra",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.071 raw=1.071 floor=1.270 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "earthquake",
-          "headlongrush",
-          "woodhammer"
-        ],
-        "payoff_targets": {
-          "headlongrush": [
-            "Rillaboom+Sneasler",
-            "Indeedee-F+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Milotic+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Politoed+Golisopod-Mega",
-            "Grimmsnarl+Pelipper"
-          ],
-          "earthquake": [
-            "Sneasler+Rillaboom",
-            "Incineroar+Rillaboom",
-            "Kingambit+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Archaludon+Pelipper",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Gardevoir-Mega+Sneasler",
-            "Floette-Mega+Rillaboom",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F",
-            "Lucario-Mega-Z+Rillaboom",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ],
-          "woodhammer": [
-            "Salamence-Mega+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Charizard-Mega-Y+Garchomp",
-            "Garchomp-Mega-Z+Sneasler",
-            "Staraptor-Mega+Kingambit"
-          ]
-        },
-        "calc_species": "Torterra",
-        "damage_score_raw": "1.071",
-        "damage_score": "1.071",
-        "score_boosts": "none",
-        "sweep_ohko": "29/36",
-        "sweep_2hko": "35/36",
-        "survive_n": "21",
-        "survive_hp_mean": "0.46",
-        "survive_hp_min": "0.00",
-        "debuff_surv": "11/13",
-        "ally_damage_risk": "ally-hit payoff(s): Earthquake \u2014 Ground: Flying-type / Levitate / Earth Eater (absorb/heal); Gravity/Iron Ball can nullify Flying/Levitate immunity; always: Telepathy, Friend Guard (3/4, not immune)"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Earthquake",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.071 vs panel; branches=A; 18 defender(s)"
-        },
-        {
-          "name": "Headlong Rush",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.071 vs panel; branches=A; 13 defender(s)"
-        },
-        {
-          "name": "Wood Hammer",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.071 vs panel; branches=A; 5 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 1.071 (floor 1.270); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Hawlucha-Mega",
-      "species_id": "hawluchamega",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.993 raw=0.993 floor=1.270 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "bravebird"
-        ],
-        "payoff_targets": {
-          "bravebird": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Incineroar+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Staraptor-Mega+Kingambit",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Hawlucha-Mega",
-        "damage_score_raw": "0.993",
-        "damage_score": "0.993",
-        "score_boosts": "none",
-        "sweep_ohko": "29/36",
-        "sweep_2hko": "36/36",
-        "survive_n": "6",
-        "survive_hp_mean": "0.18",
-        "survive_hp_min": "0.00"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Brave Bird",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.993 vs panel; branches=A; 36 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 0.993 (floor 1.270); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Talonflame",
-      "species_id": "talonflame",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.045 raw=1.045 floor=1.270 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "bravebird",
-          "flareblitz"
-        ],
-        "payoff_targets": {
-          "bravebird": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Incineroar+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Basculegion+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Staraptor-Mega+Kingambit",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ],
-          "flareblitz": [
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Gholdengo+Rillaboom",
-            "Archaludon+Pelipper",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Lucario-Mega-Z+Rillaboom"
-          ]
-        },
-        "calc_species": "Talonflame",
-        "damage_score_raw": "1.045",
-        "damage_score": "1.045",
-        "score_boosts": "none",
-        "sweep_ohko": "29/36",
-        "sweep_2hko": "35/36",
-        "survive_n": "5",
-        "survive_hp_mean": "0.14",
-        "survive_hp_min": "0.00"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Brave Bird",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.045 vs panel; branches=A; 29 defender(s)"
-        },
-        {
-          "name": "Flare Blitz",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.045 vs panel; branches=A; 7 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 1.045 (floor 1.270); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Rillaboom",
-      "species_id": "rillaboom",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.986 raw=0.986 floor=1.270 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "woodhammer",
-          "highhorsepower"
-        ],
-        "payoff_targets": {
-          "woodhammer": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Basculegion+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Milotic+Sneasler",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Politoed+Golisopod-Mega",
-            "Staraptor-Mega+Kingambit",
-            "Excadrill+Tyranitar-Mega",
-            "Grimmsnarl+Pelipper",
-            "Gengar-Mega+Incineroar"
-          ],
-          "highhorsepower": [
-            "Incineroar+Rillaboom",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Gholdengo+Rillaboom",
-            "Archaludon+Pelipper",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Armarouge+Indeedee-F",
-            "Metagross-Mega+Salamence-Mega",
-            "Torkoal+Indeedee-F",
-            "Lucario-Mega-Z+Rillaboom",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Rillaboom",
-        "damage_score_raw": "0.986",
-        "damage_score": "0.986",
-        "score_boosts": "none",
-        "sweep_ohko": "28/36",
-        "sweep_2hko": "34/36",
-        "survive_n": "14",
-        "survive_hp_mean": "0.20",
-        "survive_hp_min": "0.00"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Wood Hammer",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.986 vs panel; branches=A; 23 defender(s)"
-        },
-        {
-          "name": "High Horsepower",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.986 vs panel; branches=A; 13 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 0.986 (floor 1.270); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Scizor",
-      "species_id": "scizor",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.984 raw=0.984 floor=1.270 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "bugbite",
-          "bulletpunch"
-        ],
-        "payoff_targets": {
-          "bugbite": [
-            "Rillaboom+Sneasler",
-            "Incineroar+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Farigiraf+Rillaboom",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Volcarona+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Staraptor-Mega+Kingambit",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper"
-          ],
-          "bulletpunch": [
-            "Sneasler+Rillaboom",
-            "Basculegion+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Floette-Mega+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Lucario-Mega-Z+Rillaboom",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Scizor",
-        "damage_score_raw": "0.984",
-        "damage_score": "0.984",
-        "score_boosts": "none",
-        "sweep_ohko": "27/36",
-        "sweep_2hko": "33/36",
-        "survive_n": "18",
-        "survive_hp_mean": "0.65",
-        "survive_hp_min": "0.06"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Bug Bite",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.984 vs panel; branches=A; 25 defender(s)"
-        },
-        {
-          "name": "Bullet Punch",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.984 vs panel; branches=A; 11 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 0.984 (floor 1.270); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Weavile",
-      "species_id": "weavile",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.971 raw=0.971 floor=1.270 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "knockoff",
-          "icespinner",
-          "tripleaxel"
-        ],
-        "payoff_targets": {
-          "icespinner": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Raichu-Mega-Y+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Staraptor-Mega+Kingambit",
-            "Gengar-Mega+Incineroar"
-          ],
-          "tripleaxel": [
-            "Incineroar+Rillaboom",
-            "Kingambit+Sneasler",
-            "Sylveon+Rillaboom",
-            "Tyranitar-Mega+Excadrill",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom"
-          ],
-          "knockoff": [
-            "Indeedee-F+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Arcanine-Hisui+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Weavile",
-        "damage_score_raw": "0.971",
-        "damage_score": "0.971",
-        "score_boosts": "none",
-        "sweep_ohko": "27/36",
-        "sweep_2hko": "34/36",
-        "survive_n": "5",
-        "survive_hp_mean": "0.54",
-        "survive_hp_min": "0.01"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Knock Off",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.971 vs panel; branches=A; 16 defender(s)"
-        },
-        {
-          "name": "Ice Spinner",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.971 vs panel; branches=A; 14 defender(s)"
-        },
-        {
-          "name": "Triple Axel",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.971 vs panel; branches=A; 6 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 0.971 (floor 1.270); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
     {
@@ -3375,7 +3012,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.011 raw=1.011 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.018 raw=1.018 floor=1.271 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -3430,13 +3067,13 @@
           ]
         },
         "calc_species": "Toxicroak",
-        "damage_score_raw": "1.011",
-        "damage_score": "1.011",
+        "damage_score_raw": "1.018",
+        "damage_score": "1.018",
         "score_boosts": "none",
-        "sweep_ohko": "27/36",
+        "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
-        "survive_n": "12",
-        "survive_hp_mean": "0.34",
+        "survive_n": "13",
+        "survive_hp_mean": "0.40",
         "survive_hp_min": "0.07",
         "debuff_surv": "9/17"
       },
@@ -3449,92 +3086,89 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.011 vs panel; branches=A; 17 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.018 vs panel; branches=A; 17 defender(s)"
         },
         {
           "name": "Poison Jab",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.011 vs panel; branches=A; 11 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.018 vs panel; branches=A; 11 defender(s)"
         },
         {
           "name": "Sucker Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.011 vs panel; branches=A; 8 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.018 vs panel; branches=A; 8 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.011 (floor 1.270); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 1.018 (floor 1.271); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
     {
-      "species": "Gliscor",
-      "species_id": "gliscor",
+      "species": "Hawlucha-Mega",
+      "species_id": "hawluchamega",
       "tier": "Acceptable",
       "delivery_class": "move_setup",
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.987 raw=0.987 floor=1.270 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
+        "execution": "damage_score=0.990 raw=0.990 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "highhorsepower",
-          "dualwingbeat"
+          "bravebird"
         ],
         "payoff_targets": {
-          "dualwingbeat": [
+          "bravebird": [
             "Rillaboom+Sneasler",
-            "Salamence-Mega+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Charizard-Mega-Y+Garchomp",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Volcarona+Rillaboom",
-            "Garchomp-Mega-Z+Sneasler",
-            "Staraptor-Mega+Kingambit",
-            "Froslass-Mega+Sneasler"
-          ],
-          "highhorsepower": [
             "Sneasler+Rillaboom",
             "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
             "Indeedee-F+Sneasler",
             "Kingambit+Sneasler",
             "Golisopod-Mega+Pelipper",
             "Basculegion+Sneasler",
             "Farigiraf+Rillaboom",
             "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
             "Milotic+Sneasler",
             "Raichu-Mega-Y+Rillaboom",
             "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
             "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
             "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
             "Sylveon+Rillaboom",
             "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
             "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
             "Armarouge+Indeedee-F",
             "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
             "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
             "Torkoal+Indeedee-F",
             "Grimmsnarl+Pelipper",
             "Lucario-Mega-Z+Rillaboom",
-            "Gengar-Mega+Incineroar"
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
           ]
         },
-        "calc_species": "Gliscor",
-        "damage_score_raw": "0.987",
-        "damage_score": "0.987",
+        "calc_species": "Hawlucha-Mega",
+        "damage_score_raw": "0.990",
+        "damage_score": "0.990",
         "score_boosts": "none",
-        "sweep_ohko": "26/36",
+        "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
-        "survive_n": "14",
-        "survive_hp_mean": "0.44",
-        "survive_hp_min": "0.17"
+        "survive_n": "6",
+        "survive_hp_mean": "0.18",
+        "survive_hp_min": "0.00"
       },
       "claimed_traits": [
         {
@@ -3543,17 +3177,575 @@
           "purpose_claimed": "setup via swordsdance (+2 atk)"
         },
         {
-          "name": "High Horsepower",
+          "name": "Brave Bird",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.987 vs panel; branches=A; 26 defender(s)"
-        },
-        {
-          "name": "Dual Wingbeat",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.987 vs panel; branches=A; 10 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.990 vs panel; branches=A; 36 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.987 (floor 1.270); secondary=True",
+      "reasoning": "Acceptable: branches=A; calc 0.990 (floor 1.271); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Samurott",
+      "species_id": "samurott",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.009 raw=1.009 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "liquidation",
+          "megahorn",
+          "aquajet"
+        ],
+        "payoff_targets": {
+          "megahorn": [
+            "Rillaboom+Sneasler",
+            "Indeedee-F+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Milotic+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Garchomp-Mega-Z+Sneasler",
+            "Politoed+Golisopod-Mega"
+          ],
+          "liquidation": [
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Gardevoir-Mega+Sneasler",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "aquajet": [
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Samurott",
+        "damage_score_raw": "1.009",
+        "damage_score": "1.009",
+        "score_boosts": "none",
+        "sweep_ohko": "28/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "20",
+        "survive_hp_mean": "0.57",
+        "survive_hp_min": "0.25"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Liquidation",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.009 vs panel; branches=A; 24 defender(s)"
+        },
+        {
+          "name": "Megahorn",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.009 vs panel; branches=A; 8 defender(s)"
+        },
+        {
+          "name": "Aqua Jet",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.009 vs panel; branches=A; 4 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 1.009 (floor 1.271); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Weavile",
+      "species_id": "weavile",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.973 raw=0.973 floor=1.271 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "knockoff",
+          "icespinner",
+          "tripleaxel"
+        ],
+        "payoff_targets": {
+          "icespinner": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Raichu-Mega-Y+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Staraptor-Mega+Kingambit",
+            "Gengar-Mega+Incineroar"
+          ],
+          "tripleaxel": [
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
+            "Sylveon+Rillaboom",
+            "Tyranitar-Mega+Excadrill",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "knockoff": [
+            "Indeedee-F+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Arcanine-Hisui+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Weavile",
+        "damage_score_raw": "0.973",
+        "damage_score": "0.973",
+        "score_boosts": "none",
+        "sweep_ohko": "28/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "5",
+        "survive_hp_mean": "0.54",
+        "survive_hp_min": "0.01"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.973 vs panel; branches=A; 16 defender(s)"
+        },
+        {
+          "name": "Ice Spinner",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.973 vs panel; branches=A; 14 defender(s)"
+        },
+        {
+          "name": "Triple Axel",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.973 vs panel; branches=A; 6 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.973 (floor 1.271); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Sneasler",
+      "species_id": "sneasler",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.969 raw=0.969 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "closecombat",
+          "direclaw"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "direclaw": [
+            "Basculegion+Sneasler",
+            "Pelipper+Golisopod-Mega",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Staraptor-Mega+Kingambit",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Sneasler",
+        "damage_score_raw": "0.969",
+        "damage_score": "0.969",
+        "score_boosts": "none",
+        "sweep_ohko": "28/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "6",
+        "survive_hp_mean": "0.47",
+        "survive_hp_min": "0.24",
+        "debuff_surv": "11/23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.969 vs panel; branches=A; 23 defender(s)"
+        },
+        {
+          "name": "Dire Claw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.969 vs panel; branches=A; 13 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.969 (floor 1.271); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Rillaboom",
+      "species_id": "rillaboom",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.985 raw=0.985 floor=1.271 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "woodhammer",
+          "highhorsepower"
+        ],
+        "payoff_targets": {
+          "woodhammer": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Excadrill+Tyranitar-Mega",
+            "Grimmsnarl+Pelipper",
+            "Gengar-Mega+Incineroar"
+          ],
+          "highhorsepower": [
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Gholdengo+Rillaboom",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Metagross-Mega+Salamence-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Rillaboom",
+        "damage_score_raw": "0.985",
+        "damage_score": "0.985",
+        "score_boosts": "none",
+        "sweep_ohko": "28/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "15",
+        "survive_hp_mean": "0.23",
+        "survive_hp_min": "0.00"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Wood Hammer",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.985 vs panel; branches=A; 23 defender(s)"
+        },
+        {
+          "name": "High Horsepower",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.985 vs panel; branches=A; 13 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.985 (floor 1.271); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Scizor",
+      "species_id": "scizor",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.983 raw=0.983 floor=1.271 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "bugbite",
+          "bulletpunch"
+        ],
+        "payoff_targets": {
+          "bugbite": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Volcarona+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper"
+          ],
+          "bulletpunch": [
+            "Sneasler+Rillaboom",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Scizor",
+        "damage_score_raw": "0.983",
+        "damage_score": "0.983",
+        "score_boosts": "none",
+        "sweep_ohko": "27/36",
+        "sweep_2hko": "33/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.65",
+        "survive_hp_min": "0.06"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Bug Bite",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.983 vs panel; branches=A; 25 defender(s)"
+        },
+        {
+          "name": "Bullet Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.983 vs panel; branches=A; 11 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.983 (floor 1.271); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Talonflame",
+      "species_id": "talonflame",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.994 raw=0.994 floor=1.271 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "bravebird",
+          "flareblitz"
+        ],
+        "payoff_targets": {
+          "bravebird": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "flareblitz": [
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Gholdengo+Rillaboom",
+            "Archaludon+Pelipper",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Lucario-Mega-Z+Rillaboom"
+          ]
+        },
+        "calc_species": "Talonflame",
+        "damage_score_raw": "0.994",
+        "damage_score": "0.994",
+        "score_boosts": "none",
+        "sweep_ohko": "27/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "5",
+        "survive_hp_mean": "0.14",
+        "survive_hp_min": "0.00"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Brave Bird",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.994 vs panel; branches=A; 29 defender(s)"
+        },
+        {
+          "name": "Flare Blitz",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.994 vs panel; branches=A; 7 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.994 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -3566,7 +3758,7 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.014 raw=1.014 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=1.020 raw=1.020 floor=1.271 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -3621,10 +3813,10 @@
           ]
         },
         "calc_species": "Gallade-Mega",
-        "damage_score_raw": "1.014",
-        "damage_score": "1.014",
+        "damage_score_raw": "1.020",
+        "damage_score": "1.020",
         "score_boosts": "none",
-        "sweep_ohko": "25/36",
+        "sweep_ohko": "26/36",
         "sweep_2hko": "36/36",
         "survive_n": "11",
         "survive_hp_mean": "0.45",
@@ -3639,91 +3831,91 @@
         {
           "name": "Psycho Cut",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.014 vs panel; branches=A; 15 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.020 vs panel; branches=A; 15 defender(s)"
         },
         {
           "name": "Sacred Sword",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.014 vs panel; branches=A; 12 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.020 vs panel; branches=A; 12 defender(s)"
         },
         {
           "name": "Drain Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.014 vs panel; branches=A; 9 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.020 vs panel; branches=A; 9 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 1.014 (floor 1.270); secondary=True",
+      "reasoning": "Acceptable: branches=A; calc 1.020 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
     {
-      "species": "Overqwil",
-      "species_id": "overqwil",
+      "species": "Gliscor",
+      "species_id": "gliscor",
       "tier": "Acceptable",
       "delivery_class": "move_setup",
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.976 raw=0.976 floor=1.270 excellent_exec=False",
+        "execution": "damage_score=0.975 raw=0.975 floor=1.271 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "throatchop",
-          "barbbarrage"
+          "highhorsepower",
+          "acrobatics"
         ],
         "payoff_targets": {
-          "barbbarrage": [
+          "acrobatics": [
             "Rillaboom+Sneasler",
-            "Incineroar+Rillaboom",
-            "Raichu-Mega-Y+Rillaboom",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Floette-Mega+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Indeedee+Sneasler",
-            "Staraptor-Mega+Kingambit",
-            "Grimmsnarl+Pelipper"
-          ],
-          "throatchop": [
             "Sneasler+Rillaboom",
             "Salamence-Mega+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Charizard-Mega-Y+Garchomp",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Volcarona+Rillaboom",
+            "Garchomp-Mega-Z+Sneasler",
+            "Staraptor-Mega+Kingambit"
+          ],
+          "highhorsepower": [
+            "Incineroar+Rillaboom",
             "Indeedee-F+Sneasler",
             "Kingambit+Sneasler",
             "Golisopod-Mega+Pelipper",
             "Basculegion+Sneasler",
             "Farigiraf+Rillaboom",
             "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
             "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
             "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Sinistcha+Incineroar",
-            "Volcarona+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
             "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
             "Armarouge+Indeedee-F",
             "Politoed+Golisopod-Mega",
             "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
             "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
             "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
             "Froslass-Mega+Sneasler"
           ]
         },
-        "calc_species": "Overqwil",
-        "damage_score_raw": "0.976",
-        "damage_score": "0.976",
+        "calc_species": "Gliscor",
+        "damage_score_raw": "0.975",
+        "damage_score": "0.975",
         "score_boosts": "none",
-        "sweep_ohko": "21/36",
-        "sweep_2hko": "33/36",
-        "survive_n": "17",
-        "survive_hp_mean": "0.55",
+        "sweep_ohko": "23/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "16",
+        "survive_hp_mean": "0.51",
         "survive_hp_min": "0.24"
       },
       "claimed_traits": [
@@ -3733,22 +3925,17 @@
           "purpose_claimed": "setup via swordsdance (+2 atk)"
         },
         {
-          "name": "Throat Chop",
+          "name": "High Horsepower",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.976 vs panel; branches=A; 26 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.975 vs panel; branches=A; 26 defender(s)"
         },
         {
-          "name": "Barb Barrage",
+          "name": "Acrobatics",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.976 vs panel; branches=A; 10 defender(s)"
-        },
-        {
-          "name": "Intimidate",
-          "criterion": "secondary_role",
-          "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
+          "purpose_claimed": "calc damage fraction 0.975 vs panel; branches=A; 10 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.976 (floor 1.270); secondary=True",
+      "reasoning": "Acceptable: branches=A; calc 0.975 (floor 1.271); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
@@ -3972,6 +4159,12 @@
       "change_reason": null
     },
     {
+      "species": "Qwilfish",
+      "species_id": "qwilfish",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
       "species": "Rampardos",
       "species_id": "rampardos",
       "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
@@ -3980,12 +4173,6 @@
     {
       "species": "Roserade",
       "species_id": "roserade",
-      "reason": "learnset has swordsdance but no usage evidence of the setup move",
-      "change_reason": null
-    },
-    {
-      "species": "Samurott",
-      "species_id": "samurott",
       "reason": "learnset has swordsdance but no usage evidence of the setup move",
       "change_reason": null
     },
@@ -4076,115 +4263,103 @@
     {
       "species": "Banette-Mega",
       "species_id": "banettemega",
-      "reason": "damage_score 0.891 below admission floor 0.969",
+      "reason": "damage_score 0.874 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Beartic",
       "species_id": "beartic",
-      "reason": "damage_score 0.867 below admission floor 0.969",
+      "reason": "damage_score 0.872 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Ceruledge",
       "species_id": "ceruledge",
-      "reason": "damage_score 0.948 below admission floor 0.969",
+      "reason": "damage_score 0.954 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Chesnaught-Mega",
       "species_id": "chesnaughtmega",
-      "reason": "damage_score 0.862 below admission floor 0.969",
+      "reason": "damage_score 0.867 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Decidueye-Hisui",
       "species_id": "decidueyehisui",
-      "reason": "damage_score 0.898 below admission floor 0.969",
+      "reason": "damage_score 0.887 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Farfetch\u2019d",
       "species_id": "farfetchd",
-      "reason": "damage_score 0.634 below admission floor 0.969",
+      "reason": "damage_score 0.622 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Hawlucha",
       "species_id": "hawlucha",
-      "reason": "damage_score 0.827 below admission floor 0.969",
+      "reason": "damage_score 0.833 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Leafeon",
       "species_id": "leafeon",
-      "reason": "damage_score 0.882 below admission floor 0.969",
+      "reason": "damage_score 0.847 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Lucario",
       "species_id": "lucario",
-      "reason": "damage_score 0.814 below admission floor 0.969",
+      "reason": "damage_score 0.819 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Lycanroc",
       "species_id": "lycanroc",
-      "reason": "damage_score 0.809 below admission floor 0.969",
+      "reason": "damage_score 0.811 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Lycanroc-Dusk",
       "species_id": "lycanrocdusk",
-      "reason": "damage_score 0.929 below admission floor 0.969",
+      "reason": "damage_score 0.933 below admission floor 0.969",
       "change_reason": null
     },
     {
-      "species": "Pangoro",
-      "species_id": "pangoro",
-      "reason": "damage_score 0.960 below admission floor 0.969",
-      "change_reason": null
+      "species": "Overqwil",
+      "species_id": "overqwil",
+      "reason": "damage_score 0.869 below admission floor 0.969",
+      "change_reason": "setup admission floor re-eval / tier 'Acceptable' \u2192 rejected (score=0.869 < 0.969)"
     },
     {
       "species": "Quaquaval",
       "species_id": "quaquaval",
-      "reason": "damage_score 0.934 below admission floor 0.969",
-      "change_reason": null
-    },
-    {
-      "species": "Qwilfish",
-      "species_id": "qwilfish",
-      "reason": "damage_score 0.892 below admission floor 0.969",
-      "change_reason": null
-    },
-    {
-      "species": "Samurott-Hisui",
-      "species_id": "samurotthisui",
-      "reason": "damage_score 0.945 below admission floor 0.969",
+      "reason": "damage_score 0.925 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Scizor-Mega",
       "species_id": "scizormega",
-      "reason": "damage_score 0.934 below admission floor 0.969",
+      "reason": "damage_score 0.921 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Scolipede",
       "species_id": "scolipede",
-      "reason": "damage_score 0.792 below admission floor 0.969",
+      "reason": "damage_score 0.796 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Scrafty",
       "species_id": "scrafty",
-      "reason": "damage_score 0.910 below admission floor 0.969",
+      "reason": "damage_score 0.913 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Sirfetch\u2019d",
       "species_id": "sirfetchd",
-      "reason": "damage_score 0.914 below admission floor 0.969",
+      "reason": "damage_score 0.934 below admission floor 0.969",
       "change_reason": null
     },
     {
@@ -4194,16 +4369,16 @@
       "change_reason": null
     },
     {
-      "species": "Sneasler",
-      "species_id": "sneasler",
-      "reason": "damage_score 0.962 below admission floor 0.969",
+      "species": "Tinkaton",
+      "species_id": "tinkaton",
+      "reason": "damage_score 0.943 below admission floor 0.969",
       "change_reason": null
     },
     {
-      "species": "Tinkaton",
-      "species_id": "tinkaton",
-      "reason": "damage_score 0.869 below admission floor 0.969",
-      "change_reason": null
+      "species": "Torterra",
+      "species_id": "torterra",
+      "reason": "damage_score 0.931 below admission floor 0.969",
+      "change_reason": "setup admission floor re-eval / tier 'Acceptable' \u2192 rejected (score=0.931 < 0.969)"
     },
     {
       "species": "Golisopod",
