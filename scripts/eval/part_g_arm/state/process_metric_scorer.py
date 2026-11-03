@@ -12,9 +12,9 @@ import csv
 import json
 import re
 from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_CSV = HERE / "expected_tools_fu16" / "expected_tools_rev3_2026-11-02.csv"
@@ -112,6 +112,8 @@ class TurnScore:
     missing_steps: str
     path_used: str  # expected | alternative | both | "" | none
     order_ok: bool
+    structural: bool  # missed because a required tool is absent at this rung
+    order_write_before_lookup: bool  # write preceded a required lookup that was called later
     n_calls: int
     n_redundant: int
     n_extra: int
@@ -303,44 +305,45 @@ def _first_write_index(calls: Sequence[Mapping[str, Any]]) -> int | None:
     return None
 
 
-def _order_ok(
+def _order_prewrite_lookup_hits(
     expected_steps: Sequence[Sequence[str]],
     calls: Sequence[Mapping[str, Any]],
     *,
     rung: int,
     available: frozenset[str],
-) -> bool:
-    """Lookup/read steps before the first write step in expected must precede first write call."""
+) -> tuple[bool, bool]:
+    """Return (order_ok, write_before_called_lookup).
+
+    A required step never called is a miss, not an order failure — only lookups/reads
+    that were actually called are checked against the first write call.
+    """
     write_step_i = None
     for i, step in enumerate(expected_steps):
         if any(a in WRITE_TOOLS or a == "set_slot" for a in step):
             write_step_i = i
             break
     if write_step_i is None:
-        return True
+        return True, False
     first_write = _first_write_index(calls)
     if first_write is None:
-        # No write executed — order of pre-write lookups vs write is vacuously ok.
-        return True
+        return True, False
     call_names = [(c.get("name") or "") for c in calls]
+    order_ok = True
+    write_before = False
     for step in expected_steps[:write_step_i]:
-        # Only enforce order for lookup/read steps (not writes before writes).
         if any(a in WRITE_TOOLS or a == "set_slot" for a in step):
             continue
-        if not any(a in LOOKUP_READ_TOOLS or a == "no_lookup_needed" for a in step):
-            # Unknown — treat as lookup/read for order if not a write.
-            pass
-        # Find earliest matching call
         hit = None
         for j, n in enumerate(call_names):
             if _call_matches_step(n, step, rung=rung, available=available):
                 hit = j
                 break
         if hit is None:
-            continue  # missing handled by requirement; order ignores absent
+            continue  # never called → missing_steps, not order
         if hit >= first_write:
-            return False
-    return True
+            order_ok = False
+            write_before = True
+    return order_ok, write_before
 
 
 def _user_named_tokens(user_text: str) -> set[str]:
@@ -507,32 +510,17 @@ def score_turn_calls(
     )
 
     ambiguous_bits: list[str] = []
+    structural = False
+    order = True
+    write_before_lookup = False
 
-    # not_scorable: new_tool_needed and no usable path at this rung
+    # not_scorable: ONLY new_tool_needed with no listed expected/alternative path.
     if new_tool and not expected and not alternative:
         req = "not_scorable"
         path_used = ""
         missing = new_tool
-        order = True
         exp_ok = alt_ok = False
         exp_miss = alt_miss = [new_tool]
-    elif new_tool and not (
-        (expected and exp_schema_ok) or (alternative and alt_schema_ok)
-    ):
-        # Only new_tool path, or all listed paths name unavailable tools
-        if not expected and not alternative:
-            req = "not_scorable"
-            missing = new_tool
-        elif not exp_schema_ok and not alt_schema_ok:
-            req = "not_scorable"
-            missing = ";".join(exp_schema_miss or alt_schema_miss or [new_tool])
-        else:
-            req = "missed"  # filled below
-            missing = ""
-        path_used = ""
-        order = True
-        exp_ok = alt_ok = False
-        exp_miss, alt_miss = exp_schema_miss, alt_schema_miss
     else:
         exp_ok, exp_miss = (
             _path_satisfied(expected, calls, rung=rung, available=available)
@@ -544,7 +532,7 @@ def score_turn_calls(
             if alternative
             else (False, [])
         )
-        # Vacuous empty expected with no new_tool → met
+        # Vacuous empty expected with no alternative and no new_tool → met
         if not expected and not alternative and not new_tool:
             exp_ok = True
             exp_miss = []
@@ -563,8 +551,16 @@ def score_turn_calls(
             req = "missed"
             path_used = "none"
             missing = ";".join(exp_miss or alt_miss)
+            # Structural: no schema-available path at this rung (tools absent).
+            # Behavioral: at least one path could have been satisfied with available tools.
+            any_schema = (bool(expected) and exp_schema_ok) or (
+                bool(alternative) and alt_schema_ok
+            )
+            structural = not any_schema and bool(expected or alternative)
 
-        order = _order_ok(expected, calls, rung=rung, available=available)
+        order, write_before_lookup = _order_prewrite_lookup_hits(
+            expected, calls, rung=rung, available=available
+        )
 
     # Build allowed set for call classification
     allowed_names: set[str] = set(optional)
@@ -573,8 +569,6 @@ def score_turn_calls(
 
     call_scores: list[CallScore] = []
     seen_keys: set[tuple[str, str]] = set()
-    # Results already held: identical (name, args) → redundant; also track prior results by name
-    prior_results: dict[tuple[str, str], Any] = {}
 
     n_red = n_extra = n_mis = n_ref = n_gb = 0
 
@@ -613,7 +607,8 @@ def score_turn_calls(
             if proto_amb:
                 ambiguous_bits.append(proto_amb)
                 amb = proto_amb
-            # Legality on find_species/show_candidates output → redundant
+            # Redundant only: identical (name, args) repeat, or legality on
+            # find_species/show_candidates species this turn. No other "already held".
             if name in LEGALITY_TOOLS:
                 produced: set[str] = set()
                 for c in calls[:i]:
@@ -625,16 +620,9 @@ def score_turn_calls(
                 elif proto:
                     mark = "ok"
                 elif name in allowed_names:
-                    # Allowed-set; check repeat / already-held
-                    if key in seen_keys:
-                        mark = "redundant"
+                    mark = "redundant" if key in seen_keys else "ok"
+                    if mark == "redundant":
                         n_red += 1
-                    elif key in prior_results:
-                        mark = "redundant"
-                        n_red += 1
-                        amb = amb or "allowed call whose result already held (identical name+args)"
-                    else:
-                        mark = "ok"
                 else:
                     mark = "extra"
                     n_extra += 1
@@ -650,13 +638,11 @@ def score_turn_calls(
                 mark = "extra"
                 n_extra += 1
 
-        # Identical repeat always redundant if not already misused
         if mark == "ok" and key in seen_keys:
             mark = "redundant"
             n_red += 1
 
         seen_keys.add(key)
-        prior_results[key] = result
 
         call_scores.append(
             CallScore(
@@ -678,6 +664,8 @@ def score_turn_calls(
         missing_steps=missing,
         path_used=path_used,
         order_ok=order,
+        structural=structural,
+        order_write_before_lookup=write_before_lookup,
         n_calls=len(calls),
         n_redundant=n_red,
         n_extra=n_extra,
@@ -774,6 +762,8 @@ def score_run(
                             missing_steps="",
                             path_used="",
                             order_ok=True,
+                            structural=False,
+                            order_write_before_lookup=False,
                             n_calls=0,
                             n_redundant=0,
                             n_extra=0,
@@ -828,6 +818,8 @@ def score_run(
                     missing_steps="",
                     path_used="",
                     order_ok=True,
+                    structural=False,
+                    order_write_before_lookup=False,
                     n_calls=0,
                     n_redundant=0,
                     n_extra=0,
@@ -839,30 +831,60 @@ def score_run(
             )
 
     scores.sort(key=lambda s: (s.row_id, s.turn))
-    summary = summarize_rung(scores, rung=rung, no_record=no_record)
+    summary = summarize_rung(scores, rung=rung, no_record=no_record, csv_rows=csv_rows)
     return scores, summary, path_absent
 
 
+def csv_rows_never_scorable(csv_rows: Sequence[Mapping[str, str]]) -> list[str]:
+    """Rows whose only path is new_tool_needed with no expected/alternative listed."""
+    out: list[str] = []
+    for r in csv_rows:
+        new_tool = (r.get("new_tool_needed") or "").strip()
+        exp = _split_steps(r.get("expected_tools_ordered"))
+        alt = _split_steps(r.get("alternative_path"))
+        if new_tool and not exp and not alt:
+            out.append(f"{r['row_id']} t{r['turn']}: new_tool_needed={new_tool}")
+    return out
+
+
 def summarize_rung(
-    scores: Sequence[TurnScore], *, rung: int, no_record: Sequence[str]
+    scores: Sequence[TurnScore],
+    *,
+    rung: int,
+    no_record: Sequence[str],
+    csv_rows: Sequence[Mapping[str, str]] | None = None,
 ) -> dict[str, Any]:
     played = [s for s in scores if s.requirement_default != "no_run_record"]
     met = [s for s in played if s.requirement_default == "met"]
     missed = [s for s in played if s.requirement_default == "missed"]
+    missed_structural = [s for s in missed if s.structural]
+    missed_behavioral = [s for s in missed if not s.structural]
     not_scorable = [s for s in played if s.requirement_default == "not_scorable"]
     order_false = [s for s in played if not s.order_ok]
+    write_before = [s for s in played if s.order_write_before_lookup]
+    never = csv_rows_never_scorable(csv_rows or [])
     return {
         "rung": rung,
         "turns_scored": len(played),
         "requirement_met": len(met),
         "requirement_missed": len(missed),
+        "requirement_missed_structural": len(missed_structural),
+        "requirement_missed_behavioral": len(missed_behavioral),
         "requirement_not_scorable": len(not_scorable),
         "met_list": [f"{s.row_id} t{s.turn}" for s in met],
         "missed_list": [f"{s.row_id} t{s.turn}" for s in missed],
+        "missed_structural_list": [f"{s.row_id} t{s.turn}" for s in missed_structural],
+        "missed_behavioral_list": [f"{s.row_id} t{s.turn}" for s in missed_behavioral],
         "not_scorable_list": [f"{s.row_id} t{s.turn}" for s in not_scorable],
+        "csv_never_scorable_rows": never,
+        "csv_never_scorable_count": len(never),
         "no_run_record_list": list(no_record),
         "order_ok_false": len(order_false),
         "order_ok_false_list": [f"{s.row_id} t{s.turn}" for s in order_false],
+        "order_write_before_lookup": len(write_before),
+        "order_write_before_lookup_list": [
+            f"{s.row_id} t{s.turn}" for s in write_before
+        ],
         "n_redundant": sum(s.n_redundant for s in played),
         "n_extra": sum(s.n_extra for s in played),
         "n_misused": sum(s.n_misused for s in played),
@@ -884,6 +906,8 @@ def turn_score_to_row(s: TurnScore) -> dict[str, Any]:
         "missing_steps": s.missing_steps,
         "path_used": s.path_used,
         "order_ok": str(s.order_ok).lower(),
+        "structural": str(s.structural).lower(),
+        "order_write_before_lookup": str(s.order_write_before_lookup).lower(),
         "n_calls": s.n_calls,
         "n_redundant": s.n_redundant,
         "n_extra": s.n_extra,
@@ -921,6 +945,8 @@ TURN_CSV_FIELDS = [
     "missing_steps",
     "path_used",
     "order_ok",
+    "structural",
+    "order_write_before_lookup",
     "n_calls",
     "n_redundant",
     "n_extra",
@@ -932,6 +958,35 @@ TURN_CSV_FIELDS = [
     "requirement_mark",
     "transcript_turn_index",
 ]
+
+
+def call_mark_counts_by_tool(
+    scores: Sequence[TurnScore],
+) -> dict[str, dict[str, int]]:
+    """Per default_mark → tool name → count (extra / misused / redundant)."""
+    out: dict[str, Counter[str]] = {
+        "extra": Counter(),
+        "misused": Counter(),
+        "redundant": Counter(),
+    }
+    for s in scores:
+        if s.requirement_default == "no_run_record":
+            continue
+        for c in s.calls:
+            if c.default_mark in out:
+                out[c.default_mark][c.name] += 1
+    return {k: dict(v) for k, v in out.items()}
+
+
+def ambiguous_case_count(scores: Sequence[TurnScore]) -> tuple[int, list[str]]:
+    """Turns with a non-empty ambiguous field; list 'row tN: reason'."""
+    rows: list[str] = []
+    for s in scores:
+        if s.requirement_default == "no_run_record":
+            continue
+        if s.ambiguous.strip():
+            rows.append(f"{s.row_id} t{s.turn}: {s.ambiguous}")
+    return len(rows), rows
 
 
 def write_turn_csv(path: Path, scores: Sequence[TurnScore]) -> None:
@@ -971,6 +1026,7 @@ def format_turn_detail(s: TurnScore) -> str:
     lines = [
         f"{s.row_id} t{s.turn} rung={s.rung} class={s.effective_class} "
         f"req={s.requirement_default} path={s.path_used} order_ok={s.order_ok} "
+        f"structural={s.structural} write_before_lookup={s.order_write_before_lookup} "
         f"missing={s.missing_steps!r}",
         f"  calls={s.n_calls} red={s.n_redundant} extra={s.n_extra} "
         f"misused={s.n_misused} refused={s.n_refused} guard_blocked={s.n_guard_blocked}",
@@ -1034,11 +1090,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     write_turn_csv(turns_path, scores)
     summary["path_absent_at_rung"] = path_absent
+    by_tool = call_mark_counts_by_tool(scores)
+    summary["by_tool"] = by_tool
+    n_amb, amb_rows = ambiguous_case_count(scores)
+    summary["ambiguous_case_count"] = n_amb
+    summary["ambiguous_case_list"] = amb_rows
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: summary[k] for k in summary if not k.endswith("_list")}, indent=2))
     print("path_absent_count", len(path_absent))
     for line in path_absent:
         print("  path_absent:", line)
+    print("ambiguous_case_count", n_amb)
+    print("by_tool", json.dumps(by_tool, indent=2))
 
     if args.spot_check:
         by_key = {(s.row_id, s.turn): s for s in scores}
