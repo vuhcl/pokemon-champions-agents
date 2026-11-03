@@ -1,0 +1,164 @@
+[
+  {
+    "label": "bucket:mechanical + hand audit",
+    "passes": 1,
+    "n": 2,
+    "rate": 0.5,
+    "ci95_lo": 0.012579117093425032,
+    "ci95_hi": 0.987420882906575,
+    "level": "turn",
+    "group": "bucket"
+  },
+  {
+    "label": "bucket:scorable-mechanical",
+    "passes": 30,
+    "n": 41,
+    "rate": 0.7317073170731707,
+    "ci95_lo": 0.5705552947339049,
+    "ci95_hi": 0.8577869966591287,
+    "level": "turn",
+    "group": "bucket"
+  },
+  {
+    "label": "class:ASK",
+    "passes": 7,
+    "n": 9,
+    "rate": 0.7777777777777778,
+    "ci95_lo": 0.3999064262836815,
+    "ci95_hi": 0.9718550265221018,
+    "level": "turn",
+    "group": "class"
+  },
+  {
+    "label": "class:FAIL-CLOSED",
+    "passes": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95_lo": 0.06758598648854253,
+    "ci95_hi": 0.932414013511457,
+    "level": "turn",
+    "group": "class"
+  },
+  {
+    "label": "class:MUTATION-OK",
+    "passes": 7,
+    "n": 12,
+    "rate": 0.5833333333333334,
+    "ci95_lo": 0.2766696856821046,
+    "ci95_hi": 0.8483477701915698,
+    "level": "turn",
+    "group": "class"
+  },
+  {
+    "label": "class:MUTATION-REFUSED",
+    "passes": 8,
+    "n": 10,
+    "rate": 0.8,
+    "ci95_lo": 0.4439045376923544,
+    "ci95_hi": 0.9747892736731667,
+    "level": "turn",
+    "group": "class"
+  },
+  {
+    "label": "class:NO-MUTATION",
+    "passes": 7,
+    "n": 8,
+    "rate": 0.875,
+    "ci95_lo": 0.47349032912479644,
+    "ci95_hi": 0.9968402764687482,
+    "level": "turn",
+    "group": "class"
+  },
+  {
+    "label": "overall",
+    "passes": 31,
+    "n": 43,
+    "rate": 0.7209302325581395,
+    "ci95_lo": 0.563313038534097,
+    "ci95_hi": 0.8467107671058407,
+    "level": "turn",
+    "group": "overall",
+    "note": "descriptive only; ADR-078 never pools classes for a gate"
+  },
+  {
+    "label": "bucket:mechanical + hand audit",
+    "passes": 1,
+    "n": 2,
+    "rate": 0.5,
+    "ci95_lo": 0.012579117093425032,
+    "ci95_hi": 0.987420882906575,
+    "level": "row",
+    "group": "bucket"
+  },
+  {
+    "label": "bucket:scorable-mechanical",
+    "passes": 30,
+    "n": 41,
+    "rate": 0.7317073170731707,
+    "ci95_lo": 0.5705552947339049,
+    "ci95_hi": 0.8577869966591287,
+    "level": "row",
+    "group": "bucket"
+  },
+  {
+    "label": "class:ASK",
+    "passes": 7,
+    "n": 9,
+    "rate": 0.7777777777777778,
+    "ci95_lo": 0.3999064262836815,
+    "ci95_hi": 0.9718550265221018,
+    "level": "row",
+    "group": "class"
+  },
+  {
+    "label": "class:FAIL-CLOSED",
+    "passes": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95_lo": 0.06758598648854253,
+    "ci95_hi": 0.932414013511457,
+    "level": "row",
+    "group": "class"
+  },
+  {
+    "label": "class:MUTATION-OK",
+    "passes": 7,
+    "n": 12,
+    "rate": 0.5833333333333334,
+    "ci95_lo": 0.2766696856821046,
+    "ci95_hi": 0.8483477701915698,
+    "level": "row",
+    "group": "class"
+  },
+  {
+    "label": "class:MUTATION-REFUSED",
+    "passes": 8,
+    "n": 10,
+    "rate": 0.8,
+    "ci95_lo": 0.4439045376923544,
+    "ci95_hi": 0.9747892736731667,
+    "level": "row",
+    "group": "class"
+  },
+  {
+    "label": "class:NO-MUTATION",
+    "passes": 7,
+    "n": 8,
+    "rate": 0.875,
+    "ci95_lo": 0.47349032912479644,
+    "ci95_hi": 0.9968402764687482,
+    "level": "row",
+    "group": "class"
+  },
+  {
+    "label": "overall",
+    "passes": 31,
+    "n": 43,
+    "rate": 0.7209302325581395,
+    "ci95_lo": 0.563313038534097,
+    "ci95_hi": 0.8467107671058407,
+    "level": "row",
+    "group": "overall",
+    "note": "descriptive only; ADR-078 never pools classes for a gate"
+  }
+]

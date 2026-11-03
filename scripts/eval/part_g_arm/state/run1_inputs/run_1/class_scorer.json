@@ -1,0 +1,1329 @@
+{
+  "per_row": [
+    {
+      "row": "DM1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "DM2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "DM3",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "DM4",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "DM6",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "DM7",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "GS1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        },
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H11",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H13",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": false,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H14",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "H15",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H16",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H18b",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": true
+        },
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "H2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H27",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H3",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H4",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H5",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H6",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H7",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "H8",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HC1",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HC2",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "ASK",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "HD1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HF1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HF2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HN1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HN2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HN2b",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HN2c",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HN2d",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HN3",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HN4",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HP1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HP2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HP3",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HU1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HU2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HU2b",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HU3",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "HU4",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "IC1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        },
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "MUTATION-OK",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "IS1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "IS2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "PARTIAL+ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "IS3",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "IS4",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "IX1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "IX5",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "IX7",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASSUME-STATE",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MC1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "ASK|ASSUME-STATE",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "MM1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "MM2",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MR1",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MR2",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "MR3",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "MR4",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MR5",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MR6",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MR7",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MR8",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MRB1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MS1",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MS2",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-OK",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "MS3",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MS4",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MS5",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MS6",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MS7",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MS8",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MT1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        },
+        {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        },
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MT2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        },
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        },
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MT3",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        },
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MT5",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": true
+        },
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        },
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MT6",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        },
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        },
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MU1",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MU2",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MU3",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MU4",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MU5",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MU6",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "NO-MUTATION",
+          "match": false,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MU7",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MU8",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MV1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MV2",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MV3",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MW1",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MW2",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "MW3",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "ASK",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "MW4",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "OL2b",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "MUTATION-OK",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "OL4",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "OL5",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "MUTATION-OK",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "OL6",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "OL7a",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "outcome_matched": "ask",
+          "bound_species": null,
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "OL8",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "MUTATION-OK",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "OL9",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "Q10",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "Q9",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "SERVED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      ]
+    },
+    {
+      "row": "RB1",
+      "excluded": null,
+      "turns": [
+        {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "MUTATION-OK",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "SC2",
+      "excluded": "hand audit",
+      "turns": []
+    },
+    {
+      "row": "TB1",
+      "excluded": "hand audit",
+      "turns": [
+        {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "SERVED",
+          "match": false,
+          "state_expectation_met": false
+        }
+      ]
+    },
+    {
+      "row": "TB2",
+      "excluded": null,
+      "turns": []
+    }
+  ],
+  "per_class": {
+    "FAIL-CLOSED": {
+      "n": 4,
+      "match": 2,
+      "state_ok": 3
+    },
+    "ASK": {
+      "n": 9,
+      "match": 7,
+      "state_ok": 7
+    },
+    "MUTATION-REFUSED": {
+      "n": 10,
+      "match": 8,
+      "state_ok": 8
+    },
+    "MUTATION-OK": {
+      "n": 12,
+      "match": 7,
+      "state_ok": 7
+    },
+    "NO-MUTATION": {
+      "n": 8,
+      "match": 7,
+      "state_ok": 8
+    }
+  },
+  "errata": "claude/request_set_errata_draft_2026-10-26.md (draft not present in worktree; cells taken from request-set acceptance text + Vu task brief)",
+  "note": "ADR-078: rates are per class, never pooled"
+}
