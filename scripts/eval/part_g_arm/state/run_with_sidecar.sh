@@ -4,10 +4,10 @@
 #
 # Usage:
 #   scripts/eval/part_g_arm/state/run_with_sidecar.sh <out_dir> [runner args...]
-# Example (flags-off rung folder):
+# Example (flags-off rung folder; name folder for HEAD after #365 merges):
 #   scripts/eval/part_g_arm/state/run_with_sidecar.sh \
-#     /Users/nowaki027/part-g-arm-runs/arm-v2/e6c28c2/rung_1
-# Example (dev smoke):
+#     /Users/nowaki027/part-g-arm-runs/arm-v2/<sha>/rung_1
+# Example (dev smoke; --stub forbidden under arm-v2/ graded root):
 #   scripts/eval/part_g_arm/state/run_with_sidecar.sh /tmp/arm-v2-sidecar-smoke \
 #     --stub --row H1 --stop-after 1
 set -euo pipefail
@@ -29,6 +29,27 @@ EXPECTED_HEAD=e6c28c25bd268823db7bc1f77105d89669ea66a8
 EXPECTED_MANIFEST_PREFIX=ddee025f
 EXPECTED_SCORER_PREFIX=96c48ac3
 EXPECTED_DIGEST_PREFIX=44a38603
+GRADED_ROOT=/Users/nowaki027/part-g-arm-runs/arm-v2
+
+STUB=false
+for arg in "$@"; do
+  if [[ "$arg" == "--stub" ]]; then
+    STUB=true
+    break
+  fi
+done
+
+# Resolve out_dir for prefix checks (absolute).
+OUT_ABS=$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$OUT_DIR")
+GRADED_ABS=$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$GRADED_ROOT")
+if [[ "$STUB" == true ]]; then
+  case "$OUT_ABS" in
+    "$GRADED_ABS"|"$GRADED_ABS"/*)
+      echo "refused: --stub cannot write under $GRADED_ROOT" >&2
+      exit 1
+      ;;
+  esac
+fi
 
 porcelain=$(git status --porcelain)
 if [[ -n "$porcelain" ]]; then
@@ -87,10 +108,10 @@ cmdline=$(python3 -c 'import sys; print(" ".join(sys.argv[1:]))' "${CMD[@]}")
 start_time=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 SIDECAR=$OUT_DIR/sidecar.json
 
-python3 - "$SIDECAR" "$HEAD" "$manifest_sha" "$scorer_sha" "$cmdline" "$start_time" "$ollama_digest" "$MODEL_ID" <<'PY'
+python3 - "$SIDECAR" "$HEAD" "$manifest_sha" "$scorer_sha" "$cmdline" "$start_time" "$ollama_digest" "$MODEL_ID" "$STUB" <<'PY'
 import json, sys
 
-path, head, manifest_sha, scorer_sha, cmdline, start, digest, model = sys.argv[1:9]
+path, head, manifest_sha, scorer_sha, cmdline, start, digest, model, stub = sys.argv[1:10]
 doc = {
     "git_head": head,
     "git_status_porcelain": "",
@@ -101,6 +122,7 @@ doc = {
     "ollama_model_id": model,
     "ollama_model_digest": digest,
     "ollama_digest_source": "ollama show (presence) + GET /api/tags digest",
+    "stub": stub == "true",
 }
 with open(path, "w", encoding="utf-8") as fh:
     json.dump(doc, fh, indent=2)
