@@ -9,7 +9,7 @@ Classes (exactly one per sub-request):
 - HYPOTHETICAL — what-if / should-I / could-I; no write.
 - READ_STATE — ask what is already on the team / pending / constraints / archetype / rejected list.
 - PENDING_ANSWER — bare answer to the stored asked action or pending list (e.g. a lone option phrase, "the first", "I'll take the first one").
-- READ_ONLY_REFUSE — out-of-scope or unanswerable without inventing: best-team-this-week, other formats (mainline OU / BSS stall), why-did-you-pick meta. Never WRITE or LOOKUP for those.
+- READ_ONLY_REFUSE — out-of-scope or unanswerable without inventing (no tool can produce the answer). Never WRITE or LOOKUP for those.
 
 Rules:
 - Split only distinct requests. One request naming several elements (species plus item) stays one WRITE and action set_slot.
