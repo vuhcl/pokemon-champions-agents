@@ -1,0 +1,43 @@
+{
+  "schema": "part_g_arm_v2_ladder_frozen_manifest_v0",
+  "status": "frozen",
+  "note": "FROZEN 2026-11-02 — arm-v2 ladder configurations behind flags (rungs 1–5 prompts + tools.py + process-metric scorer + expected-tools CSV rev3 + parser/labels + covered list + Part G keys/batteries). Vu approves via PR before treating as the registered freeze. After this freeze, any change to a listed file is a revision with both outputs. Does not replace FROZEN_MANIFEST_ARM_STATE.json (PRE-RS-ARM 2026-10-28).",
+  "freeze_base_commit": "b3cf15ed30e287f9f4f5ee3d0efbf3147475af6b",
+  "flags_off_tool_schema_tokens_cl100k": 3731,
+  "flags_off_tool_schema_sha256": "f0c97ad3b88cb3f118e241111bd454a4e86f7937cd4342f0969cadbe5049b845",
+  "files": {
+    "scripts/eval/part_g_arm/state/covered_list.json": "007ee2e91c2d87c689fab1e364bcb9dd0f4e1dd61c03b853db5003bb50943316",
+    "scripts/eval/part_g_arm/state/dev_guard_parser_labels.json": "3e5f69d8d8cd9f1ef1a4ad3796b595c8b180481b8380fa84ecc61ccb18045701",
+    "scripts/eval/part_g_arm/state/expected_tools_fu16/expected_tools_rev3_2026-11-02.csv": "fde4e93dc69075efff4c8e9195804919ed085429de1a665906b1979fb42bc7b6",
+    "scripts/eval/part_g_arm/state/process_metric_scorer.py": "96c48ac36f9a50d7c168d3e2230ef1b507b53d3dc272bc7df27410c6fc2b3c61",
+    "scripts/eval/part_g_arm/state/prompt.md": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
+    "scripts/eval/part_g_arm/state/prompt_draft.md": "958968e26ebe0e0e80a89ec0cf14bea9500a42e4cef983bd555ae31eec8d6926",
+    "scripts/eval/part_g_arm/state/prompt_guard.md": "07038aaf83614a86bac026d911f98d68add2ba131e10ba0c7bdb92e06dd90f67",
+    "scripts/eval/part_g_arm/state/prompt_guard_parser.md": "62816778784098dd71dacf21bebca2dc9737eaf8d84d9aab64f89edc12cc1da9",
+    "scripts/eval/part_g_arm/state/prompt_tool_fields.md": "7b54f92392a5adecff834a4c7dd637c13e075b468d81dfccec88599a16965a2d",
+    "scripts/eval/part_g_arm/state/prompt_wrapper.md": "ca917d1e8abe8061f27e11b97eb41ed8779f2cc0532d03ec5003d919f72243d2",
+    "scripts/eval/part_g_arm/state/tools.py": "7495074a5d67cc7b5eae7304af8b90c76d068ecbbe833bbd1f7444d2eb8dd3fc",
+    "scripts/eval/part_g_v4/battery/claim_battery_v4.json": "6e6c6be4351240629416f1e279bbf495bbf4670d79aaaa7d083a2c62c6d67443",
+    "scripts/eval/part_g_v4/battery/false_legal_battery_v4.json": "3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec",
+    "scripts/eval/part_g_v4/key_artifacts/derived_keys.json": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
+    "scripts/eval/part_g_v4/part3_request_set_v4.md": "7fb9510cb50e8f1f320ac1cf6bced41e8dcd12f4245ed2abb03a42254a60afdb"
+  },
+  "manifest_sha256": "6a9a8be43436c0334d9122ea22ce7f42a5a3d289a93f67116179aeb39130b3c3",
+  "aliases": {
+    "request_set_sha256": "7fb9510cb50e8f1f320ac1cf6bced41e8dcd12f4245ed2abb03a42254a60afdb",
+    "derived_keys_sha256": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
+    "claim_battery_sha256": "6e6c6be4351240629416f1e279bbf495bbf4670d79aaaa7d083a2c62c6d67443",
+    "false_legal_sha256": "3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec",
+    "csv_rev3_sha256": "fde4e93dc69075efff4c8e9195804919ed085429de1a665906b1979fb42bc7b6",
+    "prompt_rung1_sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
+    "prompt_tool_fields_sha256": "7b54f92392a5adecff834a4c7dd637c13e075b468d81dfccec88599a16965a2d",
+    "prompt_wrapper_sha256": "ca917d1e8abe8061f27e11b97eb41ed8779f2cc0532d03ec5003d919f72243d2",
+    "prompt_draft_sha256": "958968e26ebe0e0e80a89ec0cf14bea9500a42e4cef983bd555ae31eec8d6926",
+    "prompt_guard_sha256": "07038aaf83614a86bac026d911f98d68add2ba131e10ba0c7bdb92e06dd90f67",
+    "parser_prompt_sha256": "62816778784098dd71dacf21bebca2dc9737eaf8d84d9aab64f89edc12cc1da9",
+    "labels_sha256": "3e5f69d8d8cd9f1ef1a4ad3796b595c8b180481b8380fa84ecc61ccb18045701",
+    "covered_list_sha256": "007ee2e91c2d87c689fab1e364bcb9dd0f4e1dd61c03b853db5003bb50943316",
+    "scorer_script_sha256": "96c48ac36f9a50d7c168d3e2230ef1b507b53d3dc272bc7df27410c6fc2b3c61",
+    "tools_py_sha256": "7495074a5d67cc7b5eae7304af8b90c76d068ecbbe833bbd1f7444d2eb8dd3fc"
+  }
+}
