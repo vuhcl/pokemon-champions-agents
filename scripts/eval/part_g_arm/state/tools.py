@@ -55,6 +55,10 @@ _TOOL_FIELDS: bool = False
 _WRAPPER: bool = False
 # Arm v2 ladder: draft/lock rung (cumulative on wrapper).
 _DRAFT: bool = False
+# Arm v2 ladder: class tool guard (cumulative on draft).
+_GUARD: bool = False
+# Arm v2 ladder: judge-lite (cumulative on guard).
+_JUDGE: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -82,6 +86,24 @@ def set_draft(enabled: bool) -> None:
 
 def draft_enabled() -> bool:
     return _DRAFT
+
+
+def set_guard(enabled: bool) -> None:
+    global _GUARD
+    _GUARD = bool(enabled)
+
+
+def guard_enabled() -> bool:
+    return _GUARD
+
+
+def set_judge(enabled: bool) -> None:
+    global _JUDGE
+    _JUDGE = bool(enabled)
+
+
+def judge_enabled() -> bool:
+    return _JUDGE
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -350,6 +372,23 @@ _DESCRIBE_SPEC = _spec(
     ["kind", "name"],
 )
 
+# tool_fields-only (appended in combined_specs when flag on; keeps flags-off schema identical).
+_SET_CONSTRAINT_ACTIVE_SPEC = _spec(
+    "set_constraint_active",
+    "Deactivate or reactivate a recorded constraint by the 1-based index or id shown by "
+    "read_constraints. active=false keeps the entry with still_active=false; active=true "
+    "brings it back and runs newest-wins against conflicting active hard constraints. "
+    "Idempotent. Returns the full constraint list with still_active per entry. Read the "
+    "list back after calling. Does not delete the entry.",
+    {
+        "constraint": {
+            "description": "1-based index (int) or id string from read_constraints",
+        },
+        "active": {"type": "boolean"},
+    },
+    ["constraint", "active"],
+)
+
 
 def combined_specs(
     *,
@@ -427,6 +466,7 @@ def combined_specs(
         from scripts.eval.part_g_arm.state.usage_meta_tools import USAGE_META_SPECS
 
         lookups = [*lookups, _DESCRIBE_SPEC, *USAGE_META_SPECS]
+        lookups.append(_SET_CONSTRAINT_ACTIVE_SPEC)
     if wrap:
         from scripts.eval.part_g_arm.state.set_slot_tool import SET_SLOT_SPEC
 
@@ -849,7 +889,7 @@ _SCOPES = frozenset({"per_slot", "team_wide"})
 _MECH_KINDS = frozenset({"type", "ability", "item", "no_duplicate_items"})
 
 
-def _constraint_row(c: Any) -> dict[str, Any]:
+def _constraint_row(c: Any, *, index_1based: int | None = None) -> dict[str, Any]:
     """JSON row for one Constraint (dataclass or already-dict)."""
     if hasattr(c, "predicate"):
         pred = str(c.predicate or "")
@@ -880,12 +920,20 @@ def _constraint_row(c: Any) -> dict[str, Any]:
     m = _SLOT_PRED_RE.match(pred)
     if m:
         row["slot"] = int(m.group(1))
+    # index/id are tool_fields surface; flags-off matches main (no fields).
+    if index_1based is not None and tool_fields_enabled():
+        row["index"] = index_1based
+        row["id"] = str(index_1based)
     return row
 
 
 def read_constraints(state: dict[str, Any]) -> dict[str, Any]:
     """Read-only constraint list. Slot echo comes from predicate prefix when present."""
-    return {"constraints": [_constraint_row(c) for c in state.get("constraints") or []]}
+    rows = [
+        _constraint_row(c, index_1based=i + 1)
+        for i, c in enumerate(state.get("constraints") or [])
+    ]
+    return {"constraints": rows}
 
 
 def add_constraint(
@@ -950,15 +998,93 @@ def add_constraint(
     if patch.get("slot_commit_error"):
         return state, _refuse(str(patch["slot_commit_error"]))
     after = _merge(state, patch)
-    latest = (after.get("constraints") or [])[-1]
+    rows = after.get("constraints") or []
+    latest = rows[-1]
     result = {
         "ok": True,
-        "constraint": _constraint_row(latest),
-        "constraints": [_constraint_row(c) for c in after.get("constraints") or []],
+        "constraint": _constraint_row(latest, index_1based=len(rows)),
+        "constraints": [
+            _constraint_row(c, index_1based=i + 1) for i, c in enumerate(rows)
+        ],
     }
     if slot_echo is not None:
         result["slot"] = slot_echo
     return after, result
+
+
+def _resolve_constraint_index(state: dict[str, Any], constraint: object) -> int | str:
+    """Return 0-based index or a refusal message string."""
+    rows = state.get("constraints") or []
+    n = len(rows)
+    if n == 0:
+        return "no constraints recorded (valid range is empty)"
+    if isinstance(constraint, bool) or constraint is None:
+        return f"constraint must be a 1-based index or id string (valid 1..{n})"
+    if isinstance(constraint, int):
+        if constraint < 1 or constraint > n:
+            return f"constraint index out of range (valid 1..{n})"
+        return constraint - 1
+    if isinstance(constraint, str) and constraint.strip().isdigit():
+        idx = int(constraint.strip())
+        if idx < 1 or idx > n:
+            return f"constraint id out of range (valid 1..{n})"
+        return idx - 1
+    return f"constraint must be a 1-based index or id string (valid 1..{n})"
+
+
+def set_constraint_active(
+    state: dict[str, Any],
+    constraint: object,
+    active: object,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Deactivate or reactivate one constraint by 1-based index/id (tool_fields)."""
+    from dataclasses import replace
+
+    from recommender.constraint_enforcement import reactivate_constraint_with_axis_supersede
+
+    if not isinstance(active, bool):
+        return state, _refuse("active must be a boolean")
+    resolved = _resolve_constraint_index(state, constraint)
+    if isinstance(resolved, str):
+        return state, _refuse(resolved)
+    index = resolved
+    rows = list(state.get("constraints") or [])
+    current = rows[index]
+    was_active = bool(getattr(current, "still_active", True))
+    if was_active == active:
+        # Idempotent: no change.
+        listed = [
+            _constraint_row(c, index_1based=i + 1) for i, c in enumerate(rows)
+        ]
+        return state, {"ok": True, "changed": False, "constraints": listed}
+
+    turn = int(state.get("turn") or 0)
+    patch: dict[str, Any] = {}
+    if not active:
+        rows[index] = replace(current, still_active=False)
+        patch["constraints"] = rows
+    else:
+        result = reactivate_constraint_with_axis_supersede(rows, index, turn=turn)
+        if result is None:
+            return state, _refuse("constraint index out of range")
+        new_rows, axis_sup, axis_flags = result
+        patch["constraints"] = new_rows
+        if axis_sup:
+            patch["constraints_superseded"] = [
+                *state.get("constraints_superseded", []),
+                *axis_sup,
+            ]
+        if axis_flags:
+            patch["constraint_flags"] = [
+                *state.get("constraint_flags", []),
+                *axis_flags,
+            ]
+    after = _merge(state, patch)
+    listed = [
+        _constraint_row(c, index_1based=i + 1)
+        for i, c in enumerate(after.get("constraints") or [])
+    ]
+    return after, {"ok": True, "changed": True, "constraints": listed}
 
 
 def restore_constraint_tool(
@@ -974,7 +1100,10 @@ def restore_constraint_tool(
         return state, _refuse("restore_constraint could not apply (stale log entry)")
     return after, {
         "ok": True,
-        "constraints": [_constraint_row(c) for c in after.get("constraints") or []],
+        "constraints": [
+            _constraint_row(c, index_1based=i + 1)
+            for i, c in enumerate(after.get("constraints") or [])
+        ],
     }
 
 
@@ -1291,7 +1420,6 @@ def find_species(
     from recommender.regulation_registry import active_regulation
     from recommender.slot_fill import _is_battle_only_transient_forme
 
-    _ = state
     snap = load_snapshot()
     regulation = active_regulation()
     type_need: list[str] = []
@@ -1309,6 +1437,29 @@ def find_species(
         if not isinstance(ability, str) or not ability.strip():
             return {"status": "error", "message": "ability must be a nonempty string", "species": [], "count": 0}
         ability_s = ability.strip()
+    # FU21: AND active mechanical type/ability constraints (tool_fields only; flags-off ignores state).
+    if tool_fields_enabled():
+        for c in state.get("constraints") or []:
+            active = (
+                c.get("still_active", True)
+                if isinstance(c, dict)
+                else getattr(c, "still_active", True)
+            )
+            if not active:
+                continue
+            mech = (
+                c.get("mechanical") if isinstance(c, dict) else getattr(c, "mechanical", None)
+            )
+            if mech is None:
+                continue
+            kind = mech.get("kind") if isinstance(mech, dict) else getattr(mech, "kind", None)
+            val = mech.get("value") if isinstance(mech, dict) else getattr(mech, "value", None)
+            if kind == "type" and isinstance(val, str) and val.strip():
+                type_need.append(val.strip())
+            elif kind == "ability" and isinstance(val, str) and val.strip() and ability_s is None:
+                ability_s = val.strip()
+    else:
+        _ = state
     formula: dict[str, Any] | None = None
     if stat_formula is not None:
         if not isinstance(stat_formula, dict):
@@ -1611,6 +1762,12 @@ def show_candidates(
         pending = {**pending, "options": list(pending.get("options") or [])[:n]}
     elif n is not None:
         return state, _refuse("n must be a positive integer when provided")
+
+    # OL10a: fingerprint only when guard is on (invisible at flags-off / draft).
+    if guard_enabled():
+        from scripts.eval.part_g_arm.state.guard_allowed import team_fingerprint
+
+        pending = {**pending, "team_fingerprint": team_fingerprint(state)}
 
     options = _option_rows(pending)
     if not options:

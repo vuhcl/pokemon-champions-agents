@@ -1,0 +1,132 @@
+[
+  {
+    "id": "FX1",
+    "loaded": true,
+    "start_meta": {"start": "empty"},
+    "run_id": "fixture-rung6-guard-judge",
+    "role": "fixture",
+    "turns": [
+      {
+        "user": "What type is Toxapex?",
+        "tool_calls": [
+          {
+            "name": "get_typing",
+            "args": {"species": "Toxapex"},
+            "result_status": "ok",
+            "result": {"types": ["Water", "Poison"], "status": "ok"}
+          },
+          {
+            "name": "unlock_slot",
+            "args": {"slot": 1},
+            "result_status": "refused",
+            "result": {
+              "status": "refused",
+              "guard_blocked": true,
+              "message": "UNLOCK not allowed under LOOKUP"
+            }
+          }
+        ],
+        "state_before": {"team_draft": []},
+        "state_after": {"team_draft": []},
+        "final_text": "Toxapex is Water/Poison.",
+        "mechanical_class": "LOOKUP",
+        "errors": [],
+        "reasked": false,
+        "prompt_tokens": 0,
+        "replace_true_calls": 0,
+        "refused_calls": 1,
+        "fallback": false,
+        "allowed_tools": ["get_typing", "read_team", "check_species_legal", "read_constraints"],
+        "blocked_calls": [
+          {
+            "name": "unlock_slot",
+            "args": {"slot": 1},
+            "guard_class": "LOOKUP",
+            "reason": "write under LOOKUP"
+          }
+        ],
+        "pending_asked": null,
+        "guard_class": "LOOKUP",
+        "judge": {
+          "verdicts": [],
+          "retry_used": false,
+          "retries": 0,
+          "raw_answer": "Toxapex is Water/Poison.",
+          "retried_answer": null,
+          "post_judge_answer": "Toxapex is Water/Poison."
+        },
+        "parser": {
+          "sub_requests": [{"class": "LOOKUP", "species": "Toxapex"}],
+          "uncertain": false,
+          "parser_latency_ms": 1,
+          "parser_prompt_sha256": "fixture"
+        }
+      }
+    ]
+  },
+  {
+    "id": "FX2",
+    "loaded": true,
+    "start_meta": {"start": "empty"},
+    "run_id": "fixture-rung6-guard-judge",
+    "role": "fixture",
+    "turns": [
+      {
+        "user": "Lock Pelipper in slot 1",
+        "tool_calls": [
+          {
+            "name": "read_team",
+            "args": {},
+            "result_status": "ok",
+            "result": {"slots": [], "status": "ok"}
+          },
+          {
+            "name": "set_slot",
+            "args": {"slot": 1, "species": "Pelipper"},
+            "result_status": "ok",
+            "result": {"ok": true}
+          }
+        ],
+        "state_before": {"team_draft": []},
+        "state_after": {"team_draft": [{"species": "Pelipper"}]},
+        "final_text": "Locked Pelipper.",
+        "mechanical_class": "WRITE",
+        "errors": [],
+        "reasked": false,
+        "prompt_tokens": 0,
+        "replace_true_calls": 0,
+        "refused_calls": 0,
+        "fallback": true,
+        "allowed_tools": [
+          "set_slot",
+          "read_team",
+          "read_constraints",
+          "check_species_legal"
+        ],
+        "blocked_calls": [],
+        "pending_asked": null,
+        "guard_class": "WRITE",
+        "judge": {
+          "verdicts": [
+            {
+              "claim": "Pelipper locked",
+              "verdict": "ok",
+              "reason": "set_slot succeeded"
+            }
+          ],
+          "retry_used": true,
+          "retries": 1,
+          "raw_answer": "Done.",
+          "retried_answer": "Locked Pelipper.",
+          "post_judge_answer": "Locked Pelipper."
+        },
+        "parser": {
+          "sub_requests": [{"class": "WRITE", "species": "Pelipper"}],
+          "uncertain": false,
+          "parser_latency_ms": 1,
+          "parser_prompt_sha256": "fixture"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "run_id": "fixture-rung6-guard-judge",
+  "role": "fixture",
+  "tool_set": [
+    "get_typing",
+    "read_team",
+    "lock_slot",
+    "set_slot",
+    "unlock_slot",
+    "read_constraints",
+    "check_species_legal"
+  ],
+  "run_flags": {
+    "tool_fields": true,
+    "wrapper": true,
+    "draft": true,
+    "guard": true,
+    "judge": true
+  },
+  "tool_schema_sha256": "fixture"
+}

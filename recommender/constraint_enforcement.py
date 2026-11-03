@@ -499,6 +499,76 @@ def apply_constraint_axis_supersede(
     return out, superseded, flags
 
 
+def reactivate_constraint_with_axis_supersede(
+    constraints: list[Constraint],
+    index: int,
+    *,
+    turn: int,
+) -> tuple[list[Constraint], list[ConstraintSupersededEntry], list[ConstraintFlag]] | None:
+    """Reactivate constraints[index]; newest-wins vs other active hard axis mates.
+
+    Same rule as apply_constraint_axis_supersede treating the reactivated row as
+    the winner. Returns None if index is out of range.
+    """
+    if index < 0 or index >= len(constraints):
+        return None
+    target = constraints[index]
+    if target.still_active:
+        return list(constraints), [], []
+    out = list(constraints)
+    out[index] = replace(target, still_active=True)
+    revived = out[index]
+    new_spec = revived.mechanical
+    if (
+        revived.type != "hard"
+        or new_spec is None
+        or new_spec.kind == "no_duplicate_items"
+    ):
+        return out, [], []
+
+    superseded: list[ConstraintSupersededEntry] = []
+    flags: list[ConstraintFlag] = []
+    for i, older in enumerate(out):
+        if i == index or not older.still_active or older.type != "hard":
+            continue
+        older_spec = older.mechanical
+        if older_spec is None or older_spec.kind == "no_duplicate_items":
+            continue
+        if older_spec.kind != new_spec.kind or older_spec.scope != new_spec.scope:
+            continue
+        if older_spec.value == new_spec.value:
+            continue
+        out[i] = replace(older, still_active=False)
+        reason = (
+            f"superseded by reactivating {revived.predicate!r} "
+            f"({new_spec.kind}/{new_spec.scope}={new_spec.value})"
+        )
+        superseded.append(
+            ConstraintSupersededEntry(
+                constraint_index=i,
+                kind=older_spec.kind,  # type: ignore[typeddict-item]
+                scope=older_spec.scope,
+                value=older_spec.value,
+                predicate=older.predicate,
+                source_turn=older.source_turn,
+                turn_removed=turn,
+                reason=reason,
+                won_by_index=index,
+            )
+        )
+        flags.append(
+            ConstraintFlag(
+                kind=older_spec.kind,  # type: ignore[typeddict-item]
+                scope=older_spec.scope,
+                value=older_spec.value,
+                flag_kind="constraint_axis_superseded",
+                predicate=older.predicate,
+                won_by_predicate=revived.predicate,
+            )
+        )
+    return out, superseded, flags
+
+
 def restore_constraint_axis(
     constraints: list[Constraint],
     entry: ConstraintSupersededEntry,

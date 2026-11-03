@@ -1,0 +1,3 @@
+row_id,turn,proposed_guard_class,guard_class_override,expected_tools_ordered,alternative_path,optional_tools,new_tool_needed,user_turn_text
+FX1,1,LOOKUP,,get_typing,,,,"What type is Toxapex?"
+FX2,1,WRITE,,read_team;set_slot,,,,"Lock Pelipper in slot 1"

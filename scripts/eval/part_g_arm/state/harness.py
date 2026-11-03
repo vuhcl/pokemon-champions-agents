@@ -194,6 +194,12 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return state, read_constraints(state)
     if name == "restore_constraint":
         return restore_constraint_tool(state)
+    if name == "set_constraint_active":
+        from scripts.eval.part_g_arm.state.tools import set_constraint_active, tool_fields_enabled
+
+        if not tool_fields_enabled():
+            return state, {"slot_commit_error": "set_constraint_active requires tool_fields flag"}
+        return set_constraint_active(state, args.get("constraint"), args.get("active"))
     if name == "show_candidates":
         return show_candidates(state, args.get("slot"), n=args.get("n"))
     if name == "check_learnset":
@@ -321,6 +327,15 @@ def _text(content: Any) -> str:
     return "" if content is None else str(content)
 
 
+def _llm_without_tools(llm: Any) -> Any:
+    """Judge retry must not bind tools — tool_calls yield empty content."""
+    # langchain RunnableBinding from bind_tools: unwrap to the base chat model.
+    bound = getattr(llm, "bound", None)
+    if bound is not None:
+        return bound
+    return llm
+
+
 def run_turn(
     cfg: ArmConfig,
     llm: Any,
@@ -329,8 +344,13 @@ def run_turn(
     user_text: str,
     *,
     prior_messages: list[dict[str, str]] | None = None,
+    guard: bool | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+
+    from scripts.eval.part_g_arm.state.tools import guard_enabled
+
+    guard_on = guard_enabled() if guard is None else bool(guard)
 
     messages: list[Any] = [SystemMessage(cfg.prompt_text())]
     # Optional prior turns (HD1 seed): same roles as a normal multi-turn chat.
@@ -356,6 +376,52 @@ def run_turn(
     reasked = False
     # Ollama prompt_eval_count on the fullest invoke this turn (includes in-turn tools).
     prompt_tokens: int | None = None
+    turn_ctx: dict[str, Any] | None = None
+    parser_record: dict[str, Any] | None = None
+    if guard_on:
+        from scripts.eval.part_g_arm.state.guard_exec import init_turn_ctx
+        from scripts.eval.part_g_arm.state.guard_parser import parse_user_turn
+
+        pending_asked = state.get("_guard_pending_asked")
+        try:
+            parser_record = parse_user_turn(
+                llm, user_text, state, pending_asked=pending_asked
+            )
+        except Exception as exc:  # noqa: BLE001 - fail closed to ASK
+            errors.append(f"guard_parser:{type(exc).__name__}: {exc}")
+            parser_record = {
+                "sub_requests": [
+                    {
+                        "class": "ASK",
+                        "action": None,
+                        "numeric_or_explain": False,
+                        "confirms_replacement": False,
+                        "uncertain": True,
+                    }
+                ],
+                "uncertain": True,
+                "parser_latency_ms": None,
+                "parser_prompt_sha256": None,
+            }
+        turn_ctx = init_turn_ctx(
+            parser_record["sub_requests"],
+            state,
+            pending_asked=pending_asked if isinstance(pending_asked, dict) else None,
+        )
+        # Store ASK action for the next turn.
+        primary = (parser_record["sub_requests"] or [{}])[0]
+        if str(primary.get("class") or "").upper() == "ASK":
+            state["_guard_pending_asked"] = {
+                "action": primary.get("action"),
+                "missing_argument": True,
+                "slot_context": None,
+            }
+        elif str(primary.get("class") or "").upper() == "PENDING_ANSWER":
+            # Consumed below after successful write; keep until then.
+            pass
+        else:
+            state["_guard_pending_asked"] = None
+
     for turn_index in range(cfg.max_turns):
         if time.monotonic() > deadline:
             errors.append("item_timeout")
@@ -383,7 +449,19 @@ def run_turn(
             import time as _time
 
             _t0 = _time.perf_counter()
-            state, patch = dispatch(state, arm, call["name"], call.get("args") or {})
+            if turn_ctx is not None:
+                from scripts.eval.part_g_arm.state.guard_exec import guarded_dispatch
+
+                state, patch = guarded_dispatch(
+                    state,
+                    arm,
+                    call["name"],
+                    call.get("args") or {},
+                    turn_ctx=turn_ctx,
+                    dispatch_fn=dispatch,
+                )
+            else:
+                state, patch = dispatch(state, arm, call["name"], call.get("args") or {})
             latency_ms = int((_time.perf_counter() - _t0) * 1000)
             recorded = _jsonable_result(patch)
             args = call.get("args") or {}
@@ -405,6 +483,11 @@ def run_turn(
             entry["result_status"] = tool_call_result_status(entry)
             calls.append(entry)
             messages.append(ToolMessage(dumps(recorded), tool_call_id=call["id"]))
+            if turn_ctx is not None and turn_ctx.get("cap_hit"):
+                errors.append("tool_call_cap")
+                break
+        if turn_ctx is not None and turn_ctx.get("cap_hit"):
+            break
         if turn_index + 1 >= cfg.max_turns:
             errors.append("max_turns")
     after = snapshot(state)
@@ -414,6 +497,23 @@ def run_turn(
         if c.get("name") in {"set_slot", "unlock_slot"} and c.get("replace") is True
     )
     refused_calls = sum(1 for c in calls if c.get("result_status") == "refused")
+    fallback = False
+    if guard_on:
+        from scripts.eval.part_g_arm.state.guard_terminal import build_fallback_reply
+
+        cap_hit = bool(turn_ctx and turn_ctx.get("cap_hit"))
+        if not (final_text or "").strip() or cap_hit:
+            final_text = build_fallback_reply(
+                calls,
+                blocked_calls=(turn_ctx or {}).get("blocked_calls") or [],
+                cap_hit=cap_hit,
+            )
+            fallback = True
+        # Clear pending asked after a non-ASK turn that executed or was refused.
+        if turn_ctx and state.get("_guard_pending_asked"):
+            primary_cls = str((turn_ctx.get("guard_class") or "")).upper()
+            if primary_cls == "PENDING_ANSWER":
+                state["_guard_pending_asked"] = None
     record = {
         "user": user_text,
         "tool_calls": calls,
@@ -426,7 +526,86 @@ def run_turn(
         "prompt_tokens": prompt_tokens,
         "replace_true_calls": replace_true_calls,
         "refused_calls": refused_calls,
+        "fallback": fallback,
     }
+    if parser_record is not None:
+        record["parser"] = {
+            "sub_requests": parser_record.get("sub_requests"),
+            "uncertain": parser_record.get("uncertain"),
+            "parser_latency_ms": parser_record.get("parser_latency_ms"),
+            "parser_prompt_sha256": parser_record.get("parser_prompt_sha256"),
+        }
+    if turn_ctx is not None:
+        record["allowed_tools"] = sorted(turn_ctx.get("allowed") or ())
+        record["blocked_calls"] = list(turn_ctx.get("blocked_calls") or [])
+        record["pending_asked"] = turn_ctx.get("pending_asked")
+        record["guard_class"] = turn_ctx.get("guard_class")
+    from scripts.eval.part_g_arm.state.tools import judge_enabled
+
+    if judge_enabled() and turn_ctx is not None:
+        from scripts.eval.part_g_arm.state.judge_lite import apply_unverified_labels, run_judge
+
+        raw = final_text
+        judge_kwargs = dict(
+            sub_requests=turn_ctx.get("sub_requests") or [],
+            tool_calls=calls,
+            state=state,
+            state_before=before,
+            state_after=after,
+            allowed=set(turn_ctx.get("allowed") or ()),
+            confirms_replacement=bool(turn_ctx.get("confirms_replacement")),
+            blocked_calls=turn_ctx.get("blocked_calls") or [],
+            user_text=user_text,
+        )
+        judge_rec = run_judge(reply=raw, **judge_kwargs)
+        retried_answer = None
+        retries = 0
+        if judge_rec.get("verdicts"):
+            # One structured retry: feed verdicts back; model may only revise text.
+            retries = 1
+            first_verdicts = list(judge_rec.get("verdicts") or [])
+            verdict_blob = dumps(first_verdicts)
+            retry_prompt = (
+                "Your previous answer had judge verdicts that need fixing. "
+                "Revise the answer using only tool results and state; do not invent facts. "
+                "Do not call tools — retract, qualify, or ask.\n"
+                f"Verdicts JSON:\n{verdict_blob}\n"
+                f"Previous answer:\n{raw}"
+            )
+            try:
+                # Unbound: tool-bound llm.invoke can return tool_calls with empty content.
+                retry_ai = _llm_without_tools(llm).invoke(
+                    [*messages, HumanMessage(retry_prompt)]
+                )
+                retried_answer = _text(getattr(retry_ai, "content", retry_ai))
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"judge_retry:{type(exc).__name__}: {exc}")
+                retried_answer = raw
+            if not (retried_answer or "").strip():
+                # Empty / tool-call-only retry: keep raw and label it (terminal guarantee).
+                retried_answer = ""
+                post = apply_unverified_labels(raw, first_verdicts)
+                judge_rec["retry_used"] = True
+                judge_rec["verdicts"] = first_verdicts
+            else:
+                judge_rec = run_judge(reply=retried_answer, **judge_kwargs)
+                judge_rec["retry_used"] = True
+                if judge_rec.get("verdicts"):
+                    post = apply_unverified_labels(
+                        retried_answer, judge_rec.get("verdicts") or []
+                    )
+                else:
+                    post = retried_answer
+        else:
+            judge_rec["retry_used"] = False
+            post = raw
+        judge_rec["raw_answer"] = raw
+        judge_rec["retried_answer"] = retried_answer
+        judge_rec["post_judge_answer"] = post
+        judge_rec["retries"] = retries
+        final_text = post
+        record["final_text"] = final_text
+        record["judge"] = judge_rec
     return state, record
 
 
