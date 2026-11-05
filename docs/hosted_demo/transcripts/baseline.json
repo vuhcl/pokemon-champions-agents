@@ -1,6 +1,6 @@
 {
   "name": "baseline_one_locked_slot",
-  "source": "docs/hosted_demo/floor_run.py baseline, compile_graph + MemorySaver + fake parsers. Same three user texts as tests/recommender/test_cli_repl.py test_e2e_bootstrap_pick_confirm_restart. The featured-set double from that test was on for this run. Discovery was not patched: the locking yes also opens the next candidate_selection.",
+  "source": "docs/hosted_demo/floor_run.py baseline, compile_graph + MemorySaver + fake parsers. Same three user texts as tests/recommender/test_cli_repl.py test_e2e_bootstrap_pick_confirm_restart. The featured-set double from that test was on for this run. Discovery was not patched: the locking yes also opens the next candidate_selection. The 201 target is the display card from targets/placeholder.not-a-real-target.json. It is a placeholder, not a real target, and it is not part of the measured floor.",
   "turn_count_to_one_locked_slot": 3,
   "exchanges": [
     {
@@ -12,7 +12,21 @@
       "response": {
         "status": 201,
         "body": {
-          "session_token": "<redacted>",
+          "session_token": "REDACTED-session-token-not-a-real-secret-value",
+          "target": {
+            "source_url": null,
+            "event": null,
+            "player": null,
+            "regulation": {"tag": "champions-reg-mc", "letter": "C"},
+            "members": [
+              {"species": "Pelipper", "item": "Damp Rock", "ability": "Drizzle", "moves": ["Hurricane", "U-turn", "Weather Ball", "Protect"]},
+              {"species": "Incineroar", "item": "Safety Goggles", "ability": "Intimidate", "moves": ["Fake Out", "Flare Blitz", "Parting Shot", "Snarl"]},
+              {"species": "Rillaboom", "item": "Assault Vest", "ability": "Grassy Surge", "moves": ["Grassy Glide", "Wood Hammer", "U-turn", "Fake Out"]},
+              {"species": "Amoonguss", "item": "Sitrus Berry", "ability": "Regenerator", "moves": ["Spore", "Rage Powder", "Pollen Puff", "Protect"]},
+              {"species": "Kingambit", "item": "Black Glasses", "ability": "Defiant", "moves": ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"]},
+              {"species": "Flutter Mane", "item": "Choice Specs", "ability": "Protosynthesis", "moves": ["Moonblast", "Shadow Ball", "Dazzling Gleam", "Protect"]}
+            ]
+          },
           "state_view": {
             "round": 1,
             "turn": 0,

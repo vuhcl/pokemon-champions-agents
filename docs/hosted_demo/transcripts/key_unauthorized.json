@@ -1,0 +1,25 @@
+{
+  "name": "key_unauthorized",
+  "measured": false,
+  "source": "Contract example. POST /key runs the same one minimal provider check as POST /session. 401 unauthorized_key costs no turn and keeps the previous parsers. The graph was not invoked.",
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/key",
+        "body": {"api_key": "<redacted>"}
+      },
+      "response": {
+        "status": 401,
+        "body": {
+          "error": {
+            "code": "unauthorized_key",
+            "message": "That key was not accepted. The game is unchanged. Enter another key.",
+            "retryable": true,
+            "counts_as_turn": false
+          }
+        }
+      }
+    }
+  ]
+}
