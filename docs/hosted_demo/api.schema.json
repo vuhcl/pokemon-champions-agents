@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://pokemon-champions-agents.local/hosted-demo/api.schema.json",
   "title": "Hosted demo HTTP contract (v0)",
-  "description": "Contract for the API in design_draft_hosted_demo_2026-11-04.md section 3. Nothing here is implemented. Header for the session token is X-Session-Token (the draft said 'a header' and did not name it). Body cap 8192 bytes matches the draft's 'about 8 KB'. max_len is null: the 2026-11-04 fake-parser run passed 20019 characters through with no truncation. Score values are null in the sample transcripts; the score function is stream 1. provisional_slot is included because full_build_confirmation's build is not in team_draft (state.ProvisionalSlot). Parser failure is a 200 with reply_text, not the error envelope; the draft says it does not count a turn, and the graph today does (see the report).",
+  "description": "Contract for the API in docs/hosted_demo/design_draft_hosted_demo_2026-11-04.md section 3, plus D9 and sandbox from the 2026-11-04 review. Nothing here is implemented. Session token header is X-Session-Token. Body cap is 8192 bytes. text maxLength is 7000 characters so an ASCII JSON wrapper fits in that cap; if the encoded body is still over 8192 bytes, 413 wins. max_len on state_view stays null: the floor run delivered 20019 characters with no in-graph truncation. D9 (decided 2026-11-04): a parser failure, a bootstrap provider failure, or a refused action that reaches the graph is a 200 with reply_text and turn incremented, as the floor run measured. The error envelope is only for requests that never reach the graph. counts_as_turn is const false on every envelope code because those codes never count; counted failures are not envelopes. Score is null until the stream 1 score function exists. provisional_slot is included because full_build_confirmation's build is not in team_draft.",
   "type": "object",
   "$defs": {
     "provider": {
@@ -106,25 +106,15 @@
         "spread": {"type": "object"}
       }
     },
-    "state_view": {
+    "state_view_common": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Projection. Must not contain an API key, provider request, checkpoint, or the raw graph state.",
-      "required": [
-        "round",
-        "turn",
-        "max_len",
-        "prompt_text",
-        "notices",
-        "pending_kind",
-        "options",
-        "slots",
-        "provisional_slot",
-        "score"
-      ],
+      "description": "Shared projection. No API key, provider request, checkpoint, or raw graph state.",
+      "required": ["max_len", "prompt_text", "notices", "pending_kind", "options", "slots", "provisional_slot"],
       "properties": {
         "round": {"type": "integer", "enum": [1, 2]},
         "turn": {"type": "integer", "minimum": 0},
+        "score": {"$ref": "#/$defs/score"},
         "max_len": {"type": ["integer", "null"]},
         "prompt_text": {"type": ["string", "null"]},
         "notices": {"type": "array", "items": {"type": "string"}},
@@ -136,8 +126,69 @@
           "maxItems": 6,
           "items": {"$ref": "#/$defs/slot_view"}
         },
-        "provisional_slot": {"$ref": "#/$defs/provisional_slot"},
-        "score": {"$ref": "#/$defs/score"}
+        "provisional_slot": {"$ref": "#/$defs/provisional_slot"}
+      }
+    },
+    "state_view_game": {
+      "description": "Game mode. round, turn, and score are present. They are omitted in sandbox, not sent as null.",
+      "allOf": [
+        {"$ref": "#/$defs/state_view_common"},
+        {
+          "type": "object",
+          "required": ["round", "turn", "score"],
+          "properties": {
+            "round": {"type": "integer", "enum": [1, 2]},
+            "turn": {"type": "integer", "minimum": 0},
+            "score": {"$ref": "#/$defs/score"}
+          }
+        }
+      ]
+    },
+    "state_view_sandbox": {
+      "description": "Sandbox mode. round, turn, and score are absent. Not null.",
+      "allOf": [{"$ref": "#/$defs/state_view_common"}],
+      "not": {
+        "anyOf": [
+          {"required": ["round"]},
+          {"required": ["turn"]},
+          {"required": ["score"]}
+        ]
+      }
+    },
+    "target_card": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Display fields for the page. Not the legality blob and not the placeholder flag.",
+      "required": ["source_url", "event", "player", "regulation", "members"],
+      "properties": {
+        "source_url": {"type": ["string", "null"]},
+        "event": {"type": ["string", "null"]},
+        "player": {"type": ["string", "null"]},
+        "regulation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tag", "letter"],
+          "properties": {
+            "tag": {"type": "string"},
+            "letter": {"type": "string"}
+          }
+        },
+        "members": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["species", "item", "ability", "moves"],
+            "properties": {
+              "species": {"type": "string"},
+              "item": {"type": "string"},
+              "ability": {"type": "string"},
+              "moves": {"type": "array", "items": {"type": "string"}, "minItems": 4, "maxItems": 4}
+            }
+          }
+        }
       }
     },
     "error_envelope": {
@@ -169,27 +220,42 @@
             },
             "message": {"type": "string"},
             "retryable": {"type": "boolean"},
-            "counts_as_turn": {"type": "boolean", "const": false}
+            "counts_as_turn": {
+              "type": "boolean",
+              "const": false,
+              "description": "Always false. The envelope is not used for a result that reached the graph. Those are 200 message responses and the turn field shows the increment (D9)."
+            }
           }
         }
       }
     },
-    "message_response": {
+    "message_response_game": {
       "type": "object",
       "additionalProperties": false,
+      "description": "200 after the graph ran, including parser failure, bootstrap provider failure, and a refused action. turn is the incremented state turn (D9).",
       "required": ["reply_text", "state_view", "turn", "score"],
       "properties": {
         "reply_text": {"type": "string"},
-        "state_view": {"$ref": "#/$defs/state_view"},
+        "state_view": {"$ref": "#/$defs/state_view_game"},
         "turn": {"type": "integer", "minimum": 0},
         "score": {"$ref": "#/$defs/score"}
+      }
+    },
+    "message_response_sandbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "200 in sandbox. No top-level turn or score. The graph's own turn still advances inside the checkpoint; the page does not show it.",
+      "required": ["reply_text", "state_view"],
+      "properties": {
+        "reply_text": {"type": "string"},
+        "state_view": {"$ref": "#/$defs/state_view_sandbox"}
       }
     }
   },
   "properties": {
     "POST /session": {
       "type": "object",
-      "description": "201. Body {provider, model, api_key}. api_key is request-only and must not appear in the response, logs, or state_view.",
+      "description": "201. api_key is request-only. mode omitted means game. The key is checked here (draft: at creation only). 401 unauthorized_key if that check fails; the session is not created. Game 201 includes target. Sandbox 201 does not.",
       "properties": {
         "request": {
           "type": "object",
@@ -198,40 +264,52 @@
           "properties": {
             "provider": {"$ref": "#/$defs/provider"},
             "model": {"type": "string", "minLength": 1},
-            "api_key": {"type": "string", "minLength": 1}
+            "api_key": {"type": "string", "minLength": 1},
+            "mode": {"type": "string", "enum": ["game", "sandbox"], "default": "game"}
           }
         },
-        "response_201": {
+        "response_201_game": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["session_token", "state_view", "target"],
+          "properties": {
+            "session_token": {"type": "string", "minLength": 32},
+            "state_view": {"$ref": "#/$defs/state_view_game"},
+            "target": {"$ref": "#/$defs/target_card"}
+          }
+        },
+        "response_201_sandbox": {
           "type": "object",
           "additionalProperties": false,
           "required": ["session_token", "state_view"],
           "properties": {
             "session_token": {"type": "string", "minLength": 32},
-            "state_view": {"$ref": "#/$defs/state_view"}
+            "state_view": {"$ref": "#/$defs/state_view_sandbox"}
           }
         }
       }
     },
     "POST /session/{token}/message": {
       "type": "object",
-      "description": "200 message_response. 409 in_flight or stale_turn when expected_turn does not match state_view.turn or another message is running. Neither 409 counts a turn.",
+      "description": "200 if the graph ran: normal play, parser failure, bootstrap provider failure, or a refused action. turn increments (D9). 409 in_flight or stale_turn does not run the graph and does not count. text maxLength 7000. The byte cap is still 8192: 413 body_too_large wins when the encoded body exceeds it, including multi-byte text under the character cap. On timeout the API re-reads state turn before it answers, so a late checkpoint is not reported as uncounted.",
       "properties": {
         "request": {
           "type": "object",
           "additionalProperties": false,
           "required": ["text", "expected_turn"],
           "properties": {
-            "text": {"type": "string", "minLength": 1, "maxLength": 8192},
+            "text": {"type": "string", "minLength": 1, "maxLength": 7000},
             "expected_turn": {"type": "integer", "minimum": 0}
           }
         },
-        "response_200": {"$ref": "#/$defs/message_response"},
+        "response_200_game": {"$ref": "#/$defs/message_response_game"},
+        "response_200_sandbox": {"$ref": "#/$defs/message_response_sandbox"},
         "response_409": {"$ref": "#/$defs/error_envelope"}
       }
     },
     "POST /session/{token}/key": {
       "type": "object",
-      "description": "200. Replaces parsers. Does not change turn.",
+      "description": "200. Replaces the in-memory parsers and keeps the game. Does not call the provider and does not change turn. The draft checks the key at session creation only, so a bad replacement is discovered on the next message that reaches the provider, and that message counts (D9). 401 unauthorized_key is the creation-time and any pre-invoke rejection, not this 200.",
       "properties": {
         "request": {
           "type": "object",
@@ -239,31 +317,38 @@
           "required": ["api_key"],
           "properties": {"api_key": {"type": "string", "minLength": 1}}
         },
-        "response_200": {
+        "response_200_game": {
           "type": "object",
           "additionalProperties": false,
           "required": ["state_view"],
-          "properties": {"state_view": {"$ref": "#/$defs/state_view"}}
+          "properties": {"state_view": {"$ref": "#/$defs/state_view_game"}}
+        },
+        "response_200_sandbox": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state_view"],
+          "properties": {"state_view": {"$ref": "#/$defs/state_view_sandbox"}}
         }
       }
     },
     "POST /session/{token}/round": {
       "type": "object",
-      "description": "200. Fresh thread, same target, round 2, turn 0. 409 round_in_flight while a message is running.",
+      "description": "Game only. 200 starts round 2 on a fresh thread, turn 0. 409 round_in_flight while a message is running. Sandbox: 404 with an empty body and no error code. That is not hint_off and not session_not_found.",
       "properties": {
         "request": {"type": "object", "additionalProperties": false, "maxProperties": 0},
         "response_200": {
           "type": "object",
           "additionalProperties": false,
           "required": ["state_view"],
-          "properties": {"state_view": {"$ref": "#/$defs/state_view"}}
+          "properties": {"state_view": {"$ref": "#/$defs/state_view_game"}}
         },
-        "response_409": {"$ref": "#/$defs/error_envelope"}
+        "response_409": {"$ref": "#/$defs/error_envelope"},
+        "response_404_sandbox": {"type": "null", "description": "Empty body. No error code."}
       }
     },
     "POST /session/{token}/hint": {
       "type": "object",
-      "description": "200 in round 1. 409 hint_off in round 2. Does not count a turn.",
+      "description": "Game, round 1: 200, no turn. Game, round 2: 409 hint_off. Sandbox: 404 with an empty body and no error code.",
       "properties": {
         "request": {"type": "object", "additionalProperties": false, "maxProperties": 0},
         "response_200": {
@@ -272,10 +357,11 @@
           "required": ["hint_text", "state_view"],
           "properties": {
             "hint_text": {"type": "string"},
-            "state_view": {"$ref": "#/$defs/state_view"}
+            "state_view": {"$ref": "#/$defs/state_view_game"}
           }
         },
-        "response_409": {"$ref": "#/$defs/error_envelope"}
+        "response_409": {"$ref": "#/$defs/error_envelope"},
+        "response_404_sandbox": {"type": "null", "description": "Empty body. No error code."}
       }
     },
     "DELETE /session/{token}": {
@@ -284,7 +370,7 @@
       "properties": {"response_204": {"type": "null"}}
     },
     "status": {
-      "description": "400 bad_request, 401 unauthorized_key, 404 session_not_found, 409 in_flight|stale_turn|round_in_flight|hint_off, 413 body_too_large, 415 unsupported_media_type, 429 rate_limited, 503 provider_unavailable, 504 timeout. All of these use error_envelope and counts_as_turn false.",
+      "description": "Never reached the graph, envelope, counts_as_turn false: 401 unauthorized_key (session creation, or a rejection before invoke), 409 in_flight|stale_turn|round_in_flight|hint_off, 413 body_too_large, 415 unsupported_media_type, 429 rate_limited, 503 provider_unavailable, 504 timeout. Timeout re-reads state turn before answering. 404 session_not_found uses the envelope for an unknown token. Sandbox /round and /hint are a different 404: empty body, no code. 400 bad_request uses the envelope. Reached the graph: 200, turn incremented, no envelope.",
       "type": "object"
     }
   }

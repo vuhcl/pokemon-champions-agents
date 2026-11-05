@@ -1,0 +1,40 @@
+{
+  "name": "compound_lock",
+  "measured": true,
+  "source": "floor_run_output.json one_of_six_locks. The schema allows one lock and one slot_index. The other four lock intents were not applied and the reply did not say they were dropped.",
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/message",
+        "body": {
+          "text": "Lock slot 2 as Incineroar. Lock slot 3 as Rillaboom. Lock slot 4 as Amoonguss. Lock slot 5 as Kingambit. Lock slot 6 as Flutter Mane.",
+          "expected_turn": 3
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "reply_text": "Team:\n1. Pelipper (rain_setter)",
+          "turn": 4,
+          "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+          "state_view_partial": {
+            "round": 1,
+            "turn": 4,
+            "pending_kind": null,
+            "slot_commit_error": null,
+            "slot_species": [
+              {"index": 1, "species": "Pelipper", "species_locked": true, "fully_locked": true},
+              {"index": 2, "species": "Incineroar", "species_locked": true, "fully_locked": false},
+              {"index": 3, "species": null, "species_locked": false, "fully_locked": false},
+              {"index": 4, "species": null, "species_locked": false, "fully_locked": false},
+              {"index": 5, "species": null, "species_locked": false, "fully_locked": false},
+              {"index": 6, "species": null, "species_locked": false, "fully_locked": false}
+            ]
+          }
+        }
+      },
+      "graph": {"pending_before": "candidate_selection", "turn_before": 3, "turn_after": 4, "slots_fully_locked": 1, "dropped_without_notice": ["slot 3", "slot 4", "slot 5", "slot 6"]}
+    }
+  ]
+}

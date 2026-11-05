@@ -1,6 +1,6 @@
 {
-  "name": "compound_six_species_one_message",
-  "source": "docs/hosted_demo/floor_run.py mode six_schema. The fake parser returned only what BootstrapExtraction allows: one anchor and five pool names. Builds in the user text are not in that schema.",
+  "name": "six_builds_bootstrap",
+  "source": "docs/hosted_demo/floor_run.py mode six_schema. Renamed from compound.json. The fake parser returned only what BootstrapExtraction allows: one anchor and five pool names. Builds are absent because that schema has no build fields (extra=forbid). The 'Couldn't identify' notices are a second cause: Amoonguss and Flutter Mane fail the legality snapshot (tier Illegal), not the schema. Both are why this message locks nothing; they are not the same cause.",
   "after_this_message": {
     "slots_with_any_value": 0,
     "slots_fully_locked": 0,

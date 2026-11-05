@@ -1,6 +1,6 @@
 {
   "placeholder": true,
-  "note": "NOT A REAL TARGET. Invented so the file shape can be reviewed. No event, no player, no source page. Do not ship this as the demo target.",
+  "note": "NOT A REAL TARGET. Invented so the file shape can be reviewed. No event, no player, no source page. Do not ship this as the demo target. Four of six members fail check_set. Do not read this file as a list of Champions-legal species. The check used data/legality/champions.v1.json meta.extracted_at 2026-10-05T04:58:45.430Z, Showdown commit 9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e. That extract is earlier than 2026-11-04, so it is the pre-pin snapshot.",
   "source_url": null,
   "event": null,
   "player": null,
