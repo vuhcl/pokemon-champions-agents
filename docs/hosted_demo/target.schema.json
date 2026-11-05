@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://pokemon-champions-agents.local/hosted-demo/target.schema.json",
   "title": "Hosted demo target team file",
-  "description": "Six members scored on species, item, ability, and four moves. Spread and nature are stored only if present and are not scored in v0. legality is the result of recommender.legality.check_set against data/legality/champions.v1.json. check_set does not take a regulation argument.",
+  "description": "Six members. The v0 score function reads species, item, ability, and moves only. nature and spread are optional storage and must not be read by that function. legality is a per-member check record against data/legality/champions.v1.json. check_set does not take a regulation argument.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -49,6 +49,20 @@
             "minItems": 4,
             "maxItems": 4,
             "items": {"type": "string"}
+          },
+          "nature": {"type": "string"},
+          "spread": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["hp", "atk", "def", "spa", "spd", "spe"],
+            "properties": {
+              "hp": {"type": "integer", "minimum": 0, "maximum": 32},
+              "atk": {"type": "integer", "minimum": 0, "maximum": 32},
+              "def": {"type": "integer", "minimum": 0, "maximum": 32},
+              "spa": {"type": "integer", "minimum": 0, "maximum": 32},
+              "spd": {"type": "integer", "minimum": 0, "maximum": 32},
+              "spe": {"type": "integer", "minimum": 0, "maximum": 32}
+            }
           }
         }
       }
