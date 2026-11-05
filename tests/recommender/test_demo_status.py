@@ -54,7 +54,6 @@ def test_every_compiled_node_has_a_label():
 def test_unknown_node_does_not_return_its_name():
     assert stage_label("not_a_node") == "Working…"
     assert "not_a_node" not in stage_label("not_a_node")
-    assert all(label == "Working…" for label in LABELS.values())
     assert all(name not in label for name, label in LABELS.items())
 
 
@@ -76,7 +75,7 @@ def test_slow_parser_shows_working_then_idle():
             break
         threading.Event().wait(0.02)
     thread.join()
-    assert seen == [("working", "Working…")]
+    assert seen == [("working", "Reading your message")]
     assert status.state == "idle"
     assert status.stage is None
     assert status.turn == holder["values"]["turn"]
