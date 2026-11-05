@@ -10,7 +10,7 @@ _PLACEHOLDER = "Working…"
 # Keys are build_graph() node names. __start__ and __end__ are not nodes we label.
 LABELS: dict[str, str] = {
     "initialize": "Setting up your session",
-    "accept_available_pool": "Checking the available Pokémon",
+    "accept_available_pool": "Getting started",
     "classify_input": "Reading your message",
     "apply_lock": "Locking in your pick",
     "record_constraint": "Noting your preference",
@@ -26,8 +26,8 @@ LABELS: dict[str, str] = {
     "refresh_team_signals": "Checking how the team fits together",
     "discover_multi_locked": "Finding partners for your picks",
     "generate_team_review": "Reviewing your team",
-    "finish_pending_response": "Writing the reply",
-    "refine_provisional_slot": "Adjusting the build",
+    "finish_pending_response": "Wrapping up",
+    "refine_provisional_slot": "Drafting a build for your pick",
     "apply_provisional_edit": "Applying your change to the build",
     "apply_provisional_option": "Applying the option you picked",
     "resolve_spread_reallocation": "Re-balancing the stat points",
@@ -35,8 +35,8 @@ LABELS: dict[str, str] = {
     "resolve_item_moveset_conflict": "Checking the item and moves fit",
     "compare_build_options": "Comparing build options",
     "commit_full_slot": "Checking the build is legal and locking it in",
-    "begin_locked_slot_revision": "Reopening a locked Pokémon",
-    "unlock_locked_slot": "Unlocking the Pokémon",
+    "begin_locked_slot_revision": "Opening a copy of that Pokémon to edit",
+    "unlock_locked_slot": "Clearing that Pokémon so you can pick again",
     "handle_claim_correction": "Correcting an earlier answer",
 }
 
