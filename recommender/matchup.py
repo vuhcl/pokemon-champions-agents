@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import contextvars
 import math
+import threading
 from collections import OrderedDict
 from dataclasses import dataclass, field, replace
 from typing import Any, Hashable, Literal
@@ -20,10 +22,19 @@ from recommender.ids import to_id
 # Cap keeps several multi-turn reviews resident so cross-turn reuse survives steering
 # without mid-SPOF eviction (which would destroy ~(S-1)/S within-call hit rate).
 MATCHUP_MEMO_MAX_ENTRIES = 8192
+# One memo at the cap grew process RSS by 5210112 bytes on 2026-11-05
+# (8192 MatchupResult rows, realistic build keys, this machine).
+# 16 full memos is about 83 MB. Unbounded live sessions would keep growing.
+MATCHUP_MEMO_MAX_LIVE_THREADS = 16
 
-_MATCHUP_MEMO: OrderedDict[Hashable, Any] = OrderedDict()
-_MATCHUP_MEMO_STATS = {"hits": 0, "misses": 0}
-_MEMO_THREAD_ID: str | None = None
+_lock = threading.Lock()
+_memos: OrderedDict[str, OrderedDict[Hashable, Any]] = OrderedDict()
+_stats: dict[str, dict[str, int]] = {}
+_default_memo: OrderedDict[Hashable, Any] = OrderedDict()
+_default_stats = {"hits": 0, "misses": 0}
+_bound: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "matchup_memo_thread_id", default=None
+)
 
 Severity = Literal["decisive", "costly", "toss-up"]
 MatchupOutcome = Literal[
@@ -201,51 +212,108 @@ def _matchup_cache_key(
     build_b: PokemonSpecOptional,
     field: FieldSpec | None,
 ) -> tuple[Any, ...]:
+    # Not in the key: abilityOverride, boosts, curHP, substitute, substituteHp,
+    # endure, form, types. coverage._slot_to_spec and threat_counters._set_to_spec
+    # do not set those fields. A caller that does would share a result computed
+    # without them.
     return (_build_fingerprint(build_a), _build_fingerprint(build_b), _field_fingerprint(field))
 
 
+def _blank_stats() -> dict[str, int]:
+    return {"hits": 0, "misses": 0}
+
+
+def _ensure_thread_memo(tid: str) -> None:
+    """Caller holds _lock. Create or touch this thread's memo."""
+    if tid in _memos:
+        _memos.move_to_end(tid)
+        return
+    while len(_memos) >= MATCHUP_MEMO_MAX_LIVE_THREADS:
+        old, _memo = _memos.popitem(last=False)
+        _stats.pop(old, None)
+    _memos[tid] = OrderedDict()
+    _stats[tid] = _blank_stats()
+
+
+def _active_store() -> tuple[OrderedDict[Hashable, Any], dict[str, int]]:
+    """Caller holds _lock. Unbound work uses the single default memo."""
+    tid = _bound.get()
+    if not tid:
+        return _default_memo, _default_stats
+    _ensure_thread_memo(tid)
+    return _memos[tid], _stats[tid]
+
+
 def matchup_memo_stats() -> dict[str, int]:
-    return dict(_MATCHUP_MEMO_STATS)
+    """Hit/miss counts for the memo bound in this context, or the default."""
+    tid = _bound.get()
+    with _lock:
+        if not tid:
+            return dict(_default_stats)
+        stats = _stats.get(tid)
+        return dict(stats) if stats is not None else _blank_stats()
 
 
 def clear_matchup_memo() -> dict[str, int]:
-    """Clear memo storage and return prior hit/miss snapshot."""
-    global _MEMO_THREAD_ID
+    """Drop every memo and unbind this context. Returns the prior snapshot."""
     snap = matchup_memo_stats()
-    _MATCHUP_MEMO.clear()
-    _MATCHUP_MEMO_STATS["hits"] = 0
-    _MATCHUP_MEMO_STATS["misses"] = 0
-    _MEMO_THREAD_ID = None
+    with _lock:
+        _memos.clear()
+        _stats.clear()
+        _default_memo.clear()
+        _default_stats["hits"] = 0
+        _default_stats["misses"] = 0
+    _bound.set(None)
     return snap
 
 
 def bind_matchup_memo_thread(thread_id: str | None) -> None:
-    """Bind memo to a LangGraph thread_id; clear when the thread changes."""
-    global _MEMO_THREAD_ID
+    """Select this context's memo. Does not clear any other thread's memo.
+
+    A missing id uses the single default memo, which is what the CLI, tests,
+    and eval arm use when they never bind.
+    """
     tid = thread_id or ""
-    if _MEMO_THREAD_ID is None:
-        _MEMO_THREAD_ID = tid
+    if not tid:
+        _bound.set(None)
         return
-    if tid != _MEMO_THREAD_ID:
-        clear_matchup_memo()
-        _MEMO_THREAD_ID = tid
+    with _lock:
+        _ensure_thread_memo(tid)
+    _bound.set(tid)
+
+
+def release_matchup_memo(thread_id: str) -> None:
+    """Drop one session memo. An unknown id does nothing."""
+    with _lock:
+        _memos.pop(thread_id, None)
+        _stats.pop(thread_id, None)
 
 
 def _memo_get(key: Hashable) -> MatchupResult | None:
-    hit = _MATCHUP_MEMO.get(key)
-    if hit is None:
-        return None
-    _MATCHUP_MEMO.move_to_end(key)
-    _MATCHUP_MEMO_STATS["hits"] += 1
-    return hit  # type: ignore[return-value]
+    with _lock:
+        memo, stats = _active_store()
+        hit = memo.get(key)
+        if hit is None:
+            return None
+        memo.move_to_end(key)
+        stats["hits"] += 1
+        return hit  # type: ignore[return-value]
 
 
-def _memo_put(key: Hashable, result: MatchupResult) -> None:
-    _MATCHUP_MEMO[key] = result
-    _MATCHUP_MEMO.move_to_end(key)
-    _MATCHUP_MEMO_STATS["misses"] += 1
-    while len(_MATCHUP_MEMO) > MATCHUP_MEMO_MAX_ENTRIES:
-        _MATCHUP_MEMO.popitem(last=False)
+def _memo_put(key: Hashable, result: MatchupResult) -> MatchupResult:
+    with _lock:
+        memo, stats = _active_store()
+        existing = memo.get(key)
+        if existing is not None:
+            memo.move_to_end(key)
+            stats["hits"] += 1
+            return existing  # type: ignore[return-value]
+        memo[key] = result
+        memo.move_to_end(key)
+        stats["misses"] += 1
+        while len(memo) > MATCHUP_MEMO_MAX_ENTRIES:
+            memo.popitem(last=False)
+        return result
 
 
 def classify_matchup(
@@ -264,8 +332,7 @@ def classify_matchup(
     neutral = _evaluate_exchange(build_a, build_b, None, calc)
 
     if field is None or _is_neutral_field(field):
-        _memo_put(key, neutral)
-        return neutral
+        return _memo_put(key, neutral)
 
     contextual = _evaluate_exchange(build_a, build_b, field, calc)
     if neutral.outcome == "no_answer" and contextual.outcome in {
@@ -278,10 +345,8 @@ def classify_matchup(
             caveats=contextual.caveats,
             turn_economy_note=contextual.turn_economy_note,
         )
-        _memo_put(key, result)
-        return result
-    _memo_put(key, contextual)
-    return contextual
+        return _memo_put(key, result)
+    return _memo_put(key, contextual)
 
 
 def _is_neutral_field(field: FieldSpec) -> bool:

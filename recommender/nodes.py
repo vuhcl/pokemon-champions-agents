@@ -1520,6 +1520,9 @@ def discover_single_locked(
     )
     from recommender.team_candidates import mega_ceiling_notices, owned_species_ids
 
+    # Reaches classify_matchup via fill_team_draft and annotate_composition_impact
+    # before any _compute_team_review. A nested discover_multi_locked binds again.
+    _bind_matchup_memo(config)
     cleared = {
         "coverage": [],
         "spofs": [],
@@ -1697,14 +1700,22 @@ def _compute_composition_gaps(
     return lines
 
 
+def _bind_matchup_memo(config: RunnableConfig | None) -> None:
+    """Select the per-thread matchup memo. A missing id keeps the default memo."""
+    from recommender.matchup import bind_matchup_memo_thread
+
+    configurable = (config or {}).get("configurable") or {}
+    bind_matchup_memo_thread(configurable.get("thread_id"))
+
+
 def _compute_team_review(
     state: RecommenderState, config: RunnableConfig
 ) -> TeamReviewResult:
-    from recommender.matchup import bind_matchup_memo_thread
     from recommender.team_candidates import collect_locked_anchor_contexts
 
-    thread_id = (config.get("configurable") or {}).get("thread_id")
-    bind_matchup_memo_thread(thread_id)
+    # Bind for discover_multi_locked, refresh_team_signals, and generate_team_review.
+    # Those nodes reach classify_matchup only through this function.
+    _bind_matchup_memo(config)
     client = calc_client_from_state(state)
     candidates = get_relevant_threats(state)
     specs = [c.spec for c in candidates]
