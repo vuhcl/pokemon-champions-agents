@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pokemon-champions-agents.local/hosted-demo/target.schema.json",
+  "title": "Hosted demo target team file",
+  "description": "Six members scored on species, item, ability, and four moves. Spread and nature are stored only if present and are not scored in v0. legality is the result of recommender.legality.check_set against data/legality/champions.v1.json. check_set does not take a regulation argument.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "placeholder",
+    "source_url",
+    "event",
+    "player",
+    "regulation",
+    "members",
+    "legality"
+  ],
+  "properties": {
+    "placeholder": {
+      "type": "boolean",
+      "description": "True marks the file as not a real target. A launch target must be false."
+    },
+    "note": {"type": "string"},
+    "source_url": {"type": ["string", "null"]},
+    "event": {"type": ["string", "null"]},
+    "player": {"type": ["string", "null"]},
+    "regulation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tag", "letter"],
+      "properties": {
+        "tag": {"type": "string"},
+        "letter": {"type": "string"}
+      }
+    },
+    "members": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["species", "item", "ability", "moves"],
+        "properties": {
+          "species": {"type": "string"},
+          "item": {"type": "string"},
+          "ability": {"type": "string"},
+          "moves": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "legality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshot", "members"],
+      "properties": {
+        "snapshot": {"type": "string"},
+        "note": {"type": "string"},
+        "members": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["species", "ok", "failures"],
+            "properties": {
+              "species": {"type": "string"},
+              "ok": {"type": "boolean"},
+              "failures": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["kind", "element", "detail"],
+                  "properties": {
+                    "kind": {"type": "string"},
+                    "element": {"type": "string"},
+                    "detail": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
