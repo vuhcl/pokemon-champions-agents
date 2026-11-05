@@ -1,7 +1,7 @@
 {
   "category": "bulk_up_attacker",
   "condition": "",
-  "built_at": "2026-10-20T20:06:34.299175+00:00",
+  "built_at": "2026-11-03T21:56:12.797873+00:00",
   "sub_criteria": {
     "kind": "offense_bulk_setup",
     "condition": "",
@@ -23,22 +23,23 @@
       "Blaziken-Mega",
       "Pangoro",
       "Starmie-Mega",
+      "Machamp",
       "Passimian",
       "Conkeldurr",
       "Tauros-Paldea-Aqua",
       "Tauros-Paldea-Blaze",
-      "Emboar-Mega",
-      "Staraptor-Mega"
+      "Staraptor-Mega",
+      "Emboar-Mega"
     ],
     "Good": [
       "Pawmot",
       "Gallade",
       "Crabominable-Mega",
       "Scrafty-Mega",
-      "Barbaracle-Mega",
       "Annihilape",
-      "Machamp",
+      "Barbaracle-Mega",
       "Incineroar",
+      "Grapploct",
       "Lucario-Mega",
       "Quaquaval",
       "Heracross-Mega"
@@ -53,7 +54,7 @@
       "Gallade-Mega",
       "Toxicroak",
       "Krookodile",
-      "Grapploct",
+      "Tauros-Paldea-Combat",
       "Corviknight",
       "Ceruledge",
       "Hawlucha-Mega",
@@ -63,33 +64,33 @@
   },
   "notes": [
     "exact Status self-boost {'atk': 1, 'def': 1} \u2192 bulkup; no SD Branch A/B OR-gate",
-    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Sitrus Berry, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Sitrus Berry+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Sitrus Berry, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Focus Sash+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Focus Sash+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Sitrus Berry, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
     "bulk_crossings=incoming Physical after candidate Def+1; KO bins from damageRange[-1]/HP; OHKO\u2192not-OHKO and 2HKO\u21923HKO+; immunity excluded from n_relevant",
     "within-tier sort by bulk_crossings; no promotion threshold (no natural gap)",
-    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
     "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=3.625 base=0.387; stone-heuristic fallback unused",
-    "Showdown attribution (Eelektross/Eelektross-Mega): mega usage_pct=0.237 base=0.012; stone-heuristic fallback unused",
-    "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.043 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.059 base=0.015; stone-heuristic fallback unused",
-    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
-    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
-    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.053 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
-    "Showdown attribution (Golisopod/Golisopod-Mega): mega usage_pct=18.357 base=0.125; stone-heuristic fallback unused",
-    "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.109 base=0.019; stone-heuristic fallback unused",
     "Showdown attribution (Staraptor/Staraptor-Mega): mega usage_pct=6.159 base=1.182; stone-heuristic fallback unused",
-    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
-    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
-    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=1.384 base=0.750; stone-heuristic fallback unused",
-    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.506 base=0.021; stone-heuristic fallback unused",
-    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.184 base=0.174; stone-heuristic fallback unused",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
+    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.059 base=0.015; stone-heuristic fallback unused",
     "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
+    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
+    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.506 base=0.021; stone-heuristic fallback unused",
+    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.053 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=1.384 base=0.750; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
+    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
+    "Showdown attribution (Eelektross/Eelektross-Mega): mega usage_pct=0.237 base=0.012; stone-heuristic fallback unused",
+    "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.109 base=0.019; stone-heuristic fallback unused",
+    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.184 base=0.174; stone-heuristic fallback unused",
+    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
+    "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.043 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
+    "Showdown attribution (Golisopod/Golisopod-Mega): mega usage_pct=18.357 base=0.125; stone-heuristic fallback unused",
     "damage admission floor = 0.766 (score >= floor; n_kept=40)",
-    "Excellent damage floor = 2nd-highest \u00d7 0.95 \u2192 1.077 (top: Blaziken-Mega=1.150, Swampert-Mega=1.134)",
-    "Acceptable floor = Excellent floor \u00d7 0.9 \u2192 0.969",
+    "Excellent damage floor = 2nd-highest \u00d7 0.95 \u2192 1.077 (top: Blaziken-Mega=1.157, Swampert-Mega=1.134)",
+    "Acceptable floor = Excellent floor \u00d7 0.9 \u2192 0.970",
     "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); display only \u2014 within-tier sort stays crossings"
   ],
   "candidates": [
@@ -101,7 +102,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.121 floor=1.077 priority_or_spe_ok bulk_crossings=12/24",
+        "execution": "damage_score=1.129 floor=1.077 priority_or_spe_ok bulk_crossings=12/24",
         "payoff_moves": [
           "closecombat",
           "zenheadbutt"
@@ -150,7 +151,7 @@
         },
         "calc_species": "Medicham-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.121",
+        "damage_score": "1.129",
         "bulk_crossings": "12/24",
         "sweep_ohko": "31/36",
         "sweep_2hko": "36/36",
@@ -168,15 +169,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.121 vs panel; 26 defender(s); bulk_crossings=12/24"
+          "purpose_claimed": "calc damage fraction 1.129 vs panel; 26 defender(s); bulk_crossings=12/24"
         },
         {
           "name": "Zen Headbutt",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.121 vs panel; 10 defender(s); bulk_crossings=12/24"
+          "purpose_claimed": "calc damage fraction 1.129 vs panel; 10 defender(s); bulk_crossings=12/24"
         }
       ],
-      "reasoning": "Excellent: calc 1.121 (floor 1.077); priority_or_spe_ok; bulk_crossings=12/24",
+      "reasoning": "Excellent: calc 1.129 (floor 1.077); priority_or_spe_ok; bulk_crossings=12/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
@@ -189,7 +190,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.124 floor=1.077 priority_or_spe_ok bulk_crossings=9/24",
+        "execution": "damage_score=1.126 floor=1.077 priority_or_spe_ok bulk_crossings=10/24",
         "payoff_moves": [
           "highjumpkick",
           "suckerpunch",
@@ -244,8 +245,8 @@
         },
         "calc_species": "Cinderace",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.124",
-        "bulk_crossings": "9/24",
+        "damage_score": "1.126",
+        "bulk_crossings": "10/24",
         "sweep_ohko": "35/36",
         "sweep_2hko": "36/36",
         "survive_n": "9",
@@ -261,25 +262,25 @@
         {
           "name": "High Jump Kick",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.124 vs panel; 15 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 1.126 vs panel; 15 defender(s); bulk_crossings=10/24"
         },
         {
           "name": "Sucker Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.124 vs panel; 12 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 1.126 vs panel; 12 defender(s); bulk_crossings=10/24"
         },
         {
           "name": "Pyro Ball",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.124 vs panel; 7 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 1.126 vs panel; 7 defender(s); bulk_crossings=10/24"
         },
         {
           "name": "U-turn",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.124 vs panel; 2 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 1.126 vs panel; 2 defender(s); bulk_crossings=10/24"
         }
       ],
-      "reasoning": "Excellent: calc 1.124 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
+      "reasoning": "Excellent: calc 1.126 (floor 1.077); priority_or_spe_ok; bulk_crossings=10/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
@@ -388,7 +389,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.150 floor=1.077 priority_or_spe_ok bulk_crossings=7/24",
+        "execution": "damage_score=1.157 floor=1.077 priority_or_spe_ok bulk_crossings=7/24",
         "payoff_moves": [
           "closecombat",
           "flareblitz",
@@ -440,7 +441,7 @@
         },
         "calc_species": "Blaziken-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.150",
+        "damage_score": "1.157",
         "bulk_crossings": "7/24",
         "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
@@ -458,20 +459,20 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.150 vs panel; 17 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 1.157 vs panel; 17 defender(s); bulk_crossings=7/24"
         },
         {
           "name": "Flare Blitz",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.150 vs panel; 15 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 1.157 vs panel; 15 defender(s); bulk_crossings=7/24"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.150 vs panel; 4 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 1.157 vs panel; 4 defender(s); bulk_crossings=7/24"
         }
       ],
-      "reasoning": "Excellent: calc 1.150 (floor 1.077); priority_or_spe_ok; bulk_crossings=7/24",
+      "reasoning": "Excellent: calc 1.157 (floor 1.077); priority_or_spe_ok; bulk_crossings=7/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
@@ -484,7 +485,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.100 floor=1.077 priority_or_spe_ok bulk_crossings=7/24",
+        "execution": "damage_score=1.103 floor=1.077 priority_or_spe_ok bulk_crossings=7/24",
         "payoff_moves": [
           "closecombat",
           "darkestlariat",
@@ -536,13 +537,13 @@
         },
         "calc_species": "Pangoro",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.100",
+        "damage_score": "1.103",
         "bulk_crossings": "7/24",
-        "sweep_ohko": "28/36",
+        "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
         "survive_n": "16",
         "survive_hp_mean": "0.62",
-        "survive_hp_min": "0.05",
+        "survive_hp_min": "0.04",
         "debuff_surv": "18/25"
       },
       "claimed_traits": [
@@ -554,20 +555,20 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.100 vs panel; 25 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 1.103 vs panel; 25 defender(s); bulk_crossings=7/24"
         },
         {
           "name": "Darkest Lariat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.100 vs panel; 9 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 1.103 vs panel; 9 defender(s); bulk_crossings=7/24"
         },
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.100 vs panel; 2 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 1.103 vs panel; 2 defender(s); bulk_crossings=7/24"
         }
       ],
-      "reasoning": "Excellent: calc 1.100 (floor 1.077); priority_or_spe_ok; bulk_crossings=7/24",
+      "reasoning": "Excellent: calc 1.103 (floor 1.077); priority_or_spe_ok; bulk_crossings=7/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
@@ -660,6 +661,101 @@
       "excellence_basis": "calc_payoff"
     },
     {
+      "species": "Machamp",
+      "species_id": "machamp",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.099 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
+        "payoff_moves": [
+          "dynamicpunch",
+          "stoneedge",
+          "icepunch"
+        ],
+        "payoff_targets": {
+          "dynamicpunch": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "icepunch": [
+            "Salamence-Mega+Rillaboom",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Garchomp+Charizard-Mega-Y",
+            "Staraptor-Mega+Kingambit"
+          ],
+          "stoneedge": [
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Torkoal+Indeedee-F",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Machamp",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.099",
+        "bulk_crossings": "6/24",
+        "sweep_ohko": "26/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "18",
+        "survive_hp_mean": "0.62",
+        "survive_hp_min": "0.05"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Dynamic Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.099 vs panel; 19 defender(s); bulk_crossings=6/24"
+        },
+        {
+          "name": "Stone Edge",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.099 vs panel; 12 defender(s); bulk_crossings=6/24"
+        },
+        {
+          "name": "Ice Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.099 vs panel; 5 defender(s); bulk_crossings=6/24"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.099 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
+      "change_reason": "stage-setup re-eval / tier 'Good' \u2192 'Excellent' (score=1.099)",
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
       "species": "Passimian",
       "species_id": "passimian",
       "tier": "Excellent",
@@ -667,7 +763,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.078 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
+        "execution": "damage_score=1.080 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
         "payoff_moves": [
           "closecombat",
           "knockoff"
@@ -716,7 +812,7 @@
         },
         "calc_species": "Passimian",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.078",
+        "damage_score": "1.080",
         "bulk_crossings": "6/24",
         "sweep_ohko": "25/36",
         "sweep_2hko": "36/36",
@@ -734,15 +830,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.078 vs panel; 25 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 1.080 vs panel; 25 defender(s); bulk_crossings=6/24"
         },
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.078 vs panel; 11 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 1.080 vs panel; 11 defender(s); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Excellent: calc 1.078 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
+      "reasoning": "Excellent: calc 1.080 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
@@ -755,7 +851,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.105 floor=1.077 priority_or_spe_ok bulk_crossings=5/24",
+        "execution": "damage_score=1.110 floor=1.077 priority_or_spe_ok bulk_crossings=5/24",
         "payoff_moves": [
           "drainpunch",
           "icepunch",
@@ -807,7 +903,7 @@
         },
         "calc_species": "Conkeldurr",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.105",
+        "damage_score": "1.110",
         "bulk_crossings": "5/24",
         "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
@@ -824,20 +920,20 @@
         {
           "name": "Drain Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.105 vs panel; 15 defender(s); bulk_crossings=5/24"
+          "purpose_claimed": "calc damage fraction 1.110 vs panel; 15 defender(s); bulk_crossings=5/24"
         },
         {
           "name": "Ice Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.105 vs panel; 12 defender(s); bulk_crossings=5/24"
+          "purpose_claimed": "calc damage fraction 1.110 vs panel; 12 defender(s); bulk_crossings=5/24"
         },
         {
           "name": "Thunder Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.105 vs panel; 9 defender(s); bulk_crossings=5/24"
+          "purpose_claimed": "calc damage fraction 1.110 vs panel; 9 defender(s); bulk_crossings=5/24"
         }
       ],
-      "reasoning": "Excellent: calc 1.105 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
+      "reasoning": "Excellent: calc 1.110 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
@@ -946,7 +1042,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.119 floor=1.077 priority_or_spe_ok bulk_crossings=4/24",
+        "execution": "damage_score=1.122 floor=1.077 priority_or_spe_ok bulk_crossings=4/24",
         "payoff_moves": [
           "closecombat",
           "ragingbull",
@@ -998,7 +1094,7 @@
         },
         "calc_species": "Tauros-Paldea-Blaze",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.119",
+        "damage_score": "1.122",
         "bulk_crossings": "4/24",
         "sweep_ohko": "28/36",
         "sweep_2hko": "36/36",
@@ -1016,108 +1112,20 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.119 vs panel; 17 defender(s); bulk_crossings=4/24"
+          "purpose_claimed": "calc damage fraction 1.122 vs panel; 17 defender(s); bulk_crossings=4/24"
         },
         {
           "name": "Raging Bull",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.119 vs panel; 14 defender(s); bulk_crossings=4/24"
+          "purpose_claimed": "calc damage fraction 1.122 vs panel; 14 defender(s); bulk_crossings=4/24"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.119 vs panel; 5 defender(s); bulk_crossings=4/24"
+          "purpose_claimed": "calc damage fraction 1.122 vs panel; 5 defender(s); bulk_crossings=4/24"
         }
       ],
-      "reasoning": "Excellent: calc 1.119 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "calc_payoff"
-    },
-    {
-      "species": "Emboar-Mega",
-      "species_id": "emboarmega",
-      "tier": "Excellent",
-      "delivery_class": "move_setup",
-      "mechanism": "Bulk Up",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.118 floor=1.077 priority_or_spe_ok bulk_crossings=4/24",
-        "payoff_moves": [
-          "closecombat",
-          "flareblitz"
-        ],
-        "payoff_targets": {
-          "flareblitz": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Staraptor-Mega+Kingambit",
-            "Metagross-Mega+Salamence-Mega",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ],
-          "closecombat": [
-            "Incineroar+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom"
-          ]
-        },
-        "calc_species": "Emboar-Mega",
-        "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.118",
-        "bulk_crossings": "4/24",
-        "sweep_ohko": "28/36",
-        "sweep_2hko": "35/36",
-        "survive_n": "17",
-        "survive_hp_mean": "0.46",
-        "survive_hp_min": "0.00",
-        "debuff_surv": "18/21"
-      },
-      "claimed_traits": [
-        {
-          "name": "Bulk Up",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via bulkup (+1 atk)"
-        },
-        {
-          "name": "Close Combat",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.118 vs panel; 21 defender(s); bulk_crossings=4/24"
-        },
-        {
-          "name": "Flare Blitz",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.118 vs panel; 15 defender(s); bulk_crossings=4/24"
-        }
-      ],
-      "reasoning": "Excellent: calc 1.118 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
+      "reasoning": "Excellent: calc 1.122 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
@@ -1130,7 +1138,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.112 floor=1.077 priority_or_spe_ok bulk_crossings=4/24",
+        "execution": "damage_score=1.117 floor=1.077 priority_or_spe_ok bulk_crossings=4/24",
         "payoff_moves": [
           "bravebird",
           "closecombat"
@@ -1179,7 +1187,7 @@
         },
         "calc_species": "Staraptor-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.112",
+        "damage_score": "1.117",
         "bulk_crossings": "4/24",
         "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
@@ -1197,15 +1205,103 @@
         {
           "name": "Brave Bird",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.112 vs panel; 27 defender(s); bulk_crossings=4/24"
+          "purpose_claimed": "calc damage fraction 1.117 vs panel; 27 defender(s); bulk_crossings=4/24"
         },
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.112 vs panel; 9 defender(s); bulk_crossings=4/24"
+          "purpose_claimed": "calc damage fraction 1.117 vs panel; 9 defender(s); bulk_crossings=4/24"
         }
       ],
-      "reasoning": "Excellent: calc 1.112 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
+      "reasoning": "Excellent: calc 1.117 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Emboar-Mega",
+      "species_id": "emboarmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.115 floor=1.077 priority_or_spe_ok bulk_crossings=4/24",
+        "payoff_moves": [
+          "closecombat",
+          "flareblitz"
+        ],
+        "payoff_targets": {
+          "flareblitz": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "closecombat": [
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ]
+        },
+        "calc_species": "Emboar-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.115",
+        "bulk_crossings": "4/24",
+        "sweep_ohko": "28/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "17",
+        "survive_hp_mean": "0.46",
+        "survive_hp_min": "0.00",
+        "debuff_surv": "18/21"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.115 vs panel; 21 defender(s); bulk_crossings=4/24"
+        },
+        {
+          "name": "Flare Blitz",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.115 vs panel; 15 defender(s); bulk_crossings=4/24"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.115 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
@@ -1218,7 +1314,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.037 floor=1.077 priority_or_spe_ok bulk_crossings=12/24",
+        "execution": "damage_score=1.030 floor=1.077 priority_or_spe_ok bulk_crossings=12/24",
         "payoff_moves": [
           "closecombat",
           "doubleshock"
@@ -1267,9 +1363,9 @@
         },
         "calc_species": "Pawmot",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.037",
+        "damage_score": "1.030",
         "bulk_crossings": "12/24",
-        "sweep_ohko": "23/36",
+        "sweep_ohko": "25/36",
         "sweep_2hko": "35/36",
         "survive_n": "12",
         "survive_hp_mean": "0.52",
@@ -1285,15 +1381,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.037 vs panel; 19 defender(s); bulk_crossings=12/24"
+          "purpose_claimed": "calc damage fraction 1.030 vs panel; 19 defender(s); bulk_crossings=12/24"
         },
         {
           "name": "Double Shock",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.037 vs panel; 17 defender(s); bulk_crossings=12/24"
+          "purpose_claimed": "calc damage fraction 1.030 vs panel; 17 defender(s); bulk_crossings=12/24"
         }
       ],
-      "reasoning": "Good: calc 1.037 (floor 1.077); priority_or_spe_ok; bulk_crossings=12/24",
+      "reasoning": "Good: calc 1.030 (floor 1.077); priority_or_spe_ok; bulk_crossings=12/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -1306,7 +1402,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.041 floor=1.077 priority_or_spe_ok bulk_crossings=11/24",
+        "execution": "damage_score=1.047 floor=1.077 priority_or_spe_ok bulk_crossings=11/24",
         "payoff_moves": [
           "sacredsword",
           "psychocut"
@@ -1355,7 +1451,7 @@
         },
         "calc_species": "Gallade",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.041",
+        "damage_score": "1.047",
         "bulk_crossings": "11/24",
         "sweep_ohko": "25/36",
         "sweep_2hko": "35/36",
@@ -1372,15 +1468,15 @@
         {
           "name": "Sacred Sword",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.041 vs panel; 19 defender(s); bulk_crossings=11/24"
+          "purpose_claimed": "calc damage fraction 1.047 vs panel; 19 defender(s); bulk_crossings=11/24"
         },
         {
           "name": "Psycho Cut",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.041 vs panel; 17 defender(s); bulk_crossings=11/24"
+          "purpose_claimed": "calc damage fraction 1.047 vs panel; 17 defender(s); bulk_crossings=11/24"
         }
       ],
-      "reasoning": "Good: calc 1.041 (floor 1.077); priority_or_spe_ok; bulk_crossings=11/24",
+      "reasoning": "Good: calc 1.047 (floor 1.077); priority_or_spe_ok; bulk_crossings=11/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -1393,7 +1489,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.044 floor=1.077 priority_or_spe_ok bulk_crossings=9/24",
+        "execution": "damage_score=1.047 floor=1.077 priority_or_spe_ok bulk_crossings=9/24",
         "payoff_moves": [
           "icehammer",
           "drainpunch",
@@ -1445,7 +1541,7 @@
         },
         "calc_species": "Crabominable-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.044",
+        "damage_score": "1.047",
         "bulk_crossings": "9/24",
         "sweep_ohko": "27/36",
         "sweep_2hko": "36/36",
@@ -1462,20 +1558,20 @@
         {
           "name": "Ice Hammer",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.044 vs panel; 19 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 1.047 vs panel; 19 defender(s); bulk_crossings=9/24"
         },
         {
           "name": "Drain Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.044 vs panel; 14 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 1.047 vs panel; 14 defender(s); bulk_crossings=9/24"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.044 vs panel; 3 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 1.047 vs panel; 3 defender(s); bulk_crossings=9/24"
         }
       ],
-      "reasoning": "Good: calc 1.044 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
+      "reasoning": "Good: calc 1.047 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -1488,7 +1584,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.023 floor=1.077 priority_or_spe_ok bulk_crossings=8/24",
+        "execution": "damage_score=1.037 floor=1.077 priority_or_spe_ok bulk_crossings=8/24",
         "payoff_moves": [
           "closecombat",
           "knockoff"
@@ -1537,7 +1633,7 @@
         },
         "calc_species": "Scrafty-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.023",
+        "damage_score": "1.037",
         "bulk_crossings": "8/24",
         "sweep_ohko": "22/36",
         "sweep_2hko": "35/36",
@@ -1555,15 +1651,111 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.023 vs panel; 22 defender(s); bulk_crossings=8/24"
+          "purpose_claimed": "calc damage fraction 1.037 vs panel; 22 defender(s); bulk_crossings=8/24"
         },
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.023 vs panel; 14 defender(s); bulk_crossings=8/24"
+          "purpose_claimed": "calc damage fraction 1.037 vs panel; 14 defender(s); bulk_crossings=8/24"
         }
       ],
-      "reasoning": "Good: calc 1.023 (floor 1.077); priority_or_spe_ok; bulk_crossings=8/24",
+      "reasoning": "Good: calc 1.037 (floor 1.077); priority_or_spe_ok; bulk_crossings=8/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Annihilape",
+      "species_id": "annihilape",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.039 floor=1.077 slow_no_priority spe=90 bulk_crossings=7/24",
+        "payoff_moves": [
+          "closecombat",
+          "ragefist",
+          "icepunch"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "ragefist": [
+            "Sneasler+Rillaboom",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Metagross-Mega+Salamence-Mega",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "icepunch": [
+            "Salamence-Mega+Rillaboom",
+            "Whimsicott+Basculegion",
+            "Garchomp+Charizard-Mega-Y"
+          ]
+        },
+        "calc_species": "Annihilape",
+        "spe_note": "slow_no_priority spe=90",
+        "damage_score": "1.039",
+        "bulk_crossings": "7/24",
+        "sweep_ohko": "26/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "12",
+        "survive_hp_mean": "0.68",
+        "survive_hp_min": "0.45",
+        "debuff_surv": "13/19"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.039 vs panel; 19 defender(s); bulk_crossings=7/24"
+        },
+        {
+          "name": "Rage Fist",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.039 vs panel; 14 defender(s); bulk_crossings=7/24"
+        },
+        {
+          "name": "Ice Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.039 vs panel; 3 defender(s); bulk_crossings=7/24"
+        }
+      ],
+      "reasoning": "Good: calc 1.039 (floor 1.077); slow_no_priority spe=90; bulk_crossings=7/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -1576,7 +1768,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.036 floor=1.077 slow_no_priority spe=88 bulk_crossings=7/24",
+        "execution": "damage_score=1.038 floor=1.077 slow_no_priority spe=88 bulk_crossings=7/24",
         "payoff_moves": [
           "closecombat",
           "rockslide"
@@ -1625,9 +1817,9 @@
         },
         "calc_species": "Barbaracle-Mega",
         "spe_note": "slow_no_priority spe=88",
-        "damage_score": "1.036",
+        "damage_score": "1.038",
         "bulk_crossings": "7/24",
-        "sweep_ohko": "25/36",
+        "sweep_ohko": "26/36",
         "sweep_2hko": "34/36",
         "survive_n": "14",
         "survive_hp_mean": "0.54",
@@ -1643,190 +1835,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.036 vs panel; 25 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 1.038 vs panel; 25 defender(s); bulk_crossings=7/24"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.036 vs panel; 11 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 1.038 vs panel; 11 defender(s); bulk_crossings=7/24"
         }
       ],
-      "reasoning": "Good: calc 1.036 (floor 1.077); slow_no_priority spe=88; bulk_crossings=7/24",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_payoff"
-    },
-    {
-      "species": "Annihilape",
-      "species_id": "annihilape",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Bulk Up",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.028 floor=1.077 slow_no_priority spe=90 bulk_crossings=7/24",
-        "payoff_moves": [
-          "closecombat",
-          "ragefist"
-        ],
-        "payoff_targets": {
-          "closecombat": [
-            "Rillaboom+Sneasler",
-            "Incineroar+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Farigiraf+Rillaboom",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Politoed+Golisopod-Mega",
-            "Staraptor-Mega+Kingambit",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom"
-          ],
-          "ragefist": [
-            "Sneasler+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Basculegion+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Armarouge+Indeedee-F",
-            "Metagross-Mega+Salamence-Mega",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Annihilape",
-        "spe_note": "slow_no_priority spe=90",
-        "damage_score": "1.028",
-        "bulk_crossings": "7/24",
-        "sweep_ohko": "24/36",
-        "sweep_2hko": "36/36",
-        "survive_n": "12",
-        "survive_hp_mean": "0.68",
-        "survive_hp_min": "0.45",
-        "debuff_surv": "14/20"
-      },
-      "claimed_traits": [
-        {
-          "name": "Bulk Up",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via bulkup (+1 atk)"
-        },
-        {
-          "name": "Close Combat",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.028 vs panel; 20 defender(s); bulk_crossings=7/24"
-        },
-        {
-          "name": "Rage Fist",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.028 vs panel; 16 defender(s); bulk_crossings=7/24"
-        }
-      ],
-      "reasoning": "Good: calc 1.028 (floor 1.077); slow_no_priority spe=90; bulk_crossings=7/24",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_payoff"
-    },
-    {
-      "species": "Machamp",
-      "species_id": "machamp",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Bulk Up",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.072 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
-        "payoff_moves": [
-          "dynamicpunch",
-          "stoneedge"
-        ],
-        "payoff_targets": {
-          "dynamicpunch": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Incineroar+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Farigiraf+Rillaboom",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Politoed+Golisopod-Mega",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom"
-          ],
-          "stoneedge": [
-            "Salamence-Mega+Rillaboom",
-            "Basculegion+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Armarouge+Indeedee-F",
-            "Staraptor-Mega+Kingambit",
-            "Torkoal+Indeedee-F",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Machamp",
-        "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.072",
-        "bulk_crossings": "6/24",
-        "sweep_ohko": "30/36",
-        "sweep_2hko": "35/36",
-        "survive_n": "18",
-        "survive_hp_mean": "0.76",
-        "survive_hp_min": "0.05"
-      },
-      "claimed_traits": [
-        {
-          "name": "Bulk Up",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via bulkup (+1 atk)"
-        },
-        {
-          "name": "Dynamic Punch",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.072 vs panel; 20 defender(s); bulk_crossings=6/24"
-        },
-        {
-          "name": "Stone Edge",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.072 vs panel; 16 defender(s); bulk_crossings=6/24"
-        }
-      ],
-      "reasoning": "Good: calc 1.072 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
+      "reasoning": "Good: calc 1.038 (floor 1.077); slow_no_priority spe=88; bulk_crossings=7/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -1839,7 +1856,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.016 floor=1.077 slow_no_priority spe=60 bulk_crossings=6/24",
+        "execution": "damage_score=1.010 floor=1.077 slow_no_priority spe=60 bulk_crossings=7/24",
         "payoff_moves": [
           "darkestlariat",
           "flareblitz"
@@ -1888,12 +1905,12 @@
         },
         "calc_species": "Incineroar",
         "spe_note": "slow_no_priority spe=60",
-        "damage_score": "1.016",
-        "bulk_crossings": "6/24",
-        "sweep_ohko": "22/36",
+        "damage_score": "1.010",
+        "bulk_crossings": "7/24",
+        "sweep_ohko": "23/36",
         "sweep_2hko": "34/36",
         "survive_n": "18",
-        "survive_hp_mean": "0.50",
+        "survive_hp_mean": "0.52",
         "survive_hp_min": "0.00"
       },
       "claimed_traits": [
@@ -1905,16 +1922,111 @@
         {
           "name": "Darkest Lariat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.016 vs panel; 18 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 1.010 vs panel; 18 defender(s); bulk_crossings=7/24"
         },
         {
           "name": "Flare Blitz",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.016 vs panel; 18 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 1.010 vs panel; 18 defender(s); bulk_crossings=7/24"
         }
       ],
-      "reasoning": "Good: calc 1.016 (floor 1.077); slow_no_priority spe=60; bulk_crossings=6/24",
+      "reasoning": "Good: calc 1.010 (floor 1.077); slow_no_priority spe=60; bulk_crossings=7/24",
       "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Grapploct",
+      "species_id": "grapploct",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.046 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
+        "payoff_moves": [
+          "stormthrow",
+          "stompingtantrum",
+          "machpunch"
+        ],
+        "payoff_targets": {
+          "stormthrow": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Charizard-Mega-Y+Garchomp",
+            "Whimsicott+Basculegion",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "stompingtantrum": [
+            "Sneasler+Rillaboom",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Sinistcha+Incineroar",
+            "Armarouge+Indeedee-F",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "machpunch": [
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Grapploct",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.046",
+        "bulk_crossings": "6/24",
+        "sweep_ohko": "29/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.69",
+        "survive_hp_min": "0.07"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Storm Throw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.046 vs panel; 23 defender(s); bulk_crossings=6/24"
+        },
+        {
+          "name": "Stomping Tantrum",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.046 vs panel; 8 defender(s); bulk_crossings=6/24"
+        },
+        {
+          "name": "Mach Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.046 vs panel; 5 defender(s); bulk_crossings=6/24"
+        }
+      ],
+      "reasoning": "Good: calc 1.046 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
+      "change_reason": "stage-setup re-eval / tier 'Acceptable' \u2192 'Good' (score=1.046)",
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -1926,7 +2038,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.016 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
+        "execution": "damage_score=1.022 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
         "payoff_moves": [
           "closecombat",
           "meteormash",
@@ -1978,7 +2090,7 @@
         },
         "calc_species": "Lucario-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.016",
+        "damage_score": "1.022",
         "bulk_crossings": "6/24",
         "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
@@ -1996,20 +2108,20 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.016 vs panel; 25 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 1.022 vs panel; 25 defender(s); bulk_crossings=6/24"
         },
         {
           "name": "Meteor Mash",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.016 vs panel; 6 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 1.022 vs panel; 6 defender(s); bulk_crossings=6/24"
         },
         {
           "name": "Bullet Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.016 vs panel; 5 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 1.022 vs panel; 5 defender(s); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Good: calc 1.016 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
+      "reasoning": "Good: calc 1.022 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -2022,22 +2134,29 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.005 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
+        "execution": "damage_score=0.990 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
         "payoff_moves": [
           "aquastep",
           "closecombat",
-          "tripleaxel"
+          "icespinner"
         ],
         "payoff_targets": {
-          "tripleaxel": [
+          "closecombat": [
             "Rillaboom+Sneasler",
-            "Salamence-Mega+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
             "Pelipper+Golisopod-Mega",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Garchomp+Charizard-Mega-Y",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
             "Garchomp-Mega-Z+Sneasler",
-            "Staraptor-Mega+Kingambit"
+            "Tyranitar-Mega+Excadrill",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
           ],
           "aquastep": [
             "Sneasler+Rillaboom",
@@ -2057,31 +2176,24 @@
             "Gengar-Mega+Incineroar",
             "Froslass-Mega+Sneasler"
           ],
-          "closecombat": [
-            "Incineroar+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Farigiraf+Rillaboom",
-            "Archaludon+Pelipper",
-            "Milotic+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Politoed+Golisopod-Mega",
-            "Metagross-Mega+Salamence-Mega",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom"
+          "icespinner": [
+            "Salamence-Mega+Rillaboom",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Garchomp+Charizard-Mega-Y",
+            "Staraptor-Mega+Kingambit"
           ]
         },
         "calc_species": "Quaquaval",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.005",
+        "damage_score": "0.990",
         "bulk_crossings": "6/24",
-        "sweep_ohko": "24/36",
+        "sweep_ohko": "21/36",
         "sweep_2hko": "35/36",
         "survive_n": "14",
         "survive_hp_mean": "0.58",
         "survive_hp_min": "0.26",
-        "debuff_surv": "10/12"
+        "debuff_surv": "11/15"
       },
       "claimed_traits": [
         {
@@ -2092,20 +2204,20 @@
         {
           "name": "Aqua Step",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.005 vs panel; 16 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.990 vs panel; 16 defender(s); bulk_crossings=6/24"
         },
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.005 vs panel; 12 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.990 vs panel; 15 defender(s); bulk_crossings=6/24"
         },
         {
-          "name": "Triple Axel",
+          "name": "Ice Spinner",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.005 vs panel; 8 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.990 vs panel; 5 defender(s); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Good: calc 1.005 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
+      "reasoning": "Good: calc 0.990 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -2118,7 +2230,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.045 floor=1.077 priority_or_spe_ok bulk_crossings=5/24",
+        "execution": "damage_score=1.034 floor=1.077 priority_or_spe_ok bulk_crossings=5/24",
         "payoff_moves": [
           "closecombat",
           "rockblast",
@@ -2170,7 +2282,7 @@
         },
         "calc_species": "Heracross-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.045",
+        "damage_score": "1.034",
         "bulk_crossings": "5/24",
         "sweep_ohko": "27/36",
         "sweep_2hko": "35/36",
@@ -2188,20 +2300,20 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.045 vs panel; 24 defender(s); bulk_crossings=5/24"
+          "purpose_claimed": "calc damage fraction 1.034 vs panel; 24 defender(s); bulk_crossings=5/24"
         },
         {
           "name": "Rock Blast",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.045 vs panel; 8 defender(s); bulk_crossings=5/24"
+          "purpose_claimed": "calc damage fraction 1.034 vs panel; 8 defender(s); bulk_crossings=5/24"
         },
         {
           "name": "Pin Missile",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.045 vs panel; 4 defender(s); bulk_crossings=5/24"
+          "purpose_claimed": "calc damage fraction 1.034 vs panel; 4 defender(s); bulk_crossings=5/24"
         }
       ],
-      "reasoning": "Good: calc 1.045 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
+      "reasoning": "Good: calc 1.034 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -2214,7 +2326,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.917 floor=1.077 priority_or_spe_ok bulk_crossings=12/24",
+        "execution": "damage_score=0.923 floor=1.077 priority_or_spe_ok bulk_crossings=12/24",
         "payoff_moves": [
           "closecombat",
           "direclaw"
@@ -2263,7 +2375,7 @@
         },
         "calc_species": "Sneasler",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.917",
+        "damage_score": "0.923",
         "bulk_crossings": "12/24",
         "sweep_ohko": "18/36",
         "sweep_2hko": "33/36",
@@ -2281,15 +2393,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.917 vs panel; 20 defender(s); bulk_crossings=12/24"
+          "purpose_claimed": "calc damage fraction 0.923 vs panel; 20 defender(s); bulk_crossings=12/24"
         },
         {
           "name": "Dire Claw",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.917 vs panel; 16 defender(s); bulk_crossings=12/24"
+          "purpose_claimed": "calc damage fraction 0.923 vs panel; 16 defender(s); bulk_crossings=12/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.917 (floor 1.077); priority_or_spe_ok; bulk_crossings=12/24",
+      "reasoning": "Acceptable: calc 0.923 (floor 1.077); priority_or_spe_ok; bulk_crossings=12/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -2302,7 +2414,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.958 floor=1.077 priority_or_spe_ok bulk_crossings=11/24",
+        "execution": "damage_score=0.963 floor=1.077 priority_or_spe_ok bulk_crossings=11/24",
         "payoff_moves": [
           "woodhammer",
           "highhorsepower"
@@ -2351,9 +2463,9 @@
         },
         "calc_species": "Rillaboom",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.958",
+        "damage_score": "0.963",
         "bulk_crossings": "11/24",
-        "sweep_ohko": "19/36",
+        "sweep_ohko": "20/36",
         "sweep_2hko": "32/36",
         "survive_n": "15",
         "survive_hp_mean": "0.50",
@@ -2368,15 +2480,15 @@
         {
           "name": "Wood Hammer",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.958 vs panel; 23 defender(s); bulk_crossings=11/24"
+          "purpose_claimed": "calc damage fraction 0.963 vs panel; 23 defender(s); bulk_crossings=11/24"
         },
         {
           "name": "High Horsepower",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.958 vs panel; 13 defender(s); bulk_crossings=11/24"
+          "purpose_claimed": "calc damage fraction 0.963 vs panel; 13 defender(s); bulk_crossings=11/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.958 (floor 1.077); priority_or_spe_ok; bulk_crossings=11/24",
+      "reasoning": "Acceptable: calc 0.963 (floor 1.077); priority_or_spe_ok; bulk_crossings=11/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -2389,10 +2501,10 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.800 floor=1.077 priority_or_spe_ok bulk_crossings=10/24",
+        "execution": "damage_score=0.915 floor=1.077 priority_or_spe_ok bulk_crossings=10/24",
         "payoff_moves": [
           "playrough",
-          "shadowsneak"
+          "shadowclaw"
         ],
         "payoff_targets": {
           "playrough": [
@@ -2407,7 +2519,6 @@
             "Archaludon+Pelipper",
             "Milotic+Sneasler",
             "Raichu-Mega-Y+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
             "Whimsicott+Basculegion",
             "Floette-Mega+Rillaboom",
             "Sylveon+Rillaboom",
@@ -2420,11 +2531,12 @@
             "Grimmsnarl+Pelipper",
             "Lucario-Mega-Z+Rillaboom"
           ],
-          "shadowsneak": [
+          "shadowclaw": [
             "Golisopod-Mega+Pelipper",
             "Basculegion+Sneasler",
             "Gholdengo+Rillaboom",
             "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
             "Gardevoir-Mega+Sneasler",
             "Sinistcha+Incineroar",
             "Volcarona+Rillaboom",
@@ -2438,11 +2550,11 @@
         },
         "calc_species": "Mimikyu",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.800",
+        "damage_score": "0.915",
         "bulk_crossings": "10/24",
-        "sweep_ohko": "16/36",
-        "sweep_2hko": "32/36",
-        "survive_n": "15",
+        "sweep_ohko": "20/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "17",
         "survive_hp_mean": "1.00",
         "survive_hp_min": "1.00"
       },
@@ -2455,15 +2567,15 @@
         {
           "name": "Play Rough",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.800 vs panel; 23 defender(s); bulk_crossings=10/24"
+          "purpose_claimed": "calc damage fraction 0.915 vs panel; 22 defender(s); bulk_crossings=10/24"
         },
         {
-          "name": "Shadow Sneak",
+          "name": "Shadow Claw",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.800 vs panel; 13 defender(s); bulk_crossings=10/24"
+          "purpose_claimed": "calc damage fraction 0.915 vs panel; 14 defender(s); bulk_crossings=10/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.800 (floor 1.077); priority_or_spe_ok; bulk_crossings=10/24",
+      "reasoning": "Acceptable: calc 0.915 (floor 1.077); priority_or_spe_ok; bulk_crossings=10/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -2476,7 +2588,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.919 floor=1.077 priority_or_spe_ok bulk_crossings=9/24",
+        "execution": "damage_score=0.923 floor=1.077 priority_or_spe_ok bulk_crossings=9/24",
         "payoff_moves": [
           "closecombat",
           "knockoff"
@@ -2525,7 +2637,7 @@
         },
         "calc_species": "Scrafty",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.919",
+        "damage_score": "0.923",
         "bulk_crossings": "9/24",
         "sweep_ohko": "17/36",
         "sweep_2hko": "32/36",
@@ -2543,15 +2655,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.919 vs panel; 22 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 0.923 vs panel; 22 defender(s); bulk_crossings=9/24"
         },
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.919 vs panel; 14 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 0.923 vs panel; 14 defender(s); bulk_crossings=9/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.919 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
+      "reasoning": "Acceptable: calc 0.923 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -2651,7 +2763,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.797 floor=1.077 priority_or_spe_ok bulk_crossings=9/24",
+        "execution": "damage_score=0.801 floor=1.077 priority_or_spe_ok bulk_crossings=9/24",
         "payoff_moves": [
           "closecombat",
           "acrobatics"
@@ -2700,7 +2812,7 @@
         },
         "calc_species": "Hawlucha",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.797",
+        "damage_score": "0.801",
         "bulk_crossings": "9/24",
         "sweep_ohko": "11/36",
         "sweep_2hko": "30/36",
@@ -2718,15 +2830,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.797 vs panel; 25 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 0.801 vs panel; 25 defender(s); bulk_crossings=9/24"
         },
         {
           "name": "Acrobatics",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.797 vs panel; 11 defender(s); bulk_crossings=9/24"
+          "purpose_claimed": "calc damage fraction 0.801 vs panel; 11 defender(s); bulk_crossings=9/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.797 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
+      "reasoning": "Acceptable: calc 0.801 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -2739,15 +2851,16 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.933 floor=1.077 priority_or_spe_ok bulk_crossings=8/24",
+        "execution": "damage_score=0.937 floor=1.077 priority_or_spe_ok bulk_crossings=8/24",
         "payoff_moves": [
-          "psychocut",
           "sacredsword",
+          "psychocut",
           "drainpunch"
         ],
         "payoff_targets": {
           "sacredsword": [
             "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
             "Indeedee-F+Sneasler",
             "Kingambit+Sneasler",
             "Golisopod-Mega+Pelipper",
@@ -2781,7 +2894,6 @@
             "Froslass-Mega+Sneasler"
           ],
           "drainpunch": [
-            "Incineroar+Rillaboom",
             "Raichu-Mega-Y+Rillaboom",
             "Arcanine-Hisui+Rillaboom",
             "Indeedee+Sneasler",
@@ -2791,10 +2903,10 @@
         },
         "calc_species": "Gallade-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.933",
+        "damage_score": "0.937",
         "bulk_crossings": "8/24",
         "sweep_ohko": "17/36",
-        "sweep_2hko": "34/36",
+        "sweep_2hko": "35/36",
         "survive_n": "12",
         "survive_hp_mean": "0.66",
         "survive_hp_min": "0.38"
@@ -2806,22 +2918,22 @@
           "purpose_claimed": "setup via bulkup (+1 atk)"
         },
         {
-          "name": "Psycho Cut",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.933 vs panel; 15 defender(s); bulk_crossings=8/24"
-        },
-        {
           "name": "Sacred Sword",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.933 vs panel; 15 defender(s); bulk_crossings=8/24"
+          "purpose_claimed": "calc damage fraction 0.937 vs panel; 16 defender(s); bulk_crossings=8/24"
+        },
+        {
+          "name": "Psycho Cut",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.937 vs panel; 15 defender(s); bulk_crossings=8/24"
         },
         {
           "name": "Drain Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.933 vs panel; 6 defender(s); bulk_crossings=8/24"
+          "purpose_claimed": "calc damage fraction 0.937 vs panel; 5 defender(s); bulk_crossings=8/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.933 (floor 1.077); priority_or_spe_ok; bulk_crossings=8/24",
+      "reasoning": "Acceptable: calc 0.937 (floor 1.077); priority_or_spe_ok; bulk_crossings=8/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -2834,7 +2946,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.902 floor=1.077 priority_or_spe_ok bulk_crossings=8/24",
+        "execution": "damage_score=0.907 floor=1.077 priority_or_spe_ok bulk_crossings=8/24",
         "payoff_moves": [
           "closecombat",
           "poisonjab",
@@ -2886,7 +2998,7 @@
         },
         "calc_species": "Toxicroak",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.902",
+        "damage_score": "0.907",
         "bulk_crossings": "8/24",
         "sweep_ohko": "21/36",
         "sweep_2hko": "35/36",
@@ -2904,20 +3016,20 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.902 vs panel; 19 defender(s); bulk_crossings=8/24"
+          "purpose_claimed": "calc damage fraction 0.907 vs panel; 19 defender(s); bulk_crossings=8/24"
         },
         {
           "name": "Poison Jab",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.902 vs panel; 10 defender(s); bulk_crossings=8/24"
+          "purpose_claimed": "calc damage fraction 0.907 vs panel; 10 defender(s); bulk_crossings=8/24"
         },
         {
           "name": "Sucker Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.902 vs panel; 7 defender(s); bulk_crossings=8/24"
+          "purpose_claimed": "calc damage fraction 0.907 vs panel; 7 defender(s); bulk_crossings=8/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.902 (floor 1.077); priority_or_spe_ok; bulk_crossings=8/24",
+      "reasoning": "Acceptable: calc 0.907 (floor 1.077); priority_or_spe_ok; bulk_crossings=8/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -2949,7 +3061,6 @@
             "Garchomp+Charizard-Mega-Y",
             "Garchomp-Mega-Z+Sneasler",
             "Indeedee+Sneasler",
-            "Armarouge+Indeedee-F",
             "Politoed+Golisopod-Mega",
             "Froslass-Mega+Sneasler"
           ],
@@ -2965,6 +3076,7 @@
             "Floette-Mega+Rillaboom",
             "Sylveon+Rillaboom",
             "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
             "Staraptor-Mega+Kingambit",
             "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
@@ -2984,7 +3096,7 @@
         "spe_note": "slow_no_priority spe=92",
         "damage_score": "0.944",
         "bulk_crossings": "7/24",
-        "sweep_ohko": "18/36",
+        "sweep_ohko": "17/36",
         "sweep_2hko": "34/36",
         "survive_n": "12",
         "survive_hp_mean": "0.61",
@@ -3000,12 +3112,12 @@
         {
           "name": "Earthquake",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.944 vs panel; 18 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 0.944 vs panel; 19 defender(s); bulk_crossings=7/24"
         },
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.944 vs panel; 14 defender(s); bulk_crossings=7/24"
+          "purpose_claimed": "calc damage fraction 0.944 vs panel; 13 defender(s); bulk_crossings=7/24"
         },
         {
           "name": "Rock Slide",
@@ -3019,69 +3131,73 @@
       "excellence_basis": "acceptable_calc_payoff"
     },
     {
-      "species": "Grapploct",
-      "species_id": "grapploct",
+      "species": "Tauros-Paldea-Combat",
+      "species_id": "taurospaldeacombat",
       "tier": "Acceptable",
       "delivery_class": "move_setup",
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.871 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
+        "execution": "damage_score=0.949 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
         "payoff_moves": [
-          "stormthrow",
-          "machpunch"
+          "ragingbull",
+          "earthquake",
+          "rockslide"
         ],
         "payoff_targets": {
-          "stormthrow": [
+          "ragingbull": [
             "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
             "Incineroar+Rillaboom",
-            "Salamence-Mega+Rillaboom",
             "Indeedee-F+Sneasler",
             "Kingambit+Sneasler",
             "Golisopod-Mega+Pelipper",
             "Farigiraf+Rillaboom",
-            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
             "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
             "Whimsicott+Basculegion",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
             "Garchomp+Charizard-Mega-Y",
             "Garchomp-Mega-Z+Sneasler",
             "Indeedee+Sneasler",
-            "Armarouge+Indeedee-F",
+            "Tyranitar-Mega+Excadrill",
             "Politoed+Golisopod-Mega",
             "Staraptor-Mega+Kingambit",
-            "Metagross-Mega+Salamence-Mega",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom"
+            "Grimmsnarl+Pelipper"
           ],
-          "machpunch": [
+          "earthquake": [
+            "Sneasler+Rillaboom",
             "Basculegion+Sneasler",
             "Gholdengo+Rillaboom",
+            "Raichu-Mega-Y+Rillaboom",
             "Arcanine-Hisui+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
             "Sinistcha+Incineroar",
-            "Tyranitar-Mega+Excadrill",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar"
+          ],
+          "rockslide": [
+            "Salamence-Mega+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Charizard-Mega-Y+Garchomp",
+            "Volcarona+Rillaboom",
             "Froslass-Mega+Sneasler"
           ]
         },
-        "calc_species": "Grapploct",
+        "calc_species": "Tauros-Paldea-Combat",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.871",
+        "damage_score": "0.949",
         "bulk_crossings": "6/24",
-        "sweep_ohko": "23/36",
-        "sweep_2hko": "31/36",
-        "survive_n": "19",
-        "survive_hp_mean": "0.67",
-        "survive_hp_min": "0.07"
+        "sweep_ohko": "16/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "13",
+        "survive_hp_mean": "0.64",
+        "survive_hp_min": "0.43",
+        "ally_damage_risk": "ally-hit payoff(s): Earthquake \u2014 Ground: Flying-type / Levitate / Earth Eater (absorb/heal); Gravity/Iron Ball can nullify Flying/Levitate immunity; always: Telepathy, Friend Guard (3/4, not immune)"
       },
       "claimed_traits": [
         {
@@ -3090,17 +3206,22 @@
           "purpose_claimed": "setup via bulkup (+1 atk)"
         },
         {
-          "name": "Storm Throw",
+          "name": "Raging Bull",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.871 vs panel; 28 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.949 vs panel; 16 defender(s); bulk_crossings=6/24"
         },
         {
-          "name": "Mach Punch",
+          "name": "Earthquake",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.871 vs panel; 8 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.949 vs panel; 15 defender(s); bulk_crossings=6/24"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.949 vs panel; 5 defender(s); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.871 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
+      "reasoning": "Acceptable: calc 0.949 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -3113,7 +3234,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.842 floor=1.077 slow_no_priority spe=67 bulk_crossings=6/24",
+        "execution": "damage_score=0.844 floor=1.077 slow_no_priority spe=67 bulk_crossings=6/24",
         "payoff_moves": [
           "bravebird",
           "powertrip"
@@ -3162,7 +3283,7 @@
         },
         "calc_species": "Corviknight",
         "spe_note": "slow_no_priority spe=67",
-        "damage_score": "0.842",
+        "damage_score": "0.844",
         "bulk_crossings": "6/24",
         "sweep_ohko": "13/36",
         "sweep_2hko": "30/36",
@@ -3179,15 +3300,15 @@
         {
           "name": "Brave Bird",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.842 vs panel; 34 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.844 vs panel; 34 defender(s); bulk_crossings=6/24"
         },
         {
           "name": "Power Trip",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.842 vs panel; 2 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.844 vs panel; 2 defender(s); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.842 (floor 1.077); slow_no_priority spe=67; bulk_crossings=6/24",
+      "reasoning": "Acceptable: calc 0.844 (floor 1.077); slow_no_priority spe=67; bulk_crossings=6/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -3200,7 +3321,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.831 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
+        "execution": "damage_score=0.836 floor=1.077 priority_or_spe_ok bulk_crossings=6/24",
         "payoff_moves": [
           "bitterblade",
           "shadowsneak"
@@ -3249,7 +3370,7 @@
         },
         "calc_species": "Ceruledge",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.831",
+        "damage_score": "0.836",
         "bulk_crossings": "6/24",
         "sweep_ohko": "17/36",
         "sweep_2hko": "26/36",
@@ -3266,15 +3387,15 @@
         {
           "name": "Bitter Blade",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.831 vs panel; 32 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.836 vs panel; 32 defender(s); bulk_crossings=6/24"
         },
         {
           "name": "Shadow Sneak",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.831 vs panel; 4 defender(s); bulk_crossings=6/24"
+          "purpose_claimed": "calc damage fraction 0.836 vs panel; 4 defender(s); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.831 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
+      "reasoning": "Acceptable: calc 0.836 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -3287,7 +3408,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.967 floor=1.077 priority_or_spe_ok bulk_crossings=5/24",
+        "execution": "damage_score=0.970 floor=1.077 priority_or_spe_ok bulk_crossings=5/24",
         "payoff_moves": [
           "bravebird"
         ],
@@ -3333,9 +3454,9 @@
         },
         "calc_species": "Hawlucha-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.967",
+        "damage_score": "0.970",
         "bulk_crossings": "5/24",
-        "sweep_ohko": "21/36",
+        "sweep_ohko": "22/36",
         "sweep_2hko": "32/36",
         "survive_n": "8",
         "survive_hp_mean": "0.36",
@@ -3350,10 +3471,10 @@
         {
           "name": "Brave Bird",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.967 vs panel; 36 defender(s); bulk_crossings=5/24"
+          "purpose_claimed": "calc damage fraction 0.970 vs panel; 36 defender(s); bulk_crossings=5/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.967 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
+      "reasoning": "Acceptable: calc 0.970 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -3366,7 +3487,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.869 floor=1.077 priority_or_spe_ok bulk_crossings=4/24",
+        "execution": "damage_score=0.857 floor=1.077 priority_or_spe_ok bulk_crossings=4/24",
         "payoff_moves": [
           "leafblade",
           "triplearrows",
@@ -3418,7 +3539,7 @@
         },
         "calc_species": "Decidueye-Hisui",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.869",
+        "damage_score": "0.857",
         "bulk_crossings": "4/24",
         "sweep_ohko": "21/36",
         "sweep_2hko": "32/36",
@@ -3435,20 +3556,20 @@
         {
           "name": "Leaf Blade",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.869 vs panel; 15 defender(s); bulk_crossings=4/24"
+          "purpose_claimed": "calc damage fraction 0.857 vs panel; 15 defender(s); bulk_crossings=4/24"
         },
         {
           "name": "Triple Arrows",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.869 vs panel; 14 defender(s); bulk_crossings=4/24"
+          "purpose_claimed": "calc damage fraction 0.857 vs panel; 14 defender(s); bulk_crossings=4/24"
         },
         {
           "name": "Sucker Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.869 vs panel; 7 defender(s); bulk_crossings=4/24"
+          "purpose_claimed": "calc damage fraction 0.857 vs panel; 7 defender(s); bulk_crossings=4/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.869 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
+      "reasoning": "Acceptable: calc 0.857 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -3461,7 +3582,7 @@
       "mechanism": "Bulk Up",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.937 floor=1.077 priority_or_spe_ok bulk_crossings=3/24",
+        "execution": "damage_score=0.941 floor=1.077 priority_or_spe_ok bulk_crossings=3/24",
         "payoff_moves": [
           "ironhead",
           "leechlife"
@@ -3510,10 +3631,10 @@
         },
         "calc_species": "Golisopod-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.937",
+        "damage_score": "0.941",
         "bulk_crossings": "3/24",
-        "sweep_ohko": "18/36",
-        "sweep_2hko": "31/36",
+        "sweep_ohko": "19/36",
+        "sweep_2hko": "32/36",
         "survive_n": "19",
         "survive_hp_mean": "0.80",
         "survive_hp_min": "0.27"
@@ -3527,15 +3648,15 @@
         {
           "name": "Iron Head",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.937 vs panel; 26 defender(s); bulk_crossings=3/24"
+          "purpose_claimed": "calc damage fraction 0.941 vs panel; 26 defender(s); bulk_crossings=3/24"
         },
         {
           "name": "Leech Life",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.937 vs panel; 10 defender(s); bulk_crossings=3/24"
+          "purpose_claimed": "calc damage fraction 0.941 vs panel; 10 defender(s); bulk_crossings=3/24"
         }
       ],
-      "reasoning": "Acceptable: calc 0.937 (floor 1.077); priority_or_spe_ok; bulk_crossings=3/24",
+      "reasoning": "Acceptable: calc 0.941 (floor 1.077); priority_or_spe_ok; bulk_crossings=3/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
@@ -3693,12 +3814,6 @@
       "change_reason": null
     },
     {
-      "species": "Tauros-Paldea-Combat",
-      "species_id": "taurospaldeacombat",
-      "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": null
-    },
-    {
       "species": "Chesnaught",
       "species_id": "chesnaught",
       "reason": "damage_score 0.517 below admission floor 0.766",
@@ -3719,31 +3834,31 @@
     {
       "species": "Grimmsnarl",
       "species_id": "grimmsnarl",
-      "reason": "damage_score 0.699 below admission floor 0.766",
+      "reason": "damage_score 0.694 below admission floor 0.766",
       "change_reason": null
     },
     {
       "species": "Perrserker",
       "species_id": "perrserker",
-      "reason": "damage_score 0.757 below admission floor 0.766",
+      "reason": "damage_score 0.760 below admission floor 0.766",
       "change_reason": null
     },
     {
       "species": "Sableye-Mega",
       "species_id": "sableyemega",
-      "reason": "damage_score 0.444 below admission floor 0.766",
+      "reason": "damage_score 0.447 below admission floor 0.766",
+      "change_reason": null
+    },
+    {
+      "species": "Swampert",
+      "species_id": "swampert",
+      "reason": "damage_score 0.762 below admission floor 0.766",
       "change_reason": null
     },
     {
       "species": "Golisopod",
       "species_id": "golisopod",
       "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.125% < 0.25\u00d7 mega 18.357%))",
-      "change_reason": null
-    },
-    {
-      "species": "Swampert",
-      "species_id": "swampert",
-      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.387% < 0.25\u00d7 mega 3.625%))",
       "change_reason": null
     }
   ]

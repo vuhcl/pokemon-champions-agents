@@ -1,7 +1,7 @@
 {
   "category": "tailwind_setter",
   "condition": "",
-  "built_at": "2026-10-20T20:06:34.286561+00:00",
+  "built_at": "2026-11-03T21:56:12.787657+00:00",
   "sub_criteria": {
     "kind": "tailwind_setter",
     "condition": "",
@@ -40,6 +40,7 @@
       "Scizor",
       "Scizor-Mega",
       "Squawkabilly",
+      "Squawkabilly-Yellow",
       "Toucannon",
       "Vivillon"
     ]
@@ -51,14 +52,14 @@
     "do not import Trick Room bulk\u2265210 membership \u2014 wrong axis (go-last survival)",
     "usage evidence prefers Champions in-game data where a row exists; Showdown is a fallback only for formes with no Champions row",
     "Prankster is blocked by Dark-types / Armor Tail / Queenly Majesty \u2014 noted in execution text, not an auto-reject",
-    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused",
-    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
-    "Showdown attribution (Staraptor/Staraptor-Mega): mega usage_pct=6.159 base=1.182; stone-heuristic fallback unused",
-    "Showdown attribution (Salamence/Salamence-Mega): mega usage_pct=24.843 base=0.392; stone-heuristic fallback unused",
-    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
     "Showdown attribution (Pidgeot/Pidgeot-Mega): mega usage_pct=0.091 base=0.000; stone-heuristic fallback unused",
     "Showdown attribution (Aerodactyl/Aerodactyl-Mega): mega usage_pct=1.412 base=1.656; stone-heuristic fallback unused",
-    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused"
+    "Showdown attribution (Staraptor/Staraptor-Mega): mega usage_pct=6.159 base=1.182; stone-heuristic fallback unused",
+    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused",
+    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
+    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
+    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused",
+    "Showdown attribution (Salamence/Salamence-Mega): mega usage_pct=24.843 base=0.392; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -832,6 +833,42 @@
       "excellence_basis": "slow_manual"
     },
     {
+      "species": "Squawkabilly-Yellow",
+      "species_id": "squawkabillyyellow",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=92; Spe 92 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "92",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=92).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
       "species": "Staraptor-Mega",
       "species_id": "staraptormega",
       "tier": "Good",
@@ -1105,12 +1142,6 @@
     {
       "species": "Squawkabilly-White",
       "species_id": "squawkabillywhite",
-      "reason": "Tailwind learnset but no usage evidence of Tailwind delivery and no Prankster reinforce",
-      "change_reason": null
-    },
-    {
-      "species": "Squawkabilly-Yellow",
-      "species_id": "squawkabillyyellow",
       "reason": "Tailwind learnset but no usage evidence of Tailwind delivery and no Prankster reinforce",
       "change_reason": null
     },

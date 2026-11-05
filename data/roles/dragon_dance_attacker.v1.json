@@ -1,7 +1,7 @@
 {
   "category": "dragon_dance_attacker",
   "condition": "",
-  "built_at": "2026-10-20T20:06:34.301923+00:00",
+  "built_at": "2026-11-03T21:56:12.799967+00:00",
   "sub_criteria": {
     "kind": "offense_speed_setup",
     "condition": "",
@@ -15,15 +15,15 @@
   },
   "tiers": {
     "Excellent": [
-      "Feraligatr-Mega",
-      "Charizard-Mega-X"
+      "Charizard-Mega-X",
+      "Feraligatr-Mega"
     ],
     "Good": [
-      "Tyrantrum",
       "Tyranitar-Mega",
-      "Feraligatr",
       "Dragonite",
+      "Tyrantrum",
       "Baxcalibur-Mega",
+      "Feraligatr",
       "Gyarados-Mega",
       "Tyranitar",
       "Flapple",
@@ -39,27 +39,114 @@
   "notes": [
     "exact Status self-boost {'atk': 1, 'spe': 1} \u2192 dragondance; no SD Branch A/B OR-gate",
     "Spe stage is setup-turn self-solve \u2014 rank on +1 Atk payoff only",
-    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Sitrus Berry, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Sitrus Berry+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Sitrus Berry, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Focus Sash+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Focus Sash+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Sitrus Berry, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
     "spe_crossings=not-faster\u2192faster after int(unboosted*1.5); turn-order diagnostic only; k/n_relevant",
-    "Showdown attribution (Drampa/Drampa-Mega): mega usage_pct=0.385 base=0.216; stone-heuristic fallback unused",
-    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.251 base=0.051; stone-heuristic fallback unused",
-    "Showdown attribution (Gyarados/Gyarados-Mega): mega usage_pct=0.420 base=0.234; stone-heuristic fallback unused",
-    "Showdown attribution (Salamence/Salamence-Mega): mega usage_pct=24.843 base=0.392; stone-heuristic fallback unused",
-    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
-    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=0.408 base=0.069; stone-heuristic fallback unused",
     "Showdown attribution (Aerodactyl/Aerodactyl-Mega): mega usage_pct=1.412 base=1.656; stone-heuristic fallback unused",
     "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
-    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.729 base=2.244; stone-heuristic fallback unused",
     "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.179 base=0.051; stone-heuristic fallback unused",
     "Showdown attribution (Baxcalibur/Baxcalibur-Mega): mega usage_pct=4.113 base=0.733; stone-heuristic fallback unused",
+    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
+    "Showdown attribution (Gyarados/Gyarados-Mega): mega usage_pct=0.420 base=0.234; stone-heuristic fallback unused",
+    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.251 base=0.051; stone-heuristic fallback unused",
+    "Showdown attribution (Drampa/Drampa-Mega): mega usage_pct=0.385 base=0.216; stone-heuristic fallback unused",
+    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=0.408 base=0.069; stone-heuristic fallback unused",
+    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.729 base=2.244; stone-heuristic fallback unused",
     "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused",
-    "Excellent damage floor = 2nd-highest \u00d7 0.95 \u2192 1.061 (top: Charizard-Mega-X=1.146, Feraligatr-Mega=1.117)",
+    "Showdown attribution (Salamence/Salamence-Mega): mega usage_pct=24.843 base=0.392; stone-heuristic fallback unused",
+    "Excellent damage floor = 2nd-highest \u00d7 0.95 \u2192 1.061 (top: Charizard-Mega-X=1.148, Feraligatr-Mega=1.117)",
     "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.743",
     "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); display only \u2014 within-tier sort stays crossings"
   ],
   "candidates": [
+    {
+      "species": "Charizard-Mega-X",
+      "species_id": "charizardmegax",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.148 floor=1.061 priority_or_spe_ok spe_crossings=17/36",
+        "payoff_moves": [
+          "dragonclaw",
+          "flareblitz"
+        ],
+        "payoff_targets": {
+          "flareblitz": [
+            "Rillaboom+Sneasler",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Archaludon+Pelipper",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "dragonclaw": [
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Basculegion+Sneasler",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Torkoal+Indeedee-F",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Charizard-Mega-X",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.148",
+        "spe_crossings": "17/36",
+        "sweep_ohko": "29/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "0",
+        "survive_hp_mean": "n/a",
+        "survive_hp_min": "n/a"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Dragon Claw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.148 vs panel; 18 defender(s); spe_crossings=17/36"
+        },
+        {
+          "name": "Flare Blitz",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.148 vs panel; 18 defender(s); spe_crossings=17/36"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.148 (floor 1.061); priority_or_spe_ok; spe_crossings=17/36",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
     {
       "species": "Feraligatr-Mega",
       "species_id": "feraligatrmega",
@@ -68,7 +155,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.117 floor=1.061 priority_or_spe_ok spe_crossings=16/36",
+        "execution": "damage_score=1.117 floor=1.061 priority_or_spe_ok spe_crossings=17/36",
         "payoff_moves": [
           "doubleedge",
           "liquidation"
@@ -118,7 +205,7 @@
         "calc_species": "Feraligatr-Mega",
         "spe_note": "priority_or_spe_ok",
         "damage_score": "1.117",
-        "spe_crossings": "16/36",
+        "spe_crossings": "17/36",
         "sweep_ohko": "29/36",
         "sweep_2hko": "36/36",
         "survive_n": "4",
@@ -134,208 +221,18 @@
         {
           "name": "Double-Edge",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.117 vs panel; 22 defender(s); spe_crossings=16/36"
+          "purpose_claimed": "calc damage fraction 1.117 vs panel; 22 defender(s); spe_crossings=17/36"
         },
         {
           "name": "Liquidation",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.117 vs panel; 14 defender(s); spe_crossings=16/36"
+          "purpose_claimed": "calc damage fraction 1.117 vs panel; 14 defender(s); spe_crossings=17/36"
         }
       ],
-      "reasoning": "Excellent: calc 1.117 (floor 1.061); priority_or_spe_ok; spe_crossings=16/36",
+      "reasoning": "Excellent: calc 1.117 (floor 1.061); priority_or_spe_ok; spe_crossings=17/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
-    },
-    {
-      "species": "Charizard-Mega-X",
-      "species_id": "charizardmegax",
-      "tier": "Excellent",
-      "delivery_class": "move_setup",
-      "mechanism": "Dragon Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.146 floor=1.061 priority_or_spe_ok spe_crossings=15/36",
-        "payoff_moves": [
-          "dragonclaw",
-          "flareblitz"
-        ],
-        "payoff_targets": {
-          "flareblitz": [
-            "Rillaboom+Sneasler",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Farigiraf+Rillaboom",
-            "Gholdengo+Rillaboom",
-            "Archaludon+Pelipper",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Staraptor-Mega+Kingambit",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom"
-          ],
-          "dragonclaw": [
-            "Sneasler+Rillaboom",
-            "Incineroar+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Basculegion+Sneasler",
-            "Pelipper+Golisopod-Mega",
-            "Milotic+Sneasler",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Torkoal+Indeedee-F",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Charizard-Mega-X",
-        "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.146",
-        "spe_crossings": "15/36",
-        "sweep_ohko": "29/36",
-        "sweep_2hko": "36/36",
-        "survive_n": "0",
-        "survive_hp_mean": "n/a",
-        "survive_hp_min": "n/a"
-      },
-      "claimed_traits": [
-        {
-          "name": "Dragon Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via dragondance (+1 atk)"
-        },
-        {
-          "name": "Dragon Claw",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.146 vs panel; 18 defender(s); spe_crossings=15/36"
-        },
-        {
-          "name": "Flare Blitz",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.146 vs panel; 18 defender(s); spe_crossings=15/36"
-        }
-      ],
-      "reasoning": "Excellent: calc 1.146 (floor 1.061); priority_or_spe_ok; spe_crossings=15/36",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "calc_payoff"
-    },
-    {
-      "species": "Tyrantrum",
-      "species_id": "tyrantrum",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Dragon Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.956 floor=1.061 slow_no_priority spe=71 spe_crossings=17/36",
-        "payoff_moves": [
-          "crunch",
-          "headsmash",
-          "rockslide",
-          "icefang"
-        ],
-        "payoff_targets": {
-          "headsmash": [
-            "Rillaboom+Sneasler",
-            "Sneasler+Rillaboom",
-            "Incineroar+Rillaboom",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Milotic+Sneasler",
-            "Floette-Mega+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Tyranitar-Mega+Excadrill",
-            "Politoed+Golisopod-Mega",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper"
-          ],
-          "icefang": [
-            "Salamence-Mega+Rillaboom",
-            "Whimsicott+Basculegion",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Staraptor-Mega+Kingambit"
-          ],
-          "crunch": [
-            "Indeedee-F+Sneasler",
-            "Basculegion+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Gholdengo+Rillaboom",
-            "Raichu-Mega-Y+Rillaboom",
-            "Gardevoir-Mega+Sneasler",
-            "Sinistcha+Incineroar",
-            "Indeedee+Sneasler",
-            "Armarouge+Indeedee-F",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar"
-          ],
-          "rockslide": [
-            "Pelipper+Golisopod-Mega",
-            "Archaludon+Pelipper",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Volcarona+Rillaboom",
-            "Lucario-Mega-Z+Rillaboom",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Tyrantrum",
-        "spe_note": "slow_no_priority spe=71",
-        "damage_score": "0.956",
-        "spe_crossings": "17/36",
-        "sweep_ohko": "29/36",
-        "sweep_2hko": "33/36",
-        "survive_n": "4",
-        "survive_hp_mean": "0.35",
-        "survive_hp_min": "0.06"
-      },
-      "claimed_traits": [
-        {
-          "name": "Dragon Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via dragondance (+1 atk)"
-        },
-        {
-          "name": "Crunch",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.956 vs panel; 12 defender(s); spe_crossings=17/36"
-        },
-        {
-          "name": "Head Smash",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.956 vs panel; 12 defender(s); spe_crossings=17/36"
-        },
-        {
-          "name": "Rock Slide",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.956 vs panel; 7 defender(s); spe_crossings=17/36"
-        },
-        {
-          "name": "Ice Fang",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.956 vs panel; 5 defender(s); spe_crossings=17/36"
-        }
-      ],
-      "reasoning": "Good: calc 0.956 (floor 1.061); slow_no_priority spe=71; spe_crossings=17/36",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_payoff"
     },
     {
       "species": "Tyranitar-Mega",
@@ -345,7 +242,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.949 floor=1.061 slow_no_priority spe=71 spe_crossings=17/36",
+        "execution": "damage_score=0.947 floor=1.061 slow_no_priority spe=71 spe_crossings=18/36",
         "payoff_moves": [
           "knockoff",
           "rockslide"
@@ -394,8 +291,8 @@
         },
         "calc_species": "Tyranitar-Mega",
         "spe_note": "slow_no_priority spe=71",
-        "damage_score": "0.949",
-        "spe_crossings": "17/36",
+        "damage_score": "0.947",
+        "spe_crossings": "18/36",
         "sweep_ohko": "18/36",
         "sweep_2hko": "32/36",
         "survive_n": "5",
@@ -411,102 +308,15 @@
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.949 vs panel; 23 defender(s); spe_crossings=17/36"
+          "purpose_claimed": "calc damage fraction 0.947 vs panel; 23 defender(s); spe_crossings=18/36"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.949 vs panel; 13 defender(s); spe_crossings=17/36"
+          "purpose_claimed": "calc damage fraction 0.947 vs panel; 13 defender(s); spe_crossings=18/36"
         }
       ],
-      "reasoning": "Good: calc 0.949 (floor 1.061); slow_no_priority spe=71; spe_crossings=17/36",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_payoff"
-    },
-    {
-      "species": "Feraligatr",
-      "species_id": "feraligatr",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Dragon Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.038 floor=1.061 priority_or_spe_ok spe_crossings=16/36",
-        "payoff_moves": [
-          "liquidation",
-          "icepunch"
-        ],
-        "payoff_targets": {
-          "icepunch": [
-            "Rillaboom+Sneasler",
-            "Salamence-Mega+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Archaludon+Pelipper",
-            "Raichu-Mega-Y+Rillaboom",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Garchomp+Charizard-Mega-Y",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Staraptor-Mega+Kingambit"
-          ],
-          "liquidation": [
-            "Sneasler+Rillaboom",
-            "Incineroar+Rillaboom",
-            "Indeedee-F+Sneasler",
-            "Kingambit+Sneasler",
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Gholdengo+Rillaboom",
-            "Milotic+Sneasler",
-            "Arcanine-Hisui+Rillaboom",
-            "Charizard-Mega-Y+Garchomp",
-            "Gardevoir-Mega+Sneasler",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Tyranitar-Mega+Excadrill",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Metagross-Mega+Salamence-Mega",
-            "Excadrill+Tyranitar-Mega",
-            "Torkoal+Indeedee-F",
-            "Grimmsnarl+Pelipper",
-            "Lucario-Mega-Z+Rillaboom",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ]
-        },
-        "calc_species": "Feraligatr",
-        "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.038",
-        "spe_crossings": "16/36",
-        "sweep_ohko": "25/36",
-        "sweep_2hko": "34/36",
-        "survive_n": "3",
-        "survive_hp_mean": "0.38",
-        "survive_hp_min": "0.29"
-      },
-      "claimed_traits": [
-        {
-          "name": "Dragon Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via dragondance (+1 atk)"
-        },
-        {
-          "name": "Liquidation",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.038 vs panel; 25 defender(s); spe_crossings=16/36"
-        },
-        {
-          "name": "Ice Punch",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.038 vs panel; 11 defender(s); spe_crossings=16/36"
-        }
-      ],
-      "reasoning": "Good: calc 1.038 (floor 1.061); priority_or_spe_ok; spe_crossings=16/36",
+      "reasoning": "Good: calc 0.947 (floor 1.061); slow_no_priority spe=71; spe_crossings=18/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -519,7 +329,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.880 floor=1.061 priority_or_spe_ok spe_crossings=16/36",
+        "execution": "damage_score=0.886 floor=1.061 priority_or_spe_ok spe_crossings=18/36",
         "payoff_moves": [
           "dragonclaw",
           "extremespeed"
@@ -568,8 +378,8 @@
         },
         "calc_species": "Dragonite",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.880",
-        "spe_crossings": "16/36",
+        "damage_score": "0.886",
+        "spe_crossings": "18/36",
         "sweep_ohko": "14/36",
         "sweep_2hko": "32/36",
         "survive_n": "4",
@@ -585,15 +395,110 @@
         {
           "name": "Dragon Claw",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.880 vs panel; 31 defender(s); spe_crossings=16/36"
+          "purpose_claimed": "calc damage fraction 0.886 vs panel; 31 defender(s); spe_crossings=18/36"
         },
         {
           "name": "Extreme Speed",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.880 vs panel; 5 defender(s); spe_crossings=16/36"
+          "purpose_claimed": "calc damage fraction 0.886 vs panel; 5 defender(s); spe_crossings=18/36"
         }
       ],
-      "reasoning": "Good: calc 0.880 (floor 1.061); priority_or_spe_ok; spe_crossings=16/36",
+      "reasoning": "Good: calc 0.886 (floor 1.061); priority_or_spe_ok; spe_crossings=18/36",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Tyrantrum",
+      "species_id": "tyrantrum",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.862 floor=1.061 slow_no_priority spe=71 spe_crossings=18/36",
+        "payoff_moves": [
+          "headsmash",
+          "rockslide",
+          "crunch"
+        ],
+        "payoff_targets": {
+          "headsmash": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper"
+          ],
+          "crunch": [
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Indeedee+Sneasler",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar"
+          ],
+          "rockslide": [
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Volcarona+Rillaboom",
+            "Lucario-Mega-Z+Rillaboom",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Tyrantrum",
+        "spe_note": "slow_no_priority spe=71",
+        "damage_score": "0.862",
+        "spe_crossings": "18/36",
+        "sweep_ohko": "24/36",
+        "sweep_2hko": "33/36",
+        "survive_n": "4",
+        "survive_hp_mean": "0.35",
+        "survive_hp_min": "0.06"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Head Smash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.862 vs panel; 23 defender(s); spe_crossings=18/36"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.862 vs panel; 7 defender(s); spe_crossings=18/36"
+        },
+        {
+          "name": "Crunch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.862 vs panel; 6 defender(s); spe_crossings=18/36"
+        }
+      ],
+      "reasoning": "Good: calc 0.862 (floor 1.061); slow_no_priority spe=71; spe_crossings=18/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -606,7 +511,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.050 floor=1.061 priority_or_spe_ok spe_crossings=15/36",
+        "execution": "damage_score=1.051 floor=1.061 priority_or_spe_ok spe_crossings=17/36",
         "payoff_moves": [
           "glaiverush",
           "iciclecrash",
@@ -658,9 +563,9 @@
         },
         "calc_species": "Baxcalibur-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.050",
-        "spe_crossings": "15/36",
-        "sweep_ohko": "27/36",
+        "damage_score": "1.051",
+        "spe_crossings": "17/36",
+        "sweep_ohko": "26/36",
         "sweep_2hko": "34/36",
         "survive_n": "0",
         "survive_hp_mean": "n/a",
@@ -675,20 +580,107 @@
         {
           "name": "Glaive Rush",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.050 vs panel; 29 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 1.051 vs panel; 29 defender(s); spe_crossings=17/36"
         },
         {
           "name": "Icicle Crash",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.050 vs panel; 6 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 1.051 vs panel; 6 defender(s); spe_crossings=17/36"
         },
         {
           "name": "Ice Shard",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.050 vs panel; 1 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 1.051 vs panel; 1 defender(s); spe_crossings=17/36"
         }
       ],
-      "reasoning": "Good: calc 1.050 (floor 1.061); priority_or_spe_ok; spe_crossings=15/36",
+      "reasoning": "Good: calc 1.051 (floor 1.061); priority_or_spe_ok; spe_crossings=17/36",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Feraligatr",
+      "species_id": "feraligatr",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.038 floor=1.061 priority_or_spe_ok spe_crossings=17/36",
+        "payoff_moves": [
+          "liquidation",
+          "icepunch"
+        ],
+        "payoff_targets": {
+          "icepunch": [
+            "Rillaboom+Sneasler",
+            "Salamence-Mega+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Rillaboom",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Staraptor-Mega+Kingambit"
+          ],
+          "liquidation": [
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Milotic+Sneasler",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Feraligatr",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.038",
+        "spe_crossings": "17/36",
+        "sweep_ohko": "25/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "3",
+        "survive_hp_mean": "0.38",
+        "survive_hp_min": "0.29"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Liquidation",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.038 vs panel; 25 defender(s); spe_crossings=17/36"
+        },
+        {
+          "name": "Ice Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.038 vs panel; 11 defender(s); spe_crossings=17/36"
+        }
+      ],
+      "reasoning": "Good: calc 1.038 (floor 1.061); priority_or_spe_ok; spe_crossings=17/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -701,7 +693,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.001 floor=1.061 slow_no_priority spe=81 spe_crossings=15/36",
+        "execution": "damage_score=1.000 floor=1.061 slow_no_priority spe=81 spe_crossings=16/36",
         "payoff_moves": [
           "crunch",
           "waterfall"
@@ -750,8 +742,8 @@
         },
         "calc_species": "Gyarados-Mega",
         "spe_note": "slow_no_priority spe=81",
-        "damage_score": "1.001",
-        "spe_crossings": "15/36",
+        "damage_score": "1.000",
+        "spe_crossings": "16/36",
         "sweep_ohko": "23/36",
         "sweep_2hko": "35/36",
         "survive_n": "3",
@@ -767,15 +759,15 @@
         {
           "name": "Crunch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.001 vs panel; 22 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 1.000 vs panel; 22 defender(s); spe_crossings=16/36"
         },
         {
           "name": "Waterfall",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.001 vs panel; 14 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 1.000 vs panel; 14 defender(s); spe_crossings=16/36"
         }
       ],
-      "reasoning": "Good: calc 1.001 (floor 1.061); slow_no_priority spe=81; spe_crossings=15/36",
+      "reasoning": "Good: calc 1.000 (floor 1.061); slow_no_priority spe=81; spe_crossings=16/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -788,7 +780,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.839 floor=1.061 slow_no_priority spe=61 spe_crossings=14/36",
+        "execution": "damage_score=0.837 floor=1.061 slow_no_priority spe=61 spe_crossings=16/36",
         "payoff_moves": [
           "knockoff",
           "rockslide"
@@ -837,8 +829,8 @@
         },
         "calc_species": "Tyranitar",
         "spe_note": "slow_no_priority spe=61",
-        "damage_score": "0.839",
-        "spe_crossings": "14/36",
+        "damage_score": "0.837",
+        "spe_crossings": "16/36",
         "sweep_ohko": "15/36",
         "sweep_2hko": "31/36",
         "survive_n": "7",
@@ -854,15 +846,15 @@
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.839 vs panel; 21 defender(s); spe_crossings=14/36"
+          "purpose_claimed": "calc damage fraction 0.837 vs panel; 21 defender(s); spe_crossings=16/36"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.839 vs panel; 15 defender(s); spe_crossings=14/36"
+          "purpose_claimed": "calc damage fraction 0.837 vs panel; 15 defender(s); spe_crossings=16/36"
         }
       ],
-      "reasoning": "Good: calc 0.839 (floor 1.061); slow_no_priority spe=61; spe_crossings=14/36",
+      "reasoning": "Good: calc 0.837 (floor 1.061); slow_no_priority spe=61; spe_crossings=16/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -875,7 +867,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.761 floor=1.061 priority_or_spe_ok spe_crossings=13/36",
+        "execution": "damage_score=0.770 floor=1.061 priority_or_spe_ok spe_crossings=15/36",
         "payoff_moves": [
           "gravapple",
           "dragonrush",
@@ -892,7 +884,6 @@
             "Charizard-Mega-Y+Garchomp",
             "Volcarona+Rillaboom",
             "Garchomp-Mega-Z+Sneasler",
-            "Armarouge+Indeedee-F",
             "Staraptor-Mega+Kingambit",
             "Torkoal+Indeedee-F"
           ],
@@ -901,6 +892,7 @@
             "Golisopod-Mega+Pelipper",
             "Gholdengo+Rillaboom",
             "Sinistcha+Incineroar",
+            "Armarouge+Indeedee-F",
             "Metagross-Mega+Salamence-Mega",
             "Gengar-Mega+Incineroar",
             "Froslass-Mega+Sneasler"
@@ -927,8 +919,8 @@
         },
         "calc_species": "Flapple",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.761",
-        "spe_crossings": "13/36",
+        "damage_score": "0.770",
+        "spe_crossings": "15/36",
         "sweep_ohko": "27/36",
         "sweep_2hko": "34/36",
         "survive_n": "3",
@@ -944,20 +936,20 @@
         {
           "name": "Grav Apple",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.761 vs panel; 17 defender(s); spe_crossings=13/36"
+          "purpose_claimed": "calc damage fraction 0.770 vs panel; 17 defender(s); spe_crossings=15/36"
         },
         {
           "name": "Dragon Rush",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.761 vs panel; 12 defender(s); spe_crossings=13/36"
+          "purpose_claimed": "calc damage fraction 0.770 vs panel; 11 defender(s); spe_crossings=15/36"
         },
         {
           "name": "Sucker Punch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.761 vs panel; 7 defender(s); spe_crossings=13/36"
+          "purpose_claimed": "calc damage fraction 0.770 vs panel; 8 defender(s); spe_crossings=15/36"
         }
       ],
-      "reasoning": "Good: calc 0.761 (floor 1.061); priority_or_spe_ok; spe_crossings=13/36",
+      "reasoning": "Good: calc 0.770 (floor 1.061); priority_or_spe_ok; spe_crossings=15/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -970,7 +962,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.836 floor=1.061 priority_or_spe_ok spe_crossings=11/36",
+        "execution": "damage_score=0.840 floor=1.061 priority_or_spe_ok spe_crossings=10/36",
         "payoff_moves": [
           "closecombat",
           "knockoff"
@@ -1019,8 +1011,8 @@
         },
         "calc_species": "Scrafty",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.836",
-        "spe_crossings": "11/36",
+        "damage_score": "0.840",
+        "spe_crossings": "10/36",
         "sweep_ohko": "17/36",
         "sweep_2hko": "32/36",
         "survive_n": "9",
@@ -1037,15 +1029,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.836 vs panel; 22 defender(s); spe_crossings=11/36"
+          "purpose_claimed": "calc damage fraction 0.840 vs panel; 22 defender(s); spe_crossings=10/36"
         },
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.836 vs panel; 14 defender(s); spe_crossings=11/36"
+          "purpose_claimed": "calc damage fraction 0.840 vs panel; 14 defender(s); spe_crossings=10/36"
         }
       ],
-      "reasoning": "Good: calc 0.836 (floor 1.061); priority_or_spe_ok; spe_crossings=11/36",
+      "reasoning": "Good: calc 0.840 (floor 1.061); priority_or_spe_ok; spe_crossings=10/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -1058,7 +1050,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.013 floor=1.061 priority_or_spe_ok spe_crossings=10/36",
+        "execution": "damage_score=1.016 floor=1.061 priority_or_spe_ok spe_crossings=9/36",
         "payoff_moves": [
           "closecombat",
           "knockoff"
@@ -1107,8 +1099,8 @@
         },
         "calc_species": "Scrafty-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.013",
-        "spe_crossings": "10/36",
+        "damage_score": "1.016",
+        "spe_crossings": "9/36",
         "sweep_ohko": "22/36",
         "sweep_2hko": "35/36",
         "survive_n": "6",
@@ -1125,15 +1117,15 @@
         {
           "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.013 vs panel; 22 defender(s); spe_crossings=10/36"
+          "purpose_claimed": "calc damage fraction 1.016 vs panel; 22 defender(s); spe_crossings=9/36"
         },
         {
           "name": "Knock Off",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.013 vs panel; 14 defender(s); spe_crossings=10/36"
+          "purpose_claimed": "calc damage fraction 1.016 vs panel; 14 defender(s); spe_crossings=9/36"
         }
       ],
-      "reasoning": "Good: calc 1.013 (floor 1.061); priority_or_spe_ok; spe_crossings=10/36",
+      "reasoning": "Good: calc 1.016 (floor 1.061); priority_or_spe_ok; spe_crossings=9/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -1146,7 +1138,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.870 floor=1.061 priority_or_spe_ok spe_crossings=1/36",
+        "execution": "damage_score=0.872 floor=1.061 priority_or_spe_ok spe_crossings=1/36",
         "payoff_moves": [
           "dualwingbeat",
           "rockslide"
@@ -1195,9 +1187,9 @@
         },
         "calc_species": "Aerodactyl-Mega",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "0.870",
+        "damage_score": "0.872",
         "spe_crossings": "1/36",
-        "sweep_ohko": "19/36",
+        "sweep_ohko": "20/36",
         "sweep_2hko": "32/36",
         "survive_n": "0",
         "survive_hp_mean": "n/a",
@@ -1212,15 +1204,15 @@
         {
           "name": "Dual Wingbeat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.870 vs panel; 26 defender(s); spe_crossings=1/36"
+          "purpose_claimed": "calc damage fraction 0.872 vs panel; 26 defender(s); spe_crossings=1/36"
         },
         {
           "name": "Rock Slide",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.870 vs panel; 10 defender(s); spe_crossings=1/36"
+          "purpose_claimed": "calc damage fraction 0.872 vs panel; 10 defender(s); spe_crossings=1/36"
         }
       ],
-      "reasoning": "Good: calc 0.870 (floor 1.061); priority_or_spe_ok; spe_crossings=1/36",
+      "reasoning": "Good: calc 0.872 (floor 1.061); priority_or_spe_ok; spe_crossings=1/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
@@ -1233,7 +1225,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.092 floor=1.061 priority_or_spe_ok spe_crossings=15/36",
+        "execution": "damage_score=1.089 floor=1.061 priority_or_spe_ok spe_crossings=17/36",
         "payoff_moves": [
           "glaiverush",
           "iciclecrash",
@@ -1285,8 +1277,8 @@
         },
         "calc_species": "Baxcalibur",
         "spe_note": "priority_or_spe_ok",
-        "damage_score": "1.092",
-        "spe_crossings": "15/36",
+        "damage_score": "1.089",
+        "spe_crossings": "17/36",
         "sweep_ohko": "31/36",
         "sweep_2hko": "35/36",
         "survive_n": "0",
@@ -1302,20 +1294,20 @@
         {
           "name": "Glaive Rush",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.092 vs panel; 29 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 1.089 vs panel; 29 defender(s); spe_crossings=17/36"
         },
         {
           "name": "Icicle Crash",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.092 vs panel; 6 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 1.089 vs panel; 6 defender(s); spe_crossings=17/36"
         },
         {
           "name": "Ice Shard",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.092 vs panel; 1 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 1.089 vs panel; 1 defender(s); spe_crossings=17/36"
         }
       ],
-      "reasoning": "Acceptable: calc 1.092 (floor 1.061); priority_or_spe_ok; spe_crossings=15/36",
+      "reasoning": "Acceptable: calc 1.089 (floor 1.061); priority_or_spe_ok; spe_crossings=17/36",
       "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.733% < 0.25\u00d7 mega 4.113%))",
       "reinforce_class": "",
       "excellence_basis": "usage_discounted"
@@ -1328,7 +1320,7 @@
       "mechanism": "Dragon Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.723 floor=1.061 slow_no_priority spe=81 spe_crossings=15/36",
+        "execution": "damage_score=0.721 floor=1.061 slow_no_priority spe=81 spe_crossings=16/36",
         "payoff_moves": [
           "waterfall"
         ],
@@ -1374,8 +1366,8 @@
         },
         "calc_species": "Gyarados",
         "spe_note": "slow_no_priority spe=81",
-        "damage_score": "0.723",
-        "spe_crossings": "15/36",
+        "damage_score": "0.721",
+        "spe_crossings": "16/36",
         "sweep_ohko": "13/36",
         "sweep_2hko": "24/36",
         "survive_n": "3",
@@ -1391,10 +1383,10 @@
         {
           "name": "Waterfall",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.723 vs panel; 36 defender(s); spe_crossings=15/36"
+          "purpose_claimed": "calc damage fraction 0.721 vs panel; 36 defender(s); spe_crossings=16/36"
         }
       ],
-      "reasoning": "Acceptable: calc 0.723 (floor 1.061); slow_no_priority spe=81; spe_crossings=15/36",
+      "reasoning": "Acceptable: calc 0.721 (floor 1.061); slow_no_priority spe=81; spe_crossings=16/36",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
