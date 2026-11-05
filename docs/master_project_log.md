@@ -6363,6 +6363,20 @@ Not a claim about: other models, thinking on, the Claude API, or a graph-guarded
 
 Open: GitHub issue for an arm v2 (a set-slot wrapper that edits any combination of species and field in one call) is created; options to add to it are a guard graph around the loop, a richer get_move_static (PP, accuracy, target, flags) without computing PP, and thinking-on or Claude-API configurations as separate registered evals. An ADR for the stateful arm and arm v2 comes next. The ADR-002 mega-stone amendment draft is still uncommitted. The run branch is not pushed.
 
+### 2026-11-04: Arm v2 audits and rescore; Nov 4 pin not started; hosted demo direction
+
+**Where things landed.** The rung 1 hand audit (118 turns) is finished and exported, and the derived candidate lists are in `rung1_derived_candidates_2026-11-03.md`. The run-1 rescore is done and moved to `run_1_rescore/` beside `run_1/`: `process_summary.json` f743b6bda9b8d1b4e140977beb27dd18d8c86296b03dd0557668dd7778c15a42, `process_turns.csv` b650eb3895c3b3a8b3838449b74ab40c575ffbf90246fec4df7da719542e7cbd, `class_scorer.json` 918b878424abbd81b96f4778e21844976aafd7a2678dd95b0eb9074fb64d2ad1; the five `run_1/` inputs are unchanged. The rung 3 supplement (rerun with `tool_fields`) differs from the original rung 3 on 104 of 118 turns, with six machine verdicts changed (missed to met: H18b t2, HU2 t1, HU2b t1; met to missed: IS3 t1, MT1 t2, MU8 t1); the only configuration difference is `tool_fields`. The 44 vs 43 gap in the class scorer is a unit difference, rows versus turns: the legacy run-1 TB2 row failed to load its fixture (`FixtureLoadError: tb2_incineroar_charcoal.json: no declared slot base in _SLOT_BASE`) and counts as a scored row with zero turns (register entry 26). Nothing frozen was edited. Audit pages for rungs 2 to 6 are built, and the targeted rows are the pre-declared draw, unswapped. ADR-085 (arm v2) is drafted for filing; main ends at ADR-084.
+
+**The pin has not happened.** The day-0 `usage-refresh-mc` run (season M-8, Nov 4, 21:22Z) failed its validation, species count 177 below the floor of 220, and failed closed, so no blob changed. `legality-extract-gate` was a noop and `usage-showdown-rollover` is still disabled. The plan is to force-dispatch `usage-refresh-mc` once the source has more than the day-0 data, enable the rollover, merge #347, re-pin on purpose, and then cut keys once. Whether the day-0 count is a partial publish is Vu's reading and has not been verified. Open PRs #345 (langgraph bump), #347 (vgcpastes refresh, a pinned file) and #366 (compendium refresh, not a pin) are held until after the cut and the P1/P2 comparisons.
+
+**Issues filed.** #369 (P1: a moveset written to a partly locked slot skips `check_set`; also in the product path), #370 (P2: archetype components are case-sensitive; also in the product path), #371 (P3: `pending_flags` carries no reason), #372 (P3: `edit_slot_field` has no readback), #373 (P2: `--wrapper` alone does not enable `tool_fields`) and #374 (hosted demo).
+
+**Hosted demo.** Decided by Vu: hosted, bring-your-own-key, Anthropic plus one more provider, Redis checkpointer, a game mode and a sandbox mode, a key check at session creation, hints off in round 2. Measured with fake parsers through the real graph: 2 turns is not reachable on the demo graph (one lock per message; one message naming six builds drafts and locks nothing; the default path takes 13 turns). Parser and provider failures count as turns. Not built; ADR-086 stays a scratch draft until the decisions are final.
+
+**What I got wrong, kept plainly.** I expected a floor of 2 turns and a silent-drop case that the page could flag, and I stated both before the code or a run showed them. I also pointed Cursor at Project-only files twice, which produced the wrong targeted-turn list until follow-up 40.
+
+**Open.** The in-game blob; the single cut; the P1/P2 revisions; audits at rungs 2 to 6; design approval for the demo; the second provider, the regulation, the target team and its source terms.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

@@ -12273,3 +12273,50 @@ The known-limits line "Multi-attribute forme pooling (Toxtricity, Squawkabilly) 
 **Not changed:** ADR-002, ADR-006, ADR-078, ADR-083 and the Part G gate result. The gate's PASS covers lookup tools and prompt rev3 only and does not carry over to this arm.
 
 **Status:** Accepted (2026-10-29).
+
+---
+
+## ADR-085: Arm v2 is a six-rung cumulative ladder over one frozen codebase, measured against the PRE-RS-ARM baseline with outcome and process reported side by side and no pass threshold
+
+**Date:** 2026-11-04 (decisions of 2026-10-29 to 2026-11-04)
+**Status:** Accepted. Records the design, the registration and what has been measured so far. The hand audits at rungs 2 to 6 are not finished; their results go to eval_results.md and, if one changes a decision here, to an amendment. This ADR does not rate any rung as passing or failing.
+
+**Context:** ADR-084 records that the unguarded tool-calling loop changed state it was not asked to change in 15 of 100 turns, never used show_candidates successfully (0 of 9), and made tool-checkable claims without calling the tool. Several failures came from the tools and harness, not the model: no tool returned PP, accuracy, target or flags (MV2, MV3); lock_slot took a species only; show_candidates needed a fully locked anchor; seven rows started from a state that did not match the key; two rows (SC2, TB2) never loaded. ADR-084 left the response undecided and pointed to the arm v2 issues.
+
+**Decision:**
+1. **A cumulative ladder of six configurations of one frozen codebase**, each behind a flag, run on the same 103 covered rows (118 live turns): rung 1 corrected baseline (the PRE-RS-ARM arm and prompt with harness fixes only: history carried after turn 0, the 11 seed-mismatch rows, the RB1 loader, archetype-signature normalization, four turn-text changes); rung 2 adds tool fields (`get_speed` stage/Scarf/Tailwind, `get_move_static` fields, `find_species` flags and constraint filter, `describe`, usage and meta tools, rule names in refusals, `set_constraint_active`); rung 3 adds the set-slot wrapper with aggregated refusal; rung 4 adds draft/lock (`set_slot` drafts, `lock_fields` locks); rung 5 adds a guard (parser, class-bound tools, execution check, pending asked action, terminal node; a parser failure fails closed to ASK); rung 6 adds judge-lite (coverage, mutation, state claims, entity and number provenance, one real retry). The judge's typed-claims stage is not built.
+2. **Settings unchanged from PRE-RS-ARM:** qwen3.5:latest (Q4_K_M), temperature 0, thinking off, num_ctx 16384, num_predict 2048, no seed, each rung run once.
+3. **PRE-RS-ARM run 1 stays the baseline of record** and is rescored with the same process-metric scorer on its 113 played turns. It is not rerun or amended.
+4. **Outcome (class result plus hand audit) and process metrics are reported side by side and never combined.** No pass threshold and no verdict word. Counts carry exact two-sided 95% Clopper-Pearson intervals.
+5. **Hand audit:** full (118 turns) at rungs 1 and 6; 10 targeted turns each at rungs 2 to 5, drawn before any run from pools fixed by the frozen expected-tools CSV with a fixed seed and unswapped (the rung 3 draw also serves the rung 3 supplement). Targeted rows are reported as targeted rows, never as a rung-level rate. One auditor (Vu). Where a rule is ambiguous, the hand mark decides; the scorer is frozen.
+6. **Frozen artifacts** (never edited): the request set, `derived_keys.json`, both batteries, the expected-tools CSV rev3 (`fde4e93d…`), the process-metric scorer (`96c48ac3…`), the covered list, the prompts, and the freeze manifest (commit `09b75177…`, merged as `e6c28c25…`). All six rungs ran on `a393ae91dd5c0d49c8370fcdd8e92454aebc66ec`.
+7. **Key defects found in the audits go in a register, not into the frozen keys.** They are applied in one key cut after the in-game pin is written and re-pinned (a re-pin invalidates the keys, so the cut is made once). Until then the committed keys grade as written. Rows whose keys depend on the in-game blob (H6, MT2 t2, HN3, HU2, IC1, GS1) are reported stale, not failed.
+8. **Rung 3 was misconfigured** (`--wrapper` alone does not enable `tool_fields`, so the first run was not cumulative). It was rerun as a labelled supplement; the two runs are reported separately and never merged.
+
+**Why:** The failures split into three kinds: the model acts without being asked, the model lacks a field or a working call, and the harness loaded the wrong state. Changing them together would make any improvement unattributable, so each change gets its own rung and the rungs are cumulative so that adjacent rungs isolate one change. Outcome and process are reported apart because a right answer reached by the wrong steps, and the reverse, are both observed and different findings. No threshold was registered because the covered rows are a pre-declared subset, not a sample.
+
+**Alternatives considered:**
+- *A prompt-only fix:* kept as a baseline inside the ladder, not the plan; the prompt moved three times on dev rows and unrequested calls remained.
+- *Separate ablations per change:* would isolate each effect but need a run for every combination; the cumulative ladder trades that for a run per rung and attributes changes only by adjacency.
+- *Thinking on, or the Claude API:* a different configuration, not a fix; each would be its own registered eval.
+- *Fix only the tools and harness (rungs 1 to 2):* is the first part of the ladder; the guard and judge rungs show whether more is needed.
+- *Do nothing:* acceptable, since v1 is done on the recorded criteria; the cost is that the arm's state behavior stays as measured.
+
+**Evidence recorded so far (measured values only; the audits at rungs 2 to 6 are pending):**
+- Rung 1 hand audit (118 turns, single auditor): overall pass 48, fail 59, not applicable 7, blank 4 (four class-scored turns); rubric cells 337 (pass 145, fail 134, not applicable 58). Process requirement: scorer default met 58 and missed 60; with Vu's five overrides met 57 and missed 61. Derived candidate lists are not a key review.
+- Run 1 rescored (113 turns): requirement met 55, missed 58 (23 structural, 35 behavioral); redundant 21, extra 81, misused 23, refused 34; 265 calls. Class scorer: 43 observed turns, match 31, state_ok 33 (the 44 scored rows versus 43 turns differ because the TB2 row failed to load and has no turns).
+- Rung 3 supplement versus the original rung 3: 14 turns identical, 104 differ; six machine verdicts changed. The only configuration difference is `tool_fields`.
+- Tool and harness findings, tracked in issues: a moveset written to a partly locked slot skips `check_set` (#369, P1; it reaches the product path too); archetype components are case-sensitive (#370, P2; also the product path); `pending_flags` carries no reason (#371); `edit_slot_field` has no readback (#372); the ladder flag cascade (#373); Meowstic-F (#364); type chart (#368).
+
+**Costs and limits, accepted:**
+- One auditor who knows the keys; machine verdicts and hand marks disagree on many turns, and both are reported.
+- A local 4-bit model with thinking off; results do not carry to other models, to the Claude API, or to the Part G gate (ADR-078, ADR-083).
+- One run per rung; run 1's determinism over three runs says nothing about the later configurations.
+- Key defects remain in the committed keys until the cut; the register (26 entries so far) is built from what the audits catch and is not a key review.
+- The loop and guard are an eval harness and depart from ADR-006 for this eval. ADR-006 stands for the product arm.
+
+**Not decided here:** whether any rung is adopted into the product. A decision to do so gets its own ADR.
+
+**Not changed:** ADR-002, ADR-006, ADR-078, ADR-083, ADR-084 and the Part G gate result.
+
+**Status:** Accepted (2026-11-04).
