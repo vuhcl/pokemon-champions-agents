@@ -1,0 +1,25 @@
+{
+  "name": "busy",
+  "measured": false,
+  "source": "Contract example. The API does not exist yet. The waiting queue is full, so POST /session/{token}/message never reached the graph. 503 does not count a turn.",
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/message",
+        "body": {"text": "yes", "expected_turn": 1}
+      },
+      "response": {
+        "status": 503,
+        "body": {
+          "error": {
+            "code": "busy",
+            "message": "Lots of people are playing right now. Try again in a moment.",
+            "retryable": true,
+            "counts_as_turn": false
+          }
+        }
+      }
+    }
+  ]
+}

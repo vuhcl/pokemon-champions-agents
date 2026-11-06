@@ -213,6 +213,7 @@
                 "unauthorized_key",
                 "rate_limited",
                 "provider_unavailable",
+                "busy",
                 "timeout",
                 "session_not_found",
                 "hint_off"
@@ -244,10 +245,10 @@
     "status_response": {
       "type": "object",
       "additionalProperties": false,
-      "description": "In-process progress. stage is an authored label while working, never a graph node name. null when idle or when no label is known. Both modes include turn here.",
+      "description": "In-process progress. stage is an authored label while working or queued, never a graph node name. null when idle or when no label is known. queued means the message is waiting for a free graph turn; its stage is recommender/stage_labels.py QUEUED_STAGE. Both modes include turn here.",
       "required": ["state", "turn", "stage"],
       "properties": {
-        "state": {"type": "string", "enum": ["idle", "working"]},
+        "state": {"type": "string", "enum": ["idle", "queued", "working"]},
         "turn": {"type": "integer", "minimum": 0},
         "stage": {"type": ["string", "null"]}
       }
@@ -302,7 +303,7 @@
     },
     "POST /session/{token}/message": {
       "type": "object",
-      "description": "200 if the graph ran: normal play, parser failure, bootstrap provider failure, or a refused action. turn increments (D9). 409 in_flight or stale_turn does not run the graph and does not count. text maxLength 7000. The byte cap is still 8192: 413 body_too_large wins when the encoded body exceeds it, including multi-byte text under the character cap. On timeout the API re-reads state turn before it answers, so a late checkpoint is not reported as uncounted.",
+      "description": "200 if the graph ran: normal play, parser failure, bootstrap provider failure, or a refused action. turn increments (D9). 409 in_flight or stale_turn does not run the graph and does not count. 503 busy when the waiting queue is full: the message never reached the graph. text maxLength 7000. The byte cap is still 8192: 413 body_too_large wins when the encoded body exceeds it, including multi-byte text under the character cap. On timeout the API re-reads state turn before it answers, so a late checkpoint is not reported as uncounted.",
       "properties": {
         "request": {
           "type": "object",
@@ -315,7 +316,8 @@
         },
         "response_200_game": {"$ref": "#/$defs/message_response_game"},
         "response_200_sandbox": {"$ref": "#/$defs/message_response_sandbox"},
-        "response_409": {"$ref": "#/$defs/error_envelope"}
+        "response_409": {"$ref": "#/$defs/error_envelope"},
+        "response_503": {"$ref": "#/$defs/error_envelope"}
       }
     },
     "POST /session/{token}/key": {
@@ -378,7 +380,7 @@
     },
     "GET /session/{token}/status": {
       "type": "object",
-      "description": "Both modes. The message handler sets working before the stream and idle in a finally, and updates stage from a node-start event. POST /key and POST /round do not change this record. It is lost on restart. Unknown token: 404 session_not_found, counts_as_turn false. Example: transcripts/status.json.",
+      "description": "Both modes. The message handler sets working before the stream and idle in a finally, and updates stage from a node-start event. queued is the wait for a free graph turn, before working; stage is then QUEUED_STAGE. POST /key and POST /round do not change this record. It is lost on restart. Unknown token: 404 session_not_found, counts_as_turn false. Example: transcripts/status.json.",
       "properties": {
         "response_200": {"$ref": "#/$defs/status_response"},
         "response_404": {"$ref": "#/$defs/error_envelope"}
@@ -390,7 +392,7 @@
       "properties": {"response_204": {"type": "null"}}
     },
     "status": {
-      "description": "Never reached the graph, envelope, counts_as_turn false: 401 unauthorized_key (POST /session, or POST /key with the previous parsers kept), 409 in_flight|stale_turn|round_in_flight|hint_off, 413 body_too_large, 415 unsupported_media_type, 429 rate_limited, 503 provider_unavailable, 504 timeout. Timeout re-reads state turn before answering. 404 session_not_found uses the envelope for an unknown token, including GET /session/{token}/status. Sandbox /round and /hint are a different 404: empty body, no code. 400 bad_request uses the envelope. Reached the graph: 200, turn incremented, no envelope.",
+      "description": "Never reached the graph, envelope, counts_as_turn false: 401 unauthorized_key (POST /session, or POST /key with the previous parsers kept), 409 in_flight|stale_turn|round_in_flight|hint_off, 413 body_too_large, 415 unsupported_media_type, 429 rate_limited, 503 provider_unavailable|busy, 504 timeout. busy is POST /session/{token}/message when the waiting queue is full. Timeout re-reads state turn before answering. 404 session_not_found uses the envelope for an unknown token, including GET /session/{token}/status. Sandbox /round and /hint are a different 404: empty body, no code. 400 bad_request uses the envelope. Reached the graph: 200, turn incremented, no envelope.",
       "type": "object"
     }
   }

@@ -43,3 +43,7 @@ LABELS: dict[str, str] = {
 
 def stage_label(node_name: str) -> str:
     return LABELS.get(node_name, _PLACEHOLDER)
+
+
+# Not a graph node. The API sets this while a message waits for a free turn.
+QUEUED_STAGE = "Waiting for other players"
