@@ -179,7 +179,7 @@ def test_memo_miss_on_ev_change():
     assert matchup_memo_stats()["misses"] >= 2
 
 
-def test_memo_clears_on_thread_change():
+def test_memo_switch_does_not_clear_the_other_thread():
     client = MockCalcClient()
     bind_matchup_memo_thread("t1")
     classify_matchup(A, B, None, client=client)
@@ -188,6 +188,11 @@ def test_memo_clears_on_thread_change():
     assert matchup_memo_stats() == {"hits": 0, "misses": 0}
     classify_matchup(A, B, None, client=client)
     assert matchup_memo_stats()["misses"] >= 1
+    after_t2 = client.calls
+    bind_matchup_memo_thread("t1")
+    classify_matchup(A, B, None, client=client)
+    assert client.calls == after_t2
+    assert matchup_memo_stats()["hits"] >= 1
 
 
 def test_memo_persists_across_same_thread_bind():
