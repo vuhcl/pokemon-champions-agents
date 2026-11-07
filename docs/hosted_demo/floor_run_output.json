@@ -1,0 +1,3406 @@
+{
+  "format_id": "[Gen 9 Champions] VGC 2026 Reg M-C",
+  "six_message": "Pelipper @ Damp Rock, Drizzle, Hurricane / U-turn / Weather Ball / Protect; Incineroar @ Safety Goggles, Intimidate, Fake Out / Flare Blitz / Parting Shot / Snarl; Rillaboom @ Assault Vest, Grassy Surge, Grassy Glide / Wood Hammer / U-turn / Fake Out; Amoonguss @ Sitrus Berry, Regenerator, Spore / Rage Powder / Pollen Puff / Protect; Kingambit @ Black Glasses, Defiant, Kowtow Cleave / Sucker Punch / Iron Head / Protect; Flutter Mane @ Choice Specs, Protosynthesis, Moonblast / Shadow Ball / Dazzling Gleam / Protect",
+  "baseline": [
+    {
+      "user": null,
+      "after": {
+        "turn": 0,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": null,
+        "turn_payload_message": null,
+        "last_user_text_len": 0,
+        "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      }
+    },
+    {
+      "user": "Rain with Pelipper",
+      "user_len": 18,
+      "mode": "rain",
+      "pending_before": "bootstrap_intake",
+      "turn_before": 0,
+      "after": {
+        "turn": 1,
+        "pending_kind": "candidate_selection",
+        "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Pelipper (Rain Setter)",
+            "send_text": "1",
+            "species": "Pelipper"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "bootstrap_response",
+        "turn_payload_message": null,
+        "last_user_text_len": 18,
+        "visible": "Choose the recommended starting direction or one of the strategically different alternatives.\n1. Pelipper \u2014 Rain Setter \u2014 rain_setter \u2014 support \u2014 compendium_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 1
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "candidate_selection",
+      "turn_before": 1,
+      "after": {
+        "turn": 2,
+        "pending_kind": "full_build_confirmation",
+        "prompt_text": null,
+        "footer": "Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "accept",
+            "label": "Accept this build",
+            "send_text": "yes"
+          },
+          {
+            "id": "spread_nature:default",
+            "label": "Recommended default",
+            "send_text": "spread_nature:default",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:1",
+            "label": "Modest 2/0/0/32/0/32",
+            "send_text": "spread_nature:1",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:2",
+            "label": "Timid 2/0/0/32/0/32",
+            "send_text": "spread_nature:2",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:3",
+            "label": "Modest 32/0/0/32/2/0",
+            "send_text": "spread_nature:3",
+            "axis": "spread_nature"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Pelipper",
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "Proposed build for Pelipper (rain_setter):\n  Ability: Drizzle\n  Item: Sitrus Berry\n  Nature: Modest\n  Moves: Hurricane, U-turn, Weather Ball, Protect\n  Spread: {'hp': 4, 'atk': 0, 'def': 0, 'spa': 32, 'spd': 0, 'spe': 30}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:1: Modest 2/0/0/32/0/32 \u2014 spread; Real usage spread variant\n    mech: Spe 117 vs default 115\n  spread_nature:2: Timid 2/0/0/32/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 128 vs default 115\n  spread_nature:3: Modest 32/0/0/32/2/0 \u2014 spread; Real usage spread variant\n    mech: Spe 85 vs default 115\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'."
+      },
+      "checkpoint_turn": 2
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 2,
+      "after": {
+        "turn": 3,
+        "pending_kind": "candidate_selection",
+        "prompt_text": null,
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Goodra",
+            "send_text": "1",
+            "species": "Goodra"
+          },
+          {
+            "id": "2",
+            "label": "Blastoise",
+            "send_text": "2",
+            "species": "Blastoise"
+          },
+          {
+            "id": "3",
+            "label": "Swampert-Mega",
+            "send_text": "3",
+            "species": "Swampert-Mega"
+          }
+        ],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "1. Goodra \u2014 bulky_special_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n2. Blastoise \u2014 bulky_mixed_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n3. Swampert-Mega \u2014 fast_physical_attacker \u2014 usage_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 3
+    }
+  ],
+  "six_schema": {
+    "transcript": [
+      {
+        "user": null,
+        "after": {
+          "turn": 0,
+          "pending_kind": "bootstrap_intake",
+          "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+          "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+          "notices": [],
+          "options": [],
+          "slots_with_any_value": 0,
+          "slots_fully_locked": 0,
+          "locked_flags": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "slot_species": [
+            {
+              "index": 1,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 2,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 3,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 4,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 5,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 6,
+              "species": null,
+              "species_locked": false
+            }
+          ],
+          "provisional_species": null,
+          "slot_commit_error": null,
+          "bootstrap_intake_error": null,
+          "turn_intent": null,
+          "turn_payload_message": null,
+          "last_user_text_len": 0,
+          "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+        }
+      },
+      {
+        "user": "<len 519>",
+        "user_len": 519,
+        "mode": "six_schema",
+        "pending_before": "bootstrap_intake",
+        "turn_before": 0,
+        "after": {
+          "turn": 1,
+          "pending_kind": "candidate_selection",
+          "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+          "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+          "notices": [
+            "Couldn't identify: Amoonguss",
+            "Couldn't identify: Flutter Mane"
+          ],
+          "options": [
+            {
+              "id": "1",
+              "label": "Pelipper (Rain Setter)",
+              "send_text": "1",
+              "species": "Pelipper"
+            },
+            {
+              "id": "2",
+              "label": "Rillaboom (Grassy Terrain Setter)",
+              "send_text": "2",
+              "species": "Rillaboom"
+            },
+            {
+              "id": "3",
+              "label": "Incineroar (Bulky Pivot)",
+              "send_text": "3",
+              "species": "Incineroar"
+            }
+          ],
+          "slots_with_any_value": 0,
+          "slots_fully_locked": 0,
+          "locked_flags": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "slot_species": [
+            {
+              "index": 1,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 2,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 3,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 4,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 5,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 6,
+              "species": null,
+              "species_locked": false
+            }
+          ],
+          "provisional_species": null,
+          "slot_commit_error": null,
+          "bootstrap_intake_error": null,
+          "turn_intent": "bootstrap_response",
+          "turn_payload_message": null,
+          "last_user_text_len": 519,
+          "visible": "Couldn't identify: Amoonguss\nCouldn't identify: Flutter Mane\nChoose the recommended starting direction or one of the strategically different alternatives.\n1. Pelipper \u2014 Rain Setter \u2014 rain_setter \u2014 support \u2014 compendium_backed, high confidence\n2. Rillaboom \u2014 Grassy Terrain Setter \u2014 grassy_terrain_setter \u2014 support \u2014 compendium_backed, high confidence\n3. Incineroar \u2014 Bulky Pivot \u2014 bulky_pivot \u2014 offense \u2014 compendium_backed, low confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+        },
+        "checkpoint_turn": 1
+      }
+    ],
+    "parser_seen": [
+      {
+        "parser": "bootstrap",
+        "len": 519,
+        "mode": "six_schema"
+      }
+    ]
+  },
+  "naive_builds": [
+    {
+      "user": null,
+      "after": {
+        "turn": 0,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": null,
+        "turn_payload_message": null,
+        "last_user_text_len": 0,
+        "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      }
+    },
+    {
+      "user": "<len 519>",
+      "user_len": 519,
+      "mode": "naive_builds",
+      "pending_before": "bootstrap_intake",
+      "turn_before": 0,
+      "after": {
+        "turn": 1,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": "I couldn't understand that bootstrap reply. Try again with a clearer direction, anchor Pok\u00e9mon, and/or available Pok\u00e9mon.",
+        "turn_intent": "pending_response",
+        "turn_payload_message": null,
+        "last_user_text_len": 519,
+        "visible": "Didn't catch that.\nBootstrap intake error: I couldn't understand that bootstrap reply. Try again with a clearer direction, anchor Pok\u00e9mon, and/or available Pok\u00e9mon.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      },
+      "checkpoint_turn": 1
+    }
+  ],
+  "one_of_six_locks": [
+    {
+      "user": null,
+      "after": {
+        "turn": 0,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": null,
+        "turn_payload_message": null,
+        "last_user_text_len": 0,
+        "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      }
+    },
+    {
+      "user": "Rain with Pelipper",
+      "user_len": 18,
+      "mode": "rain",
+      "pending_before": "bootstrap_intake",
+      "turn_before": 0,
+      "after": {
+        "turn": 1,
+        "pending_kind": "candidate_selection",
+        "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Pelipper (Rain Setter)",
+            "send_text": "1",
+            "species": "Pelipper"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "bootstrap_response",
+        "turn_payload_message": null,
+        "last_user_text_len": 18,
+        "visible": "Choose the recommended starting direction or one of the strategically different alternatives.\n1. Pelipper \u2014 Rain Setter \u2014 rain_setter \u2014 support \u2014 compendium_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 1
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "candidate_selection",
+      "turn_before": 1,
+      "after": {
+        "turn": 2,
+        "pending_kind": "full_build_confirmation",
+        "prompt_text": null,
+        "footer": "Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "accept",
+            "label": "Accept this build",
+            "send_text": "yes"
+          },
+          {
+            "id": "spread_nature:default",
+            "label": "Recommended default",
+            "send_text": "spread_nature:default",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:1",
+            "label": "Modest 2/0/0/32/0/32",
+            "send_text": "spread_nature:1",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:2",
+            "label": "Timid 2/0/0/32/0/32",
+            "send_text": "spread_nature:2",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:3",
+            "label": "Modest 32/0/0/32/2/0",
+            "send_text": "spread_nature:3",
+            "axis": "spread_nature"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Pelipper",
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "Proposed build for Pelipper (rain_setter):\n  Ability: Drizzle\n  Item: Sitrus Berry\n  Nature: Modest\n  Moves: Hurricane, U-turn, Weather Ball, Protect\n  Spread: {'hp': 4, 'atk': 0, 'def': 0, 'spa': 32, 'spd': 0, 'spe': 30}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:1: Modest 2/0/0/32/0/32 \u2014 spread; Real usage spread variant\n    mech: Spe 117 vs default 115\n  spread_nature:2: Timid 2/0/0/32/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 128 vs default 115\n  spread_nature:3: Modest 32/0/0/32/2/0 \u2014 spread; Real usage spread variant\n    mech: Spe 85 vs default 115\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'."
+      },
+      "checkpoint_turn": 2
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 2,
+      "after": {
+        "turn": 3,
+        "pending_kind": "candidate_selection",
+        "prompt_text": null,
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Goodra",
+            "send_text": "1",
+            "species": "Goodra"
+          },
+          {
+            "id": "2",
+            "label": "Blastoise",
+            "send_text": "2",
+            "species": "Blastoise"
+          },
+          {
+            "id": "3",
+            "label": "Swampert-Mega",
+            "send_text": "3",
+            "species": "Swampert-Mega"
+          }
+        ],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "1. Goodra \u2014 bulky_special_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n2. Blastoise \u2014 bulky_mixed_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n3. Swampert-Mega \u2014 fast_physical_attacker \u2014 usage_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 3
+    },
+    {
+      "user": "Lock slot 2 as Incineroar. Lock slot 3 as Rillaboom. Lock slot 4 as Amoonguss. Lock slot 5 as Kingambit. Lock slot 6 as Flutter Mane.",
+      "user_len": 133,
+      "mode": "one_of_six_locks",
+      "pending_before": "candidate_selection",
+      "turn_before": 3,
+      "after": {
+        "turn": 4,
+        "pending_kind": null,
+        "prompt_text": null,
+        "footer": null,
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 2,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Incineroar",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "lock",
+        "turn_payload_message": null,
+        "last_user_text_len": 133,
+        "visible": "Team:\n1. Pelipper (rain_setter)"
+      },
+      "checkpoint_turn": 4
+    }
+  ],
+  "multi_intent_list": [
+    {
+      "user": null,
+      "after": {
+        "turn": 0,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": null,
+        "turn_payload_message": null,
+        "last_user_text_len": 0,
+        "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      }
+    },
+    {
+      "user": "Rain with Pelipper",
+      "user_len": 18,
+      "mode": "rain",
+      "pending_before": "bootstrap_intake",
+      "turn_before": 0,
+      "after": {
+        "turn": 1,
+        "pending_kind": "candidate_selection",
+        "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Pelipper (Rain Setter)",
+            "send_text": "1",
+            "species": "Pelipper"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "bootstrap_response",
+        "turn_payload_message": null,
+        "last_user_text_len": 18,
+        "visible": "Choose the recommended starting direction or one of the strategically different alternatives.\n1. Pelipper \u2014 Rain Setter \u2014 rain_setter \u2014 support \u2014 compendium_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 1
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "candidate_selection",
+      "turn_before": 1,
+      "after": {
+        "turn": 2,
+        "pending_kind": "full_build_confirmation",
+        "prompt_text": null,
+        "footer": "Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "accept",
+            "label": "Accept this build",
+            "send_text": "yes"
+          },
+          {
+            "id": "spread_nature:default",
+            "label": "Recommended default",
+            "send_text": "spread_nature:default",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:1",
+            "label": "Modest 2/0/0/32/0/32",
+            "send_text": "spread_nature:1",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:2",
+            "label": "Timid 2/0/0/32/0/32",
+            "send_text": "spread_nature:2",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:3",
+            "label": "Modest 32/0/0/32/2/0",
+            "send_text": "spread_nature:3",
+            "axis": "spread_nature"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Pelipper",
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "Proposed build for Pelipper (rain_setter):\n  Ability: Drizzle\n  Item: Sitrus Berry\n  Nature: Modest\n  Moves: Hurricane, U-turn, Weather Ball, Protect\n  Spread: {'hp': 4, 'atk': 0, 'def': 0, 'spa': 32, 'spd': 0, 'spe': 30}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:1: Modest 2/0/0/32/0/32 \u2014 spread; Real usage spread variant\n    mech: Spe 117 vs default 115\n  spread_nature:2: Timid 2/0/0/32/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 128 vs default 115\n  spread_nature:3: Modest 32/0/0/32/2/0 \u2014 spread; Real usage spread variant\n    mech: Spe 85 vs default 115\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'."
+      },
+      "checkpoint_turn": 2
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 2,
+      "after": {
+        "turn": 3,
+        "pending_kind": "candidate_selection",
+        "prompt_text": null,
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Goodra",
+            "send_text": "1",
+            "species": "Goodra"
+          },
+          {
+            "id": "2",
+            "label": "Blastoise",
+            "send_text": "2",
+            "species": "Blastoise"
+          },
+          {
+            "id": "3",
+            "label": "Swampert-Mega",
+            "send_text": "3",
+            "species": "Swampert-Mega"
+          }
+        ],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "1. Goodra \u2014 bulky_special_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n2. Blastoise \u2014 bulky_mixed_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n3. Swampert-Mega \u2014 fast_physical_attacker \u2014 usage_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 3
+    },
+    {
+      "user": "Lock slot 2 as Incineroar. Lock slot 3 as Rillaboom. Lock slot 4 as Amoonguss. Lock slot 5 as Kingambit. Lock slot 6 as Flutter Mane.",
+      "user_len": 133,
+      "mode": "multi_intent_list",
+      "pending_before": "candidate_selection",
+      "turn_before": 3,
+      "after": {
+        "turn": 4,
+        "pending_kind": "candidate_selection",
+        "prompt_text": null,
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Goodra",
+            "send_text": "1",
+            "species": "Goodra"
+          },
+          {
+            "id": "2",
+            "label": "Blastoise",
+            "send_text": "2",
+            "species": "Blastoise"
+          },
+          {
+            "id": "3",
+            "label": "Swampert-Mega",
+            "send_text": "3",
+            "species": "Swampert-Mega"
+          }
+        ],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "pending_response",
+        "turn_payload_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+        "last_user_text_len": 133,
+        "visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\n1. Goodra \u2014 bulky_special_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n2. Blastoise \u2014 bulky_mixed_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n3. Swampert-Mega \u2014 fast_physical_attacker \u2014 usage_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 4
+    }
+  ],
+  "relock": [
+    {
+      "user": null,
+      "after": {
+        "turn": 0,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": null,
+        "turn_payload_message": null,
+        "last_user_text_len": 0,
+        "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      }
+    },
+    {
+      "user": "Rain with Pelipper",
+      "user_len": 18,
+      "mode": "rain",
+      "pending_before": "bootstrap_intake",
+      "turn_before": 0,
+      "after": {
+        "turn": 1,
+        "pending_kind": "candidate_selection",
+        "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Pelipper (Rain Setter)",
+            "send_text": "1",
+            "species": "Pelipper"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "bootstrap_response",
+        "turn_payload_message": null,
+        "last_user_text_len": 18,
+        "visible": "Choose the recommended starting direction or one of the strategically different alternatives.\n1. Pelipper \u2014 Rain Setter \u2014 rain_setter \u2014 support \u2014 compendium_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 1
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "candidate_selection",
+      "turn_before": 1,
+      "after": {
+        "turn": 2,
+        "pending_kind": "full_build_confirmation",
+        "prompt_text": null,
+        "footer": "Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "accept",
+            "label": "Accept this build",
+            "send_text": "yes"
+          },
+          {
+            "id": "spread_nature:default",
+            "label": "Recommended default",
+            "send_text": "spread_nature:default",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:1",
+            "label": "Modest 2/0/0/32/0/32",
+            "send_text": "spread_nature:1",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:2",
+            "label": "Timid 2/0/0/32/0/32",
+            "send_text": "spread_nature:2",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:3",
+            "label": "Modest 32/0/0/32/2/0",
+            "send_text": "spread_nature:3",
+            "axis": "spread_nature"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Pelipper",
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "Proposed build for Pelipper (rain_setter):\n  Ability: Drizzle\n  Item: Sitrus Berry\n  Nature: Modest\n  Moves: Hurricane, U-turn, Weather Ball, Protect\n  Spread: {'hp': 4, 'atk': 0, 'def': 0, 'spa': 32, 'spd': 0, 'spe': 30}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:1: Modest 2/0/0/32/0/32 \u2014 spread; Real usage spread variant\n    mech: Spe 117 vs default 115\n  spread_nature:2: Timid 2/0/0/32/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 128 vs default 115\n  spread_nature:3: Modest 32/0/0/32/2/0 \u2014 spread; Real usage spread variant\n    mech: Spe 85 vs default 115\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'."
+      },
+      "checkpoint_turn": 2
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 2,
+      "after": {
+        "turn": 3,
+        "pending_kind": "candidate_selection",
+        "prompt_text": null,
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Goodra",
+            "send_text": "1",
+            "species": "Goodra"
+          },
+          {
+            "id": "2",
+            "label": "Blastoise",
+            "send_text": "2",
+            "species": "Blastoise"
+          },
+          {
+            "id": "3",
+            "label": "Swampert-Mega",
+            "send_text": "3",
+            "species": "Swampert-Mega"
+          }
+        ],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "1. Goodra \u2014 bulky_special_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n2. Blastoise \u2014 bulky_mixed_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n3. Swampert-Mega \u2014 fast_physical_attacker \u2014 usage_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 3
+    },
+    {
+      "user": "Lock slot 1 Pelipper again.",
+      "user_len": 27,
+      "mode": "relock",
+      "pending_before": "candidate_selection",
+      "turn_before": 3,
+      "after": {
+        "turn": 4,
+        "pending_kind": "candidate_selection",
+        "prompt_text": null,
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Goodra",
+            "send_text": "1",
+            "species": "Goodra"
+          },
+          {
+            "id": "2",
+            "label": "Blastoise",
+            "send_text": "2",
+            "species": "Blastoise"
+          },
+          {
+            "id": "3",
+            "label": "Swampert-Mega",
+            "send_text": "3",
+            "species": "Swampert-Mega"
+          }
+        ],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": "Revise a locked slot is not supported yet.",
+        "bootstrap_intake_error": null,
+        "turn_intent": "lock",
+        "turn_payload_message": null,
+        "last_user_text_len": 27,
+        "visible": "Slot commit error: Revise a locked slot is not supported yet.\n1. Goodra \u2014 bulky_special_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n2. Blastoise \u2014 bulky_mixed_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n3. Swampert-Mega \u2014 fast_physical_attacker \u2014 usage_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 4
+    }
+  ],
+  "relock_message_constant": "Revise a locked slot is not supported yet.",
+  "classify_fail_constant": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+  "parser_fail_turn": [
+    {
+      "user": null,
+      "after": {
+        "turn": 0,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": null,
+        "turn_payload_message": null,
+        "last_user_text_len": 0,
+        "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      }
+    },
+    {
+      "user": "Rain with Pelipper",
+      "user_len": 18,
+      "mode": "rain",
+      "pending_before": "bootstrap_intake",
+      "turn_before": 0,
+      "after": {
+        "turn": 1,
+        "pending_kind": "candidate_selection",
+        "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Pelipper (Rain Setter)",
+            "send_text": "1",
+            "species": "Pelipper"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "bootstrap_response",
+        "turn_payload_message": null,
+        "last_user_text_len": 18,
+        "visible": "Choose the recommended starting direction or one of the strategically different alternatives.\n1. Pelipper \u2014 Rain Setter \u2014 rain_setter \u2014 support \u2014 compendium_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 1
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "candidate_selection",
+      "turn_before": 1,
+      "after": {
+        "turn": 2,
+        "pending_kind": "full_build_confirmation",
+        "prompt_text": null,
+        "footer": "Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "accept",
+            "label": "Accept this build",
+            "send_text": "yes"
+          },
+          {
+            "id": "spread_nature:default",
+            "label": "Recommended default",
+            "send_text": "spread_nature:default",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:1",
+            "label": "Modest 2/0/0/32/0/32",
+            "send_text": "spread_nature:1",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:2",
+            "label": "Timid 2/0/0/32/0/32",
+            "send_text": "spread_nature:2",
+            "axis": "spread_nature"
+          },
+          {
+            "id": "spread_nature:3",
+            "label": "Modest 32/0/0/32/2/0",
+            "send_text": "spread_nature:3",
+            "axis": "spread_nature"
+          }
+        ],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Pelipper",
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "Proposed build for Pelipper (rain_setter):\n  Ability: Drizzle\n  Item: Sitrus Berry\n  Nature: Modest\n  Moves: Hurricane, U-turn, Weather Ball, Protect\n  Spread: {'hp': 4, 'atk': 0, 'def': 0, 'spa': 32, 'spd': 0, 'spe': 30}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:1: Modest 2/0/0/32/0/32 \u2014 spread; Real usage spread variant\n    mech: Spe 117 vs default 115\n  spread_nature:2: Timid 2/0/0/32/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 128 vs default 115\n  spread_nature:3: Modest 32/0/0/32/2/0 \u2014 spread; Real usage spread variant\n    mech: Spe 85 vs default 115\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'."
+      },
+      "checkpoint_turn": 2
+    },
+    {
+      "user": "yes",
+      "user_len": 3,
+      "mode": "rain",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 2,
+      "after": {
+        "turn": 3,
+        "pending_kind": "candidate_selection",
+        "prompt_text": null,
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Goodra",
+            "send_text": "1",
+            "species": "Goodra"
+          },
+          {
+            "id": "2",
+            "label": "Blastoise",
+            "send_text": "2",
+            "species": "Blastoise"
+          },
+          {
+            "id": "3",
+            "label": "Swampert-Mega",
+            "send_text": "3",
+            "species": "Swampert-Mega"
+          }
+        ],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "turn_payload_message": null,
+        "last_user_text_len": 3,
+        "visible": "1. Goodra \u2014 bulky_special_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n2. Blastoise \u2014 bulky_mixed_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n3. Swampert-Mega \u2014 fast_physical_attacker \u2014 usage_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 3
+    },
+    {
+      "user": "lock everything",
+      "user_len": 15,
+      "mode": "raise_turn",
+      "pending_before": "candidate_selection",
+      "turn_before": 3,
+      "after": {
+        "turn": 4,
+        "pending_kind": "candidate_selection",
+        "prompt_text": null,
+        "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+        "notices": [],
+        "options": [
+          {
+            "id": "1",
+            "label": "Goodra",
+            "send_text": "1",
+            "species": "Goodra"
+          },
+          {
+            "id": "2",
+            "label": "Blastoise",
+            "send_text": "2",
+            "species": "Blastoise"
+          },
+          {
+            "id": "3",
+            "label": "Swampert-Mega",
+            "send_text": "3",
+            "species": "Swampert-Mega"
+          }
+        ],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "pending_response",
+        "turn_payload_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+        "last_user_text_len": 15,
+        "visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\n1. Goodra \u2014 bulky_special_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n2. Blastoise \u2014 bulky_mixed_attacker \u2014 healing_cleric \u2014 usage_backed, high confidence\n3. Swampert-Mega \u2014 fast_physical_attacker \u2014 usage_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+      },
+      "checkpoint_turn": 4
+    }
+  ],
+  "parser_fail_bootstrap": [
+    {
+      "user": null,
+      "after": {
+        "turn": 0,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": null,
+        "turn_payload_message": null,
+        "last_user_text_len": 0,
+        "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      }
+    },
+    {
+      "user": "Rain with Pelipper",
+      "user_len": 18,
+      "mode": "raise_bootstrap",
+      "pending_before": "bootstrap_intake",
+      "turn_before": 0,
+      "after": {
+        "turn": 1,
+        "pending_kind": "bootstrap_intake",
+        "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+        "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": "The model provider is unavailable right now. Check the LLM configuration and try again.",
+        "turn_intent": "pending_response",
+        "turn_payload_message": null,
+        "last_user_text_len": 18,
+        "visible": "Didn't catch that.\nBootstrap intake error: The model provider is unavailable right now. Check the LLM configuration and try again.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+      },
+      "checkpoint_turn": 1
+    }
+  ],
+  "long_message": {
+    "transcript": [
+      {
+        "user": null,
+        "after": {
+          "turn": 0,
+          "pending_kind": "bootstrap_intake",
+          "prompt_text": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+          "footer": "Reply with a direction, anchor, available pool, or 'you pick'.",
+          "notices": [],
+          "options": [],
+          "slots_with_any_value": 0,
+          "slots_fully_locked": 0,
+          "locked_flags": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "slot_species": [
+            {
+              "index": 1,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 2,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 3,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 4,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 5,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 6,
+              "species": null,
+              "species_locked": false
+            }
+          ],
+          "provisional_species": null,
+          "slot_commit_error": null,
+          "bootstrap_intake_error": null,
+          "turn_intent": null,
+          "turn_payload_message": null,
+          "last_user_text_len": 0,
+          "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'."
+        }
+      },
+      {
+        "user": "<len 20019>",
+        "user_len": 20019,
+        "mode": "long",
+        "pending_before": "bootstrap_intake",
+        "turn_before": 0,
+        "after": {
+          "turn": 1,
+          "pending_kind": "candidate_selection",
+          "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+          "footer": "Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+          "notices": [],
+          "options": [
+            {
+              "id": "1",
+              "label": "Pelipper (Rain Setter)",
+              "send_text": "1",
+              "species": "Pelipper"
+            }
+          ],
+          "slots_with_any_value": 0,
+          "slots_fully_locked": 0,
+          "locked_flags": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "slot_species": [
+            {
+              "index": 1,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 2,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 3,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 4,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 5,
+              "species": null,
+              "species_locked": false
+            },
+            {
+              "index": 6,
+              "species": null,
+              "species_locked": false
+            }
+          ],
+          "provisional_species": null,
+          "slot_commit_error": null,
+          "bootstrap_intake_error": null,
+          "turn_intent": "bootstrap_response",
+          "turn_payload_message": null,
+          "last_user_text_len": 20019,
+          "visible": "Choose the recommended starting direction or one of the strategically different alternatives.\n1. Pelipper \u2014 Rain Setter \u2014 rain_setter \u2014 support \u2014 compendium_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'."
+        },
+        "checkpoint_turn": 1
+      }
+    ],
+    "parser_seen": [
+      {
+        "parser": "bootstrap",
+        "len": 20019,
+        "mode": "long"
+      }
+    ]
+  },
+  "long_turn": {
+    "transcript_last": {
+      "user": "<len 20007>",
+      "user_len": 20007,
+      "mode": "long_turn",
+      "pending_before": "candidate_selection",
+      "turn_before": 3,
+      "after": {
+        "turn": 4,
+        "pending_kind": null,
+        "prompt_text": null,
+        "footer": null,
+        "notices": [],
+        "options": [],
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "turn_intent": "team_review",
+        "turn_payload_message": null,
+        "last_user_text_len": 20007,
+        "visible": "Team:\n1. Pelipper (rain_setter)\nTeam review:\nCoverage gaps:\n  - Garchomp: no_answer (toss-up)\n  - Garchomp-Mega: no_answer (toss-up)\n  - Garchomp-Mega-Z: no_answer (toss-up)\n  - Charizard-Mega-X: no_answer (toss-up)\n  - Archaludon: no_answer (toss-up)\n  - Raichu: no_answer (toss-up)\n  - Raichu-Alola: no_answer (toss-up)\n  - Raichu-Mega-X: no_answer (toss-up)\n  - Raichu-Mega-Y: no_answer (toss-up)\n  - Pelipper: no_answer (toss-up)\n  - Basculegion-F: no_answer (toss-up)\n  - Gholdengo: no_answer (toss-up)\n  - Salamence: no_answer (toss-up)\n  - Salamence-Mega: no_answer (toss-up)\n  - Sylveon: no_answer (toss-up)\n  - Staraptor: no_answer (toss-up)\n  - Venusaur: no_answer (toss-up)\n  - Venusaur-Mega: no_answer (toss-up)\n  - Indeedee: no_answer (toss-up)\n  - Gardevoir: no_answer (toss-up)\n  - Gardevoir-Mega: no_answer (toss-up)\n  - Metagross-Mega: no_answer (toss-up)\n  - Floette-Eternal: no_answer (toss-up)\n  - Dragonite: no_answer (toss-up)\n  - Dragonite-Mega: no_answer (toss-up)\n  - Swampert: no_answer (toss-up)\n  - Swampert-Mega: no_answer (toss-up)\n  - Basculegion-F: no_answer (toss-up)\n  - Arcanine-Hisui: no_answer (toss-up)\n  - Primarina: no_answer (toss-up)\n  - Glimmora: no_answer (toss-up)\n  - Glimmora-Mega: no_answer (toss-up)\n  - Froslass-Mega: no_answer (toss-up)\n  - Gengar-Mega: no_answer (toss-up)\n  - Sableye: no_answer (toss-up)\n  - Ninetales-Alola: no_answer (toss-up)\n  - Blastoise: no_answer (toss-up)\n  - Blastoise-Mega: no_answer (toss-up)\n  - Lucario: no_answer (toss-up)\nConditional coverage:\n  - Kingambit: conditionally_dependent_answer (decisive)\n  - Farigiraf: conditionally_dependent_answer (decisive)\n  - Tyranitar: conditionally_dependent_answer (costly)\n  - Tyranitar-Mega: conditionally_dependent_answer (costly)\n  - Metagross: conditionally_dependent_answer (costly)\n  - Excadrill: conditionally_dependent_answer (decisive)\n  - Excadrill-Mega: conditionally_dependent_answer (decisive)\n  - Froslass: conditionally_dependent_answer (costly)\n  - Gengar: conditionally_dependent_answer (costly)\n  - Delphox: conditionally_dependent_answer (decisive)\n  - Delphox-Mega: conditionally_dependent_answer (toss-up)\n  - Aerodactyl: conditionally_dependent_answer (costly)\n  - Aerodactyl-Mega: conditionally_dependent_answer (costly)\n  - Talonflame: conditionally_dependent_answer (costly)\n  - Lucario-Mega: conditionally_dependent_answer (costly)\n  - Corviknight: conditionally_dependent_answer (costly)\nSPOFs:\n  - 1. Pelipper loses Sneasler, Rillaboom, Incineroar, Charizard, Charizard-Mega-Y, Kingambit, Indeedee-F, Basculegion, Farigiraf, Whimsicott, Golisopod, Golisopod-Mega, Tyranitar, Tyranitar-Mega, Staraptor-Mega, Milotic, Volcarona, Grimmsnarl, Indeedee-F, Metagross, Sinistcha, Excadrill, Excadrill-Mega, Armarouge, Politoed, Torkoal, Froslass, Kommo-o, Gengar, Delphox, Delphox-Mega, Annihilape, Sableye-Mega, Aerodactyl, Aerodactyl-Mega, Talonflame, Lucario-Mega, Lucario-Mega-Z, Corviknight [sneasler=costly, rillaboom=toss-up, incineroar=toss-up, charizard=costly, charizardmegay=toss-up, kingambit=decisive, indeedeef=toss-up, basculegion=costly, farigiraf=decisive, whimsicott=costly, golisopod=decisive, golisopodmega=costly, tyranitar=costly, tyranitarmega=costly, staraptormega=decisive, milotic=decisive, volcarona=costly, grimmsnarl=costly, metagross=costly, sinistcha=decisive, excadrill=decisive, excadrillmega=decisive, armarouge=costly, politoed=costly, torkoal=costly, froslass=costly, kommoo=decisive, gengar=costly, delphox=decisive, delphoxmega=toss-up, annihilape=decisive, sableyemega=costly, aerodactyl=costly, aerodactylmega=costly, talonflame=costly, lucariomega=costly, lucariomegaz=costly, corviknight=costly]\nComposition gaps:\n  - trick_room: no primary provider on locked team\n  - tailwind: no primary provider on locked team\n  - screens: no primary provider on locked team\n  - redirection: no primary provider on locked team\nFull threat list: :review threats \u00b7 Full coverage: :review coverage"
+      },
+      "checkpoint_turn": 4
+    },
+    "parser_seen": [
+      {
+        "parser": "bootstrap",
+        "len": 18,
+        "mode": "rain"
+      },
+      {
+        "parser": "turn",
+        "len": 20007,
+        "mode": "long_turn",
+        "pending_kind": "candidate_selection"
+      }
+    ]
+  },
+  "walk_accept_defaults": [
+    {
+      "user": null,
+      "after": {
+        "turn": 0,
+        "pending_kind": "bootstrap_intake",
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": null,
+        "options": []
+      }
+    },
+    {
+      "user": "Rain with Pelipper",
+      "pending_before": "bootstrap_intake",
+      "turn_before": 0,
+      "after": {
+        "turn": 1,
+        "pending_kind": "candidate_selection",
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": "bootstrap_response",
+        "options": [
+          "Pelipper"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "candidate_selection",
+      "turn_before": 1,
+      "after": {
+        "turn": 2,
+        "pending_kind": "full_build_confirmation",
+        "slots_with_any_value": 0,
+        "slots_fully_locked": 0,
+        "locked_flags": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Pelipper",
+        "slot_commit_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "options": [
+          "accept",
+          "spread_nature:default",
+          "spread_nature:2",
+          "spread_nature:3",
+          "spread_nature:4"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 2,
+      "after": {
+        "turn": 3,
+        "pending_kind": "candidate_selection",
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "options": [
+          "Goodra",
+          "Blastoise",
+          "Swampert-Mega"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "candidate_selection",
+      "turn_before": 3,
+      "after": {
+        "turn": 4,
+        "pending_kind": "full_build_confirmation",
+        "slots_with_any_value": 1,
+        "slots_fully_locked": 1,
+        "locked_flags": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Goodra",
+        "slot_commit_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "options": [
+          "accept",
+          "spread_nature:default",
+          "spread_nature:1",
+          "spread_nature:2",
+          "spread_nature:3"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 4,
+      "after": {
+        "turn": 5,
+        "pending_kind": "candidate_selection",
+        "slots_with_any_value": 2,
+        "slots_fully_locked": 2,
+        "locked_flags": [
+          true,
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "options": [
+          "Excadrill-Mega",
+          "Indeedee-F",
+          "Basculegion"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "candidate_selection",
+      "turn_before": 5,
+      "after": {
+        "turn": 6,
+        "pending_kind": "full_build_confirmation",
+        "slots_with_any_value": 2,
+        "slots_fully_locked": 2,
+        "locked_flags": [
+          true,
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Excadrill-Mega",
+        "slot_commit_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "options": [
+          "accept",
+          "spread_nature:default",
+          "spread_nature:1",
+          "spread_nature:2",
+          "spread_nature:3"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 6,
+      "after": {
+        "turn": 7,
+        "pending_kind": "candidate_selection",
+        "slots_with_any_value": 3,
+        "slots_fully_locked": 3,
+        "locked_flags": [
+          true,
+          true,
+          true,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": "Excadrill-Mega",
+            "species_locked": true
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "options": [
+          "Basculegion",
+          "Indeedee-F",
+          "Castform"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "candidate_selection",
+      "turn_before": 7,
+      "after": {
+        "turn": 8,
+        "pending_kind": "full_build_confirmation",
+        "slots_with_any_value": 3,
+        "slots_fully_locked": 3,
+        "locked_flags": [
+          true,
+          true,
+          true,
+          false,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": "Excadrill-Mega",
+            "species_locked": true
+          },
+          {
+            "index": 4,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Basculegion",
+        "slot_commit_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "options": [
+          "accept",
+          "spread_nature:default",
+          "spread_nature:2",
+          "spread_nature:3",
+          "spread_nature:4"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 8,
+      "after": {
+        "turn": 9,
+        "pending_kind": "completion_preference",
+        "slots_with_any_value": 4,
+        "slots_fully_locked": 4,
+        "locked_flags": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": "Excadrill-Mega",
+            "species_locked": true
+          },
+          {
+            "index": 4,
+            "species": "Basculegion",
+            "species_locked": true
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "options": []
+      }
+    },
+    {
+      "user": "1",
+      "pending_before": "completion_preference",
+      "turn_before": 9,
+      "after": {
+        "turn": 10,
+        "pending_kind": "candidate_selection",
+        "slots_with_any_value": 4,
+        "slots_fully_locked": 4,
+        "locked_flags": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": "Excadrill-Mega",
+            "species_locked": true
+          },
+          {
+            "index": 4,
+            "species": "Basculegion",
+            "species_locked": true
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": "continue",
+        "options": [
+          "Sylveon",
+          "Beartic",
+          "Floette-Eternal"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "candidate_selection",
+      "turn_before": 10,
+      "after": {
+        "turn": 11,
+        "pending_kind": "full_build_confirmation",
+        "slots_with_any_value": 4,
+        "slots_fully_locked": 4,
+        "locked_flags": [
+          true,
+          true,
+          true,
+          true,
+          false,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": "Excadrill-Mega",
+            "species_locked": true
+          },
+          {
+            "index": 4,
+            "species": "Basculegion",
+            "species_locked": true
+          },
+          {
+            "index": 5,
+            "species": null,
+            "species_locked": false
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Sylveon",
+        "slot_commit_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "options": [
+          "accept",
+          "spread_nature:default",
+          "spread_nature:1",
+          "spread_nature:3",
+          "spread_nature:4"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 11,
+      "after": {
+        "turn": 12,
+        "pending_kind": "candidate_selection",
+        "slots_with_any_value": 5,
+        "slots_fully_locked": 5,
+        "locked_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": "Excadrill-Mega",
+            "species_locked": true
+          },
+          {
+            "index": 4,
+            "species": "Basculegion",
+            "species_locked": true
+          },
+          {
+            "index": 5,
+            "species": "Sylveon",
+            "species_locked": true
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "options": [
+          "Floette-Eternal",
+          "Swampert-Mega",
+          "Gardevoir-Mega"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "candidate_selection",
+      "turn_before": 12,
+      "after": {
+        "turn": 13,
+        "pending_kind": "full_build_confirmation",
+        "slots_with_any_value": 5,
+        "slots_fully_locked": 5,
+        "locked_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": "Excadrill-Mega",
+            "species_locked": true
+          },
+          {
+            "index": 4,
+            "species": "Basculegion",
+            "species_locked": true
+          },
+          {
+            "index": 5,
+            "species": "Sylveon",
+            "species_locked": true
+          },
+          {
+            "index": 6,
+            "species": null,
+            "species_locked": false
+          }
+        ],
+        "provisional_species": "Floette-Eternal",
+        "slot_commit_error": null,
+        "turn_intent": "slot_candidate_selected",
+        "options": [
+          "accept",
+          "spread_nature:default",
+          "spread_nature:2",
+          "spread_nature:3",
+          "spread_nature:4"
+        ]
+      }
+    },
+    {
+      "user": "yes",
+      "pending_before": "full_build_confirmation",
+      "turn_before": 13,
+      "after": {
+        "turn": 14,
+        "pending_kind": null,
+        "slots_with_any_value": 6,
+        "slots_fully_locked": 6,
+        "locked_flags": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "slot_species": [
+          {
+            "index": 1,
+            "species": "Pelipper",
+            "species_locked": true
+          },
+          {
+            "index": 2,
+            "species": "Goodra",
+            "species_locked": true
+          },
+          {
+            "index": 3,
+            "species": "Excadrill-Mega",
+            "species_locked": true
+          },
+          {
+            "index": 4,
+            "species": "Basculegion",
+            "species_locked": true
+          },
+          {
+            "index": 5,
+            "species": "Sylveon",
+            "species_locked": true
+          },
+          {
+            "index": 6,
+            "species": "Floette-Eternal",
+            "species_locked": true
+          }
+        ],
+        "provisional_species": null,
+        "slot_commit_error": null,
+        "turn_intent": "full_slot_confirmed",
+        "options": []
+      }
+    }
+  ]
+}

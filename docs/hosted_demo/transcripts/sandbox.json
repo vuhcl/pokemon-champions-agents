@@ -1,0 +1,44 @@
+{
+  "name": "sandbox",
+  "measured": false,
+  "source": "Contract example. mode sandbox. The 201 state_view is a full sandbox view: six slots, no round, turn, score, or target. Those keys are absent, not null. /round and /hint are 404 with an empty body and no error code.",
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session",
+        "body": {"provider": "anthropic", "model": "fake", "api_key": "<redacted>", "mode": "sandbox"}
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "session_token": "REDACTED-session-token-not-a-real-secret-value",
+          "state_view": {
+            "max_len": null,
+            "prompt_text": "What direction or anchor would you like to start with, and which Pokémon are available to you?",
+            "notices": [],
+            "pending_kind": "bootstrap_intake",
+            "options": [],
+            "slots": [
+              {"index": 1, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 2, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 3, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 4, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 5, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 6, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}}
+            ],
+            "provisional_slot": null
+          }
+        }
+      }
+    },
+    {
+      "request": {"method": "POST", "path": "/session/{token}/round", "body": {}},
+      "response": {"status": 404, "body": null}
+    },
+    {
+      "request": {"method": "POST", "path": "/session/{token}/hint", "body": {}},
+      "response": {"status": 404, "body": null}
+    }
+  ]
+}

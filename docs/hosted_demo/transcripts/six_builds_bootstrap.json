@@ -1,0 +1,59 @@
+{
+  "name": "six_builds_bootstrap",
+  "source": "docs/hosted_demo/floor_run.py mode six_schema. Renamed from compound.json. The fake parser returned only what BootstrapExtraction allows: one anchor and five pool names. Builds are absent because that schema has no build fields (extra=forbid). The 'Couldn't identify' notices are a second cause: Amoonguss and Flutter Mane fail the legality snapshot (tier Illegal), not the schema. Both are why this message locks nothing; they are not the same cause.",
+  "after_this_message": {
+    "slots_with_any_value": 0,
+    "slots_fully_locked": 0,
+    "turn": 1
+  },
+  "accept_defaults_continuation": {
+    "further_messages_to_six_locked": 12,
+    "total_user_messages": 13,
+    "state_turn_at_six_locked": 13,
+    "locked_species_in_order": ["Pelipper", "Goodra", "Excadrill-Mega", "Basculegion", "Sylveon", "Floette-Eternal"],
+    "note": "Those twelve messages were all 'yes' (option 0, then confirm). The six named sets were not what locked. completion_preference did not appear on this pool. Turn-by-turn rows: transcripts/six_paste_accept_defaults.json."
+  },
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/message",
+        "body": {
+          "text": "Pelipper @ Damp Rock, Drizzle, Hurricane / U-turn / Weather Ball / Protect; Incineroar @ Safety Goggles, Intimidate, Fake Out / Flare Blitz / Parting Shot / Snarl; Rillaboom @ Assault Vest, Grassy Surge, Grassy Glide / Wood Hammer / U-turn / Fake Out; Amoonguss @ Sitrus Berry, Regenerator, Spore / Rage Powder / Pollen Puff / Protect; Kingambit @ Black Glasses, Defiant, Kowtow Cleave / Sucker Punch / Iron Head / Protect; Flutter Mane @ Choice Specs, Protosynthesis, Moonblast / Shadow Ball / Dazzling Gleam / Protect",
+          "expected_turn": 0
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "reply_text": "Couldn't identify: Amoonguss. Couldn't identify: Flutter Mane. 1. Pelipper 2. Rillaboom 3. Incineroar",
+          "turn": 1,
+          "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+          "state_view_partial": {
+            "round": 1,
+            "turn": 1,
+            "max_len": null,
+            "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+            "notices": ["Couldn't identify: Amoonguss", "Couldn't identify: Flutter Mane"],
+            "pending_kind": "candidate_selection",
+            "options": [
+              {"id": "1", "label": "Pelipper (Rain Setter)", "send_text": "1"},
+              {"id": "2", "label": "Rillaboom (Grassy Terrain Setter)", "send_text": "2"},
+              {"id": "3", "label": "Incineroar (Bulky Pivot)", "send_text": "3"}
+            ],
+            "provisional_slot": null,
+            "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+            "slots_locked_flags": [false, false, false, false, false, false]
+          }
+        }
+      },
+      "graph": {
+        "pending_before": "bootstrap_intake",
+        "turn_before": 0,
+        "turn_after": 1,
+        "slots_fully_locked": 0,
+        "parser_received_chars": 519
+      }
+    }
+  ]
+}
