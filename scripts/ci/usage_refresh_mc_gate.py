@@ -30,6 +30,30 @@ EARLY_DAYS = 7
 SEASON_RUN_DAYS = frozenset({0, 14})
 
 
+def usage_log_fields(
+    snap: dict[str, Any] | None, stats: dict[str, Any] | None
+) -> dict[str, Any]:
+    """Join facts for the summary JSON. Not an input to any gate."""
+    if snap is None:
+        return {
+            "season": None,
+            "index_count": None,
+            "species_n": None,
+            "unmatched_n": None,
+            "unmatched_ids": [],
+        }
+    meta = snap.get("meta") or {}
+    species = ((snap.get("ingame_doubles") or {}).get("species")) or {}
+    unmatched = list((stats or {}).get("unmatched_ids") or [])
+    return {
+        "season": meta.get("season"),
+        "index_count": (stats or {}).get("index_count"),
+        "species_n": len(species) if isinstance(species, dict) else None,
+        "unmatched_n": len(unmatched),
+        "unmatched_ids": unmatched,
+    }
+
+
 def write_github_output(path: Path | None, fields: dict[str, str]) -> None:
     if path is None:
         return
@@ -149,6 +173,7 @@ def run_gate(
     result: dict[str, Any] = {
         "checked_at_utc": now.isoformat().replace("+00:00", "Z"),
         "letter": letter,
+        **usage_log_fields(None, None),
     }
 
     if not force:
@@ -198,7 +223,7 @@ def run_gate(
     )
     result["validate_reason"] = reason
     result["stats"] = stats
-    result["species_n"] = len(((snap.get("ingame_doubles") or {}).get("species")) or {})
+    result.update(usage_log_fields(snap, stats))
 
     if decision == "fail":
         result["decision"] = "fail"

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -276,3 +277,50 @@ def test_gate_commits_fresh_capture(tmp_path, monkeypatch):
         tmp_path, monkeypatch, _ok_snap("2026-10-20T21:46:19.000Z"), SEASON_M7
     )
     assert result["decision"] == "commit" and out.exists()
+    assert result["season"] == "M-7"
+    assert result["species_n"] == 230
+    assert result["unmatched_n"] == 0
+    assert result["unmatched_ids"] == []
+
+
+def test_gate_summary_keeps_join_fields_when_validate_fails(tmp_path, monkeypatch):
+    prev = _ok_snap("2026-10-01T00:00:00.000Z", "M-7")
+    prev["ingame_doubles"]["species"] = _ingame_species(262)
+    out = tmp_path / "ingame.json"
+    out.write_text(json.dumps(prev), encoding="utf-8")
+    snap = _ok_snap("2026-10-20T21:46:19.000Z", "M-7")
+    snap["ingame_doubles"]["species"] = _ingame_species(226)
+    stats = {"index_count": 250, "unmatched_ids": ["missingno"], "join_n": 226}
+    monkeypatch.setattr(gate, "resolve_season", lambda **_k: SEASON_M7)
+    result = gate.run_gate(
+        now=datetime(2026, 10, 21, 12, tzinfo=timezone.utc),
+        out_path=out,
+        force=True,
+        extract_fn=lambda previous=None: (snap, {"count": 250}, stats),
+    )
+    assert result["decision"] == "fail"
+    assert result["reason"] == "drop vs previous 226 vs 262"
+    assert result["season"] == "M-7"
+    assert result["index_count"] == 250
+    assert result["species_n"] == 226
+    assert result["unmatched_n"] == 1
+    assert result["unmatched_ids"] == ["missingno"]
+    assert json.loads(out.read_text(encoding="utf-8"))["meta"]["season"] == "M-7"
+
+
+def test_gate_summary_fields_are_null_when_cadence_skips(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        gate, "resolve_reg_start", lambda *a, **k: datetime(2026, 9, 9, tzinfo=timezone.utc)
+    )
+    monkeypatch.setattr(gate, "should_run_cadence", lambda **k: (False, "outside_window_season_day_3"))
+    result = gate.run_gate(
+        now=datetime(2026, 10, 21, tzinfo=timezone.utc),
+        out_path=tmp_path / "ingame.json",
+        force=False,
+    )
+    assert result["decision"] == "noop"
+    assert result["season"] is None
+    assert result["index_count"] is None
+    assert result["species_n"] is None
+    assert result["unmatched_n"] is None
+    assert result["unmatched_ids"] == []

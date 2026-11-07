@@ -894,6 +894,25 @@ Reproducibility: final audit CSV sha256 `3bdbc2b6bbc1afef8134be0755170d8a2c1ad6f
 
 Read this as: a local 4-bit model with thinking off, in a configuration tuned on dev rows only, on a covered subset with several known setup defects. It says nothing about the same arm on another model or with thinking on.
 
+### ARM-V2 six-rung ladder: overview (2026-11-04 to 2026-11-06)
+
+Appended; nothing above is edited. Registration: ADR-085 and `claude/arm_v2_registration_draft_2026-11-02.md`. No pass threshold and no verdict word were registered, and none is used here. One run per rung, qwen3.5:latest (Q4_K_M), temperature 0, think false, code `a393ae91`, one auditor who knows the keys (Vu), graded against the committed keys as written. **The table puts the six rungs side by side. It does not pool them, rank them, or give a trend.** Rungs 1 and 6 are full hand audits of all 118 turns; rungs 2 to 5 are 10 pre-declared targeted turns each, a different draw per rung, reported as counts only (registration: targeted rows are never a headline rate). The rubric cell is the counting unit.
+
+| Rung | Configuration | Audit | Turns pass / fail / n.a. | Rubric cells pass / fail / n.a. | Pass over pass plus fail, with 95% interval | Required steps met (scorer default) |
+|---|---|---|---|---|---|---|
+| 1 | corrected baseline (PRE-RS-ARM arm and prompt) | full, 118 turns | 48 / 59 / 7 (4 blank, class-scored) | 145 / 134 / 58 | turns 48 / 107 (0.352 to 0.548); cells 145 / 279 (0.459 to 0.580) | 57 / 118 (Vu's five overrides) |
+| 2 | + tool fields | targeted, 10 turns | 2 / 8 / 0 | 11 / 18 / 11 | not given (targeted rows) | 2 / 10 |
+| 3 (supplement) | + tool fields + set-slot wrapper | targeted, 10 turns | 4 / 5 / 1 | 7 / 14 / 12 | not given (targeted rows) | 1 / 10 |
+| 4 | + draft/lock | targeted, 10 turns | 3 / 6 / 1 | 12 / 15 / 13 | not given (targeted rows) | 4 / 10 |
+| 5 | + guard | targeted, 10 turns | 4 / 6 / 0 | 13 / 7 / 2 | not given (targeted rows) | 4 / 10 |
+| 6 | + judge-lite (`--judge`) | full, 118 turns | 45 / 66 / 7 | 136 / 141 / 60 | turns 45 / 111 (0.313 to 0.503); cells 136 / 277 (0.431 to 0.551) | 63 / 118 (scorer default) |
+
+How to read it:
+- **Only rungs 1 and 6 can be compared with each other**, on the same 118 turns, and even then as two measurements of two configurations: the intervals overlap heavily, the guard and the judge change which tools are reachable and what text reaches the user, and rung 6 carries harness effects counted separately (register entries 37 to 65).
+- **Rungs 2 to 5 are not comparable with rungs 1 and 6 or with each other.** Ten turns, different draws, and the rung 3 row is the supplement run (`--tool-fields --wrapper`), not the original rung 3 (`--wrapper` only), which has machine scores only.
+- Required-step "met" counts are the scorer default (`requirement_mark` is blank everywhere) and include turns where the tool was attempted and guard-blocked (rung 6). Outcome and process are reported side by side and never combined.
+- Single auditor, one run per rung, a local 4-bit model with thinking off. Results do not carry to other models, to thinking on, or to the Claude API.
+
 ---
 
 ### ARM-V2 rung 1 (corrected baseline): full hand audit (2026-11-04)
@@ -914,7 +933,59 @@ Appended; nothing above is edited. Registration and design: ADR-085 and `claude/
 - Stale-pin rows (H6, MT2 t2, HN3, HU2, IC1, GS1): checked against the rung 1 process export (2026-11-06). None carries a stale label or any note about the usage pin at rung 1; they were graded against the keys as written (H6 pass, MT2 t2 pass, HN3 fail, HU2 fail, IC1 t1 pass and t2 fail, GS1 t1 and t2 fail). The stale labels were first applied at rung 6, so these six rows are not comparable across the two rungs on that basis.
 - Single auditor who knows the keys; one run per rung; a local 4-bit model with thinking off. Results do not carry to other models, to thinking on, or to the Claude API.
 
-*(The targeted audits at rungs 2 to 5, with rung 3 being the supplement run, are in the next block: `claude/eval_results_arm_v2_rungs2to5_targeted_append_2026-11-06.md`.)*
+
+
+---
+
+### ARM-V2 rungs 2 to 5: targeted-row hand audits (2026-11-05)
+
+Appended; nothing above is edited. Registration: ADR-085 and `claude/arm_v2_registration_draft_2026-11-02.md` (section 7 draw, section 13 items 20 and 21). No pass threshold and no verdict word were registered, and none is used here.
+
+**What these are.** At each intermediate rung the registration declares 10 turns before any run, drawn from the turns the rung's change is aimed at (`claude/targeted_rows_proposal_2026-11-02.md`; draw confirmed unswapped by Vu 2026-11-04). They are targeted rows, not a sample. **They are reported as counts only. No rate, no interval, and no comparison across rungs is made from them**: each rung has a different draw, 10 turns, one run, one auditor who knows the keys (Vu), and one local 4-bit model with thinking off (qwen3.5:latest, temperature 0, code `a393ae91`). Rubric cells are graded against the committed keys as written. Process columns are the scorer's, with Vu's marks, reported beside the outcome and never combined with it.
+
+**Which run rung 3 is.** The rung 3 export is the **supplement** (`--tool-fields --wrapper`, run folder `rung_3_tf_wrapper`), not the original rung 3 (`--wrapper` only, no tool fields). Checked 2026-11-06: all 118 tool sequences in the export match the supplement's column in Cursor's comparison file and 72 of 118 match the original's; GS1 t1, IC1 t1 and RB1 t1 differ between the two runs and the export matches the supplement on all three. This follows registration item 20 (the targeted rung 3 audit uses the corrected run). The original rung 3 ("wrapper without tool_fields") has machine scores only and is not used in any comparison.
+
+| Rung | Configuration added | Turns audited | Overall: pass / fail / n.a. | Rubric cells: pass / fail / n.a. | Required steps (scorer default): met / missed | Calls (guard-blocked, refused) |
+|---|---|---|---|---|---|---|
+| 2 | tool fields (new tools) | 10 | 2 / 8 / 0 | 11 / 18 / 11 | 2 / 8 | 51 (0, 3) |
+| 3 supplement | tool fields + set-slot wrapper | 10 | 4 / 5 / 1 | 7 / 14 / 12 | 1 / 9 | 20 (0, 4) |
+| 4 | draft/lock | 10 | 3 / 6 / 1 | 12 / 15 / 13 | 4 / 6 | 47 (0, 13) |
+| 5 | guard | 10 | 4 / 6 / 0 | 13 / 7 / 2 | 4 / 6 | 9 (3, 3) |
+
+Read each row as 10 specific turns at that rung, not as a rung-level result. `requirement_mark` is blank everywhere; "met" is the scorer default. The one rung 3 and rung 4 turn marked not applicable is MT2 t1 (the key is silent on that turn, register entry 46).
+
+#### Rung 2 (tool fields): DM1 t1, DM4 t1, GS1 t1, H8 t1, HN2c t1, HU2 t1, HU4 t1, MM1 t1, MT6 t2, MU5 t1
+- Pass: GS1 t1 (a `lock_slot` and `edit_slot_field` build; p1 pass, the other six cells not applicable) and MU5 t1.
+- Fail with a recorded cause: DM1 t1 (conditions stated for Hatterene, not Incineroar; not the top joints), HU4 t1 (speed claims about other species and a cited illegal species), HU2 t1 (`KEY:` the tool's top 10 moved against the key set; the arm's answer matches the tool, so a stale-pin case), MM1 t1 (`KEY:` `describe` is required for "Mega cannot hold another item" although the `lock_slot` result already says it).
+- Fail, no note: DM4 t1, H8 t1, HN2c t1, MT6 t2.
+- Args marks over 51 calls: as_expected 31, partly_wrong 7, wrong 1, not_judged 12 (the one `wrong` is on MU5 t1).
+
+#### Rung 3 supplement (tool fields + wrapper): GS1 t1, IC1 t1, MM1 t1, MR4 t1, MS1 t1, MS8 t1, MT2 t1, RB1 t1, TB1 t1, TB2 t1
+- Pass: IC1 t1, MM1 t1, MR4 t1, MS8 t1.
+- Fail: GS1 t1 (`KEY:` the request says "a Gholdengo build" but the key requires the modal set; false claim that a rank 2 spread is the most common), MS1 t1 (the arm says Garchomp is locked when it only set the slot), RB1 t1 (`KEY:` the arm's clarifying question is valid; the key expects the move applied), TB1 t1, TB2 t1 (`set_slot` refused).
+- Not applicable: MT2 t1.
+- Known false claims inside passing turns: MM1 t1 ("Mega formes can only be used during the turn they mega evolve"); MS8 t1 passes the key's wording but is a false claim, since the slot was only set (MS1 and MS8 are graded the same way at rung 6, where Vu set both to fail because the key decides; the rung 3 marks stand as recorded).
+- No call was guard-blocked; `lock_fields` is absent from the rung 3 tool set, so MS1, MS8 and MT2 t1 miss it by construction (structural).
+- Args marks over 20 calls: all as_expected.
+
+#### Rung 4 (draft/lock): GS1 t1, GS1 t2, IC1 t1, MM1 t1, MM2 t1, MS8 t1, MT2 t1, RB1 t1, TB1 t1, TB2 t1
+- Pass: MM1 t1 (`KEY:` `describe` not needed), MM2 t1 (`KEY:` `read_team` is required because "its item" needs a referent), MS8 t1 (`set_slot` then `lock_fields`, the first `lock_fields` refused and the second accepted).
+- Fail: GS1 t1 (the build did not include a spread), GS1 t2, IC1 t1 (false claims: "Mixed Attacker", Mirror Armor boosting Special Defense after damage, Psychic Seed giving passive recovery), RB1 t1 (cells p1 and p5 pass, p2 to p4 fail), TB1 t1, TB2 t1 (note: failing partly because of the seed and the request text).
+- Not applicable: MT2 t1.
+- Refused calls: 13 over the 10 turns, mostly `set_slot` refusals on GS1 t1 and t2.
+- Args marks over 47 calls: as_expected 26, partly_wrong 2, not_judged 19.
+
+#### Rung 5 (guard): H13 t1, H16 t1, MU3 t1, MU6 t1, MU8 t1, MW2 t1, OL4 t1, OL6 t1, OL7a t1, OL8 t1
+- Pass: H16 t1, MU3 t1, MU8 t1, MW2 t1.
+- Fail: H13 t1 (many false claims about species, typing and moves), MU6 t1 (`KEY:` the key should state that the arm has to explain what `reset_team` does; `reset_team` was guard-blocked), OL4 t1, OL6 t1, OL7a t1, OL8 t1 (the last three made no tool call).
+- Guard effects (harness, not counted as arm errors): 3 calls guard-blocked on 2 turns. MU3 t1: the parser classed the request as LOOKUP against the key's HYPOTHETICAL, so `check_hypothetical` and `check_species_legal` were blocked; the turn still passes the key. MU6 t1: `reset_team` blocked. The pending-answer rows (OL6, OL7a, OL8) show no `select_option` or `reject_all` call at all.
+- Args marks over 9 calls: as_expected 5, not_judged 4.
+
+**Run-to-run variation, rung 3 original vs supplement (labelled; both are machine scores over all 118 turns, not hand-audited; Cursor's comparison file).** The supplement is a second run at a different configuration (`tool_fields` added), so the 118-turn comparison measures the configuration change plus ordinary run variation and cannot separate them. 104 of 118 turns differ, 101 in the final text. Required-step verdicts agree on 112 turns (58 missed, 54 met) and flip on 6: H18b t2, HU2 t1, HU2b t1 (missed to met) and IS3 t1, MT1 t2, MU8 t1 (met to missed). All six carry `requirement_default` in the change class. The tool set changed on 46 turns (tool fields 18, sequence 28). The two runs have the same totals (57 met, 61 missed) with different per-turn sets. The supplement is not combined with the original.
+
+**What these entries do not support.** No claim about which rung helps, no ordering of rungs, no per-rung rate. Ten turns per rung, different draws, one run, one auditor. Rung 4 and rung 5 outcomes also carry harness effects (draft/lock semantics, guard class) that the full audits at rungs 1 and 6 characterize in detail (register entries 37 to 65).
+
+**Honest gaps.** The first-pass judge verdicts do not exist at these rungs (no judge below rung 6). Three rung 5 export files exist for the same page; two are identical and the third (`342d6769`) differs, and the identical pair, which is the later export, is used here. Whether the rung 3 `--tool-fields` flag fully explains every tool-set change in the comparison is Cursor's classification, not re-derived here.
 
 ---
 
@@ -934,12 +1005,13 @@ Appended; nothing above is edited. Same registration as rung 1 (ADR-085); no pas
 | Calls | 308 over 118 turns | |
 | Guard-blocked calls | 56 on 28 turns | 53 "tool not in allowed set for class X" + 3 "replace=true without confirmation" (MR3 `set_slot`, MR6 and MS2 `unlock_slot`). Harness effect, not an arm error |
 | Tool-level refusals (not the guard) | 12 calls | |
+| Tool `error` results (not the guard, not refused) | 15 calls | the scorer counts these in `n_refused` |
 | Extra / misused / redundant calls | 105 / 17 / 10 | scorer `n_extra`, `n_misused`, `n_redundant` |
 | Args marks (308 calls) | as_expected 163, not_judged 130, partly_wrong 13, wrong 2 | Vu's marks |
 | Required steps (scorer default) | met **63 / 118 (0.440 to 0.626)**, missed 55 | `requirement_mark` is blank everywhere; "met" includes turns where the tool was attempted and guard-blocked |
 | Process mark status | confirmed 109, overridden 9 | DM1, DM3, DM4, DM6, DM7, GS1 t1 and t2, H18b t2, MW3 |
 
-Missed tools are reported as two splits that are not pooled. Split A (scorer `missing_steps`, a blocked call satisfies a step by name): 74 tool-level misses = 59 reachable + 15 not bound by the guard, over 55 missed turns. Split B (report 59, a step needs a successful execution): 70 reachable + 30 not bound, over 25 turns. `n_refused` totals 83 and is reconciled (report 64): 56 guard-blocked + 12 tool-level refusals + 15 tool `error` results (14 `calc_damage`, 1 `get_speed`); the scorer counts `error` as refused, and `n_refused` does not feed Split A.
+Missed tools are reported as two splits that are not pooled. Split A (scorer `missing_steps`, a blocked call satisfies a step by name): 74 tool-level misses = 59 reachable + 15 not bound by the guard, over 55 missed turns. Split B (report 59, a step needs a successful execution): 70 reachable + 30 not bound, over 25 turns. `n_refused` totals 83 and is reconciled (report 64): 56 guard-blocked + 12 tool-level refusals + 15 tool `error` results (14 `calc_damage`, 1 `get_speed`). The scorer counts `error` as refused. `n_refused` does not feed Split A or the missing-step logic. Rung 5 has the same shape (81 = 54 + 12 + 15).
 
 **Guard and parser effects (register entries 37 to 39, 58).** For every ASK turn audited the stored parser output is ASK with `uncertain: true`, so the refusals come from the parser class, not from a rewrite. Within WRITE only the tool matching the parsed action is bound, and the refusal names the class, not the allowed set, so the arm cannot recover. The key's required tool was unreachable on 25 turns (30 expected-tool misses not bound). Rung 6 outcomes therefore cannot be read as the effect of the guard idea alone.
 
