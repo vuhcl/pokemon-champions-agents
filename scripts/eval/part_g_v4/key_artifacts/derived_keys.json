@@ -1321,13 +1321,13 @@
   "ingame_top10_usage": [
     [
       1,
-      "Garchomp",
-      "garchomp"
+      "Sneasler",
+      "sneasler"
     ],
     [
       2,
-      "Sneasler",
-      "sneasler"
+      "Garchomp",
+      "garchomp"
     ],
     [
       3,
@@ -1336,8 +1336,8 @@
     ],
     [
       4,
-      "Incineroar",
-      "incineroar"
+      "Kingambit",
+      "kingambit"
     ],
     [
       5,
@@ -1346,28 +1346,28 @@
     ],
     [
       6,
-      "Archaludon",
-      "archaludon"
+      "Incineroar",
+      "incineroar"
     ],
     [
       7,
-      "Raichu",
-      "raichu"
+      "Indeedee-F",
+      "indeedeef"
     ],
     [
       8,
-      "Pelipper",
-      "pelipper"
+      "Basculegion",
+      "basculegion"
     ],
     [
       9,
-      "Kingambit",
-      "kingambit"
+      "Whimsicott",
+      "whimsicott"
     ],
     [
       10,
-      "Indeedee-F",
-      "indeedeef"
+      "Raichu",
+      "raichu"
     ]
   ],
   "move_static": {
@@ -1382,18 +1382,18 @@
     "items": [
       {
         "name": "Life Orb",
-        "pct": 37.0
+        "pct": 42.4
       },
       {
         "name": "Glimmoranite",
-        "pct": 30.7
+        "pct": 28.0
       },
       {
         "name": "Focus Sash",
         "pct": 26.9
       }
     ],
-    "cumulative_pct": 94.6,
+    "cumulative_pct": 97.30000000000001,
     "cutoff_rule": "include entries until cumulative >= 90%; max 5 slots; 'nothing' counts as a slot and toward cumulative",
     "source": "ingame_doubles"
   },
@@ -4201,15 +4201,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
-        "spe": 110,
         "spread": {
+          "hp": 0,
           "atk": 0,
           "def": 12,
-          "hp": 0,
           "spa": 0,
           "spd": 0,
           "spe": 5
         },
+        "spe": 110,
         "total_sp": 17
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4231,15 +4231,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
-        "spe": 110,
         "spread": {
+          "hp": 6,
           "atk": 0,
           "def": 22,
-          "hp": 6,
           "spa": 0,
           "spd": 0,
           "spe": 5
         },
+        "spe": 110,
         "total_sp": 33
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4261,15 +4261,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
-        "spe": 110,
         "spread": {
+          "hp": 31,
           "atk": 0,
           "def": 1,
-          "hp": 31,
           "spa": 0,
           "spd": 22,
           "spe": 5
         },
+        "spe": 110,
         "total_sp": 59
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4287,15 +4287,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
-        "spe": 110,
         "spread": {
+          "hp": 30,
           "atk": 0,
           "def": 1,
-          "hp": 30,
           "spa": 0,
           "spd": 14,
           "spe": 5
         },
+        "spe": 110,
         "total_sp": 50
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4331,15 +4331,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
-        "spe": 110,
         "spread": {
+          "hp": 31,
           "atk": 0,
           "def": 1,
-          "hp": 31,
           "spa": 0,
           "spd": 23,
           "spe": 5
         },
+        "spe": 110,
         "total_sp": 60
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4372,15 +4372,15 @@
       "example": {
         "nature": "Calm",
         "nature_class": "+SpD",
-        "spe": 110,
         "spread": {
+          "hp": 30,
           "atk": 0,
           "def": 1,
-          "hp": 30,
           "spa": 0,
           "spd": 25,
           "spe": 5
         },
+        "spe": 110,
         "total_sp": 61
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4418,15 +4418,15 @@
         "example": {
           "nature": "Calm",
           "nature_class": "+SpD",
-          "spe": 110,
           "spread": {
+            "hp": 30,
             "atk": 0,
             "def": 1,
-            "hp": 30,
             "spa": 0,
             "spd": 25,
             "spe": 5
           },
+          "spe": 110,
           "total_sp": 61
         },
         "note": "Jolly Sneasler + Modest Mega-Y Weather Ball (Sun), Spe\u2265110: feasible under legal SP\u226432 with +SpD only. +Def and +Spe have zero feasible cells. Binding threat is special (Weather Ball); neutral-SpD 32 HP/32 SpD takes 169\u2013199 into 197 HP and does not guarantee survival \u2014 see key_artifacts/mt8_correction_analysis.json. Prior committed +Def:20/+Spe:2 were illegal-SpD>32 artifacts (cap-less spd_hi=rem-hp-df); +Spe cells needed SpD=34. Counts = solutions at minimal Spe (gate minimum), not totals.",
@@ -4457,15 +4457,15 @@
         "example": {
           "nature": "Bold",
           "nature_class": "+Def",
-          "spe": 110,
           "spread": {
+            "hp": 31,
             "atk": 0,
             "def": 1,
-            "hp": 31,
             "spa": 0,
             "spd": 23,
             "spe": 5
           },
+          "spe": 110,
           "total_sp": 60
         },
         "spare_sp": 6,
@@ -4495,15 +4495,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
-        "spe": 110,
         "spread": {
+          "hp": 0,
           "atk": 0,
           "def": 12,
-          "hp": 0,
           "spa": 0,
           "spd": 0,
           "spe": 5
         },
+        "spe": 110,
         "total_sp": 17
       },
       "solutions_at_minimal_spe_by_class": {
@@ -16737,38 +16737,38 @@
     },
     "corviknight_ingame_common_items": [
       {
-        "name": "Psychic Seed",
-        "pct": 38.8
+        "name": "Leftovers",
+        "pct": 38.5
       },
       {
-        "name": "Leftovers",
-        "pct": 32.0
+        "name": "Psychic Seed",
+        "pct": 25.5
       },
       {
         "name": "Sitrus Berry",
-        "pct": 9.2
-      },
-      {
-        "name": "Rocky Helmet",
-        "pct": 7.7
+        "pct": 14.9
       },
       {
         "name": "Occa Berry",
-        "pct": 4.8
+        "pct": 11.8
+      },
+      {
+        "name": "Rocky Helmet",
+        "pct": 3.3
       }
     ],
     "after_item_clause": [
       {
         "name": "Leftovers",
-        "pct": 32.0
+        "pct": 38.5
       },
       {
         "name": "Sitrus Berry",
-        "pct": 9.2
+        "pct": 14.9
       },
       {
         "name": "Occa Berry",
-        "pct": 4.8
+        "pct": 11.8
       }
     ],
     "t1_expected_item": "Leftovers",
@@ -16849,24 +16849,24 @@
     "t1_modal_moves": [
       {
         "name": "Make It Rain",
-        "pct": 99.3
+        "pct": 99.4
       },
       {
         "name": "Shadow Ball",
-        "pct": 98.7
+        "pct": 99.3
       },
       {
         "name": "Protect",
-        "pct": 89.2
+        "pct": 88.0
       },
       {
         "name": "Nasty Plot",
-        "pct": 81.0
+        "pct": 84.1
       }
     ],
     "t1_modal_item": {
       "name": "Life Orb",
-      "pct": 78.0
+      "pct": 80.4
     },
     "t2": "Use Choice Scarf",
     "status_moves_in_modal_draft": [

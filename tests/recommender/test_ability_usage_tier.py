@@ -84,7 +84,8 @@ def test_sandaconda_non_modal_sand_spit_grant():
     assert "sandveil" in modal
 
 
-def test_kingambit_swords_dance_stays_good():
+def test_kingambit_swords_dance_is_excellent():
+    # Re-baselined to MetaRoll M-8 (2026-11-07): Kingambit SD tier rose Good → Excellent.
     from recommender.role_compendium import SWORDS_DANCE_ATTACKER_CRITERIA
 
     snap = load_snapshot()
@@ -98,4 +99,4 @@ def test_kingambit_swords_dance_stays_good():
         regulation=REG,
     )
     by = {c.species: c for c in draft.candidates if c.tier}
-    assert by["Kingambit"].tier == "Good"
+    assert by["Kingambit"].tier == "Excellent"

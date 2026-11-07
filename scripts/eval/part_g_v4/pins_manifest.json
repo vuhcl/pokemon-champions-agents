@@ -22,8 +22,8 @@
       "path": "data/legality/champions.v1.json"
     },
     {
-      "content_sha256": "4ac4985a9b7531b78744d7c5bf9454dab028b22ac156960c87d5f6aa050ae97e",
-      "git_blob_sha": "31af0801235dc4158c6206363c70ae8cc2b6417b",
+      "content_sha256": "0c45c62a02b5997e428e5cdc16aecef8cbf138ab47471c4afaf5310064934796",
+      "git_blob_sha": "d60a06e078749d8937a6e368d28e7c06327ba83b",
       "path": "data/usage/champions-reg-mc.ingame_doubles.v1.json"
     },
     {

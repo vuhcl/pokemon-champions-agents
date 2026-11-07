@@ -403,7 +403,7 @@ SIBLING tags unchanged for prior siblings. New ids are **NEW** except paired con
 | HU4 | Does Timid Pelipper outspeed anyone important? | idle | ASSUME-STATE | — | speed+usage | Assume important = top-N in-game usage and/or top threats to team; state N; Spe compare | NEW |
 | HN1 | Which of Farigiraf's abilities are legal? | idle | SERVED | — | ability+legality | `{Cud Chew, Armor Tail, Sap Sipper}`; set-scoring | NEW |
 | HN2 | Does max Spe (Spe-32) Jolly Annihilape outspeed max Spe (Spe-32) Timid Gholdengo? | idle | SERVED | — | speed | yes (156>149) | NEW |
-| HN3 | What items does Glimmora usually hold? | idle | SERVED | — | usage+item | COMMON_ITEM (ingame): Life Orb 37.0, Glimmoranite 30.7, Focus Sash 26.9 (cum≥90% at 3, cum 94.6); 'nothing' counts toward slots and 90% cutoff when present; label in-game | NEW |
+| HN3 | What items does Glimmora usually hold? | idle | SERVED | — | usage+item | COMMON_ITEM (ingame): Life Orb 42.4, Glimmoranite 28.0, Focus Sash 26.9 (cum≥90% at 3, cum 97.3); 'nothing' counts toward slots and 90% cutoff when present; label in-game | NEW |
 | HN4 | Is Protect a Status move with base power 0? | idle | SERVED | — | move | yes | NEW |
 | HP1 | Does Specs Flutter Mane OHKO Kingambit? | idle | SERVED | ungated (a)(b) | legality+damage | Lead: Flutter Mane Past + Choice Specs Past; any damage labeled hypothetical; no team touch | NEW |
 | HP2 | Urshifu-Rapid-Strike + Choice Band | idle | SERVED | ungated (a)(b) | legality | Key: treat as **question** (legality), not implicit add; no team mutation | NEW |
