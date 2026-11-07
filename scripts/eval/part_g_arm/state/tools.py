@@ -65,6 +65,9 @@ _STICKY_LOCKS: bool = False
 # Arm v2 revision (FU67 / entry 58): unlock_slot keeps values; clear_slot wipes.
 # Separate from sticky_locks so each revision is attributable. Default off.
 _UNLOCK_KEEPS_VALUES: bool = False
+# Arm v2 revision (FU70): tool_fixes_v2 bundle (#369/#384/#372/#364/#370/#371/
+# calc_damage / hypothetical). Default off = a393ae91 tool outputs.
+_TOOL_FIXES_V2: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -128,6 +131,15 @@ def set_unlock_keeps_values(enabled: bool) -> None:
 
 def unlock_keeps_values_enabled() -> bool:
     return _UNLOCK_KEEPS_VALUES
+
+
+def set_tool_fixes_v2(enabled: bool) -> None:
+    global _TOOL_FIXES_V2
+    _TOOL_FIXES_V2 = bool(enabled)
+
+
+def tool_fixes_v2_enabled() -> bool:
+    return _TOOL_FIXES_V2
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -641,7 +653,32 @@ def edit_slot_field(
     slot = state["team_draft"][index]
     pending_kept = state.get("pending_presentation")
 
+    def _moveset_check_set_refusal(write_value: object) -> str | None:
+        """Same check_set gate as the fully locked branch; None if ok."""
+        if not isinstance(write_value, (list, tuple)) or len(write_value) != 4:
+            return "moveset requires exactly four moves"
+        sp = slot.species.value
+        if not sp:
+            return "species must be locked before editing moveset"
+        legality = check_set(
+            sp,
+            list(write_value),
+            slot.item.value,
+            ability=slot.ability.value,
+            team_draft=state["team_draft"],
+            exclude_slot=index,
+        )
+        if legality.ok:
+            return None
+        detail = "; ".join(f"{f.kind}:{f.element}" for f in legality.failures)
+        return f"illegal moveset: {detail}"
+
     if not all_locked(slot):
+        # FU70 / #369: partly locked path used to skip check_set for moveset.
+        if tool_fixes_v2_enabled() and attr == "moveset":
+            refusal = _moveset_check_set_refusal(value)
+            if refusal is not None:
+                return state, _refuse(refusal)
         patch = apply_lock(
             {
                 **state,
@@ -670,24 +707,9 @@ def edit_slot_field(
                 return state, _refuse(f"{value!r} is not a legal ability for {sp}")
             write_value = value
         elif attr == "moveset":
-            if not isinstance(value, (list, tuple)) or len(value) != 4:
-                return state, _refuse("moveset requires exactly four moves")
-            sp = slot.species.value
-            if not sp:
-                return state, _refuse("species must be locked before editing moveset")
-            legality = check_set(
-                sp,
-                list(value),
-                slot.item.value,
-                ability=slot.ability.value,
-                team_draft=state["team_draft"],
-                exclude_slot=index,
-            )
-            if not legality.ok:
-                detail = "; ".join(
-                    f"{f.kind}:{f.element}" for f in legality.failures
-                )
-                return state, _refuse(f"illegal moveset: {detail}")
+            refusal = _moveset_check_set_refusal(value)
+            if refusal is not None:
+                return state, _refuse(refusal)
             write_value = list(value)
         elif attr == "nature":
             if not isinstance(value, str) or not value.strip():

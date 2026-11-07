@@ -66,6 +66,8 @@ DEFAULT_RUN_FLAGS: dict[str, bool] = {
     "sticky_locks": False,
     # FU67 / entry 58: unlock_slot keeps values; clear_slot wipes. Default off.
     "unlock_keeps_values": False,
+    # FU70: tool_fixes_v2 bundle. Default off = a393ae91 tool outputs.
+    "tool_fixes_v2": False,
 }
 
 # Fixed BEFORE any covered run (Part 4). No silent retry.
@@ -763,6 +765,15 @@ def main(argv: list[str] | None = None) -> int:
             "clear_slot wipes with replace (default off)"
         ),
     )
+    parser.add_argument(
+        "--tool-fixes-v2",
+        action="store_true",
+        help=(
+            "arm v2 revision (FU70): tool_fixes_v2 bundle "
+            "(check_set / mega item project / read-back / Meowstic-F / "
+            "archetype case / pending_flags / calc_damage / hypothetical; default off)"
+        ),
+    )
     args = parser.parse_args(argv)
     run_flags = {
         "tool_fields": bool(args.tool_fields),
@@ -772,9 +783,10 @@ def main(argv: list[str] | None = None) -> int:
         "judge": bool(args.judge),
         "sticky_locks": bool(args.sticky_locks),
         "unlock_keeps_values": bool(args.unlock_keeps_values),
+        "tool_fixes_v2": bool(args.tool_fixes_v2),
     }
     # Ladder is cumulative: judge → guard → draft → wrapper → tool_fields.
-    # sticky_locks / unlock_keeps_values are independent revision flags.
+    # sticky_locks / unlock_keeps_values / tool_fixes_v2 are independent revision flags.
     if run_flags["judge"]:
         run_flags["guard"] = True
     if run_flags["guard"]:
@@ -794,6 +806,7 @@ def main(argv: list[str] | None = None) -> int:
         set_judge,
         set_sticky_locks,
         set_tool_fields,
+        set_tool_fixes_v2,
         set_unlock_keeps_values,
         set_wrapper,
     )
@@ -805,6 +818,7 @@ def main(argv: list[str] | None = None) -> int:
     set_judge(bool(run_flags["judge"]))
     set_sticky_locks(bool(run_flags["sticky_locks"]))
     set_unlock_keeps_values(bool(run_flags["unlock_keeps_values"]))
+    set_tool_fixes_v2(bool(run_flags["tool_fixes_v2"]))
     if run_flags["guard"]:
         prompt_file = GUARD_PROMPT_FILE
     elif run_flags["draft"]:

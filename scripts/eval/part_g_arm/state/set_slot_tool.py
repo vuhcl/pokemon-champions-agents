@@ -9,7 +9,12 @@ from __future__ import annotations
 from dataclasses import replace
 from typing import Any
 
-from recommender.legality import load_snapshot, resolve_learnset, species_can_have_ability
+from recommender.legality import (
+    check_set,
+    load_snapshot,
+    resolve_learnset,
+    species_can_have_ability,
+)
 from recommender.slot_index import SlotIndexError, display_slot, user_slot_to_index
 from recommender.ids import to_id
 from recommender.state import Attr, Slot, all_locked
@@ -25,6 +30,7 @@ from scripts.eval.part_g_arm.state.tools import (
     lock_slot,
     read_team,
     sticky_locks_enabled,
+    tool_fixes_v2_enabled,
     unlock_slot,
 )
 
@@ -382,28 +388,86 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
                     )
                 )
             else:
-                learnset = set(resolve_learnset(snap, str(sp_for_mv)) or [])
-
-                all_ok = True
-                for mv in moves:
-                    mid = to_id(str(mv))
-                    if mid not in learnset:
+                # FU70 / #369: check_set (same message as fully locked edit_slot_field).
+                # Flag off keeps a393ae91 per-move learnset strings.
+                if tool_fixes_v2_enabled():
+                    item_for_cs = (
+                        req.get("item")
+                        if req.get("item") is not None
+                        else projected[index].item.value
+                    )
+                    ab_for_cs = (
+                        req.get("ability")
+                        if req.get("ability") is not None
+                        else projected[index].ability.value
+                    )
+                    if not isinstance(moves, (list, tuple)) or len(moves) != 4:
                         elements.append(
                             _element(
                                 slot=disp,
-                                field="move",
-                                value=mv,
+                                field="moves",
+                                value=moves,
                                 ok=False,
-                                cause=f"{mv} is not in {sp_for_mv}'s Champions learnset",
+                                cause="moveset requires exactly four moves",
                             )
                         )
-                        all_ok = False
                     else:
-                        elements.append(_element(slot=disp, field="move", value=mv, ok=True))
-                if all_ok:
-                    elements.append(
-                        _element(slot=disp, field="moves", value=list(moves), ok=True)
-                    )
+                        legality = check_set(
+                            str(sp_for_mv),
+                            list(moves),
+                            item_for_cs,
+                            ability=ab_for_cs,
+                            team_draft=projected,
+                            exclude_slot=index,
+                        )
+                        if not legality.ok:
+                            detail = "; ".join(
+                                f"{f.kind}:{f.element}" for f in legality.failures
+                            )
+                            elements.append(
+                                _element(
+                                    slot=disp,
+                                    field="moves",
+                                    value=list(moves),
+                                    ok=False,
+                                    cause=f"illegal moveset: {detail}",
+                                )
+                            )
+                        else:
+                            elements.append(
+                                _element(
+                                    slot=disp, field="moves", value=list(moves), ok=True
+                                )
+                            )
+                else:
+                    learnset = set(resolve_learnset(snap, str(sp_for_mv)) or [])
+
+                    all_ok = True
+                    for mv in moves:
+                        mid = to_id(str(mv))
+                        if mid not in learnset:
+                            elements.append(
+                                _element(
+                                    slot=disp,
+                                    field="move",
+                                    value=mv,
+                                    ok=False,
+                                    cause=(
+                                        f"{mv} is not in {sp_for_mv}'s Champions learnset"
+                                    ),
+                                )
+                            )
+                            all_ok = False
+                        else:
+                            elements.append(
+                                _element(slot=disp, field="move", value=mv, ok=True)
+                            )
+                    if all_ok:
+                        elements.append(
+                            _element(
+                                slot=disp, field="moves", value=list(moves), ok=True
+                            )
+                        )
 
         if req.get("nature") is not None:
             nat = req["nature"]
