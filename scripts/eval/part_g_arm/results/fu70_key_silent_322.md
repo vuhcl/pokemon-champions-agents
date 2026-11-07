@@ -1,0 +1,89 @@
+- DM1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- DM3: state='Tyranitar vs Incineroar+Rillaboom' → likely intended; loads 'empty_team (ASSUME-STATE sides from pin)'; key silent on start-lock count
+- DM4: state='idle unlocked' → intended (idle/empty/bootstrap → empty_team)
+- DM6: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- DM7: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- GS1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H11: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H13: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H14: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H15: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H16: state='idle no history' → intended (idle/empty/bootstrap → empty_team)
+- H18b: state='`scripts/eval/part_g_v4/fixtures/h18b_hyper_offense.json`' → fixture-backed (loads via "load_fixture('H18b')"); silence = key has no lock-count claim
+- H2: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H27: state='H27 fixture pending' → fixture-backed (loads via "load_fixture('H27')"); silence = key has no lock-count claim
+- H3: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H4: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H5: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H6: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H7: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- H8: state='idle empty' → intended (idle/empty/bootstrap → empty_team)
+- HC1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HC2: state='after t1' → likely intended; loads 'empty_team (live multi-turn; no t1 seed)'; key silent on start-lock count
+- HD1: state='after H1 claim Poison/Water' → likely intended; loads 'empty_team (live multi-turn; no t1 seed)'; key silent on start-lock count
+- HF1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HF2: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HN1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HN2: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HN2b: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HN3: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HN4: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HP1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HP2: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HP3: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HU1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HU2: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HU2b: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HU3: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- HU4: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- IS1: state='idle unlocked' → intended (idle/empty/bootstrap → empty_team)
+- IS3: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- IS4: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- IX1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- IX5: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- IX7: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MC1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MM1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MR1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MR2: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MR4: state='two slots' → likely intended; loads 'explicit:Incineroar@1+Garchomp@2 fully locked'; key silent on start-lock count
+- MR5: state='occupied' → likely intended; loads 'explicit:build_fully_locked_slot(Garchomp@2)'; key silent on start-lock count
+- MR6: state='none locked' → seeded/special ('empty_team'); silence = key does not assert lock-count vs start
+- MR7: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MR8: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MS1: state='idle empty' → intended (idle/empty/bootstrap → empty_team)
+- MS4: state='FBC pending valid' → seeded/special ('seeds/fbc_pending'); silence = key does not assert lock-count vs start
+- MS6: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MS7: state='CS pending' → seeded/special ('seeds/cs_pending'); silence = key does not assert lock-count vs start
+- MS8: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MT1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MT2: state='idle→locked' → intended (idle/empty/bootstrap → empty_team)
+- MT3: state='after t1' → likely intended; loads 'empty_team (live multi-turn; no t1 seed)'; key silent on start-lock count
+- MT5: state='mid-build' → likely intended; loads 'empty_team (explicit)'; key silent on start-lock count
+- MT6: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MU1: state='idle empty' → intended (idle/empty/bootstrap → empty_team)
+- MU2: state='`scripts/eval/part_g_v4/fixtures/mu2_mu3_team.json`' → fixture-backed (loads via "load_fixture('MU2')"); silence = key has no lock-count claim
+- MU3: state='`scripts/eval/part_g_v4/fixtures/mu2_mu3_team.json`' → fixture-backed (loads via "load_fixture('MU3')"); silence = key has no lock-count claim
+- MU4: state='`scripts/eval/part_g_v4/fixtures/mu4_pelipper.json`' → fixture-backed (loads via "load_fixture('MU4')"); silence = key has no lock-count claim
+- MU5: state='any' → likely intended; loads 'empty_team'; key silent on start-lock count
+- MU6: state='nonempty' → intended (idle/empty/bootstrap → empty_team)
+- MU7: state='FBC pending' → seeded/special ('seeds/fbc_pending'); silence = key does not assert lock-count vs start
+- MU8: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MV1: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MV2: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MV3: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MW1: state='ambiguous' → likely intended; loads 'empty_team (explicit)'; key silent on start-lock count
+- MW3: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- MW4: state='multi options' → likely intended; loads 'explicit:seeds/cs_pending'; key silent on start-lock count
+- OL2b: state='`OL2b.json` CS' → likely intended; loads "load_fixture('OL2b')"; key silent on start-lock count
+- OL4: state='`OL4.json` CS' → likely intended; loads "load_fixture('OL4')"; key silent on start-lock count
+- OL5: state='`OL5.json` CS one option' → likely intended; loads "load_fixture('OL5')"; key silent on start-lock count
+- OL6: state='`OL6.json` CS multi' → likely intended; loads "load_fixture('OL6')"; key silent on start-lock count
+- OL7a: state='`OL7a.json` CS' → likely intended; loads "load_fixture('OL7a')"; key silent on start-lock count
+- OL8: state='`OL8.json` CS' → likely intended; loads "load_fixture('OL8')"; key silent on start-lock count
+- OL9: state='`OL9.json` CS' → likely intended; loads "load_fixture('OL9')"; key silent on start-lock count
+- Q10: state='empty team' → intended (idle/empty/bootstrap → empty_team)
+- Q9: state='idle' → intended (idle/empty/bootstrap → empty_team)
+- SC2: state='Arch on team or ask-add path' → seeded/special ('build_fully_locked_slot(Archaludon)'); silence = key does not assert lock-count vs start
+- TB1: state='idle' → intended (idle/empty/bootstrap → empty_team)
