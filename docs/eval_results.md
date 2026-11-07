@@ -893,3 +893,69 @@ Gemma consistency check: agreed with the audit on 43 of 72 sections (43 of 67 wi
 Reproducibility: final audit CSV sha256 `3bdbc2b6bbc1afef8134be0755170d8a2c1ad6f0695042cf6a802789acca8f07`; `row_level_verdicts.py` sha256 `fe29de7d1720c2592549e2a29a5a62bcca4c79ecfb858f7a8426ab528195cc64` (written after the run, not in the frozen manifest). Run branch `run/pre-rs-arm-b98568d`, commit `bd8e568efa8ede61cfd82c277e9cbb7ac35c582c` (not pushed, not merged). The exploratory run on the 31 kept-out rows was not done.
 
 Read this as: a local 4-bit model with thinking off, in a configuration tuned on dev rows only, on a covered subset with several known setup defects. It says nothing about the same arm on another model or with thinking on.
+
+---
+
+### ARM-V2 rung 1 (corrected baseline): full hand audit (2026-11-04)
+
+Appended; nothing above is edited. Registration and design: ADR-085 and `claude/arm_v2_registration_draft_2026-11-02.md`. No pass threshold and no verdict word were registered, and none is used here. The 103 covered rows (118 live turns) are a pre-declared subset of 134, not a sample.
+
+- Configuration: the PRE-RS-ARM arm and prompt (`bd2b69cd`), qwen3.5:latest (Q4_K_M), temperature 0, think false, num_ctx 16384, num_predict 2048, no seed, one run. Harness fixes only: history carried after turn 0, the 11 seed-mismatch rows corrected, the RB1 loader, archetype-signature normalization, four turn-text changes. Code `a393ae91dd5c0d49c8370fcdd8e92454aebc66ec`. Rubric cell is the counting unit.
+- Hand audit: all 118 turns, one auditor who knows the keys (Vu), against the committed keys and CSV rev3.
+
+**Outcome (hand audit; two-sided 95% Clopper-Pearson).** Turns: pass 48, fail 59, not applicable 7, blank 4 (class-scored turns HP3, MR3, MR5, MR6, where the class scorer decides). Turn level, pass over pass plus fail: **48 / 107 (0.352 to 0.548)**. Rubric cells: 337 (pass 145, fail 134, not applicable 58); pass over pass plus fail **145 / 279 (0.459 to 0.580)**. The 7 not-applicable turns (MT1 t1 and t2, MT2 t1, MT3 t1 and t2, MT5 t1 and t2) have points that do not state the expected behavior (register entry 20) and are excluded and reported. The class-scored buckets are reported separately and are not pooled with these counts.
+
+**Process (reported beside the outcome, never combined with it).** Required steps met, with Vu's five overrides: **57 / 118 (0.390 to 0.577)** met, 61 missed (scorer default 58 and 60). 17 of the missed turns have a passing outcome, and separately 19 turns met the required steps and failed the outcome (`rung1_derived_candidates_2026-11-03.md`, sections A and B). Run 1 rescored with the same scorer on its 113 turns: met 55, missed 58 (23 structural, 35 behavioral).
+
+**Against PRE-RS-ARM run 1 (labelled; not a like-for-like comparison).** The earlier hand audit covered 74 form sections and 242 cells (177 scored; 66 passes, 0.301 to 0.449) on 113 turns; rung 1 covers 118 turns and 337 cells (279 scored). Units, denominators, start states and turn text differ, so the difference is not attributable to a single change. Read the two as separate measurements of two configurations.
+
+**Notes.**
+- The committed keys were used as written. 26 turns carry a `KEY:` note; the candidate lists are in `rung1_derived_candidates_2026-11-03.md` and are not a key review.
+- Stale-pin rows (H6, MT2 t2, HN3, HU2, IC1, GS1): checked against the rung 1 process export (2026-11-06). None carries a stale label or any note about the usage pin at rung 1; they were graded against the keys as written (H6 pass, MT2 t2 pass, HN3 fail, HU2 fail, IC1 t1 pass and t2 fail, GS1 t1 and t2 fail). The stale labels were first applied at rung 6, so these six rows are not comparable across the two rungs on that basis.
+- Single auditor who knows the keys; one run per rung; a local 4-bit model with thinking off. Results do not carry to other models, to thinking on, or to the Claude API.
+
+*(The targeted audits at rungs 2 to 5, with rung 3 being the supplement run, are in the next block: `claude/eval_results_arm_v2_rungs2to5_targeted_append_2026-11-06.md`.)*
+
+---
+
+### ARM-V2 rung 6 (guard plus judge-lite): full hand audit (2026-11-05 to 2026-11-06)
+
+Appended; nothing above is edited. Same registration as rung 1 (ADR-085); no pass threshold and no verdict word were registered, and none is used here. Rung 6 is the top of the six-rung ladder: the stateful arm with the request-class guard and judge-lite (`--judge`) switched on.
+
+- Configuration: qwen3.5:latest, temperature 0, think false, one run, `--judge`, code `a393ae91` (the same code as rung 1). Rubric cell is the counting unit. Hand audit of all 118 turns by one auditor who knows the keys (Vu): 118 audited, 0 pending. Keys used as written; graded on the final, post-judge text. Harness effects (guard, judge, truncation) are tagged `GUARD:`, `JUDGE:`, `TOOL:`, `KEY:`, `[arm]` and are reported separately, not counted as arm errors.
+- Evidence behind the tags: Cursor's read-only reports 58 to 62 (draft PR #383) and the register addendum `claude/key_defect_register_rung6_entries_2026-11-06.md` (entries 37 to 65). Counts and labels: `claude/rung6_counts_draft_2026-11-06.md`.
+
+**Outcome (hand audit; two-sided 95% Clopper-Pearson).** Turns (118): pass 45, fail 66, not applicable 7, blank 0. Turn level, pass over pass plus fail: **45 / 111 (0.313 to 0.503)**. Rubric cells (337): pass 136, fail 141, not applicable 60; pass over pass plus fail **136 / 277 (0.431 to 0.551)**. The 7 not-applicable turns (HC2 t1, MT1 t1 and t2, MT2 t1, MT3 t1, MT5 t1 and t2) are turns whose key says nothing about the turn or whose points attach to later turns (register entry 46); they are excluded and reported. H13 t1 had no overall mark in the export; Vu set it to fail on 2026-11-06. MR5 p2 was changed from fail to pass by Vu on 2026-11-06 after report 61 (the turn stays fail). MS8 was changed from pass to fail by Vu on 2026-11-06 (the key decides; MS1 and MS8 are the same case: draft accepted, `lock_fields` guard-blocked, honest reply).
+
+**Process (reported beside the outcome, never combined with it).**
+
+| Measure | Count | Label |
+|---|---|---|
+| Calls | 308 over 118 turns | |
+| Guard-blocked calls | 56 on 28 turns | 53 "tool not in allowed set for class X" + 3 "replace=true without confirmation" (MR3 `set_slot`, MR6 and MS2 `unlock_slot`). Harness effect, not an arm error |
+| Tool-level refusals (not the guard) | 12 calls | |
+| Extra / misused / redundant calls | 105 / 17 / 10 | scorer `n_extra`, `n_misused`, `n_redundant` |
+| Args marks (308 calls) | as_expected 163, not_judged 130, partly_wrong 13, wrong 2 | Vu's marks |
+| Required steps (scorer default) | met **63 / 118 (0.440 to 0.626)**, missed 55 | `requirement_mark` is blank everywhere; "met" includes turns where the tool was attempted and guard-blocked |
+| Process mark status | confirmed 109, overridden 9 | DM1, DM3, DM4, DM6, DM7, GS1 t1 and t2, H18b t2, MW3 |
+
+Missed tools are reported as two splits that are not pooled. Split A (scorer `missing_steps`, a blocked call satisfies a step by name): 74 tool-level misses = 59 reachable + 15 not bound by the guard, over 55 missed turns. Split B (report 59, a step needs a successful execution): 70 reachable + 30 not bound, over 25 turns. `n_refused` totals 83 and is reconciled (report 64): 56 guard-blocked + 12 tool-level refusals + 15 tool `error` results (14 `calc_damage`, 1 `get_speed`); the scorer counts `error` as refused, and `n_refused` does not feed Split A.
+
+**Guard and parser effects (register entries 37 to 39, 58).** For every ASK turn audited the stored parser output is ASK with `uncertain: true`, so the refusals come from the parser class, not from a rewrite. Within WRITE only the tool matching the parsed action is bound, and the refusal names the class, not the allowed set, so the arm cannot recover. The key's required tool was unreachable on 25 turns (30 expected-tool misses not bound). Rung 6 outcomes therefore cannot be read as the effect of the guard idea alone.
+
+**Leaks (hand audit; marker scan beside it as a lower bound).** 59 turns graded as `JUDGE: leak` or `GUARD: leak`: answer replaced 29, borderline 7, kept 23. 32 come from the staging list graded by Vu (replaced 13, borderline 5, kept 14); 27 were classified later by Claude at Vu's request from each user-facing final text (replaced 16, borderline 2, kept 9), and Vu can override any row. Cursor's marker scan finds 17 retry/verdict leak turns and 22 guard-term leak turns; 27 of the 59 are in neither list. The judge-arm exchange reaches the user by construction (the retry output is the final text). Tool-name exposure counted separately: **60 turns** show at least one tool name (no user text names a tool, so all come from the arm or the retry); 50 are in the 59, 10 are outside; 60 is a lower bound (exact names only).
+
+**Judge-lite, separate categories (first-pass verdicts are not stored; stored verdicts are post-retry).**
+- True positives (the raw claim was unsupported): HU4, IS2, MS5, HN2d (substantively), MU8, IS3, MT5 t2, MT1 t2 (Kyogre is illegal in Champions), HN4 (minor), IS4 by spec (the key expects the top joint, 222 at Timid 32 SP; the arm used 187 at 0 SP).
+- False blocks of derived numbers (check 4 treats arithmetic on tool values as unsupported): H15, H5, HN2b, HN2c, HN3.
+- False blocks with a mechanical cause: trailing quote in `str(dict)` matching (MC1, MW4, HC2 t2), forme-token split (RB1), MT2 t2 likely. False blocks that changed the final content: MC1, MW4, MW2, RB1, MT2 t2, MU3, HU2, Q10.
+- False negatives (judge silent): IX1, IX5, MW3, MT6 t1; H8 and Q9 depend on intended behavior. Fired on something the arm cannot verify by design: MU4.
+- The retry is text-only (OL5 and OL6 print a fake `read_team` JSON), and in HC2 t2 it invented a claim. The appended line "(Actual state change differs from the reply.)" is in 23 final texts and an accepted mutating call exists on 4. One reply (HU2b) ended at 99.6% of the context window; five other mid-sentence stops are unexplained because `done_reason` and `eval_count` are not stored. Details: register entries 40 to 44, 53 to 55.
+
+**Stale rows.** H6, HN3, HU2, IC1, GS1 are labeled stale (their keys depend on the pre-refresh usage pin) and graded for faithfulness to the tool results; MT2 t2 still matched and was graded as a pass.
+
+**Key and tool findings found by the audit** (register entries 45 to 65): TB2's swap is not learnable by Incineroar in Champions; MR4's seed has locked items, but draft `set_slot` ignores field locks (report 63), so the recorded blocker was the ASK guard class, not the seed; MR6 and OL4/OL9 keys are ill-posed; RB1's rubric text was split on semicolons; H8, Q9, MV3 and Q10 are stricter or less consistent than the answer; `check_hypothetical` and the validator state actual team state in hypothetical answers; `lock_fields` returns no read-back; `unlock_slot` is a wipe; draft `set_slot` overwrites locked fields and clears their lock without a warning; Mega plus its stone is refused by `set_slot`; `change_archetype` is case sensitive. None of these is counted as an arm error.
+
+**Side by side with rung 1 (labeled; not attributable to one change).** Turn pass over pass plus fail: rung 1 48 / 107 (0.352 to 0.548), rung 6 45 / 111 (0.313 to 0.503). Cells: rung 1 145 / 279 (0.459 to 0.580), rung 6 136 / 277 (0.431 to 0.551). The intervals overlap heavily, the turn text and start states are the same code but the guard and the judge change which tools are reachable and what text reaches the user, and one auditor graded both. Read them as two measurements of two configurations.
+
+**Honest gaps.** One auditor who knows the keys; one run; first-pass judge verdicts were never stored, so true positives and false blocks rest on the raw answers, the post-retry verdicts and Vu's reading; 27 of the 59 leak-row classes are Claude's call; the tool-name count is exact-name only; a local 4-bit model with thinking off; results do not carry to other models, to thinking on, or to the Claude API. The ladder stays frozen; revisions (parser, WRITE bundle, retry, tokenization, label placement, unlock semantics) are separate registered changes with both outputs.
