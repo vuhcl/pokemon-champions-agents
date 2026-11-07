@@ -24,6 +24,7 @@ from scripts.eval.part_g_arm.state.tools import (
     edit_slot_field,
     lock_slot,
     read_team,
+    sticky_locks_enabled,
     unlock_slot,
 )
 
@@ -118,6 +119,7 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
     elements: list[dict[str, Any]] = []
     resolved: list[dict[str, Any]] = []  # index + fields ready to apply
     reserved_opens: set[int] = set()
+    locked_refusals: list[dict[str, Any]] = []
 
     for req in normalized:
         req_replace = bool(req.get("replace")) if "replace" in req else replace_flag
@@ -212,12 +214,68 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
             continue
 
         # Partly locked: keep today's apply_lock path (no invent).
+        # (Computed for future use; not a sticky-locks gate — that is per-field .locked.)
         _ = _slot_occupied_partial(slot_obj)
 
-        projected = list(draft)
-        if req_replace and species_swap and (
+        replace_wipe = req_replace and species_swap and (
             all_locked(slot_obj) or (draft_enabled() and held is not None)
+        )
+
+        # FU65 sticky_locks: refuse writes to locked attrs (atomic per request).
+        # Confirmed species replace wipe is out of scope here (entry 58 / replace gate).
+        if (
+            sticky_locks_enabled()
+            and draft_enabled()
+            and not replace_wipe
         ):
+            write_targets: list[tuple[str, object]] = []
+            if species is not None:
+                write_targets.append(("species", species))
+            for key, attr_name in (
+                ("item", "item"),
+                ("ability", "ability"),
+                ("nature", "nature"),
+                ("spread", "spread"),
+                ("moves", "moveset"),
+            ):
+                if req.get(key) is not None:
+                    write_targets.append((attr_name, req.get(key)))
+            hits = [
+                (name, getattr(slot_obj, name).value)
+                for name, _requested in write_targets
+                if getattr(slot_obj, name).locked
+            ]
+            if hits:
+                hit_names = {name for name, _ in hits}
+                for name, cur in hits:
+                    elements.append(
+                        _element(
+                            slot=disp,
+                            field=name,
+                            value=cur,
+                            ok=False,
+                            cause="field locked, value unchanged",
+                        )
+                    )
+                    locked_refusals.append(
+                        {"field": name, "value": cur, "lock_unchanged": True}
+                    )
+                for name, requested in write_targets:
+                    if name in hit_names:
+                        continue
+                    elements.append(
+                        _element(
+                            slot=disp,
+                            field=name,
+                            value=requested,
+                            ok=False,
+                            cause="not applied: sibling field locked",
+                        )
+                    )
+                continue
+
+        projected = list(draft)
+        if replace_wipe:
             # Project empty slot for clause checks (unlock then rewrite).
             from recommender.state import empty_slot
 
@@ -428,12 +486,17 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
         summary = "; ".join(
             f"slot {el['slot']} {el['field']}: {el.get('cause') or 'failed'}" for el in failed
         )
-        return state, {
+        out_fail: dict[str, Any] = {
             "ok": False,
             "slot_commit_error": summary,
             "elements": elements,
             "replace": replace_flag,
         }
+        if locked_refusals:
+            out_fail["error_kind"] = "field_locked"
+            out_fail["locked_fields"] = locked_refusals
+            out_fail["state_after"] = read_team(state)
+        return state, out_fail
 
     # Apply via underlying tools only. Surface edit_slot_field consequences unchanged.
     after = state
@@ -566,9 +629,20 @@ def set_slot(state: dict[str, Any], args: dict[str, Any] | None = None) -> tuple
     }
     if draft_enabled():
         out["write_mode"] = "draft"
-        # Draft writes never lock.
-        for row in applied:
-            row["locked"] = False
+        if sticky_locks_enabled():
+            # Real per-field lock bits from read-back (not the synthetic draft flag).
+            for row in applied:
+                slot_row = by_slot[int(row["slot"])]
+                attrs = slot_row.get("attributes") or {}
+                row["field_locks"] = {
+                    name: (info.get("status") == "locked")
+                    for name, info in attrs.items()
+                    if isinstance(info, dict)
+                }
+        else:
+            # a393ae91: synthetic draft-mode stamp, not per-field lock state.
+            for row in applied:
+                row["locked"] = False
     return after, out
 
 

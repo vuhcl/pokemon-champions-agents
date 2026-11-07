@@ -181,7 +181,16 @@ def rung_from_flags(flags: Mapping[str, bool]) -> int:
 def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
     nested = rec.get("run_flags")
     if isinstance(nested, dict) and any(
-        k in nested for k in ("tool_fields", "wrapper", "draft", "guard", "judge")
+        k in nested
+        for k in (
+            "tool_fields",
+            "wrapper",
+            "draft",
+            "guard",
+            "judge",
+            "sticky_locks",
+            "unlock_keeps_values",
+        )
     ):
         return {
             "tool_fields": bool(nested.get("tool_fields")),
@@ -189,6 +198,8 @@ def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
             "draft": bool(nested.get("draft")),
             "guard": bool(nested.get("guard")),
             "judge": bool(nested.get("judge")),
+            "sticky_locks": bool(nested.get("sticky_locks")),
+            "unlock_keeps_values": bool(nested.get("unlock_keeps_values")),
         }
     # Legacy run 1: PRE-RS-ARM schema, no ladder flags.
     return {
@@ -197,6 +208,8 @@ def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
         "draft": False,
         "guard": False,
         "judge": False,
+        "sticky_locks": False,
+        "unlock_keeps_values": False,
     }
 
 
