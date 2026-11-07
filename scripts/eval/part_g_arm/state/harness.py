@@ -407,6 +407,7 @@ def run_turn(
             parser_record["sub_requests"],
             state,
             pending_asked=pending_asked if isinstance(pending_asked, dict) else None,
+            user_text=user_text,
         )
         # Store ASK action for the next turn.
         primary = (parser_record["sub_requests"] or [{}])[0]

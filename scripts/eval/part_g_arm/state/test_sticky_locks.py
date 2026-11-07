@@ -171,3 +171,172 @@ def test_sticky_default_off_identity():
     st2, res = dispatch(st, arm, "set_slot", {"slot": 1, "item": "Leftovers"})
     assert res.get("ok") is True, res
     assert st2["team_draft"][0].item.locked is False
+
+
+# --- FU66: unlock tools need an explicit user unlock request under sticky_locks ---
+
+
+def test_sticky_unprompted_unlock_fields_refused():
+    """Model-initiated unlock_fields on a set_slot turn is guard-blocked."""
+    from scripts.eval.part_g_arm.state.guard_exec import check_call, init_turn_ctx
+
+    st = _seed_locked_species_item()
+    user = "Switch its item to Leftovers."
+    ctx = init_turn_ctx(
+        [{"class": "WRITE", "action": "set_slot", "confirms_replacement": False}],
+        st,
+        user_text=user,
+    )
+    assert "unlock_fields" not in ctx["allowed"]
+    refusal = check_call(
+        "unlock_fields",
+        {"slot": 1, "fields": ["item"]},
+        allowed=ctx["allowed"] | {"unlock_fields"},  # even if bound, sticky blocks
+        guard_class="WRITE",
+        confirms_replacement=False,
+        pending_asked=None,
+        state=st,
+        user_text=user,
+    )
+    assert refusal is not None
+    assert refusal.get("guard_blocked") is True
+    assert refusal.get("reason") == "unlock without user request"
+    msg = refusal.get("message") or ""
+    assert "unlock_fields" in msg and "unlock_slot" in msg
+    assert "request class" not in msg  # names tools, not only class (entry 38)
+    assert st["team_draft"][0].item.locked is True
+
+
+def test_sticky_explicit_unlock_request_allows_unlock_fields():
+    from scripts.eval.part_g_arm.state.guard_exec import guarded_dispatch, init_turn_ctx
+    from scripts.eval.part_g_arm.state.harness import dispatch as real_dispatch
+
+    st = _seed_locked_species_item()
+    user = "Unlock the item on slot 1"
+    ctx = init_turn_ctx(
+        [{"class": "WRITE", "action": "unlock_fields", "confirms_replacement": False}],
+        st,
+        user_text=user,
+    )
+    assert "unlock_fields" in ctx["allowed"]
+
+    def _dispatch(state, arm, name, args):  # noqa: ANN001
+        return real_dispatch(state, arm, name, args)
+
+    st2, res = guarded_dispatch(
+        st,
+        _arm(),
+        "unlock_fields",
+        {"slot": 1, "fields": ["item"]},
+        turn_ctx=ctx,
+        dispatch_fn=_dispatch,
+    )
+    assert res.get("guard_blocked") is not True
+    assert res.get("ok") is True
+    assert st2["team_draft"][0].item.locked is False
+    assert st2["team_draft"][0].item.value == "Sitrus Berry"
+
+
+def test_sticky_explicit_unlock_then_write_succeeds():
+    from scripts.eval.part_g_arm.state.guard_exec import guarded_dispatch, init_turn_ctx
+    from scripts.eval.part_g_arm.state.harness import dispatch as real_dispatch
+
+    st = _seed_locked_species_item()
+    arm = _arm()
+
+    def _dispatch(state, _arm, name, args):  # noqa: ANN001
+        return real_dispatch(state, arm, name, args)
+
+    ctx_u = init_turn_ctx(
+        [{"class": "WRITE", "action": "unlock_fields"}],
+        st,
+        user_text="Unlock slot 1 item",
+    )
+    st, res_u = guarded_dispatch(
+        st,
+        arm,
+        "unlock_fields",
+        {"slot": 1, "fields": ["item"]},
+        turn_ctx=ctx_u,
+        dispatch_fn=_dispatch,
+    )
+    assert res_u.get("ok") is True
+    st2, res = dispatch(st, arm, "set_slot", {"slot": 1, "item": "Leftovers"})
+    assert res.get("ok") is True
+    assert st2["team_draft"][0].item.value == "Leftovers"
+    assert st2["team_draft"][0].item.locked is False
+
+
+def test_sticky_unlock_slot_replace_rule_unchanged():
+    """Explicit unlock text passes FU66 gate; replace=true still needs confirmation."""
+    from scripts.eval.part_g_arm.state.guard_exec import check_call, init_turn_ctx
+
+    _enable_draft(sticky=True)
+    st = _seed_locked_species_item()
+    user = "Unlock slot 1"
+    ctx = init_turn_ctx(
+        [{"class": "WRITE", "action": "unlock_slot", "confirms_replacement": False}],
+        st,
+        user_text=user,
+    )
+    assert "unlock_slot" in ctx["allowed"]
+    # FU66 allows the unlock request…
+    mid = check_call(
+        "unlock_slot",
+        {"slot": 1},
+        allowed=ctx["allowed"],
+        guard_class="WRITE",
+        confirms_replacement=False,
+        pending_asked=None,
+        state=st,
+        user_text=user,
+    )
+    assert mid is None
+    # …but replace=true without confirms_replacement still refuses (entry 58).
+    refusal = check_call(
+        "unlock_slot",
+        {"slot": 1, "replace": True},
+        allowed=ctx["allowed"],
+        guard_class="WRITE",
+        confirms_replacement=False,
+        pending_asked=None,
+        state=st,
+        user_text=user,
+    )
+    assert refusal is not None
+    assert refusal.get("reason") == "replace=true without confirmation"
+
+
+def test_flag_off_unlock_fields_unprompted_still_runs():
+    """sticky_locks off: unlock_fields needs no user unlock text (a393ae91)."""
+    from scripts.eval.part_g_arm.state.guard_exec import check_call, init_turn_ctx
+
+    _enable_draft(sticky=False)
+    arm = _arm()
+    st, _ = dispatch(
+        empty_team(),
+        arm,
+        "set_slot",
+        {"species": "Venusaur", "item": "Sitrus Berry", "slot": 1},
+    )
+    st, _ = dispatch(st, arm, "lock_fields", {"slot": 1, "fields": ["item"]})
+    ctx = init_turn_ctx(
+        [{"class": "WRITE", "action": "unlock_fields"}],
+        st,
+        user_text="Switch its item to Leftovers.",
+    )
+    assert "unlock_fields" in ctx["allowed"]
+    refusal = check_call(
+        "unlock_fields",
+        {"slot": 1, "fields": ["item"]},
+        allowed=ctx["allowed"],
+        guard_class="WRITE",
+        confirms_replacement=False,
+        pending_asked=None,
+        state=st,
+        user_text="Switch its item to Leftovers.",
+    )
+    assert refusal is None
+    st2, res = dispatch(st, arm, "unlock_fields", {"slot": 1, "fields": ["item"]})
+    assert res.get("ok") is True
+    assert st2["team_draft"][0].item.locked is False

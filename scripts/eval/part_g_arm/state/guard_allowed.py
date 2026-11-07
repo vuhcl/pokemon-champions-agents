@@ -5,7 +5,18 @@ Inputs are parser sub-requests + live state — never the answer key.
 
 from __future__ import annotations
 
+import re
 from typing import Any, Iterable, Mapping, MutableMapping, Sequence
+
+# Deterministic unlock-request signal (FU66). Not LLM-filled; not confirms_replacement.
+_UNLOCK_TEXT = re.compile(
+    r"\b(?:unlock(?:ing|ed|s)?|clear(?:ing)?\s+(?:the\s+)?(?:lock|slot)|"
+    r"wipe\s+(?:the\s+)?slot)\b",
+    re.I,
+)
+_UNLOCK_PENDING_ACTIONS = frozenset(
+    {"unlock_fields", "unlock_slot", "unlock", "clear"}
+)
 
 # --- Bundles (names only; token counts come from live schemas elsewhere) ---
 
@@ -264,27 +275,40 @@ def allowed_tools(
     *,
     pending_asked: Mapping[str, Any] | None = None,
     live: frozenset[str] | None = None,
+    user_text: str | None = None,
 ) -> set[str]:
     """Union of tools bound by each sub-request against current state.
 
     PENDING_ANSWER without an action uses ``pending_asked['action']``.
     Uncertain / unknown class falls to ASK (READ + no_lookup_needed).
     Names with no live schema are skipped (FU22 §7).
+    Under sticky_locks: unlock_fields/unlock_slot bind only when
+    ``user_requests_unlock`` is true (FU66).
     """
     if not sub_requests:
         return filter_to_live_schemas(set(READ) | {"no_lookup_needed"}, live)
     out: set[str] = set()
+    writeish = False
     for raw in sub_requests:
         sub = _normalize_sub(raw)
         action = sub["action"]
         if sub["class"] == "PENDING_ANSWER" and not action and pending_asked:
             action = str(pending_asked.get("action") or "").strip().lower() or None
+        if sub["class"] in ("WRITE", "PENDING_ANSWER"):
+            writeish = True
         out |= _bundle_for_class(
             sub["class"],
             action=action,
             numeric_or_explain=sub["numeric_or_explain"],
             state=state,
         )
+    from scripts.eval.part_g_arm.state.tools import sticky_locks_enabled
+
+    if sticky_locks_enabled() and writeish:
+        if user_requests_unlock(user_text, pending_asked):
+            out |= {"unlock_fields", "unlock_slot"}
+        else:
+            out -= {"unlock_fields", "unlock_slot"}
     return filter_to_live_schemas(out, live)
 
 
@@ -320,5 +344,25 @@ def replace_allowed(
         "replace",
         "confirm_replace",
     }:
+        return True
+    return False
+
+
+def user_requests_unlock(
+    user_text: str | None,
+    pending_asked: Mapping[str, Any] | None = None,
+) -> bool:
+    """True when this turn's user text (or pending-asked unlock action) asks to unlock.
+
+    Primary sticky_locks unlock gate (FU66). Deterministic on user text; also accepts
+    ``pending_asked.action`` in the unlock/clear family for PENDING_ANSWER follow-ups.
+    Does **not** read ``confirms_replacement`` (that flag blocked explicit unlocks on
+    MR6/MS2 when used alone for replace=true).
+    """
+    if pending_asked and str(pending_asked.get("action") or "").strip().lower() in (
+        _UNLOCK_PENDING_ACTIONS
+    ):
+        return True
+    if isinstance(user_text, str) and _UNLOCK_TEXT.search(user_text):
         return True
     return False
