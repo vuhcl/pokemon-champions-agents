@@ -8,15 +8,23 @@ from __future__ import annotations
 import re
 from typing import Any, Iterable, Mapping, MutableMapping, Sequence
 
-# Deterministic unlock-request signal (FU66). Not LLM-filled; not confirms_replacement.
-_UNLOCK_TEXT = re.compile(
-    r"\b(?:unlock(?:ing|ed|s)?|clear(?:ing)?\s+(?:the\s+)?(?:lock|slot)|"
-    r"wipe\s+(?:the\s+)?slot)\b",
+# Deterministic unlock / clear signals (FU66–67). Not LLM-filled; not confirms_replacement.
+_UNLOCK_TEXT = re.compile(r"\bunlock(?:ing|ed|s)?\b", re.I)
+_UNLOCK_NEGATION = re.compile(
+    r"(?i)(?:\bdon'?t\b|\bdo\s+not\b|\bnever\b|\bwithout\b|\bno\b)\s+"
+    r"(?:\w+\s+){0,4}\bunlock"
+)
+_CLEAR_TEXT = re.compile(
+    r"\b(?:clear(?:ing)?\s+(?:the\s+)?(?:lock|slot)|wipe\s+(?:the\s+)?slot|"
+    r"empty\s+(?:the\s+)?slot)\b",
     re.I,
 )
-_UNLOCK_PENDING_ACTIONS = frozenset(
-    {"unlock_fields", "unlock_slot", "unlock", "clear"}
+_CLEAR_NEGATION = re.compile(
+    r"(?i)(?:\bdon'?t\b|\bdo\s+not\b|\bnever\b|\bwithout\b|\bno\b)\s+"
+    r"(?:\w+\s+){0,4}\b(?:clear|wipe|empty)\b"
 )
+_UNLOCK_PENDING_ACTIONS = frozenset({"unlock_fields", "unlock_slot", "unlock"})
+_CLEAR_PENDING_ACTIONS = frozenset({"clear", "clear_slot", "wipe"})
 
 # --- Bundles (names only; token counts come from live schemas elsewhere) ---
 
@@ -71,7 +79,11 @@ WRITE_ACTION_TOOLS: dict[str, frozenset[str]] = {
     "unlock_fields": frozenset({"unlock_fields"}),
     "unlock_slot": frozenset({"unlock_slot"}),
     "unlock": frozenset({"unlock_fields", "unlock_slot"}),
+    # Flag off (a393ae91): clear wipes via unlock_slot. Flag on: remapped to clear_slot
+    # in _write_tools_for_action (FU67).
     "clear": frozenset({"unlock_slot"}),
+    "clear_slot": frozenset({"clear_slot"}),
+    "wipe": frozenset({"clear_slot"}),
     "select_option": frozenset({"select_option"}),
     "pick": frozenset({"select_option"}),
     "commit_slot": frozenset({"commit_slot", "confirm_build"}),
@@ -200,7 +212,15 @@ def _normalize_sub(sub: Mapping[str, Any]) -> dict[str, Any]:
 def _write_tools_for_action(action: str | None, state: Mapping[str, Any]) -> set[str]:
     if not action:
         return set()
-    tools = set(WRITE_ACTION_TOOLS.get(action, set()))
+    from scripts.eval.part_g_arm.state.tools import unlock_keeps_values_enabled
+
+    # FU67: clear/wipe → clear_slot when unlock keeps values; unlock_slot is keep-only.
+    if unlock_keeps_values_enabled() and action in {"clear", "wipe", "clear_slot"}:
+        tools: set[str] = {"clear_slot"}
+    else:
+        tools = set(WRITE_ACTION_TOOLS.get(action, set()))
+        if unlock_keeps_values_enabled():
+            tools.discard("clear_slot")  # only via clear/wipe actions
     # State-aware narrowing (mapping §4).
     if "lock_fields" in tools and not has_valued_attribute(state):
         tools.discard("lock_fields")
@@ -283,7 +303,8 @@ def allowed_tools(
     Uncertain / unknown class falls to ASK (READ + no_lookup_needed).
     Names with no live schema are skipped (FU22 §7).
     Under sticky_locks: unlock_fields/unlock_slot bind only when
-    ``user_requests_unlock`` is true (FU66).
+    ``user_requests_unlock`` is true (FU66). Under unlock_keeps_values + sticky,
+    clear_slot binds only on a clear/wipe signal (FU67).
     """
     if not sub_requests:
         return filter_to_live_schemas(set(READ) | {"no_lookup_needed"}, live)
@@ -302,13 +323,21 @@ def allowed_tools(
             numeric_or_explain=sub["numeric_or_explain"],
             state=state,
         )
-    from scripts.eval.part_g_arm.state.tools import sticky_locks_enabled
+    from scripts.eval.part_g_arm.state.tools import (
+        sticky_locks_enabled,
+        unlock_keeps_values_enabled,
+    )
 
     if sticky_locks_enabled() and writeish:
         if user_requests_unlock(user_text, pending_asked):
             out |= {"unlock_fields", "unlock_slot"}
         else:
             out -= {"unlock_fields", "unlock_slot"}
+        if unlock_keeps_values_enabled():
+            if user_requests_clear(user_text, pending_asked):
+                out |= {"clear_slot"}
+            else:
+                out -= {"clear_slot"}
     return filter_to_live_schemas(out, live)
 
 
@@ -335,15 +364,22 @@ def replace_allowed(
     confirms_replacement: bool,
     pending_asked: Mapping[str, Any] | None,
 ) -> bool:
-    """Execution gate for replace=true (mapping §4 / brief)."""
+    """Execution gate for replace=true (mapping §4 / brief).
+
+    set_slot species-swap replace rules are unchanged. Under unlock_keeps_values,
+    wipe confirmation is clear_slot/clear (not unlock_slot).
+    """
     if confirms_replacement:
         return True
-    if pending_asked and str(pending_asked.get("action") or "").lower() in {
-        "unlock_slot",
-        "set_slot",
-        "replace",
-        "confirm_replace",
-    }:
+    from scripts.eval.part_g_arm.state.tools import unlock_keeps_values_enabled
+
+    pending_ok = {"set_slot", "replace", "confirm_replace"}
+    if unlock_keeps_values_enabled():
+        pending_ok |= {"clear_slot", "clear", "wipe"}
+    else:
+        # a393ae91: wipe went through unlock_slot + replace.
+        pending_ok |= {"unlock_slot"}
+    if pending_asked and str(pending_asked.get("action") or "").lower() in pending_ok:
         return True
     return False
 
@@ -355,14 +391,31 @@ def user_requests_unlock(
     """True when this turn's user text (or pending-asked unlock action) asks to unlock.
 
     Primary sticky_locks unlock gate (FU66). Deterministic on user text; also accepts
-    ``pending_asked.action`` in the unlock/clear family for PENDING_ANSWER follow-ups.
-    Does **not** read ``confirms_replacement`` (that flag blocked explicit unlocks on
-    MR6/MS2 when used alone for replace=true).
+    ``pending_asked.action`` in the unlock family for PENDING_ANSWER follow-ups.
+    Does **not** read ``confirms_replacement``. Negated unlock phrasing returns False.
     """
     if pending_asked and str(pending_asked.get("action") or "").strip().lower() in (
         _UNLOCK_PENDING_ACTIONS
     ):
         return True
-    if isinstance(user_text, str) and _UNLOCK_TEXT.search(user_text):
+    if not isinstance(user_text, str):
+        return False
+    if _UNLOCK_NEGATION.search(user_text):
+        return False
+    return bool(_UNLOCK_TEXT.search(user_text))
+
+
+def user_requests_clear(
+    user_text: str | None,
+    pending_asked: Mapping[str, Any] | None = None,
+) -> bool:
+    """True when the user asks to clear/wipe a slot (FU67 wipe path)."""
+    if pending_asked and str(pending_asked.get("action") or "").strip().lower() in (
+        _CLEAR_PENDING_ACTIONS
+    ):
         return True
-    return False
+    if not isinstance(user_text, str):
+        return False
+    if _CLEAR_NEGATION.search(user_text):
+        return False
+    return bool(_CLEAR_TEXT.search(user_text))

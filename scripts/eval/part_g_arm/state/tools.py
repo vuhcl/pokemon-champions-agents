@@ -62,6 +62,9 @@ _JUDGE: bool = False
 # Arm v2 revision (FU65): sticky per-field locks under draft set_slot. Default off
 # so a393ae91 ladder artifacts stay reproducible; not a ladder rung.
 _STICKY_LOCKS: bool = False
+# Arm v2 revision (FU67 / entry 58): unlock_slot keeps values; clear_slot wipes.
+# Separate from sticky_locks so each revision is attributable. Default off.
+_UNLOCK_KEEPS_VALUES: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -116,6 +119,15 @@ def set_sticky_locks(enabled: bool) -> None:
 
 def sticky_locks_enabled() -> bool:
     return _STICKY_LOCKS
+
+
+def set_unlock_keeps_values(enabled: bool) -> None:
+    global _UNLOCK_KEEPS_VALUES
+    _UNLOCK_KEEPS_VALUES = bool(enabled)
+
+
+def unlock_keeps_values_enabled() -> bool:
+    return _UNLOCK_KEEPS_VALUES
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -497,28 +509,44 @@ def combined_specs(
             from scripts.eval.part_g_arm.state.set_slot_tool import SET_SLOT_SPEC_DRAFT
 
             set_spec = SET_SLOT_SPEC_DRAFT
-            # unlock_slot description under draft: wipe with replace.
+            keep = unlock_keeps_values_enabled()
             patched_u: list[dict[str, Any]] = []
             for s in state_specs:
                 if s["function"]["name"] != "unlock_slot":
                     patched_u.append(s)
                     continue
                 fn = dict(s["function"])
-                fn["description"] = (
-                    "Clear an occupied team slot (draft or locked). "
-                    "Requires replace=true when the slot holds values, and only after "
-                    "the user confirms. slot counts from 1."
-                )
-                props = dict(fn["parameters"]["properties"])
-                props["replace"] = {"type": "boolean"}
-                fn["parameters"] = {
-                    "type": "object",
-                    "properties": props,
-                    "required": list(fn["parameters"]["required"]),
-                }
-                patched_u.append({**s, "function": fn})
+                if keep:
+                    # FU67 / entry 58: unlock keeps values; wipe is clear_slot.
+                    fn["description"] = (
+                        "Unlock a slot: set locked=false on its attributes and keep "
+                        "their values (editable drafts). Does not wipe. "
+                        "To empty a slot, call clear_slot with replace=true after the "
+                        "user confirms. slot counts from 1."
+                    )
+                    # No replace param — unlock is never a wipe under this flag.
+                    patched_u.append({**s, "function": fn})
+                else:
+                    fn["description"] = (
+                        "Clear an occupied team slot (draft or locked). "
+                        "Requires replace=true when the slot holds values, and only after "
+                        "the user confirms. slot counts from 1."
+                    )
+                    props = dict(fn["parameters"]["properties"])
+                    props["replace"] = {"type": "boolean"}
+                    fn["parameters"] = {
+                        "type": "object",
+                        "properties": props,
+                        "required": list(fn["parameters"]["required"]),
+                    }
+                    patched_u.append({**s, "function": fn})
             state_specs = patched_u
-            state_specs = [*state_specs, set_spec, LOCK_FIELDS_SPEC, UNLOCK_FIELDS_SPEC]
+            extras = [set_spec, LOCK_FIELDS_SPEC, UNLOCK_FIELDS_SPEC]
+            if keep:
+                from scripts.eval.part_g_arm.state.draft_lock import CLEAR_SLOT_SPEC
+
+                extras.append(CLEAR_SLOT_SPEC)
+            state_specs = [*state_specs, *extras]
         else:
             state_specs = [*state_specs, set_spec]
     return [*lookups, *state_specs, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]

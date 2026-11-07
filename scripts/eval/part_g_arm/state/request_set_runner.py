@@ -64,6 +64,8 @@ DEFAULT_RUN_FLAGS: dict[str, bool] = {
     "judge": False,
     # FU65 revision flag (not a ladder rung). Default off = a393ae91 draft write.
     "sticky_locks": False,
+    # FU67 / entry 58: unlock_slot keeps values; clear_slot wipes. Default off.
+    "unlock_keeps_values": False,
 }
 
 # Fixed BEFORE any covered run (Part 4). No silent retry.
@@ -753,6 +755,14 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="arm v2 revision (FU65): refuse draft set_slot writes to locked fields (default off)",
     )
+    parser.add_argument(
+        "--unlock-keeps-values",
+        action="store_true",
+        help=(
+            "arm v2 revision (FU67/entry 58): unlock_slot keeps values; "
+            "clear_slot wipes with replace (default off)"
+        ),
+    )
     args = parser.parse_args(argv)
     run_flags = {
         "tool_fields": bool(args.tool_fields),
@@ -761,9 +771,10 @@ def main(argv: list[str] | None = None) -> int:
         "guard": bool(args.guard),
         "judge": bool(args.judge),
         "sticky_locks": bool(args.sticky_locks),
+        "unlock_keeps_values": bool(args.unlock_keeps_values),
     }
     # Ladder is cumulative: judge → guard → draft → wrapper → tool_fields.
-    # sticky_locks is independent (revision flag; does not pull ladder rungs).
+    # sticky_locks / unlock_keeps_values are independent revision flags.
     if run_flags["judge"]:
         run_flags["guard"] = True
     if run_flags["guard"]:
@@ -783,6 +794,7 @@ def main(argv: list[str] | None = None) -> int:
         set_judge,
         set_sticky_locks,
         set_tool_fields,
+        set_unlock_keeps_values,
         set_wrapper,
     )
 
@@ -792,6 +804,7 @@ def main(argv: list[str] | None = None) -> int:
     set_guard(bool(run_flags["guard"]))
     set_judge(bool(run_flags["judge"]))
     set_sticky_locks(bool(run_flags["sticky_locks"]))
+    set_unlock_keeps_values(bool(run_flags["unlock_keeps_values"]))
     if run_flags["guard"]:
         prompt_file = GUARD_PROMPT_FILE
     elif run_flags["draft"]:

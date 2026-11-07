@@ -24,7 +24,14 @@ def _replace_flag(name: str, args: Mapping[str, Any]) -> bool:
                 bool(s.get("replace")) for s in slots if isinstance(s, dict)
             )
         return False
+    if name == "clear_slot":
+        return bool(args.get("replace"))
     if name == "unlock_slot":
+        from scripts.eval.part_g_arm.state.tools import unlock_keeps_values_enabled
+
+        # FU67: unlock_slot keeps values — replace on it is ignored (not a wipe).
+        if unlock_keeps_values_enabled():
+            return False
         return bool(args.get("replace"))
     return False
 
@@ -45,10 +52,24 @@ def check_call(
     cls = guard_class or "ASK"
     # FU66 sticky unlock gate: before class-only allowed refusal so the message
     # names unlock_fields / unlock_slot (entry 38), not only the class.
-    from scripts.eval.part_g_arm.state.tools import sticky_locks_enabled
+    from scripts.eval.part_g_arm.state.tools import (
+        sticky_locks_enabled,
+        unlock_keeps_values_enabled,
+    )
 
     if sticky_locks_enabled() and name in {"unlock_fields", "unlock_slot"}:
         if not user_requests_unlock(user_text, pending_asked):
+            if unlock_keeps_values_enabled():
+                path = (
+                    "unlock_fields or unlock_slot (both keep values); "
+                    "to wipe a slot call clear_slot with replace=true only after "
+                    "the user confirms a clear"
+                )
+            else:
+                path = (
+                    "unlock_fields (keeps values) or unlock_slot "
+                    "(wipe; needs replace=true only after they confirm)"
+                )
             return {
                 "status": "refused",
                 "guard_blocked": True,
@@ -58,9 +79,29 @@ def check_call(
                 "class": cls,
                 "message": (
                     f"Refused {name}: unlocking needs an explicit user unlock "
-                    "request this turn. When the user asks to unlock, call "
-                    "unlock_fields (keeps values) or unlock_slot "
-                    "(wipe; needs replace=true only after they confirm)."
+                    f"request this turn. When the user asks to unlock, call {path}."
+                ),
+            }
+    if (
+        sticky_locks_enabled()
+        and unlock_keeps_values_enabled()
+        and name == "clear_slot"
+    ):
+        from scripts.eval.part_g_arm.state.guard_allowed import user_requests_clear
+
+        if not user_requests_clear(user_text, pending_asked):
+            return {
+                "status": "refused",
+                "guard_blocked": True,
+                "tool": name,
+                "args": dict(args),
+                "reason": "clear without user request",
+                "class": cls,
+                "message": (
+                    "Refused clear_slot: wiping a slot needs an explicit user clear "
+                    "or wipe request this turn, then clear_slot with replace=true "
+                    "after they confirm. Unlock (unlock_slot / unlock_fields) keeps "
+                    "values and is a different action."
                 ),
             }
     if name not in allowed:

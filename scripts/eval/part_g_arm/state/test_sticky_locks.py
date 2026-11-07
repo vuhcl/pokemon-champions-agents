@@ -13,6 +13,7 @@ from scripts.eval.part_g_arm.state.tools import (
     set_draft,
     set_sticky_locks,
     set_tool_fields,
+    set_unlock_keeps_values,
     set_wrapper,
 )
 
@@ -23,18 +24,21 @@ def _flags_off():
     set_wrapper(False)
     set_draft(False)
     set_sticky_locks(False)
+    set_unlock_keeps_values(False)
     yield
     set_tool_fields(False)
     set_wrapper(False)
     set_draft(False)
     set_sticky_locks(False)
+    set_unlock_keeps_values(False)
 
 
-def _enable_draft(*, sticky: bool) -> None:
+def _enable_draft(*, sticky: bool = False, keep: bool = False) -> None:
     set_tool_fields(True)
     set_wrapper(True)
     set_draft(True)
     set_sticky_locks(sticky)
+    set_unlock_keeps_values(keep)
 
 
 def _arm():
@@ -267,12 +271,11 @@ def test_sticky_explicit_unlock_then_write_succeeds():
     assert st2["team_draft"][0].item.locked is False
 
 
-def test_sticky_unlock_slot_replace_rule_unchanged():
-    """Explicit unlock text passes FU66 gate; replace=true still needs confirmation."""
+def test_sticky_unlock_slot_replace_rule_unchanged_when_keep_off():
+    """Flag off: explicit unlock passes FU66; unlock_slot replace=true still needs confirm."""
     from scripts.eval.part_g_arm.state.guard_exec import check_call, init_turn_ctx
 
-    _enable_draft(sticky=True)
-    st = _seed_locked_species_item()
+    st = _seed_locked_species_item()  # sticky on, keep off
     user = "Unlock slot 1"
     ctx = init_turn_ctx(
         [{"class": "WRITE", "action": "unlock_slot", "confirms_replacement": False}],
@@ -280,7 +283,6 @@ def test_sticky_unlock_slot_replace_rule_unchanged():
         user_text=user,
     )
     assert "unlock_slot" in ctx["allowed"]
-    # FU66 allows the unlock request…
     mid = check_call(
         "unlock_slot",
         {"slot": 1},
@@ -292,7 +294,6 @@ def test_sticky_unlock_slot_replace_rule_unchanged():
         user_text=user,
     )
     assert mid is None
-    # …but replace=true without confirms_replacement still refuses (entry 58).
     refusal = check_call(
         "unlock_slot",
         {"slot": 1, "replace": True},
@@ -340,3 +341,157 @@ def test_flag_off_unlock_fields_unprompted_still_runs():
     st2, res = dispatch(st, arm, "unlock_fields", {"slot": 1, "fields": ["item"]})
     assert res.get("ok") is True
     assert st2["team_draft"][0].item.locked is False
+
+
+# --- FU67 / entry 58: unlock_keeps_values ---
+
+
+def test_unlock_slot_keeps_values_clears_locks():
+    _enable_draft(sticky=True, keep=True)
+    arm = _arm()
+    st, _ = dispatch(
+        empty_team(),
+        arm,
+        "set_slot",
+        {"species": "Venusaur", "item": "Sitrus Berry", "slot": 1},
+    )
+    st, _ = dispatch(st, arm, "lock_fields", {"slot": 1})
+    assert st["team_draft"][0].species.locked is True
+    st2, res = dispatch(st, arm, "unlock_slot", {"slot": 1, "replace": True})
+    assert res.get("ok") is True, res
+    assert res.get("wiped") is not True
+    assert st2["team_draft"][0].species.value == "Venusaur"
+    assert st2["team_draft"][0].item.value == "Sitrus Berry"
+    assert st2["team_draft"][0].species.locked is False
+    assert st2["team_draft"][0].item.locked is False
+
+
+def test_unlock_slot_then_set_slot_under_both_flags():
+    from scripts.eval.part_g_arm.state.guard_exec import guarded_dispatch, init_turn_ctx
+    from scripts.eval.part_g_arm.state.harness import dispatch as real_dispatch
+
+    _enable_draft(sticky=True, keep=True)
+    arm = _arm()
+    st, _ = dispatch(
+        empty_team(),
+        arm,
+        "set_slot",
+        {"species": "Venusaur", "item": "Sitrus Berry", "slot": 1},
+    )
+    st, _ = dispatch(st, arm, "lock_fields", {"slot": 1, "fields": ["item"]})
+
+    def _dispatch(state, _a, name, args):  # noqa: ANN001
+        return real_dispatch(state, arm, name, args)
+
+    ctx = init_turn_ctx(
+        [{"class": "WRITE", "action": "unlock_slot"}],
+        st,
+        user_text="Unlock slot 1",
+    )
+    assert "unlock_slot" in ctx["allowed"]
+    assert "clear_slot" not in ctx["allowed"]
+    st, res_u = guarded_dispatch(
+        st, arm, "unlock_slot", {"slot": 1}, turn_ctx=ctx, dispatch_fn=_dispatch
+    )
+    assert res_u.get("ok") is True
+    assert st["team_draft"][0].item.locked is False
+    st2, res = dispatch(st, arm, "set_slot", {"slot": 1, "item": "Leftovers"})
+    assert res.get("ok") is True
+    assert st2["team_draft"][0].item.value == "Leftovers"
+
+
+def test_clear_slot_needs_replace_confirmation():
+    from scripts.eval.part_g_arm.state.guard_exec import check_call, init_turn_ctx
+
+    _enable_draft(sticky=True, keep=True)
+    arm = _arm()
+    st, _ = dispatch(
+        empty_team(),
+        arm,
+        "set_slot",
+        {"species": "Venusaur", "slot": 1},
+    )
+    user = "Clear slot 1"
+    ctx = init_turn_ctx(
+        [{"class": "WRITE", "action": "clear", "confirms_replacement": False}],
+        st,
+        user_text=user,
+    )
+    assert "clear_slot" in ctx["allowed"]
+    refusal = check_call(
+        "clear_slot",
+        {"slot": 1, "replace": True},
+        allowed=ctx["allowed"],
+        guard_class="WRITE",
+        confirms_replacement=False,
+        pending_asked=None,
+        state=st,
+        user_text=user,
+    )
+    assert refusal is not None
+    assert refusal.get("reason") == "replace=true without confirmation"
+    # With confirms: wipe allowed at guard; tool still needs replace=true.
+    ok = check_call(
+        "clear_slot",
+        {"slot": 1, "replace": True},
+        allowed=ctx["allowed"],
+        guard_class="WRITE",
+        confirms_replacement=True,
+        pending_asked=None,
+        state=st,
+        user_text=user,
+    )
+    assert ok is None
+    st2, res = dispatch(st, arm, "clear_slot", {"slot": 1, "replace": True})
+    assert res.get("ok") is True
+    assert res.get("wiped") is True
+    assert st2["team_draft"][0].species.value is None
+
+
+def test_unlock_negation_does_not_bind_unlock_tools():
+    from scripts.eval.part_g_arm.state.guard_allowed import user_requests_unlock
+    from scripts.eval.part_g_arm.state.guard_exec import init_turn_ctx
+
+    _enable_draft(sticky=True, keep=True)
+    st = empty_team()
+    text = "Keep it locked, don't unlock slot 1"
+    assert user_requests_unlock(text) is False
+    ctx = init_turn_ctx(
+        [{"class": "WRITE", "action": "set_slot"}],
+        st,
+        user_text=text,
+    )
+    assert "unlock_slot" not in ctx["allowed"]
+    assert "unlock_fields" not in ctx["allowed"]
+
+
+def test_keep_flag_off_unlock_slot_still_wipes_with_replace():
+    """unlock_keeps_values off: draft unlock_slot remains a393ae91 wipe path."""
+    _enable_draft(sticky=False, keep=False)
+    arm = _arm()
+    st, _ = dispatch(
+        empty_team(),
+        arm,
+        "set_slot",
+        {"species": "Venusaur", "slot": 1},
+    )
+    st2, res = dispatch(st, arm, "unlock_slot", {"slot": 1, "replace": True})
+    assert res.get("ok") is True
+    assert res.get("wiped") is True
+    assert st2["team_draft"][0].species.value is None
+
+
+def test_both_flags_off_equals_a393ae91_unlock_and_set_slot():
+    _enable_draft(sticky=False, keep=False)
+    arm = _arm()
+    st, _ = dispatch(
+        empty_team(),
+        arm,
+        "set_slot",
+        {"species": "Venusaur", "item": "Sitrus Berry", "slot": 1},
+    )
+    st, _ = dispatch(st, arm, "lock_fields", {"slot": 1, "fields": ["item"]})
+    st2, res = dispatch(st, arm, "set_slot", {"slot": 1, "item": "Leftovers"})
+    assert res.get("ok") is True
+    assert st2["team_draft"][0].item.locked is False
+    assert (res.get("applied") or [{}])[0].get("locked") is False
