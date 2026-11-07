@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,6 +38,8 @@ from scripts.extract_usage.fetch_usage_mc_munchstats import (
 ALL_URL = "https://metaroll.app/api/v1/all.json"
 SOURCE = "metaroll"
 TOP_SPREADS_N = 8  # same cap as the MunchStats extractor; MetaRoll publishes 30
+# Same shape as the staleness label M-{n}. Anything else is not a season comparison.
+_SEASON_LABEL = re.compile(r"^M-\d+$")
 
 JsonFetch = Callable[[str], dict[str, Any] | None]
 
@@ -196,6 +199,24 @@ def build_snapshot(
     return {"meta": meta, "ingame_doubles": {"species": ingame}}
 
 
+def _season_label(meta: dict[str, Any] | None) -> str | None:
+    raw = (meta or {}).get("season")
+    if isinstance(raw, str) and _SEASON_LABEL.fullmatch(raw):
+        return raw
+    return None
+
+
+def _drop_check_applies(meta: dict[str, Any], previous: dict[str, Any] | None) -> bool:
+    """Drop vs previous only within one season. Unknown labels fail closed (check stays)."""
+    if previous is None:
+        return False
+    prev = _season_label((previous.get("meta") or {}))
+    new = _season_label(meta)
+    if prev is None or new is None:
+        return True
+    return prev == new
+
+
 def validate_snapshot(
     snap: dict[str, Any],
     *,
@@ -237,7 +258,7 @@ def validate_snapshot(
     if index_count and n < LADDER_RATIO * index_count:
         return "fail", f"species count {n} < {LADDER_RATIO} * index_count {index_count}"
 
-    if previous is not None:
+    if previous is not None and _drop_check_applies(meta, previous):
         prev_n = len(((previous.get("ingame_doubles") or {}).get("species")) or {})
         if prev_n and (n < prev_n * DROP_RATIO or (prev_n - n) > DROP_ABS):
             return "fail", f"drop vs previous {n} vs {prev_n}"

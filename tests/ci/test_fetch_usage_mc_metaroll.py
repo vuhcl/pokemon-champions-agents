@@ -126,6 +126,32 @@ def test_validate_fails_on_drop_missing_attribution_or_season():
     assert validate_snapshot(_snap(240, season=None), index=_IDX, stats=stats)[0] == "fail"
 
 
+def test_validate_skips_drop_when_season_changes():
+    """M-7 baseline vs an M-8 capture below the drop line still clears that gate."""
+    stats = {"index_count": 262}
+    prev = _snap(262, captured="2026-10-20T00:00:00Z", season="M-7")
+    decision, reason = validate_snapshot(
+        _snap(226, season="M-8"), index=_IDX, stats=stats, previous=prev
+    )
+    assert (decision, reason) == ("ok", "validated")
+
+
+def test_validate_keeps_drop_when_season_missing_or_unparseable():
+    stats = {"index_count": 262}
+    new = _snap(226, season="M-8")
+    for season in (None, "not-a-season"):
+        prev = _snap(262, captured="2026-10-20T00:00:00Z", season=season)
+        decision, reason = validate_snapshot(new, index=_IDX, stats=stats, previous=prev)
+        assert decision == "fail"
+        assert reason == "drop vs previous 226 vs 262"
+    prev_m7 = _snap(262, captured="2026-10-20T00:00:00Z", season="M-7")
+    decision, reason = validate_snapshot(
+        _snap(226, season="not-a-season"), index=_IDX, stats=stats, previous=prev_m7
+    )
+    assert decision == "fail"
+    assert reason == "drop vs previous 226 vs 262"
+
+
 def test_floette_eternal_maps_and_a_floette_entry_is_never_emitted(payload):
     # floette is illegal (cannot Mega Evolve) but legal_lookup_ids includes it via floettemega.
     p = copy.deepcopy(payload)
