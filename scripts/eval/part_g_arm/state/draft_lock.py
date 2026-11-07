@@ -84,12 +84,18 @@ def lock_fields(
     draft = list(state["team_draft"])
     draft[index] = new_slot
     after = {**state, "team_draft": draft, "slot_commit_error": None}
-    return after, {
+    result: dict[str, Any] = {
         "ok": True,
         "slot": display_slot(index),
         "locked": locked_names,
         "status": {n: attr_status(getattr(new_slot, n)) for n in _LOCKABLE},
     }
+    from scripts.eval.part_g_arm.state.tools import tool_fixes_v2_enabled
+
+    if tool_fixes_v2_enabled():
+        result["value"] = {n: getattr(new_slot, n).value for n in locked_names}
+        result["slot_after"] = {n: getattr(new_slot, n).value for n in _LOCKABLE}
+    return after, result
 
 
 def unlock_fields(
@@ -130,12 +136,18 @@ def unlock_fields(
     draft = list(state["team_draft"])
     draft[index] = new_slot
     after = {**state, "team_draft": draft, "slot_commit_error": None}
-    return after, {
+    result: dict[str, Any] = {
         "ok": True,
         "slot": display_slot(index),
         "unlocked": unlocked,
         "status": {n: attr_status(getattr(new_slot, n)) for n in _LOCKABLE},
     }
+    from scripts.eval.part_g_arm.state.tools import tool_fixes_v2_enabled
+
+    if tool_fixes_v2_enabled():
+        result["value"] = {n: getattr(new_slot, n).value for n in unlocked}
+        result["slot_after"] = {n: getattr(new_slot, n).value for n in _LOCKABLE}
+    return after, result
 
 
 def unlock_slot_draft(
@@ -165,12 +177,19 @@ def unlock_slot_draft(
     draft = list(state["team_draft"])
     draft[index] = empty_slot()
     after = {**state, "team_draft": draft, "slot_commit_error": None}
-    return after, {
+    result: dict[str, Any] = {
         "ok": True,
         "slot": display_slot(index),
         "wiped": True,
         "replace": True,
     }
+    from scripts.eval.part_g_arm.state.tools import tool_fixes_v2_enabled
+
+    if tool_fixes_v2_enabled():
+        wiped = draft[index]
+        result["value"] = None
+        result["slot_after"] = {n: getattr(wiped, n).value for n in _LOCKABLE}
+    return after, result
 
 
 LOCK_FIELDS_SPEC = {

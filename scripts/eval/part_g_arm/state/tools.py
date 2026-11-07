@@ -136,10 +136,54 @@ def unlock_keeps_values_enabled() -> bool:
 def set_tool_fixes_v2(enabled: bool) -> None:
     global _TOOL_FIXES_V2
     _TOOL_FIXES_V2 = bool(enabled)
+    # Keep slot_fill's Meowstic-F / join.ts-unlisted forme gate in sync (#364).
+    from recommender.slot_fill import set_keep_join_ts_unlisted_formes
+
+    set_keep_join_ts_unlisted_formes(enabled)
 
 
 def tool_fixes_v2_enabled() -> bool:
     return _TOOL_FIXES_V2
+
+
+_WRITE_SLOT_ATTRS = (
+    "role",
+    "species",
+    "ability",
+    "item",
+    "moveset",
+    "spread",
+    "nature",
+)
+
+
+def _slot_values(slot: Slot) -> dict[str, Any]:
+    """Read current attr values from state (not from the request)."""
+    return {name: getattr(slot, name).value for name in _WRITE_SLOT_ATTRS}
+
+
+def _enrich_write_result(
+    result: dict[str, Any],
+    after: dict[str, Any],
+    index: int,
+    *,
+    field: str | None = None,
+) -> dict[str, Any]:
+    """FU70 / #372: echo written values from state when tool_fixes_v2 is on."""
+    if not tool_fixes_v2_enabled() or not result.get("ok", True):
+        if tool_fixes_v2_enabled() and result.get("ok") is False:
+            return result
+        if not tool_fixes_v2_enabled():
+            return result
+    if "slot_commit_error" in result and result.get("ok") is not True and "ok" not in result:
+        # _refuse shape
+        return result
+    slot = after["team_draft"][index]
+    values = _slot_values(slot)
+    out = {**result, "slot_after": values}
+    if field is not None:
+        out["value"] = values.get(field)
+    return out
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -572,6 +616,73 @@ def _refuse(message: str) -> dict[str, Any]:
     return {"slot_commit_error": message}
 
 
+# flag_kind values _apply_mismatch can emit (recommender/reconcile.py).
+_APPLY_MISMATCH_FLAG_KINDS = frozenset(
+    {
+        "flag_exempt_conflict",
+        "judgment_mismatch",
+        "sibling_mismatch",
+        "severity_mismatch",
+        "theme_mismatch",
+    }
+)
+
+# Advisory = does not clear the attr; blocking = theme_mismatch path that supersedes.
+_ADVISORY_FLAG_KINDS = frozenset(
+    {
+        "flag_exempt_conflict",
+        "judgment_mismatch",
+        "sibling_mismatch",
+        "severity_mismatch",
+    }
+)
+
+
+def _enrich_pending_flag_dict(flag: object) -> dict[str, Any]:
+    """FU70 / #371: attribute, compared, result, advisory|blocking."""
+    if hasattr(flag, "keys") or isinstance(flag, dict):
+        base = dict(flag)  # type: ignore[arg-type]
+    else:
+        base = {
+            "slot_index": getattr(flag, "slot_index", None),
+            "attr": getattr(flag, "attr", None),
+            "value": getattr(flag, "value", None),
+            "flag_kind": getattr(flag, "flag_kind", None),
+        }
+    kind = str(base.get("flag_kind") or "")
+    attr = base.get("attr")
+    value = base.get("value")
+    advisory = kind in _ADVISORY_FLAG_KINDS
+    if kind == "judgment_mismatch":
+        compared = "archetype component (no mechanical rule)"
+        result = "unchecked / judgment-only fit"
+    elif kind in {"sibling_mismatch", "severity_mismatch"}:
+        compared = "archetype mechanical fit severity"
+        result = f"{kind}: costly or toss-up"
+    elif kind == "flag_exempt_conflict":
+        compared = "exempt_from_theme vs mechanical archetype fit"
+        result = "exempt attribute conflicts with mechanical theme"
+    elif kind == "theme_mismatch":
+        compared = "archetype theme"
+        result = "theme mismatch"
+        advisory = False
+    else:
+        compared = "archetype fit"
+        result = kind or "unknown"
+    return {
+        **base,
+        "attribute": attr,
+        "compared": compared,
+        "result": result,
+        "advisory_or_blocking": "advisory" if advisory else "blocking",
+    }
+
+
+def apply_mismatch_flag_kinds() -> frozenset[str]:
+    """Public list for tests / PR notes (#371)."""
+    return _APPLY_MISMATCH_FLAG_KINDS
+
+
 def slot_signature(slot: Slot) -> tuple[Any, ...]:
     """Every Slot field: Attr fields as (name, value, locked), other fields as (name, value)."""
     out: list[Any] = []
@@ -623,7 +734,13 @@ def lock_slot(state: dict[str, Any], user_slot: object, species: object) -> tupl
     except SlotIndexError as exc:
         return state, _refuse(str(exc))
     patch = apply_lock({**state, "turn_payload": {"slot_index": index, "attr": "species", "value": species}})
-    return _merge(state, patch), patch
+    after = _merge(state, patch)
+    # a393ae91: return patch as-is (including slot_commit_error). Flag on adds read-back.
+    result = dict(patch)
+    if not patch.get("slot_commit_error"):
+        result = {**result, "ok": True}
+        result = _enrich_write_result(result, after, index, field="species")
+    return after, result
 
 
 _EDIT_FIELDS = frozenset({"item", "ability", "nature", "spread", "moveset", "moves"})
@@ -753,15 +870,18 @@ def edit_slot_field(
             after["pending_flags"] = [*state.get("pending_flags", []), *pending_flags]
 
     facts = consequences_after_edit(after["team_draft"][index], changed_field=attr)
+    pending_flags = list(after.get("pending_flags") or [])
+    if tool_fixes_v2_enabled():
+        pending_flags = [_enrich_pending_flag_dict(f) for f in pending_flags]
     result = {
         "ok": True,
         "slot": display_slot(index),
         "field": attr,
         "consequences": facts,
-        "reconcile_pending_flags": list(after.get("pending_flags") or []),
+        "reconcile_pending_flags": pending_flags,
         "superseded": list(after.get("superseded") or []),
     }
-    return after, result
+    return after, _enrich_write_result(result, after, index, field=attr)
 
 
 def unlock_slot(state: dict[str, Any], user_slot: object) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -770,7 +890,12 @@ def unlock_slot(state: dict[str, Any], user_slot: object) -> tuple[dict[str, Any
     except SlotIndexError as exc:
         return state, _refuse(str(exc))
     patch = unlock_locked_slot({**state, "turn_payload": {"slot_index": index}})
-    return _merge(state, patch), patch
+    after = _merge(state, patch)
+    result = dict(patch)
+    if not patch.get("slot_commit_error"):
+        result = {**result, "ok": True}
+        result = _enrich_write_result(result, after, index)
+    return after, result
 
 
 def reset_team_state(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -780,7 +905,16 @@ def reset_team_state(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, A
 
 def commit_slot(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     patch = commit_full_slot(state)
-    return _merge(state, patch), patch
+    after = _merge(state, patch)
+    result = dict(patch)
+    if not patch.get("slot_commit_error") and tool_fixes_v2_enabled():
+        result = {**result, "ok": True}
+        result["team_after"] = [
+            {"slot": display_slot(i), **_slot_values(s)}
+            for i, s in enumerate(after["team_draft"])
+            if s.species.value is not None
+        ]
+    return after, result
 
 
 def confirm_build(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -1674,6 +1808,29 @@ def _rain_conflict_audit(state: dict[str, Any], components: list[str]) -> list[d
     return conflicts
 
 
+def _canonicalize_archetype_component(raw: str) -> str:
+    """Case-insensitive match against weather / type / role-fit tables (#370)."""
+    from recommender.reconcile import (
+        _COMPONENT_ROLE_FIT,
+        _POKEMON_TYPES,
+        _WEATHER_COMMITMENTS,
+    )
+
+    s = raw.strip()
+    cf = s.casefold()
+    for table in (_WEATHER_COMMITMENTS, _COMPONENT_ROLE_FIT):
+        for key in table:
+            if str(key).casefold() == cf:
+                return str(key)
+    for typ in _POKEMON_TYPES:
+        if str(typ).casefold() == cf:
+            return str(typ)
+    # Stable casing for judgment-only labels (offense → Offense).
+    if s.isalpha():
+        return s[:1].upper() + s[1:].lower()
+    return s
+
+
 def change_archetype(
     state: dict[str, Any], components: object
 ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -1683,6 +1840,8 @@ def change_archetype(
     if not all(isinstance(c, str) and c.strip() for c in components):
         return state, _refuse("each component must be a nonempty string")
     comps = [c.strip() for c in components]
+    if tool_fixes_v2_enabled():
+        comps = [_canonicalize_archetype_component(c) for c in comps]
     before_draft = draft_signature(state)
     patch = handle_archetype_change(
         {**state, "turn_payload": {"components": comps}}
@@ -1694,11 +1853,14 @@ def change_archetype(
             "archetype reconcile would edit locked slots; refusing to keep locks intact"
         )
     conflicts = _rain_conflict_audit(after, comps)
+    flags = to_jsonable(after.get("pending_flags") or [])
+    if tool_fixes_v2_enabled():
+        flags = [_enrich_pending_flag_dict(f) for f in flags]
     return after, {
         "ok": True,
         "archetype": read_archetype(after),
         "conflicts": conflicts,
-        "pending_flags": to_jsonable(after.get("pending_flags") or []),
+        "pending_flags": flags,
     }
 
 
@@ -1997,11 +2159,11 @@ def check_hypothetical(state: dict[str, Any], placements: object) -> dict[str, A
             )
             if verdict.refusal is not None:
                 other = verdict.refusal.conflicts_with_slot
-                return {
-                    "verdict": verdict.refusal.kind,
-                    "conflicts_with_slot": None if other is None else int(display_slot(other)),
-                    "message": verdict.refusal.message,
-                }
+                return _hypothetical_verdict(
+                    verdict.refusal.kind,
+                    None if other is None else int(display_slot(other)),
+                    verdict.refusal.message,
+                )
             draft[index] = replace(
                 draft[index], species=Attr(value=verdict.canonical, locked=True)
             )
@@ -2016,16 +2178,38 @@ def check_hypothetical(state: dict[str, Any], placements: object) -> dict[str, A
             )
             if verdict.refusal is not None:
                 other = verdict.refusal.conflicts_with_slot
-                return {
-                    "verdict": verdict.refusal.kind,
-                    "conflicts_with_slot": None if other is None else int(display_slot(other)),
-                    "message": verdict.refusal.message,
-                }
+                return _hypothetical_verdict(
+                    verdict.refusal.kind,
+                    None if other is None else int(display_slot(other)),
+                    verdict.refusal.message,
+                )
             draft[index] = replace(
                 draft[index], item=Attr(value=verdict.canonical, locked=True)
             )
         last_ok = {"verdict": "ok", "conflicts_with_slot": None, "message": None}
     return last_ok
+
+
+def _hypothetical_verdict(
+    kind: str, conflicts_with_slot: int | None, message: str | None
+) -> dict[str, Any]:
+    """FU70 item 8: hyp answers must not speak as if writing the live team."""
+    msg = message
+    if tool_fixes_v2_enabled() and isinstance(msg, str):
+        # Drop "lock" framing from validate_team_value copy.
+        msg = msg.replace("so I can't lock it.", "so it is not a valid hypothetical species.")
+        msg = msg.replace("so I can't lock it", "so it is not a valid hypothetical species")
+        if not msg.lower().startswith("hypothetical:"):
+            msg = f"Hypothetical only (does not change the team): {msg}"
+    out: dict[str, Any] = {
+        "verdict": kind,
+        "conflicts_with_slot": conflicts_with_slot,
+        "message": msg,
+    }
+    if tool_fixes_v2_enabled():
+        out["hypothetical"] = True
+        out["applies_to_team"] = False
+    return out
 
 
 def draft_signature(state: dict[str, Any]) -> tuple[Any, ...]:

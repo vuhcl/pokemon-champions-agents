@@ -13,6 +13,7 @@ from scripts.eval.part_g_arm.state.tools import (
     set_draft,
     set_sticky_locks,
     set_tool_fields,
+    set_tool_fixes_v2,
     set_unlock_keeps_values,
     set_wrapper,
 )
@@ -25,12 +26,14 @@ def _flags_off():
     set_draft(False)
     set_sticky_locks(False)
     set_unlock_keeps_values(False)
+    set_tool_fixes_v2(False)
     yield
     set_tool_fields(False)
     set_wrapper(False)
     set_draft(False)
     set_sticky_locks(False)
     set_unlock_keeps_values(False)
+    set_tool_fixes_v2(False)
 
 
 def _enable_draft(*, sticky: bool = False, keep: bool = False) -> None:

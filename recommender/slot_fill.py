@@ -783,6 +783,32 @@ def _union_move_resolved(
     return list(by_id.values())
 
 
+# join.ts unlisted otherFormes (ADR extraction note): player-chosen, not battle-only.
+# The usage-map heuristic wrongly treats them as battle-only when build maps omit them.
+JOIN_TS_UNLISTED_OTHER_FORMES: frozenset[str] = frozenset(
+    {
+        "meowsticf",
+        "mausholdfour",
+        "polteageistantique",
+        "sinistchamasterpiece",
+        "vivillonfancy",
+        "vivillonpokeball",
+    }
+)
+
+# FU70 / #364: when True, JOIN_TS_UNLISTED_OTHER_FORMES are not battle-only.
+_KEEP_JOIN_TS_UNLISTED: bool = False
+
+
+def set_keep_join_ts_unlisted_formes(enabled: bool) -> None:
+    global _KEEP_JOIN_TS_UNLISTED
+    _KEEP_JOIN_TS_UNLISTED = bool(enabled)
+
+
+def keep_join_ts_unlisted_formes_enabled() -> bool:
+    return _KEEP_JOIN_TS_UNLISTED
+
+
 def _is_battle_only_transient_forme(sid: str, entry: dict[str, Any], regulation: str) -> bool:
     """Whether sid is a forme that only ever appears automatically during
     battle (weather/terastal/etc.-triggered) rather than something a
@@ -813,9 +839,14 @@ def _is_battle_only_transient_forme(sid: str, entry: dict[str, Any], regulation:
     independently-legal, real species that simply has low usage must
     never be excluded here; this collapses formes, it doesn't gate on
     popularity (that's Amendment 2026-08-22a's job, elsewhere).
+
+    FU70 / #364: when keep_join_ts_unlisted_formes is on, the six join.ts
+    unlisted otherFormes (Meowstic-F and siblings) are never battle-only.
     """
     base = entry.get("base_species_id")
     if not base or base == sid:
+        return False
+    if _KEEP_JOIN_TS_UNLISTED and sid in JOIN_TS_UNLISTED_OTHER_FORMES:
         return False
     return sid not in ingame_species_map(regulation) and sid not in showdown_species_map(
         regulation

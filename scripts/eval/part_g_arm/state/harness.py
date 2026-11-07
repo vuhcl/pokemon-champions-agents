@@ -300,11 +300,33 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
     if name == "calc_damage":
         from scripts.eval.part_g_arm.state.ability_default import prepare_calc_damage_args
         from scripts.eval.part_g_arm.state.mega_stone_calc import prepare_calc_damage_mega_args
-        from scripts.eval.part_g_arm.state.tools import tool_fields_enabled
+        from scripts.eval.part_g_arm.state.tools import (
+            tool_fields_enabled,
+            tool_fixes_v2_enabled,
+        )
 
         call_args = dict(args or {})
         ability_source = None
         forme_resolution = None
+        # FU70 item 7a: require ability on both sides (pending Vu confirm).
+        if tool_fixes_v2_enabled():
+            for side in ("attacker", "defender"):
+                spec = call_args.get(side)
+                if not isinstance(spec, dict):
+                    return state, {
+                        "status": "error",
+                        "error_kind": "bad_arguments",
+                        "message": f"calc_damage requires {side} object with ability",
+                        "field": side,
+                    }
+                ab = spec.get("ability")
+                if not isinstance(ab, str) or not ab.strip():
+                    return state, {
+                        "status": "error",
+                        "error_kind": "bad_arguments",
+                        "message": f"calc_damage requires {side}.ability",
+                        "field": f"{side}.ability",
+                    }
         if tool_fields_enabled():
             call_args, forme_resolution = prepare_calc_damage_mega_args(call_args)
             call_args.pop("_forme_resolution", None)
@@ -323,6 +345,25 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
                 extra["forme_resolution"] = forme_resolution
             if extra:
                 result = {**result, **extra}
+        # FU70 item 7b: Sturdy / Disguise not modeled by calc.
+        if tool_fixes_v2_enabled() and isinstance(result, dict):
+            de = call_args.get("defender") if isinstance(call_args.get("defender"), dict) else {}
+            ab = str((de or {}).get("ability") or "")
+            ab_cf = ab.casefold()
+            if ab_cf == "sturdy":
+                result = {
+                    **result,
+                    "calc_limitation": (
+                        "calc does not model Sturdy (survives at 1 HP from full HP)"
+                    ),
+                }
+            elif ab_cf == "disguise":
+                result = {
+                    **result,
+                    "calc_limitation": (
+                        "calc does not model Disguise (blocks the first hit)"
+                    ),
+                }
         return state, result
     result = arm.call(name, args or {})
     if name == "get_move_static":
