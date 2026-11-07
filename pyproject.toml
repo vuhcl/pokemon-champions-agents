@@ -29,5 +29,12 @@ build-backend = "setuptools.build_meta"
 include = ["recommender*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests/recommender", "tests/ci"]
+testpaths = [
+    "tests/recommender",
+    "tests/ci",
+    # FU70: tool_fixes_v2 + harness start-state (#322/#323); keep as files so the
+    # rest of scripts/eval/part_g_arm/state is not pulled into the default suite.
+    "scripts/eval/part_g_arm/state/test_tool_fixes_v2.py",
+    "scripts/eval/part_g_arm/state/test_harness_start_state_fu70.py",
+]
 pythonpath = [".", "tests/recommender"]
