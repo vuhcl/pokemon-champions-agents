@@ -8,6 +8,7 @@ from scripts.eval.part_g_arm.state.guard_allowed import (
     allowed_tools,
     pending_fingerprint_matches,
     replace_allowed,
+    user_requests_unlock,
 )
 
 MAX_TOOL_CALLS_PER_TURN = 16
@@ -23,7 +24,14 @@ def _replace_flag(name: str, args: Mapping[str, Any]) -> bool:
                 bool(s.get("replace")) for s in slots if isinstance(s, dict)
             )
         return False
+    if name == "clear_slot":
+        return bool(args.get("replace"))
     if name == "unlock_slot":
+        from scripts.eval.part_g_arm.state.tools import unlock_keeps_values_enabled
+
+        # FU67: unlock_slot keeps values — replace on it is ignored (not a wipe).
+        if unlock_keeps_values_enabled():
+            return False
         return bool(args.get("replace"))
     return False
 
@@ -37,10 +45,65 @@ def check_call(
     confirms_replacement: bool,
     pending_asked: Mapping[str, Any] | None,
     state: Mapping[str, Any],
+    user_text: str | None = None,
 ) -> dict[str, Any] | None:
     """Return a refusal patch if the call must not execute; else None."""
     args = args or {}
     cls = guard_class or "ASK"
+    # FU66 sticky unlock gate: before class-only allowed refusal so the message
+    # names unlock_fields / unlock_slot (entry 38), not only the class.
+    from scripts.eval.part_g_arm.state.tools import (
+        sticky_locks_enabled,
+        unlock_keeps_values_enabled,
+    )
+
+    if sticky_locks_enabled() and name in {"unlock_fields", "unlock_slot"}:
+        if not user_requests_unlock(user_text, pending_asked):
+            if unlock_keeps_values_enabled():
+                path = (
+                    "unlock_fields or unlock_slot (both keep values); "
+                    "to wipe a slot call clear_slot with replace=true only after "
+                    "the user confirms a clear"
+                )
+            else:
+                path = (
+                    "unlock_fields (keeps values) or unlock_slot "
+                    "(wipe; needs replace=true only after they confirm)"
+                )
+            return {
+                "status": "refused",
+                "guard_blocked": True,
+                "tool": name,
+                "args": dict(args),
+                "reason": "unlock without user request",
+                "class": cls,
+                "message": (
+                    f"Refused {name}: unlocking needs an explicit user unlock "
+                    f"request this turn. When the user asks to unlock, call {path}."
+                ),
+            }
+    if (
+        sticky_locks_enabled()
+        and unlock_keeps_values_enabled()
+        and name == "clear_slot"
+    ):
+        from scripts.eval.part_g_arm.state.guard_allowed import user_requests_clear
+
+        if not user_requests_clear(user_text, pending_asked):
+            return {
+                "status": "refused",
+                "guard_blocked": True,
+                "tool": name,
+                "args": dict(args),
+                "reason": "clear without user request",
+                "class": cls,
+                "message": (
+                    "Refused clear_slot: wiping a slot needs an explicit user clear "
+                    "or wipe request this turn, then clear_slot with replace=true "
+                    "after they confirm. Unlock (unlock_slot / unlock_fields) keeps "
+                    "values and is a different action."
+                ),
+            }
     if name not in allowed:
         return {
             "status": "refused",
@@ -117,12 +180,15 @@ def guarded_dispatch(
         turn_ctx["cap_hit"] = True
         return state, refusal
 
+    user_text = turn_ctx.get("user_text")
+    pending_asked = turn_ctx.get("pending_asked")
     allowed = set(turn_ctx.get("allowed") or ())
     if not allowed:
         allowed = allowed_tools(
             turn_ctx.get("sub_requests") or [],
             state,
-            pending_asked=turn_ctx.get("pending_asked"),
+            pending_asked=pending_asked,
+            user_text=user_text if isinstance(user_text, str) else None,
         )
         turn_ctx["allowed"] = allowed
 
@@ -130,7 +196,8 @@ def guarded_dispatch(
     allowed = allowed_tools(
         turn_ctx.get("sub_requests") or [],
         state,
-        pending_asked=turn_ctx.get("pending_asked"),
+        pending_asked=pending_asked,
+        user_text=user_text if isinstance(user_text, str) else None,
     )
     turn_ctx["allowed"] = allowed
 
@@ -140,8 +207,9 @@ def guarded_dispatch(
         allowed=allowed,
         guard_class=turn_ctx.get("guard_class"),
         confirms_replacement=bool(turn_ctx.get("confirms_replacement")),
-        pending_asked=turn_ctx.get("pending_asked"),
+        pending_asked=pending_asked,
         state=state,
+        user_text=user_text if isinstance(user_text, str) else None,
     )
     if refusal is not None:
         blocked.append(
@@ -156,7 +224,8 @@ def guarded_dispatch(
     turn_ctx["allowed"] = allowed_tools(
         turn_ctx.get("sub_requests") or [],
         state,
-        pending_asked=turn_ctx.get("pending_asked"),
+        pending_asked=pending_asked,
+        user_text=user_text if isinstance(user_text, str) else None,
     )
     return state, patch
 
@@ -166,6 +235,7 @@ def init_turn_ctx(
     state: Mapping[str, Any],
     *,
     pending_asked: Mapping[str, Any] | None = None,
+    user_text: str | None = None,
 ) -> dict[str, Any]:
     subs = list(sub_requests or [])
     confirms = any(bool(s.get("confirms_replacement")) for s in subs)
@@ -174,12 +244,15 @@ def init_turn_ctx(
         if s.get("class"):
             primary = str(s["class"]).upper()
             break
-    allowed = allowed_tools(subs, state, pending_asked=pending_asked)
+    allowed = allowed_tools(
+        subs, state, pending_asked=pending_asked, user_text=user_text
+    )
     return {
         "sub_requests": subs,
         "pending_asked": dict(pending_asked) if pending_asked else None,
         "confirms_replacement": confirms,
         "guard_class": primary,
+        "user_text": user_text,
         "allowed": allowed,
         "blocked_calls": [],
         "tool_call_count": 0,

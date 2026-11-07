@@ -212,3 +212,24 @@ UNLOCK_FIELDS_SPEC = {
         },
     },
 }
+
+CLEAR_SLOT_SPEC = {
+    "type": "function",
+    "function": {
+        "name": "clear_slot",
+        "description": (
+            "Wipe an occupied team slot (empty all values). "
+            "Requires replace=true when the slot holds draft or locked values, and only "
+            "after the user confirms a clear/wipe. Not the same as unlock_slot (which "
+            "keeps values). slot counts from 1."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "slot": {"type": "integer"},
+                "replace": {"type": "boolean"},
+            },
+            "required": ["slot"],
+        },
+    },
+}

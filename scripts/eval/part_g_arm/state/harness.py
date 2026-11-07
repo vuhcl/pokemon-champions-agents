@@ -137,15 +137,40 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             state, args.get("slot"), args.get("field"), args.get("value")
         )
     if name == "unlock_slot":
-        from scripts.eval.part_g_arm.state.tools import draft_enabled
+        from scripts.eval.part_g_arm.state.tools import (
+            draft_enabled,
+            unlock_keeps_values_enabled,
+        )
 
         if draft_enabled():
+            if unlock_keeps_values_enabled():
+                # FU67 / entry 58: unlock keeps values (same as unlock_fields, all locked).
+                from scripts.eval.part_g_arm.state.draft_lock import unlock_fields
+
+                return unlock_fields(state, args.get("slot"), fields=None)
             from scripts.eval.part_g_arm.state.draft_lock import unlock_slot_draft
 
             return unlock_slot_draft(
                 state, args.get("slot"), replace=bool(args.get("replace") or False)
             )
         return unlock_slot(state, args.get("slot"))
+    if name == "clear_slot":
+        from scripts.eval.part_g_arm.state.tools import (
+            draft_enabled,
+            unlock_keeps_values_enabled,
+        )
+
+        if not unlock_keeps_values_enabled():
+            return state, {
+                "slot_commit_error": "clear_slot requires unlock_keeps_values flag"
+            }
+        if not draft_enabled():
+            return state, {"slot_commit_error": "clear_slot requires draft flag"}
+        from scripts.eval.part_g_arm.state.draft_lock import unlock_slot_draft
+
+        return unlock_slot_draft(
+            state, args.get("slot"), replace=bool(args.get("replace") or False)
+        )
     if name == "lock_fields":
         from scripts.eval.part_g_arm.state.draft_lock import lock_fields
         from scripts.eval.part_g_arm.state.tools import draft_enabled
@@ -407,6 +432,7 @@ def run_turn(
             parser_record["sub_requests"],
             state,
             pending_asked=pending_asked if isinstance(pending_asked, dict) else None,
+            user_text=user_text,
         )
         # Store ASK action for the next turn.
         primary = (parser_record["sub_requests"] or [{}])[0]
@@ -478,7 +504,7 @@ def run_turn(
                     entry["replace"] = entry["replace"] or any(
                         bool(s.get("replace")) for s in args["slots"] if isinstance(s, dict)
                     )
-            if call["name"] == "unlock_slot":
+            if call["name"] in {"unlock_slot", "clear_slot"}:
                 entry["replace"] = bool(args.get("replace") or False)
             entry["result_status"] = tool_call_result_status(entry)
             calls.append(entry)
@@ -494,7 +520,7 @@ def run_turn(
     replace_true_calls = sum(
         1
         for c in calls
-        if c.get("name") in {"set_slot", "unlock_slot"} and c.get("replace") is True
+        if c.get("name") in {"set_slot", "unlock_slot", "clear_slot"} and c.get("replace") is True
     )
     refused_calls = sum(1 for c in calls if c.get("result_status") == "refused")
     fallback = False
