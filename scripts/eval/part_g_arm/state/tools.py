@@ -59,6 +59,9 @@ _DRAFT: bool = False
 _GUARD: bool = False
 # Arm v2 ladder: judge-lite (cumulative on guard).
 _JUDGE: bool = False
+# Arm v2 revision (FU65): sticky per-field locks under draft set_slot. Default off
+# so a393ae91 ladder artifacts stay reproducible; not a ladder rung.
+_STICKY_LOCKS: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -104,6 +107,15 @@ def set_judge(enabled: bool) -> None:
 
 def judge_enabled() -> bool:
     return _JUDGE
+
+
+def set_sticky_locks(enabled: bool) -> None:
+    global _STICKY_LOCKS
+    _STICKY_LOCKS = bool(enabled)
+
+
+def sticky_locks_enabled() -> bool:
+    return _STICKY_LOCKS
 
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:

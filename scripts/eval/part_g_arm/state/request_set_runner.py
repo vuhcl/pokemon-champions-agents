@@ -62,6 +62,8 @@ DEFAULT_RUN_FLAGS: dict[str, bool] = {
     "draft": False,
     "guard": False,
     "judge": False,
+    # FU65 revision flag (not a ladder rung). Default off = a393ae91 draft write.
+    "sticky_locks": False,
 }
 
 # Fixed BEFORE any covered run (Part 4). No silent retry.
@@ -746,6 +748,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--judge", action="store_true", help="arm v2: enable judge-lite (default off)"
     )
+    parser.add_argument(
+        "--sticky-locks",
+        action="store_true",
+        help="arm v2 revision (FU65): refuse draft set_slot writes to locked fields (default off)",
+    )
     args = parser.parse_args(argv)
     run_flags = {
         "tool_fields": bool(args.tool_fields),
@@ -753,8 +760,10 @@ def main(argv: list[str] | None = None) -> int:
         "draft": bool(args.draft),
         "guard": bool(args.guard),
         "judge": bool(args.judge),
+        "sticky_locks": bool(args.sticky_locks),
     }
     # Ladder is cumulative: judge → guard → draft → wrapper → tool_fields.
+    # sticky_locks is independent (revision flag; does not pull ladder rungs).
     if run_flags["judge"]:
         run_flags["guard"] = True
     if run_flags["guard"]:
@@ -772,6 +781,7 @@ def main(argv: list[str] | None = None) -> int:
         set_draft,
         set_guard,
         set_judge,
+        set_sticky_locks,
         set_tool_fields,
         set_wrapper,
     )
@@ -781,6 +791,7 @@ def main(argv: list[str] | None = None) -> int:
     set_draft(bool(run_flags["draft"]))
     set_guard(bool(run_flags["guard"]))
     set_judge(bool(run_flags["judge"]))
+    set_sticky_locks(bool(run_flags["sticky_locks"]))
     if run_flags["guard"]:
         prompt_file = GUARD_PROMPT_FILE
     elif run_flags["draft"]:
