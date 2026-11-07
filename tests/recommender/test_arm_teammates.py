@@ -27,11 +27,11 @@ LIVE_REG = "champions-reg-mb"  # an exact tag with a derived live tuple
 MC_REG = "champions-reg-mc"
 DETAIL = {"Abilities": {"Pressure": 20}, "Teammates": {"Pelipper": 10, "Incineroar": 8}}
 
-# Re-baselined to the MetaRoll M-7 capture (2026-10-21T00:46Z) of the committed in-game blob; the
-# MunchStats-era values were {Incineroar, Sneasler, Salamence, Gholdengo, Raichu} and
-# {Basculegion-F, Charizard, Rillaboom, Sneasler}. Source reading is the extracted file, not an owner observation.
-H6_TOP5 = {"Incineroar", "Garchomp", "Sneasler", "Gholdengo", "Raichu"}
-MT2 = {"Charizard", "Garchomp", "Sneasler"}
+# Re-baselined to the MetaRoll M-8 capture (2026-11-07) of the committed in-game blob; the
+# M-7 values were {Incineroar, Garchomp, Sneasler, Gholdengo, Raichu} and
+# {Charizard, Garchomp, Sneasler}. Source reading is the extracted file, not an owner observation.
+H6_TOP5 = {"Incineroar", "Garchomp", "Sneasler", "Kingambit", "Raichu"}
+MT2 = {"Charizard", "Garchomp", "Sneasler", "Indeedee-F"}
 
 
 class SpyMap(dict):
@@ -554,9 +554,9 @@ def test_one_live_and_one_offline_anchor_flags_differing_dates(maps, monkeypatch
 
 
 def test_ingame_age_counts_from_captured_on(monkeypatch):
-    monkeypatch.setattr(arm, "_utc_today", lambda: date(2026, 10, 28))
+    monkeypatch.setattr(arm, "_utc_today", lambda: date(2026, 11, 14))
     r = arm_query_teammates("Rillaboom", source="ingame", allow_live=False)
-    assert (r.as_of.captured_on, r.as_of.season) == ("2026-10-21", "M-7")
+    assert (r.as_of.captured_on, r.as_of.season) == ("2026-11-07", "M-8")
     assert r.as_of.age_days == 7
 
 
