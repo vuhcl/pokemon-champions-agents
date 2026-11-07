@@ -416,6 +416,20 @@ def _pending_response(message: str) -> dict[str, Any]:
     }
 
 
+NOTHING_TO_COMMIT_MSG = "Nothing is pending to commit. No build is waiting for confirmation; nothing was changed."
+_COMMIT_RE = re.compile(
+    r"^\s*(?:please\s+)?(?:commit|confirm|accept)\s+(?:this|the|that)\s+(?:build|set|slot)\s*[.!]?\s*$",
+    re.IGNORECASE,
+)
+
+
+def try_route_idle_commit(text: str, pending_presentation: Any) -> dict[str, Any] | None:
+    """Idle "commit this build" (no pending screen) is answered here, not by the LLM parser."""
+    if pending_presentation is None and _COMMIT_RE.match(text):
+        return _pending_response(NOTHING_TO_COMMIT_MSG)
+    return None
+
+
 def _apply_classify_gates(
     result: dict[str, Any],
     pending: PendingPresentation | None,

@@ -178,10 +178,17 @@ def classify_input(
     raw_tid = ((config or {}).get("configurable") or {}).get("thread_id")
     obs_thread_id = raw_tid if isinstance(raw_tid, str) and raw_tid else None
     from recommender.item_holders import try_route_item_holders
+    from recommender.team_rules_qa import try_route_team_rules
 
-    routed = try_route_item_holders(
-        text,
-        regulation=state.get("regulation_mod") or "champions",
+    from recommender.nodes_classify import try_route_idle_commit
+
+    routed = (
+        try_route_team_rules(text)
+        or try_route_idle_commit(text, state.get("pending_presentation"))
+        or try_route_item_holders(
+            text,
+            regulation=state.get("regulation_mod") or "champions",
+        )
     )
     result = routed or classify_pending(
         text,

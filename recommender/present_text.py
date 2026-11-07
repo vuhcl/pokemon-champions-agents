@@ -17,6 +17,7 @@ from recommender.discovery_error import (
     CALC_UNAVAILABLE_MSG,
     DISCOVERY_CALC_MESSAGE_ALLOWLIST,
 )
+from recommender.reconcile import SLOT_ATTRS
 from recommender.slot_index import display_slot
 from recommender.state import (
     CandidateDiscoveryError,
@@ -698,6 +699,29 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
     return lines
 
 
+def _slot_readback(state: Mapping[str, Any]) -> str | None:
+    """After a lock or unlock, say what the slot is now. Read from team_draft, not the intent.
+
+    The slot number is the one the node already used (turn_payload, internal index).
+    """
+    if state.get("turn_intent") not in ("lock", "repick_locked_slot"):
+        return None
+    payload = state.get("turn_payload")
+    draft = state.get("team_draft") or []
+    index = payload.get("slot_index") if isinstance(payload, Mapping) else None
+    if isinstance(index, bool) or not isinstance(index, int) or not 0 <= index < len(draft):
+        return None
+    slot = draft[index]
+    locked = [a for a in SLOT_ATTRS if getattr(slot, a).locked]
+    label = f"Slot {display_slot(index)}"
+    if state.get("slot_commit_error"):
+        if state.get("turn_intent") == "repick_locked_slot" and not locked:
+            return f"{label} has nothing locked, so there is nothing to unlock. Nothing was changed."
+        return None
+    species = slot.species.value or "empty"
+    return f"{label}: {species} ({'locked: ' + ', '.join(locked) if locked else 'unlocked'})."
+
+
 def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
     """MECE plain-text turn for the terminal."""
 
@@ -726,6 +750,10 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
     slot_err = state.get("slot_commit_error")
     if slot_err:
         blocks.append(f"Slot commit error: {slot_err}")
+
+    readback = _slot_readback(state)
+    if readback:
+        blocks.append(readback)
 
     discovery_err = state.get("candidate_discovery_error")
     if discovery_err is not None:
