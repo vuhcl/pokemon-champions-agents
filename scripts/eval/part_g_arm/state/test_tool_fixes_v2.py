@@ -135,3 +135,50 @@ def test_369_draft_set_slot_refuses_illegal_moveset_when_flag_on():
     assert "learnset:Knock Off" in err
     assert "learnset:U-turn" in err
     assert after["team_draft"][0].moveset.value is None
+
+
+# --- #384 -------------------------------------------------------------------
+
+
+def test_384_mega_plus_stone_refused_when_flag_off():
+    from scripts.eval.part_g_arm.state.set_slot_tool import set_slot
+
+    set_tool_fields(True)
+    set_wrapper(True)
+    st = empty_team()
+    _after, res = set_slot(
+        st, {"slot": 1, "species": "Salamence-Mega", "item": "Salamencite"}
+    )
+    assert res.get("ok") is False
+    assert "Mega forme must hold Salamencite" in (res.get("slot_commit_error") or "")
+
+
+def test_384_mega_plus_stone_accepted_when_flag_on():
+    from scripts.eval.part_g_arm.state.set_slot_tool import set_slot
+
+    _enable_fixes()
+    set_tool_fields(True)
+    set_wrapper(True)
+    st = empty_team()
+    after, res = set_slot(
+        st, {"slot": 1, "species": "Salamence-Mega", "item": "Salamencite"}
+    )
+    assert res.get("ok") is True, res
+    assert after["team_draft"][0].species.value == "Salamence-Mega"
+    assert after["team_draft"][0].item.value == "Salamencite"
+
+
+def test_384_mega_alone_and_wrong_item_still_mega_stone_refusal():
+    from scripts.eval.part_g_arm.state.set_slot_tool import set_slot
+
+    _enable_fixes()
+    set_tool_fields(True)
+    set_wrapper(True)
+    for kwargs in (
+        {"slot": 1, "species": "Salamence-Mega"},
+        {"slot": 1, "species": "Salamence-Mega", "item": "Leftovers"},
+    ):
+        st = empty_team()
+        _after, res = set_slot(st, kwargs)
+        assert res.get("ok") is False, kwargs
+        assert "Mega forme must hold Salamencite" in (res.get("slot_commit_error") or "")
