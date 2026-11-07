@@ -90,6 +90,29 @@ def differences() -> list[str]:
     return out
 
 
+def covered_loader_failures() -> list[str]:
+    """FU70 / #323: every covered row must resolve_start_state with loaded=True."""
+    from scripts.eval.part_g_arm.state.request_set_rows import (
+        load_covered_ids,
+        load_request_rows,
+        resolve_start_state,
+    )
+
+    rows = {r["id"]: r for r in load_request_rows()}
+    bad: list[str] = []
+    for rid in sorted(load_covered_ids()):
+        row = rows.get(rid)
+        if row is None:
+            bad.append(f"{rid}: not in request set")
+            continue
+        _state, meta = resolve_start_state(row)
+        if not meta.get("loaded"):
+            bad.append(
+                f"{rid}: loaded=False error={meta.get('error')!r} source={meta.get('source')!r}"
+            )
+    return bad
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     if len(argv) != 1 or argv[0] not in ("write", "verify"):
@@ -138,8 +161,17 @@ def main(argv: list[str] | None = None) -> int:
             print(f" - … {len(dirty) - 40} more")
         return 1
     diff = differences()
-    print("PASS frozen manifest (clean tree)" if not diff else "FAIL frozen manifest:\n - " + "\n - ".join(diff))
-    return 1 if diff else 0
+    if diff:
+        print("FAIL frozen manifest:\n - " + "\n - ".join(diff))
+        return 1
+    loader_bad = covered_loader_failures()
+    if loader_bad:
+        print(
+            "FAIL covered start-state loaders (#323):\n - " + "\n - ".join(loader_bad)
+        )
+        return 1
+    print("PASS frozen manifest (clean tree) + covered loaders")
+    return 0
 
 
 if __name__ == "__main__":
