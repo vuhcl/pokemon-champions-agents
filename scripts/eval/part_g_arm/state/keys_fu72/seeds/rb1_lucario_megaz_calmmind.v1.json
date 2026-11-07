@@ -1,0 +1,21 @@
+{
+  "row": "RB1",
+  "note": "FU72 / sticky_locks on: key expects atomic field_locked refusal; value unchanged. Calm Mind / Nasty Plot consequence only if a write is allowed. Copied from part_g_v4 fixture (not a featured build \u2014 featured Lucario is Scarf/CC and would remove the Calm Mind overlap the old key graded).",
+  "flags": {
+    "sticky_locks": true
+  },
+  "source_fixture": "scripts/eval/part_g_v4/fixtures/rb1_lucario_megaz_calmmind.json",
+  "payload": {
+    "note": "RB1/ROW J: Lucario-Mega-Z with Calm Mind; fourth slot empty. No Protect/Detect (LZ1 trap separate).",
+    "species": "Lucario-Mega-Z",
+    "form_id": "lucariomegaz",
+    "item": "Lucarionite Z",
+    "ability": "Aura Guard",
+    "moves": [
+      "Aura Sphere",
+      "Flash Cannon",
+      "Calm Mind"
+    ]
+  },
+  "locks": "all fields locked (sticky refusal path)"
+}

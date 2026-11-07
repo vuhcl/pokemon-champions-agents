@@ -1,0 +1,80 @@
+{
+  "pin_blob_content_note": "data/usage/champions-reg-mc.ingame_doubles.v1.json (FU68 re-pin; git blob d60a06e0; commit lineage a50b4dd)",
+  "H6_top5_partners_rillaboom": [
+    "Incineroar",
+    "Sneasler",
+    "Garchomp",
+    "Raichu",
+    "Kingambit"
+  ],
+  "H6_old": [
+    "Incineroar",
+    "Garchomp",
+    "Sneasler",
+    "Gholdengo",
+    "Raichu"
+  ],
+  "HU2_outspeeds_top10_timid32_pelipper": [
+    "Kingambit",
+    "Incineroar"
+  ],
+  "HU2_old": [
+    "Incineroar",
+    "Kingambit",
+    "Golisopod"
+  ],
+  "ingame_top10": [
+    "Sneasler",
+    "Garchomp",
+    "Rillaboom",
+    "Kingambit",
+    "Charizard",
+    "Incineroar",
+    "Indeedee-F",
+    "Basculegion",
+    "Whimsicott",
+    "Raichu"
+  ],
+  "MT2_t2_partners": [
+    "Sneasler",
+    "Charizard",
+    "Garchomp"
+  ],
+  "MT2_note": "worksheet: MT2 t2 matched; no change to the three-name set",
+  "GS1_modal_gholdengo": {
+    "definition": "top joint = first top_spreads entry on re-pinned ingame blob (highest pct)",
+    "item": "Life Orb",
+    "ability": "Good as Gold",
+    "nature": "Modest",
+    "evs": {
+      "hp": 27,
+      "atk": 0,
+      "def": 12,
+      "spa": 0,
+      "spd": 17,
+      "spe": 10
+    },
+    "moves": [
+      "Make It Rain",
+      "Shadow Ball",
+      "Protect",
+      "Nasty Plot"
+    ],
+    "spread_pct": 20.0
+  },
+  "HN3_common_items": [
+    {
+      "name": "Life Orb",
+      "pct": 42.4
+    },
+    {
+      "name": "Glimmoranite",
+      "pct": 28.0
+    },
+    {
+      "name": "Focus Sash",
+      "pct": 26.9
+    }
+  ],
+  "HN3_note": "percentages unchanged vs prior key text on this pin"
+}

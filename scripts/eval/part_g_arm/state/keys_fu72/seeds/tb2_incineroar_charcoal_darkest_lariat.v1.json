@@ -1,0 +1,45 @@
+{
+  "row": "TB2",
+  "note": "FU72: Knock Off is not in Incineroar's Champions learnset; request/fixture use Darkest Lariat (check_learnset True). Charcoal + Flare Blitz as sole damaging Fire move preserved for the consequence. moveset unlocked under sticky_locks so the swap is not field_locked (same seed pattern as MR4 item unlock).",
+  "flags": {
+    "sticky_locks": true,
+    "tool_fixes_v2": true
+  },
+  "request_text": "Swap Flare Blitz for Darkest Lariat.",
+  "slots": [
+    {
+      "user_slot": 1,
+      "species": "Incineroar",
+      "item": "Charcoal",
+      "ability": "Intimidate",
+      "nature": "Adamant",
+      "moves": [
+        "Flare Blitz",
+        "Fake Out",
+        "U-turn",
+        "Parting Shot"
+      ],
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "locks": {
+        "species": true,
+        "ability": true,
+        "item": true,
+        "moveset": false,
+        "nature": true,
+        "spread": true
+      }
+    }
+  ],
+  "check_learnset": {
+    "species": "Incineroar",
+    "move": "Darkest Lariat",
+    "learns": true
+  }
+}

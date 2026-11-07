@@ -1,0 +1,2107 @@
+{
+  "schema": "part_g_arm_hand_keys_fu72_v1",
+  "config": {
+    "sticky_locks": true,
+    "unlock_keeps_values": true,
+    "tool_fixes_v2": true
+  },
+  "turns": {
+    "IS1__t1": {
+      "row_id": "IS1",
+      "turn": 1,
+      "request_text": "What speed investment do I need for my Garchomp to outspeed Dragapult?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "State which Dragapult COMMON_SPEED cell(s) are assumed, or state that max-speed investment is assumed for the opponent (that assumption is itself a scoring point).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "If no max-speed assumption is stated, call get_common_speeds (or equivalent) for Dragapult's common cells.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "For each assumed cell: state whether a bare (no Scarf) Spe investment can outspeed it, or that the cell is unreachable bare. Spe 0 counts as the minimum when it already outspeeds.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Give a tool-backed Spe number (solve_spread, or get_speed on the stated spread) that outspeeds the cell under the stated assumption.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "State the outcome vs budget: fits, shortfall, or unreachable. Scarf and Scarf+Tailwind are reachability notes only.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p6",
+          "text": "Never say the investment is 'not recommended'.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p7",
+          "text": "CONDITIONAL (score only if the arm claims a stated SP is the minimum): for each assumed cell, neutral-nature minimum Spe SP is the offline minimum (cells [213, 194, 190]; see is_minima_fu72.json IS1).",
+          "tool_backed": true,
+          "conditional": true
+        },
+        {
+          "id": "p8",
+          "text": "CONDITIONAL: beneficial-nature (Jolly) minimum Spe SP per assumed cell matches the offline minimum.",
+          "tool_backed": true,
+          "conditional": true
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [
+        "tool_fixes_v2"
+      ],
+      "expected_tools_ordered": "get_speed|solve_spread",
+      "optional_tools": "get_common_speeds",
+      "alternative_path": "",
+      "notes": "FU72: hidden 4-part min-SP removed; minimum points conditional on claiming a minimum."
+    },
+    "IS2__t1": {
+      "row_id": "IS2",
+      "turn": 1,
+      "request_text": "What speed investment do I need for my Basculegion to outspeed Dragapult?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "State the assumed Dragapult cell(s), or state a max-speed assumption for Dragapult.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "If no assumption, call get_common_speeds for Dragapult.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Read the locked Basculegion (Jolly + Choice Scarf, Spe budget R=24) via read_team.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Per cell: state the Jolly+Scarf Spe investment that outspeeds (tool-backed), and whether it fits within R=24 or the shortfall.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "Never say 'not recommended'.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p6",
+          "text": "CONDITIONAL (if a minimum is claimed): the stated Spe SP equals the offline Jolly+Scarf minimum for that cell (is_minima_fu72.json IS2).",
+          "tool_backed": true,
+          "conditional": true
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_team;get_speed|solve_spread",
+      "optional_tools": "get_common_speeds",
+      "alternative_path": "",
+      "notes": "FU72 IS2: one nature (Jolly); per-cell fit/shortfall under R=24."
+    },
+    "IS3__t1": {
+      "row_id": "IS3",
+      "turn": 1,
+      "request_text": "What speed investment do I need for my Slowbro to outspeed Dragapult?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "State the assumed Dragapult cell(s) or a max-speed assumption.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Tool-backed Spe number that outspeeds under the stated assumption.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Max-speed Dragapult cell is reachable only under Scarf + Tailwind; state that reachability.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "State recorded Scarf usage on Slowbro: none in the retained COMMON_ITEM list.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "Never say 'not recommended'.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p6",
+          "text": "CONDITIONAL: claimed neutral-nature minimum matches offline Scarf+TW minimum for the max cell.",
+          "tool_backed": true,
+          "conditional": true
+        },
+        {
+          "id": "p7",
+          "text": "CONDITIONAL: claimed beneficial-nature minimum matches offline Scarf+TW minimum for the max cell.",
+          "tool_backed": true,
+          "conditional": true
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_speed|solve_spread",
+      "optional_tools": "get_common_speeds;get_usage_items",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "IS4__t1": {
+      "row_id": "IS4",
+      "turn": 1,
+      "request_text": "What speed investment do I need for my Pincurchin to outspeed Mega Alakazam?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "State the Mega Alakazam target cell (Timid Spe-32) or a max-speed assumption.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State that Pincurchin's max Spe under Scarf + Tailwind (219) does not outspeed Mega Alakazam Timid-32 (222); unreachable even under Scarf + Tailwind. No invented Spe SP.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Never say 'not recommended'.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_speed|solve_spread",
+      "optional_tools": "get_common_speeds",
+      "alternative_path": "",
+      "notes": "FU72 IS4: no minimum parts; unreachable point only. Offline max stack 219 (errata G7)."
+    },
+    "MR1__t1": {
+      "row_id": "MR1",
+      "turn": 1,
+      "request_text": "Lock Flutter Mane",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Rule B: either a lookup that supports the refusal, or a write attempt whose validator refusal the reply recognises and cites (illegal species).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Outcome by rubric: the illegal write does not land; team state matches the refusal outcome.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "check_species_legal",
+      "optional_tools": "set_slot",
+      "alternative_path": "",
+      "notes": "FU72 Rule B refusal. illegal species"
+    },
+    "MR2__t1": {
+      "row_id": "MR2",
+      "turn": 1,
+      "request_text": "Lock Choice Specs on Hatterene",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Rule B: either a lookup that supports the refusal, or a write attempt whose validator refusal the reply recognises and cites (illegal item (Choice Specs on Hatterene)).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Outcome by rubric: the illegal write does not land; team state matches the refusal outcome.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "check_item_legal",
+      "optional_tools": "set_slot",
+      "alternative_path": "",
+      "notes": "FU72 Rule B refusal. illegal item (Choice Specs on Hatterene)"
+    },
+    "MR3__t1": {
+      "row_id": "MR3",
+      "turn": 1,
+      "request_text": "Lock Incineroar in slot 2",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Species Clause; state unchanged",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_team",
+      "optional_tools": "set_slot;describe",
+      "alternative_path": "set_slot;describe",
+      "notes": "FU72: list optional tool as alternative_path."
+    },
+    "MR8__t1": {
+      "row_id": "MR8",
+      "turn": 1,
+      "request_text": "Lock Koraidon",
+      "points": [
+        {
+          "id": "p1",
+          "text": "illegal; state unchanged",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "check_species_legal",
+      "optional_tools": "set_slot",
+      "alternative_path": "set_slot",
+      "notes": "FU72: list optional tool as alternative_path."
+    },
+    "HP3__t1": {
+      "row_id": "HP3",
+      "turn": 1,
+      "request_text": "Add Koraidon for sun offense",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Rule B: either a lookup that supports the refusal, or a write attempt whose validator refusal the reply recognises and cites (illegal mutation).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Outcome by rubric: the illegal write does not land; team state matches the refusal outcome.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "check_species_legal",
+      "optional_tools": "set_slot",
+      "alternative_path": "",
+      "notes": "FU72 Rule B refusal. illegal mutation"
+    },
+    "MR4__t1": {
+      "row_id": "MR4",
+      "turn": 1,
+      "request_text": "Put Choice Scarf on both of two locked mons",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Apply Choice Scarf to the first mon as asked (item field is unlocked in the FU72 seed).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Rule B / Item Clause: the second Scarf is refused; the reply recognises and cites the validator refusal (or a clause lookup).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "No second Scarf applied and no other field touched (rewritten 'state unchanged').",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [
+        "sticky_locks",
+        "tool_fixes_v2"
+      ],
+      "expected_tools_ordered": "set_slot",
+      "optional_tools": "",
+      "alternative_path": "no_lookup_needed|describe",
+      "notes": "FU72 MR4 seed: item unlocked both mons. sticky_locks on."
+    },
+    "MS2__t1": {
+      "row_id": "MS2",
+      "turn": 1,
+      "request_text": "Unlock slot 1",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Call unlock_slot (or equivalent) on slot 1.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Under unlock_keeps_values: attribute values remain; locks are cleared. The old 'empty slot' expectation does not apply.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Read-back states slot 1 unlocked with prior values kept.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [
+        "unlock_keeps_values"
+      ],
+      "expected_tools_ordered": "unlock_slot",
+      "optional_tools": "read_team",
+      "alternative_path": "",
+      "notes": "FU72 MS2 rewritten for unlock_keeps_values on."
+    },
+    "RB1__t1": {
+      "row_id": "RB1",
+      "turn": 1,
+      "request_text": "Add Nasty Plot.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "read_team first (current moveset / room).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Under sticky_locks: the write is refused with atomic field_locked; Nasty Plot is not applied; existing values unchanged.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Calm Mind / Nasty Plot boost-overlap consequence is scored only if a write is allowed; under sticky refusal it is not required.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [
+        "sticky_locks"
+      ],
+      "expected_tools_ordered": "read_team;set_slot",
+      "optional_tools": "describe;get_move_static",
+      "alternative_path": "",
+      "notes": "FU72 RB1 sticky_locks on: field_locked refusal."
+    },
+    "TB2__t1": {
+      "row_id": "TB2",
+      "turn": 1,
+      "request_text": "Swap Flare Blitz for Darkest Lariat.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "read_team for the current moveset.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Swap Flare Blitz for Darkest Lariat (legal per check_learnset); apply and read back.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "State that Charcoal no longer boosts (consequence / type-boost vs remaining damaging moves).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Offer keep or swap item; no silent item change.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [
+        "sticky_locks"
+      ],
+      "expected_tools_ordered": "read_team;set_slot",
+      "optional_tools": "get_move_static;check_learnset",
+      "alternative_path": "",
+      "notes": "FU72: Darkest Lariat replaces illegal Knock Off; moveset unlocked in seed."
+    },
+    "MM1__t1": {
+      "row_id": "MM1",
+      "turn": 1,
+      "request_text": "Give me a Mega Salamence with Leftovers.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Build with Salamencite; state a mega cannot hold another item; offer keep stone or base form + Leftovers (form change = offer only).",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": "partial: describe alt added; featured path may be unreachable at rung",
+      "flags_required": [],
+      "expected_tools_ordered": "set_slot;describe",
+      "optional_tools": "",
+      "alternative_path": "no_lookup_needed|describe",
+      "notes": "FU72: no_lookup_needed or validator refusal accepted as alternative to describe."
+    },
+    "H8__t1": {
+      "row_id": "H8",
+      "turn": 1,
+      "request_text": "Can I put Choice Scarf on both Garchomp and Jolteon?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Outcome: Item Clause \u2192 No; no mutation.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "describe",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "Q9__t1": {
+      "row_id": "Q9",
+      "turn": 1,
+      "request_text": "Can I have two Incineroar on one team?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Outcome: Species Clause \u2192 No; no mutation.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "describe",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MM2__t1": {
+      "row_id": "MM2",
+      "turn": 1,
+      "request_text": "Switch its item to Leftovers.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "read_team required (name the locked mega / stone referent), or the request must name the referent.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Refuse: stone is the required mega item; draft unchanged; form-change offer only.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [
+        "sticky_locks"
+      ],
+      "expected_tools_ordered": "read_team",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72 MM2: read_team required; sticky may shift refuse reason to lock."
+    },
+    "MR7__t1": {
+      "row_id": "MR7",
+      "turn": 1,
+      "request_text": "Commit this build",
+      "points": [
+        {
+          "id": "p1",
+          "text": "nothing pending; state unchanged",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "commit_slot|confirm_build",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72: list optional tool as alternative_path."
+    },
+    "MU1__t1": {
+      "row_id": "MU1",
+      "turn": 1,
+      "request_text": "What if I gave Choice Scarf to both Garchomp and Jolteon on this team?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "NO-MUTATION; claims scored; state unchanged; no lock/commit. Required claim: Item Clause blocks both holding Choice Scarf (Garchomp/Jolteon/Choice Scarf legal in pin). Other claims scored if made; variants must be legal.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "no_lookup_needed",
+      "optional_tools": "check_hypothetical",
+      "alternative_path": "describe|check_hypothetical",
+      "notes": "FU72: MU1 key text unchanged (tool fixed in #387)."
+    },
+    "MU4__t1": {
+      "row_id": "MU4",
+      "turn": 1,
+      "request_text": "Should I lock Pelipper?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "NO-MUTATION; claims scored. Yes/no/conditional with \u22651 tool-backed reason (Drizzle + explicit ability, usage, legality/clauses, state); each reason scored; bare yes/no = fail. Fixture: Pelipper unlocked + interacting locked slot.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "check_hypothetical",
+      "optional_tools": "read_team;get_abilities;get_usage_teammates",
+      "alternative_path": "read_team;get_abilities;get_usage_teammates",
+      "notes": "FU72: list optional tool as alternative_path."
+    },
+    "MU8__t1": {
+      "row_id": "MU8",
+      "turn": 1,
+      "request_text": "Trick Room team \u2014 just thinking aloud",
+      "points": [
+        {
+          "id": "p1",
+          "text": "No archetype/lock tools; state unchanged",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "no_lookup_needed",
+      "optional_tools": "read_team;read_archetype;find_species;get_usage_teammates;get_usage_stats;check_learnset",
+      "alternative_path": "read_team;read_archetype;find_species;get_usage_teammates;get_usage_stats;check_learnset",
+      "notes": "FU72: list optional tool as alternative_path."
+    },
+    "MU2__t1": {
+      "row_id": "MU2",
+      "turn": 1,
+      "request_text": "What if slot 2 were a Water type?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "NO-MUTATION",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "claims scored. Any species named as Water must be Water and legal",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "mechanical statements match typing/calc. Fixture: slot 2 open + locked team/item for non-trivial clause checks.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "no_lookup_needed",
+      "optional_tools": "read_team;find_species;get_usage_teammates;get_usage_stats;check_learnset",
+      "alternative_path": "",
+      "notes": "FU72: keys UNCHANGED (hypothetical tool fixed in #387)."
+    },
+    "Q10__t1": {
+      "row_id": "Q10",
+      "turn": 1,
+      "request_text": "Can I unlock slot 2 when nothing is locked?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Explains empty unlock; no mutation.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "read_team is an accepted alternative path when used to explain the empty unlock.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "no_lookup_needed",
+      "optional_tools": "read_team",
+      "alternative_path": "read_team",
+      "notes": ""
+    },
+    "MV3__t1": {
+      "row_id": "MV3",
+      "turn": 1,
+      "request_text": "Does Rock Slide hit both opponents?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Required: Rock Slide targets all adjacent foes (both opponents in doubles).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Required caveat: accuracy 90% (relaxed from stricter prior wording), so either or both can miss.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_move_static",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MS5__t1": {
+      "row_id": "MS5",
+      "turn": 1,
+      "request_text": "Change archetype to rain offense",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Apply archetype change and read back.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Audit locked slots; 'flagged' means the conflicts field on the change_archetype result (e.g. control Pelipper).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Do not edit locked slots; offers only.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "change_archetype",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MU6__t1": {
+      "row_id": "MU6",
+      "turn": 1,
+      "request_text": "What happens if I reset everything?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Do not call reset_team (hypothetical).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Explain what reset_team would clear (counterpart MS3: what would be lost) without writing.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "State unchanged.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "no_lookup_needed",
+      "optional_tools": "read_team",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MR6__t1": {
+      "row_id": "MR6",
+      "turn": 1,
+      "request_text": "Unlock slot 2",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Accept either a no-op (nothing to unlock) or an explicit refusal; state unchanged.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "unlock_slot",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MR5__t1": {
+      "row_id": "MR5",
+      "turn": 1,
+      "request_text": "Lock into slot 2",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Request text is the registered errata: 'Lock into slot 2'. Refuse or ask; state unchanged (occupancy).",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_team",
+      "optional_tools": "set_slot",
+      "alternative_path": "",
+      "notes": "MR5b remains the clean occupancy test with a named species."
+    },
+    "OL4__t1": {
+      "row_id": "OL4",
+      "turn": 1,
+      "request_text": "`the second one`",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Ambiguity to resolve: whether the user wants the pending option confirmed/set as draft vs locked in.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Accepted: confirm or set a draft. Locking it in is not accepted. Off-topic questions fail.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "State unchanged until confirmation.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_pending",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "OL6__t1": {
+      "row_id": "OL6",
+      "turn": 1,
+      "request_text": "`yes`",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Ambiguity to resolve: which referent / action the user means; ask. Off-topic questions fail.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State unchanged.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_pending",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "OL9__t1": {
+      "row_id": "OL9",
+      "turn": 1,
+      "request_text": "`Garchomp and Incineroar`",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Ambiguity: multi-select vs which single option. Off-topic questions fail.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Accepted: multi-select or ask which. Not applied until resolved.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_pending",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MW3__t1": {
+      "row_id": "MW3",
+      "turn": 1,
+      "request_text": "Lock Incineroar in the slot I mentioned",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Ambiguity: which slot 'the slot I mentioned' refers to; ask. Off-topic questions fail.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "No state change until the slot is resolved.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "",
+      "optional_tools": "read_team;no_lookup_needed",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "OL5__t1": {
+      "row_id": "OL5",
+      "turn": 1,
+      "request_text": "`yes`",
+      "points": [
+        {
+          "id": "acceptance",
+          "text": "Bound Garchomp",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_pending;select_option",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72: wording/behavior unchanged (worksheet)."
+    },
+    "OL7a__t1": {
+      "row_id": "OL7a",
+      "turn": 1,
+      "request_text": "`the faster one`",
+      "points": [
+        {
+          "id": "acceptance",
+          "text": "Verifiably faster=Jolteon (Spe 200)",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_pending;get_speed;select_option",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72: wording/behavior unchanged (worksheet)."
+    },
+    "HC1__t1": {
+      "row_id": "HC1",
+      "turn": 1,
+      "request_text": "I want my team to be all water and all fire",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Recognise the two constraints (all Water and all Fire) leave an empty pool (verify with find_species types Water and Fire \u2192 count 0).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Either record both constraints, or record nothing \u2014 both accepted \u2014 as long as the empty-pool recognition is clear.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Must not silently apply only one constraint or pick a species from an empty pool.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "find_species|add_constraint",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT6__t1": {
+      "row_id": "MT6",
+      "turn": 1,
+      "request_text": "I want my team to be all water and all fire",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Same empty-pool recognition as HC1 (Water\u2227Fire).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Either record both constraints or record nothing; both accepted if empty-pool is recognised.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "find_species|add_constraint",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT6__t2": {
+      "row_id": "MT6",
+      "turn": 2,
+      "request_text": "Keep the Water only constraint",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Resolve to Water only: drop Fire (set_constraint_active / restore / add Water as applicable).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Do not stack another Fire constraint.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "set_constraint_active",
+      "optional_tools": "",
+      "alternative_path": "restore_constraint|add_constraint",
+      "notes": ""
+    },
+    "MT6__t3": {
+      "row_id": "MT6",
+      "turn": 3,
+      "request_text": "Confirm constraints.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Confirm constraints: Water-only read-back.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_constraints",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT3__t1": {
+      "row_id": "MT3",
+      "turn": 1,
+      "request_text": "No Intimidate.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Record the No-Intimidate constraint (t1).",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "add_constraint",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT3__t2": {
+      "row_id": "MT3",
+      "turn": 2,
+      "request_text": "Suggest a Fire type for slot 2.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Suggest a Fire-typed species for slot 2; tool-backed (find_species or usage path).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Asking instead of suggesting Fire is not an accepted path.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "find_species",
+      "optional_tools": "read_team;get_usage_teammates;get_usage_stats;check_learnset",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT3__t3": {
+      "row_id": "MT3",
+      "turn": 3,
+      "request_text": "Does it have Intimidate?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "The t3 reply itself answers yes or no for the t2 pick (or picks one of several Fire types / asks which \u2014 both accepted).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Ability lookup in this turn backs the answer even if t2 already mentioned Intimidate. 'Has Intimidate' = species can have it as a legal ability.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "If the pick can have Intimidate: flag against the t1 constraint and offer \u22651 tool-backed alternative (different Fire pick, or a non-Intimidate legal ability on the same species). Silent acceptance or flag-with-no-alternative fails.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "check_species_ability|get_abilities",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72: no_lookup_needed removed as a free alternative for t3."
+    },
+    "MT2__t1": {
+      "row_id": "MT2",
+      "turn": 1,
+      "request_text": "Lock Pelipper.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Lock Pelipper into a slot as asked; state reflects the lock.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": "partial: t2 set ok; lock_fields gaps at low rungs if any",
+      "flags_required": [],
+      "expected_tools_ordered": "set_slot;lock_fields",
+      "optional_tools": "read_team",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT2__t2": {
+      "row_id": "MT2",
+      "turn": 2,
+      "request_text": "Who pairs with both Pelipper and Whimsicott?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Unordered set ['Sneasler', 'Charizard', 'Garchomp']; set-scoring; label in-game source.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_teammates",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "MT2 t2 matched after re-pin; no set change."
+    },
+    "MT2__t3": {
+      "row_id": "MT2",
+      "turn": 3,
+      "request_text": "Confirm slot 1.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Confirm slot 1 is Pelipper.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_team",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "HC2__t1": {
+      "row_id": "HC2",
+      "turn": 1,
+      "request_text": "No weather.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Separate conflicting requests; ask the user to resolve; no guess; no state change until the user picks.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "add_constraint",
+      "optional_tools": "read_constraints",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT1__t1": {
+      "row_id": "MT1",
+      "turn": 1,
+      "request_text": "limit slot 1 to Water only",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Record a Water-only constraint on slot 1.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "add_constraint",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT1__t2": {
+      "row_id": "MT1",
+      "turn": 2,
+      "request_text": "Also no Intimidate",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Second constraint recorded as the turn requires; both constraints appear in a later read-back.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "add_constraint",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT5__t1": {
+      "row_id": "MT5",
+      "turn": 1,
+      "request_text": "Archetype rain offense.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Record/apply the archetype change asked in t1.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "change_archetype",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT5__t2": {
+      "row_id": "MT5",
+      "turn": 2,
+      "request_text": "Rain setter candidate?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Continue archetype / follow-up for t2; not overall not_applicable.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "find_species",
+      "optional_tools": "get_usage_teammates;get_usage_stats;check_learnset",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "H6__t1": {
+      "row_id": "H6",
+      "turn": 1,
+      "request_text": "What are the top 5 partners for Rillaboom?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Unordered set {Incineroar, Sneasler, Garchomp, Raichu, Kingambit}; set-scoring.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Must label in-game source.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_teammates",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "Rebuilt from re-pin. Old set had Gholdengo; new set replaces it with Kingambit."
+    },
+    "HU2__t1": {
+      "row_id": "HU2",
+      "turn": 1,
+      "request_text": "Does Timid Spe-32 Pelipper outspeed anyone among the top-10 in-game usage threats, each at Spe-32 with a Speed-boosting nature?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Outspeeds set {Kingambit, Incineroar} among in-game top-10 at Spe-32 + Spe-boosting nature; set-scoring.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Label in-game source.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_meta_threats;get_speed",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "Rebuilt. Old set included Golisopod (not in current top-10)."
+    },
+    "GS1__t1": {
+      "row_id": "GS1",
+      "turn": 1,
+      "request_text": "Give me a Gholdengo build.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "SERVED build: either the modal top joint (['Make It Rain', 'Shadow Ball', 'Protect', 'Nasty Plot'], Life Orb, Modest, spread pct 20.0) or any usage-backed build that states its source.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Draft via set_slot (or featured path); no lock_fields unless asked.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": "get_featured_builds unreachable; synthesis alt listed on t1",
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_items;get_usage_spreads;get_usage_stats;set_slot",
+      "optional_tools": "get_move_static",
+      "alternative_path": "get_featured_builds;set_slot",
+      "notes": "Modal = top joint of re-pinned blob. get_featured_builds unreachable at current rungs \u2192 synthesis alt listed."
+    },
+    "GS1__t2": {
+      "row_id": "GS1",
+      "turn": 2,
+      "request_text": "Use Choice Scarf.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "MUTATION-OK: apply Choice Scarf; Life Orb released; read back.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Name every Status move in the actual t1 draft as unusable for damage under Scarf; do not flag status moves that still do something under Scarf (e.g. Trick).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Offer attack swaps; no silent move change; no refusal.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "set_slot;get_move_static",
+      "optional_tools": "read_team",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "HN3__t1": {
+      "row_id": "HN3",
+      "turn": 1,
+      "request_text": "What items does Glimmora usually hold?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "COMMON_ITEM (ingame): Life Orb 42.4, Glimmoranite 28.0, Focus Sash 26.9; cum\u226590% cutoff rules unchanged; label in-game.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_items",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "Rebuilt from pin; percentages match prior key text."
+    },
+    "HU3__t1": {
+      "row_id": "HU3",
+      "turn": 1,
+      "request_text": "Give me some bulky Fire type options for slot 3",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Option list of bulky Fire types for slot 3 (3\u20135); each option has a bulk reason.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Ask which; slot unchanged until selection.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "find_species",
+      "optional_tools": "get_usage_teammates;get_usage_stats;check_learnset",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "IC1__t1": {
+      "row_id": "IC1",
+      "turn": 1,
+      "request_text": "Give me a Corviknight set.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "SERVED Corviknight with Leftovers (Psychic Seed + Rocky Helmet excluded by Item Clause).",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "get_featured_builds not bound at current rungs; synthesis path is the alternative",
+      "flags_required": [],
+      "expected_tools_ordered": "read_team;get_usage_items;get_usage_stats;set_slot",
+      "optional_tools": "",
+      "alternative_path": "get_usage_items;get_usage_spreads;get_usage_stats;set_slot",
+      "notes": ""
+    },
+    "IC1__t2": {
+      "row_id": "IC1",
+      "turn": 2,
+      "request_text": "Give me a different item.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "MUTATION-OK different item (e.g. Sitrus) with read-back; Leftovers released. Trap: Seed/Helmet.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_team;set_slot",
+      "optional_tools": "get_usage_items",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "IX1__t1": {
+      "row_id": "IX1",
+      "turn": 1,
+      "request_text": "Can I counter Fake Out with redirection?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Fake Out priority 3 > Follow Me 2 (and Rage Powder same class)",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "FAIL if recommends Follow Me/Rage Powder as counter",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "PASS = Fake Out outprioritizes redirect or valid non-redirect counters",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "assume counter=redirect|block",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "#367/#368 effect/priority lookup not shipped",
+      "flags_required": [],
+      "expected_tools_ordered": "get_move_static",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
+    },
+    "IX5__t1": {
+      "row_id": "IX5",
+      "turn": 1,
+      "request_text": "Which Pokemon punish Intimidate?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Assume punish=blocked|reflected|boosted",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "set rule",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "separate buckets",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "verify holders vs legality",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "set-scoring",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "#367 effect lookup not shipped",
+      "flags_required": [],
+      "expected_tools_ordered": "find_species",
+      "optional_tools": "get_abilities",
+      "alternative_path": "",
+      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
+    },
+    "IX7__t1": {
+      "row_id": "IX7",
+      "turn": 1,
+      "request_text": "Which partners can I Earthquake alongside?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "safe=no damage: Flying / Levitate / Telepathy / Earth Eater",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "examples+counts with source label",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "resist\u2260safe unless definition says so",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "set matches stated definition",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "#368 type-effectiveness / safe-set lookup not shipped",
+      "flags_required": [],
+      "expected_tools_ordered": "find_species",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
+    },
+    "HU2b__t1": {
+      "row_id": "HU2b",
+      "turn": 1,
+      "request_text": "Does Pelipper with max speed investment outspeed anyone among top meta threats?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Paired with HU2 (in-game lineage top10",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "not pooled). ASSUME-STATE: threats = shared Showdown per-form set \u22654.52% (showdown_threats_ge_452",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "n=36",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "megas are separate ThreatCandidates \u2014 e.g. Salamence-Mega not base). max Spe=Timid Spe-32 (128)",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "max_speed role+share as HN2b",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p6",
+          "text": "core_non_max for outspeeds_any",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "get_meta_threats returns in-game list, not Showdown \u22654.52% set the key assumes",
+      "flags_required": [],
+      "expected_tools_ordered": "get_meta_threats;get_speed",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
+    },
+    "H18b__t1": {
+      "row_id": "H18b",
+      "turn": 1,
+      "request_text": "Hyper offense, no weather \u2014 continue from seeded slots.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Binary checklist H18b: t1 establishes definition (no re-ask at t2)",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "t2 Sinistcha fails top-joint SP rule \u2014 supply passing set (lookup/synth), state differs from usual + exists to satisfy 32-SP rule, offer usual set (not a mutation), constraint kept. Incineroar top joint passes \u2014 not the fail case.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "tool-gap / judgment fixture path; mark unreachable where no equivalent at rung",
+      "flags_required": [],
+      "expected_tools_ordered": "add_constraint",
+      "optional_tools": "change_archetype;read_team",
+      "alternative_path": "",
+      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
+    },
+    "TB1__t1": {
+      "row_id": "TB1",
+      "turn": 1,
+      "request_text": "Give me a Sinistcha build holding Charcoal.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "SERVED with stated correction: build as asked but state Charcoal has no effect (no legal damaging Fire move",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Status like Will-O-Wisp does not count)",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "offer other items. Silent acceptance = fail. Type-boost table standalone from pinned items. derived_keys.row_e_charcoal_sinistcha",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "get_featured_builds unreachable; synthesis+check_learnset+describe alt listed",
+      "flags_required": [],
+      "expected_tools_ordered": "check_learnset;set_slot;describe",
+      "optional_tools": "get_usage_items",
+      "alternative_path": "get_featured_builds;check_learnset;set_slot;describe",
+      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
+    },
+    "MS1__t1": {
+      "row_id": "MS1",
+      "turn": 1,
+      "request_text": "Lock Garchomp in slot 2",
+      "points": [
+        {
+          "id": "acceptance",
+          "text": "Read-back: slot2 species=Garchomp locked=true",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "lock_fields below rung 4",
+      "flags_required": [],
+      "expected_tools_ordered": "set_slot;lock_fields",
+      "optional_tools": "read_team",
+      "alternative_path": "",
+      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
+    },
+    "MS8__t1": {
+      "row_id": "MS8",
+      "turn": 1,
+      "request_text": "Lock Pelipper in slot 1",
+      "points": [
+        {
+          "id": "acceptance",
+          "text": "Read-back Pelipper s1 locked",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "lock_fields below rung 4",
+      "flags_required": [],
+      "expected_tools_ordered": "set_slot;lock_fields",
+      "optional_tools": "read_team",
+      "alternative_path": "",
+      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
+    },
+    "DM2__t1": {
+      "row_id": "DM2",
+      "turn": 1,
+      "request_text": "With my locked Incineroar, does Flare Blitz KO Hatterene across common Hatterene spreads?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Key: locked attacker from read_team (Adamant Life Orb Intimidate)",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Hatterene COMMON_JOINT cells (3) via get_usage_spreads, item and ability for Hatterene only. Incineroar usage calls optional. DRAFT, Vu to confirm. Content check: the Hatterene item the arm states/uses must match the key (Life Orb) or be faithful to the get_usage_items result it received.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_team;get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72 first-pass mechanical split (no wording change)."
+    },
+    "DM6__t1": {
+      "row_id": "DM6",
+      "turn": 1,
+      "request_text": "How much does Mega Gallade's Close Combat do into Incineroar?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Key: Gallade-Mega top joint+Galladite+Inner Focus",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Incineroar top joint+item+ability. Neither side fully stated by user \u2192 usage lookups for both, then calc_damage. No Intimidate second case.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72 first-pass mechanical split (no wording change)."
+    },
+    "H15__t1": {
+      "row_id": "H15",
+      "turn": 1,
+      "request_text": "Is Modest or Timid better on Primarina?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Modest top joint from spreads",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Spe under stated SP for Modest and Timid (two get_speed). Timid joint absent \u2014 no second spreads read. Listed once",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "the key involves 2 get_speed readings (extra calls are marked redundant/misused, not required). [rev2 per Vu]",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_spreads;get_speed",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72 first-pass mechanical split (no wording change)."
+    },
+    "HN2b__t1": {
+      "row_id": "HN2b",
+      "turn": 1,
+      "request_text": "Does Annihilape outspeed Gholdengo?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "COMMON_SPEED cells via get_common_speeds",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "get_speed for own lines. Abilities not needed for Spe.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": false,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_common_speeds;get_speed",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72 first-pass mechanical split (no wording change)."
+    },
+    "H18b__t2": {
+      "row_id": "H18b",
+      "turn": 2,
+      "request_text": "Add Sinistcha.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Per-turn key for H18b t2; see acceptance binary checklist.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "tool-gap / judgment fixture path; mark unreachable where no equivalent at rung",
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_spreads",
+      "optional_tools": "solve_spread;read_constraints;get_abilities;get_usage_items;get_usage_stats;check_species_legal",
+      "alternative_path": "get_featured_builds",
+      "notes": "Points per turn, not the same set on every turn."
+    }
+  },
+  "ambiguous_splits": [
+    {
+      "row": "MU2",
+      "turn": 1,
+      "reason": "semicolon split ambiguous",
+      "acceptance": "NO-MUTATION; claims scored. Any species named as Water must be Water and legal; mechanical statements match typing/calc. Fixture: slot 2 open + locked team/item for non-trivial clause checks."
+    },
+    {
+      "row": "IX1",
+      "turn": 1,
+      "reason": "semicolon split on unrewritten unreachable key",
+      "acceptance": "Fake Out priority 3 > Follow Me 2 (and Rage Powder same class); FAIL if recommends Follow Me/Rage Powder as counter; PASS = Fake Out outprioritizes redirect or valid non-redirect counters; assume counter=redirect|block"
+    },
+    {
+      "row": "IX5",
+      "turn": 1,
+      "reason": "semicolon split on unrewritten unreachable key",
+      "acceptance": "Assume punish=blocked|reflected|boosted; set rule; separate buckets; verify holders vs legality; set-scoring"
+    },
+    {
+      "row": "IX7",
+      "turn": 1,
+      "reason": "semicolon split on unrewritten unreachable key",
+      "acceptance": "safe=no damage: Flying / Levitate / Telepathy / Earth Eater; examples+counts with source label; resist\u2260safe unless definition says so; set matches stated definition"
+    },
+    {
+      "row": "HU2b",
+      "turn": 1,
+      "reason": "semicolon split on unrewritten unreachable key",
+      "acceptance": "Paired with HU2 (in-game lineage top10; not pooled). ASSUME-STATE: threats = shared Showdown per-form set \u22654.52% (showdown_threats_ge_452; n=36; megas are separate ThreatCandidates \u2014 e.g. Salamence-Mega not base). max Spe=Timid Spe-32 (128); max_speed role+share as HN2b; core_non_max for outspeeds_any"
+    },
+    {
+      "row": "H18b",
+      "turn": 1,
+      "reason": "semicolon split on unrewritten unreachable key",
+      "acceptance": "Binary checklist H18b: t1 establishes definition (no re-ask at t2); t2 Sinistcha fails top-joint SP rule \u2014 supply passing set (lookup/synth), state differs from usual + exists to satisfy 32-SP rule, offer usual set (not a mutation), constraint kept. Incineroar top joint passes \u2014 not the fail case."
+    },
+    {
+      "row": "TB1",
+      "turn": 1,
+      "reason": "semicolon split on unrewritten unreachable key",
+      "acceptance": "SERVED with stated correction: build as asked but state Charcoal has no effect (no legal damaging Fire move; Status like Will-O-Wisp does not count); offer other items. Silent acceptance = fail. Type-boost table standalone from pinned items. derived_keys.row_e_charcoal_sinistcha"
+    },
+    {
+      "row": "H15",
+      "turn": 1,
+      "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
+      "source_preview": "Modest top joint from spreads; Spe under stated SP for Modest and Timid (two get_speed). Timid joint absent \u2014 no second spreads read. Listed once; the key involves 2 get_speed readings (extra calls are marked redundant/misused, not required"
+    },
+    {
+      "row": "HN2b",
+      "turn": 1,
+      "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
+      "source_preview": "COMMON_SPEED cells via get_common_speeds; get_speed for own lines. Abilities not needed for Spe."
+    },
+    {
+      "row": "HU2b",
+      "turn": 1,
+      "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
+      "source_preview": "Key assumes the Showdown >=4.52% threat set. get_meta_threats(n) returns the in-game ladder list with Showdown forme expand, not that set, so the arm cannot produce the key set from any current tool. Expected list is the closest available p"
+    },
+    {
+      "row": "TB1",
+      "turn": 1,
+      "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
+      "source_preview": "Sinistcha+Charcoal build with no-effect correction. check_learnset (no damaging Fire move) and describe (Charcoal item text) required; set_slot drafts. Confirm with Cursor that describe returns item description text. Override WRITE. [rev1]"
+    }
+  ],
+  "request_text_overrides": {
+    "MR2__t1": "Lock Choice Specs on Hatterene",
+    "MR3__t1": "Lock Incineroar in slot 2",
+    "MR5__t1": "Lock into slot 2",
+    "MW3__t1": "Lock Incineroar in the slot I mentioned",
+    "HC1__t1": "I want my team to be all water and all fire",
+    "MT6__t1": "I want my team to be all water and all fire",
+    "MT6__t2": "Keep the Water only constraint",
+    "MT1__t1": "limit slot 1 to Water only",
+    "HU3__t1": "Give me some bulky Fire type options for slot 3",
+    "TB2__t1": "Swap Flare Blitz for Darkest Lariat."
+  }
+}

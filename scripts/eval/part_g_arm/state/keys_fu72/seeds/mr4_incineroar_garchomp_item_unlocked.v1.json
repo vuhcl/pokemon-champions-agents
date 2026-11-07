@@ -1,0 +1,68 @@
+{
+  "row": "MR4",
+  "note": "FU72 / worksheet B6: item Attr unlocked on both mons; all other attrs locked. First Choice Scarf applies; Item Clause refuses the second. sticky_locks on.",
+  "flags": {
+    "sticky_locks": true,
+    "tool_fixes_v2": true
+  },
+  "slots": [
+    {
+      "user_slot": 1,
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "ability": "Intimidate",
+      "nature": "Careful",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 14,
+        "spa": 0,
+        "spd": 20,
+        "spe": 0
+      },
+      "locks": {
+        "species": true,
+        "ability": true,
+        "item": false,
+        "moveset": true,
+        "nature": true,
+        "spread": true
+      }
+    },
+    {
+      "user_slot": 2,
+      "species": "Garchomp",
+      "item": "Life Orb",
+      "ability": "Rough Skin",
+      "nature": "Jolly",
+      "moves": [
+        "Dragon Claw",
+        "Rock Slide",
+        "Earthquake",
+        "Protect"
+      ],
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "locks": {
+        "species": true,
+        "ability": true,
+        "item": false,
+        "moveset": true,
+        "nature": true,
+        "spread": true
+      }
+    }
+  ]
+}

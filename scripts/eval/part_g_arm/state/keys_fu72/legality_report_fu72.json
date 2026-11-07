@@ -1,0 +1,197 @@
+{
+  "species": {
+    "Alakazam-Mega": {
+      "ok": true
+    },
+    "Annihilape": {
+      "ok": true
+    },
+    "Basculegion": {
+      "ok": true
+    },
+    "Charizard": {
+      "ok": true
+    },
+    "Corviknight": {
+      "ok": true
+    },
+    "Dragapult": {
+      "ok": true
+    },
+    "Garchomp": {
+      "ok": true
+    },
+    "Gholdengo": {
+      "ok": true
+    },
+    "Glimmora": {
+      "ok": true
+    },
+    "Golisopod": {
+      "ok": true
+    },
+    "Hatterene": {
+      "ok": true
+    },
+    "Incineroar": {
+      "ok": true
+    },
+    "Indeedee-F": {
+      "ok": true
+    },
+    "Jolteon": {
+      "ok": true
+    },
+    "Kingambit": {
+      "ok": true
+    },
+    "Lucario": {
+      "ok": true
+    },
+    "Pelipper": {
+      "ok": true
+    },
+    "Pincurchin": {
+      "ok": true
+    },
+    "Primarina": {
+      "ok": true
+    },
+    "Raichu": {
+      "ok": true
+    },
+    "Rillaboom": {
+      "ok": true
+    },
+    "Salamence": {
+      "ok": true
+    },
+    "Sinistcha": {
+      "ok": true
+    },
+    "Slowbro": {
+      "ok": true
+    },
+    "Sneasler": {
+      "ok": true
+    },
+    "Toxapex": {
+      "ok": true
+    },
+    "Whimsicott": {
+      "ok": true
+    }
+  },
+  "items": {
+    "Charcoal": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Choice Scarf": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Choice Specs": {
+      "ok": false,
+      "expected_illegal": true,
+      "note": "illegal held item; named by refusal-row keys only"
+    },
+    "Focus Sash": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Galladite": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Glimmoranite": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Leftovers": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Life Orb": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Miracle Seed": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Psychic Seed": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Rocky Helmet": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Salamencite": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Sitrus Berry": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Wide Lens": {
+      "ok": true,
+      "expected_illegal": false
+    }
+  },
+  "moves": {},
+  "failures": [],
+  "learnset_pairs": [
+    {
+      "species": "Incineroar",
+      "move": "Darkest Lariat",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Incineroar",
+      "move": "Knock Off",
+      "learns": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "species": "Incineroar",
+      "move": "Flare Blitz",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Lucario",
+      "move": "Nasty Plot",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Lucario",
+      "move": "Calm Mind",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Gholdengo",
+      "move": "Make It Rain",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Gholdengo",
+      "move": "Nasty Plot",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "keys_fu72_seeds_v1",
+  "files": [
+    "dm2_seed.v1.json",
+    "h18b_seed.v1.json",
+    "mr3_seed.v1.json",
+    "mr4_incineroar_garchomp_item_unlocked.v1.json",
+    "ms2_seed.v1.json",
+    "ms3_seed.v1.json",
+    "mw2_seed.v1.json",
+    "rb1_lucario_megaz_calmmind.v1.json",
+    "tb2_incineroar_charcoal_darkest_lariat.v1.json"
+  ],
+  "a393ae91_fixtures_untouched": true
+}
