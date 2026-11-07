@@ -735,12 +735,11 @@ def lock_slot(state: dict[str, Any], user_slot: object, species: object) -> tupl
         return state, _refuse(str(exc))
     patch = apply_lock({**state, "turn_payload": {"slot_index": index, "attr": "species", "value": species}})
     after = _merge(state, patch)
-    # a393ae91: return patch as-is (including slot_commit_error). Flag on adds read-back.
-    result = dict(patch)
-    if not patch.get("slot_commit_error"):
-        result = {**result, "ok": True}
-        result = _enrich_write_result(result, after, index, field="species")
-    return after, result
+    # a393ae91: return patch as-is. Flag on adds ok + read-back.
+    if tool_fixes_v2_enabled() and not patch.get("slot_commit_error"):
+        result = _enrich_write_result({**patch, "ok": True}, after, index, field="species")
+        return after, result
+    return after, patch
 
 
 _EDIT_FIELDS = frozenset({"item", "ability", "nature", "spread", "moveset", "moves"})
@@ -891,11 +890,11 @@ def unlock_slot(state: dict[str, Any], user_slot: object) -> tuple[dict[str, Any
         return state, _refuse(str(exc))
     patch = unlock_locked_slot({**state, "turn_payload": {"slot_index": index}})
     after = _merge(state, patch)
-    result = dict(patch)
-    if not patch.get("slot_commit_error"):
-        result = {**result, "ok": True}
-        result = _enrich_write_result(result, after, index)
-    return after, result
+    # a393ae91: return patch as-is. Flag on adds ok + read-back.
+    if tool_fixes_v2_enabled() and not patch.get("slot_commit_error"):
+        result = _enrich_write_result({**patch, "ok": True}, after, index)
+        return after, result
+    return after, patch
 
 
 def reset_team_state(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -906,15 +905,18 @@ def reset_team_state(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, A
 def commit_slot(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     patch = commit_full_slot(state)
     after = _merge(state, patch)
-    result = dict(patch)
-    if not patch.get("slot_commit_error") and tool_fixes_v2_enabled():
-        result = {**result, "ok": True}
-        result["team_after"] = [
-            {"slot": display_slot(i), **_slot_values(s)}
-            for i, s in enumerate(after["team_draft"])
-            if s.species.value is not None
-        ]
-    return after, result
+    # a393ae91: return patch as-is. Flag on adds ok + team_after.
+    if tool_fixes_v2_enabled() and not patch.get("slot_commit_error"):
+        return after, {
+            **patch,
+            "ok": True,
+            "team_after": [
+                {"slot": display_slot(i), **_slot_values(s)}
+                for i, s in enumerate(after["team_draft"])
+                if s.species.value is not None
+            ],
+        }
+    return after, patch
 
 
 def confirm_build(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
