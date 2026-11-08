@@ -120,7 +120,7 @@
         },
         {
           "id": "p3",
-          "text": "Every species it names as a safe partner is legal and has the type, or can have the ability (find_species). A named partner that does not meet the check fails.",
+          "text": "Every species it names as a safe partner is legal and has the type, or can have the ability (find_species). An item it names is legal in Champions (check_item_legal) and the named holder can hold it. A named partner or item that does not meet the check fails.",
           "tool_backed": true,
           "conditional": false
         },
@@ -150,7 +150,7 @@
         "ix_tools_v1"
       ],
       "expected_tools_ordered": "get_type_effectiveness;find_by_effect;find_species",
-      "optional_tools": "get_abilities;check_species_legal",
+      "optional_tools": "get_abilities;check_species_legal;check_item_legal",
       "alternative_path": "",
       "notes": "FU74 draft 2026-11-07. Membership by predicate (zero damage from partner EQ), not a fixed list. pass_criteria_changed true: set scoring leaves part3's 'named member not in key = false claim' rule."
     }

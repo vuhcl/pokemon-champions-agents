@@ -1,17 +1,16 @@
 {
   "schema": "part_g_arm_keys_fu74_manifest_v1",
-  "key_hash": "a85d5f3cbb8101f89d5a2566f76ab8da92f2273860932bc535a0bd12c38aa024",
+  "key_hash": "38785fcb77d171088f8a3a17d8ca9d6b1ec4ace90cf0cea584a6b0b565205f47",
   "keys_fu72_key_hash": "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02",
   "keys_fu72_manifest_sha256": "252049193d72e2c471716cfc3cae956ff9316e1fd1ae60790af1b8087a4e57dc",
-  "revised_key_hash": "1fd4d3ce443cf39f3e4a6a7f7c6cf3ad907ca99c98b75ec10142d586b60e495a",
+  "revised_key_hash": "d11cea9849ce10bbfc095678d58b3b947f965471812c1a1c2e36d88d48fa325c",
   "files": {
-    "scripts/eval/part_g_arm/state/keys_fu74/expected_tools_rev5_2026-11-07.csv": "134add5af5edcae0ef5be320977a3121f40a5126cb57d1c649b3a15e87f3ddc0",
-    "scripts/eval/part_g_arm/state/keys_fu74/hand_keys_fu74.json": "b8cf3bc81c719e3366078e9f834404b13b24f96737f34432ecfeea56b924c408",
-    "scripts/eval/part_g_arm/state/keys_fu74/ix_facts_fu74.json": "36b4b0bc345a906cd7eeef8425080339482b259c0ea008575ba71bd9ba54fa4e",
+    "scripts/eval/part_g_arm/state/keys_fu74/expected_tools_rev5_2026-11-07.csv": "1e6102a0e68bed26d71f48fbdb7293655acfe2c85b34d4319cfa99c9e28da701",
+    "scripts/eval/part_g_arm/state/keys_fu74/hand_keys_fu74.json": "46e4f0ddf94836b6735e218df6d408653ee0a025fe9a3a92e7c60de64c77299b",
+    "scripts/eval/part_g_arm/state/keys_fu74/ix_facts_fu74.json": "7643817d187e0864c1eab9c1cd3adcdf961abd2c054aace2869c274b740612e3",
     "scripts/eval/part_g_arm/state/keys_fu74/legality_report_fu74.json": "ca0566512d003600f0031296982d6a2f1ad6b3e3847c901fc84e1a6b2094d7b9",
     "scripts/eval/part_g_arm/state/keys_fu74/legality_report_fu74.md": "b6c4d49a97e6935d40393e5f69f7bb570f812a76612708994e0320f6b89cf003",
-    "scripts/eval/part_g_arm/state/keys_fu74/point_diff_fu74.md": "3b2dc71eb39d40fd49eb9b6f560e93dbdbbbd2574e4746b248fe13984685964d",
-    "scripts/eval/part_g_arm/state/keys_fu74/KEYS_MANIFEST_FU74.json": "de9dd9f1c8129f7d49007a2a1c4766f921ba9f0a5ee5d977439f5d1fcca9d85a"
+    "scripts/eval/part_g_arm/state/keys_fu74/point_diff_fu74.md": "6190c7d40e676abdf7be5d9f3503edffac6eff1283bac24eace5b80a4a2d78e8"
   },
   "generator": "scripts/eval/part_g_arm/state/keys_fu74/build_fu74_artifacts.py",
   "old_hashes_unchanged": {
@@ -22,5 +21,6 @@
     "claim_battery_v4.json": "e7492a6811f057f1e84ccac821c1249eb29a3fad1f25eec6f9a0e613b776f4b0",
     "keys_fu72_key_hash": "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02"
   },
-  "note": "IX1/IX5/IX7 cut only. keys_fu72 contents unchanged. revised_key_hash combines fu72 key_hash + fu74 key_hash."
+  "manifest_self_hashed": false,
+  "note": "IX1/IX5/IX7 cut only. keys_fu72 contents unchanged. revised_key_hash combines fu72 key_hash + fu74 key_hash. This manifest is not listed in files (not self-hashed)."
 }

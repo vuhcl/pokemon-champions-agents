@@ -29,3 +29,16 @@ def test_keys_fu72_key_hash_unchanged_in_fu74_manifest() -> None:
     )
     assert manifest["keys_fu72_key_hash"] == fu72["key_hash"]
     assert fu72["key_hash"] == "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02"
+    assert manifest.get("manifest_self_hashed") is False
+    assert not any(p.endswith("KEYS_MANIFEST_FU74.json") for p in manifest["files"])
+
+
+def test_ix7_optional_includes_check_item_legal() -> None:
+    hand = json.loads(
+        (Path(__file__).resolve().parent / "keys_fu74" / "hand_keys_fu74.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    t = hand["turns"]["IX7__t1"]
+    assert "check_item_legal" in t["optional_tools"].split(";")
+    assert "check_item_legal" in t["points"][2]["text"]

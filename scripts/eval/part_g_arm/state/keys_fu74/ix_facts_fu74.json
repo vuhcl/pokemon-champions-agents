@@ -32,14 +32,17 @@
       "Ghost"
     ]
   },
-  "intimidate_keyword_hits": [
-    "Guard Dog",
-    "Inner Focus",
-    "Oblivious",
-    "Own Tempo",
-    "Rattled",
-    "Scrappy"
-  ],
+  "intimidate_keyword_hits": {
+    "names": [
+      "Guard Dog",
+      "Inner Focus",
+      "Oblivious",
+      "Own Tempo",
+      "Rattled",
+      "Scrappy"
+    ],
+    "note": "Only abilities whose description contains \"Intimidate\". Misses abilities that react to the Attack drop (Defiant, Competitive, Mirror Armor, Clear Body, White Smoke, Full Metal Body, Hyper Cutter, Contrary, and so on). Not a membership set \u2014 IX5 p3 is judged from the ability's description via get_abilities or find_by_effect."
+  },
   "priority_moves_keyword_hits": [
     "Armor Tail",
     "Dazzling",
@@ -47,12 +50,15 @@
     "Queenly Majesty",
     "Stall"
   ],
-  "ground_keyword_ability_hits": [
-    "Earth Eater",
-    "Eelevate",
-    "Levitate",
-    "Sand Force"
-  ],
+  "ground_keyword_ability_hits": {
+    "names": [
+      "Earth Eater",
+      "Eelevate",
+      "Levitate",
+      "Sand Force"
+    ],
+    "note": "Keyword hits include Sand Force, which is not a Ground immunity. Not a membership set \u2014 IX7 safety is judged by the zero-damage predicate."
+  },
   "allies_keyword_ability_hits": [
     "Armor Tail",
     "Aroma Veil",

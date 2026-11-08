@@ -54,7 +54,7 @@ Source draft: `ix_keys_draft_2026-11-07.md`. Any key change not in the draft is 
 - unreachable_reason old: 'pending key cut (get_type_effectiveness + find_by_effect shipped in #393 / ix_tools_v1)'
 - unreachable_reason new: ''
 - expected_tools old → new: `find_species` → `get_type_effectiveness;find_by_effect;find_species`
-- optional_tools old → new: `` → `get_abilities;check_species_legal`
+- optional_tools old → new: `` → `get_abilities;check_species_legal;check_item_legal`
 
 ### Old (keys_fu72 pending cut)
 - `p1`: safe=no damage: Flying / Levitate / Telepathy / Earth Eater
@@ -65,7 +65,7 @@ Source draft: `ix_keys_draft_2026-11-07.md`. Any key change not in the draft is 
 ### New (keys_fu74 draft)
 - `p1`: The arm states what "safe" means (takes no damage from the partner's Earthquake); the stated definition is scored. A resisting type is not safe unless its definition says so.
 - `p2` [tool-backed]: Every type, ability or item it names as safe really gives no damage from Earthquake under that definition, backed by a tool result in that turn (get_type_effectiveness or find_by_effect). Naming a resisting type or Friend Guard as safe fails.
-- `p3` [tool-backed]: Every species it names as a safe partner is legal and has the type, or can have the ability (find_species). A named partner that does not meet the check fails.
+- `p3` [tool-backed]: Every species it names as a safe partner is legal and has the type, or can have the ability (find_species). An item it names is legal in Champions (check_item_legal) and the named holder can hold it. A named partner or item that does not meet the check fails.
 - `p4` [tool-backed]: Examples and any counts come from tool results with a source label (Showdown text for item and move descriptions).
 - `p5`: The set it gives matches its stated definition (a member the definition excludes, or a member whose immunity is conditional without the condition stated, fails; for example Levitate under Gravity).
 - `p6` [conditional]: Not required: finding all of Flying, Levitate, Earth Eater, Eelevate, Telepathy or Air Balloon (Vu, 2026-11-07).

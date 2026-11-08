@@ -115,9 +115,24 @@ def collect_ix_facts() -> dict[str, Any]:
         "get_type_effectiveness_Normal": {
             "no_damage": list(normal["no_damage"]),
         },
-        "intimidate_keyword_hits": match_names("ability", keyword="Intimidate"),
+        "intimidate_keyword_hits": {
+            "names": match_names("ability", keyword="Intimidate"),
+            "note": (
+                "Only abilities whose description contains \"Intimidate\". "
+                "Misses abilities that react to the Attack drop (Defiant, Competitive, "
+                "Mirror Armor, Clear Body, White Smoke, Full Metal Body, Hyper Cutter, "
+                "Contrary, and so on). Not a membership set — IX5 p3 is judged from the "
+                "ability's description via get_abilities or find_by_effect."
+            ),
+        },
         "priority_moves_keyword_hits": match_names("ability", keyword="Priority moves"),
-        "ground_keyword_ability_hits": [r["name"] for r in ground_ability_rows],
+        "ground_keyword_ability_hits": {
+            "names": [r["name"] for r in ground_ability_rows],
+            "note": (
+                "Keyword hits include Sand Force, which is not a Ground immunity. "
+                "Not a membership set — IX7 safety is judged by the zero-damage predicate."
+            ),
+        },
         "allies_keyword_ability_hits": match_names("ability", keyword="allies"),
         "ground_keyword_item_hits": [r["name"] for r in ground_item_rows],
         "ground_immunity_ability_descriptions": ground_imm_abilities,
@@ -233,7 +248,7 @@ def build_hand_keys() -> dict[str, Any]:
                 ),
                 _point(
                     "p3",
-                    "Every species it names as a safe partner is legal and has the type, or can have the ability (find_species). A named partner that does not meet the check fails.",
+                    "Every species it names as a safe partner is legal and has the type, or can have the ability (find_species). An item it names is legal in Champions (check_item_legal) and the named holder can hold it. A named partner or item that does not meet the check fails.",
                     tool_backed=True,
                 ),
                 _point(
@@ -256,7 +271,7 @@ def build_hand_keys() -> dict[str, Any]:
             "unreachable_reason": "",
             "flags_required": ["ix_tools_v1"],
             "expected_tools_ordered": "get_type_effectiveness;find_by_effect;find_species",
-            "optional_tools": "get_abilities;check_species_legal",
+            "optional_tools": "get_abilities;check_species_legal;check_item_legal",
             "alternative_path": "",
             "notes": (
                 "FU74 draft 2026-11-07. Membership by predicate (zero damage from partner EQ), "
@@ -485,6 +500,7 @@ def legality_report(hand: dict[str, Any], facts: dict[str, Any]) -> dict[str, An
         "find_species",
         "check_species_ability",
         "check_species_legal",
+        "check_item_legal",
     }
     for _tid, turn in hand["turns"].items():
         for field in ("expected_tools_ordered", "optional_tools"):
@@ -568,15 +584,14 @@ def write_manifest(extra_old: dict[str, str] | None = None) -> dict[str, Any]:
         "files": file_table,
         "generator": str((OUT / "build_fu74_artifacts.py").relative_to(REPO)),
         "old_hashes_unchanged": old_hashes,
+        "manifest_self_hashed": False,
         "note": (
             "IX1/IX5/IX7 cut only. keys_fu72 contents unchanged. "
-            "revised_key_hash combines fu72 key_hash + fu74 key_hash."
+            "revised_key_hash combines fu72 key_hash + fu74 key_hash. "
+            "This manifest is not listed in files (not self-hashed)."
         ),
     }
     path = OUT / "KEYS_MANIFEST_FU74.json"
-    path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    # Record manifest sha in files table without folding it into key_hash.
-    manifest["files"][str(path.relative_to(REPO))] = _sha(path)
     path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest
 
