@@ -12320,3 +12320,52 @@ The known-limits line "Multi-attribute forme pooling (Toxtricity, Squawkabilly) 
 **Not changed:** ADR-002, ADR-006, ADR-078, ADR-083, ADR-084 and the Part G gate result.
 
 **Status:** Accepted (2026-11-04).
+
+---
+
+### ADR-085 Amendment 2026-11-07a — `find_by_effect`: curated flags plus a keyword search over description text, behind `ix_tools_v1` (#367)
+
+**Decision:** Ship both a curated functional-flag index and a keyword search over description text, as one tool, `find_by_effect(kind, flag?, keyword?)`, kind being move, item or ability. Default off behind `ix_tools_v1`; with the flag off the arm schema and outputs are unchanged (isolation golden `combined_specs_flag_off`, hashes captured from main).
+
+**Why:** IX1 and IX5 ask for facts that are neither species typing nor static move base power ("which moves redirect", "which abilities mention Intimidate"). Answering them from model knowledge breaks the tool-backed-facts rule, and the arm failed these rows the same way each time. Flags cover stable mechanical groupings; keywords cover open-ended effect questions. IX5's bucketing stays in the arm: the tool returns hits, the arm splits them.
+
+**Flags and the fields they derive from** (pinned data, not hand lists):
+- redirection: `volatileStatus` in {followme, ragepowder} in `data/moves/flags.v1.json`
+- pivot: `selfSwitch` truthy
+- phazing: `forceSwitch` truthy
+- protection: `stallingMove` truthy
+
+Player-facing aliases map to the flags (redirection, pivot / self switch, phazing / force switch); an alias query returns the same result as the flag query. Not included: `priority` (no description phrase covers the acceptance check) and speed control (no deriving field). "Punishes Intimidate" is not a flag; the arm buckets keyword hits.
+
+**Keeping unrelated matches out:** search is scoped to one kind; move searches run over the Champions-legal move universe; keywords use word-boundary regex; flag hits rank first; every row carries `matched_by` in {flag, description, both}, the description, and a short matched window (about 12 words) so the arm can see why a row matched. Canonical keyword phrases are checked against flag membership; extras are listed as known near-misses (redirection also surfaces Dragon Darts and Snipe Shot by description).
+
+**Sources:** abilities from `data/abilities/all.v1.json` descriptions. Move and item descriptions are the Showdown text, extracted verbatim from `data/showdown_text/*.ts` at 942cda7 into `data/{moves,items}/descriptions.v1.json` and labeled "Showdown text (not in-game)". `tests/recommender/test_description_drift.py` fails if the JSON differs from a re-parse of the `.ts` files.
+
+**Costs and limits, accepted:**
+- Move and item wording is Showdown's, not the in-game text; answers must carry that label.
+- Keyword hits include near-misses; the arm has to filter them.
+- Two requested groupings (priority, speed control) are not covered.
+- Schema cost: +249 tokens (cl100k_base) for both new tools together, on the flags-off and the `tool_fields+wrapper+draft` surfaces.
+- `ix_tools_v1` is a new configuration, not one of the six registered rungs; no result exists for it yet.
+
+**Status:** Implemented in PR #393 (merge 118db45, 2026-11-07); closes #367. No key edits and no arm run in this PR. IX1 and IX5 keys are cut against this tool afterwards.
+
+---
+
+### ADR-085 Amendment 2026-11-07b — `get_type_effectiveness` is a new tool, not an extension of `get_typing`, behind `ix_tools_v1` (#368)
+
+**Decision:** Add `get_type_effectiveness` as its own tool. It does not extend `get_typing`.
+
+**Why:** `get_typing` answers "what types is this species". Type-chart questions take an attacking or a defending type and return chart buckets: different input, different output. Overloading `get_typing` would blur the species-lookup contract and the guard and schema text built on it.
+
+**Data:** one copy, `scripts/eval/part_g_v4/key_artifacts/type_chart.v1.json` (the Champions `Generations.get(0)` extract), with an identity test against what the tool loads. Champions against gen9 (18 types): 0 differences; the Champions extract is bound anyway.
+
+**Contract:** for `attack_type`, returns `super_effective`, `resisted` and `no_damage`; optional reverse lookup with `defend_type`. Nothing else. Ground-immune types are {Flying}; ability immunities (Levitate, Earth Eater and similar) are not in this tool and come from `find_by_effect` (amendment a).
+
+**Guard binding:** LOOKUP, and HYPOTHETICAL through `LOOKUP_BASE`. The names sit in `CORE` and are dropped by `filter_to_live_schemas` when the flag is off.
+
+**Costs and limits, accepted:**
+- Types only: a type-chart answer says nothing about abilities, items or field effects.
+- Schema cost is counted with the other tool in amendment a (+249 tokens together).
+
+**Status:** Implemented in PR #393 (merge 118db45, 2026-11-07); closes #368. IX7 is cut against this tool and `find_by_effect`; its key does not require an exhaustive answer (worksheet, 2026-11-07).
