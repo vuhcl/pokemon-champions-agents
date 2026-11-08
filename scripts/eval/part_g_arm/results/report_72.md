@@ -19,13 +19,19 @@ Source of truth: `key_cut_worksheet_2026-11-07.md` (copied under `state/keys_fu7
 | Manifest + key hash | `state/keys_fu72/KEYS_MANIFEST_FU72.json` |
 | Builder | `state/keys_fu72/build_fu72_artifacts.py` |
 
-**key_hash:** `b111be0dc4fab94e331530cb1d649782073513588209c9ab9685f72ff26cb720` (see `KEYS_MANIFEST_FU72.json`).
+**key_hash:** `51b4226155f543d32546648d9c8e4a3e255559c81ac7fade83d466769d814581` (see `KEYS_MANIFEST_FU72.json`).
 
 ### Follow-up review fixes (same PR)
 - **(6)** TB2 seed: `U-turn` → `Throat Chop` (Incineroar cannot learn U-turn). Legality report now runs `check_set` / learnset over every species, item, and move in every `keys_fu72/seeds/` file.
 - **(7)** Removed writer-note rubric points (optional-path lines on MR3/MR7/MR8/MU4, MM2 “read_team required” prose, MT5 t2 / MT1 t2 placeholders, DM2 “DRAFT, Vu to confirm”). Alternatives stay in the tools CSV `alternative_path` / `expected_tools_ordered` only.
 - **(8)** Restored H15, MS5, MV3, DM2 from `part3_request_set_v4.md` acceptance (plus DM2 CSV content check). Those cells were the source of truth; the first cut had truncated them via CSV `notes` `;`-splits.
 - **(9)** HU2b and TB1 rewritten as explicit point lists (no fragment splits on `;` inside the acceptance).
+- **(1)** Meaning-based point splits restored on MU1, MM1, MM2, MU4, HC2, HN2b, MR5, MR3, MR6–8, MU8, Q10, HU3.
+- **(2)** `old_point_maps_fu72.json` + mapping section in `point_diff_fu72.md` for every row with unchanged pass criteria; unmapped old points fail the builder. Restored lost content: DM6 (Close Combat, 270–318, false-claim rules), HN3 (`nothing` / cum), IS4 (no Spe-boosting move).
+- **(3)** MR5 points no longer include the request text (lives in `request_text` / CSV only).
+- **(4)** H18b t1 = definition only; t2 owns the Sinistcha fail-case points.
+- **(5)** Unreachable: removed MM1 and MT2 (alts exist). H18b kept with a specific tool-gap reason (no bound tool returns a 32-SP passing Sinistcha set).
+- **(6 continued)** Rebuild hash + mapping check. Unchanged-pass-criteria rows with fewer new points than old (content preserved via map): **H15** (4 < 5), **HU2b** (5 < 6).
 
 ## Old hashes (unchanged — frozen a393ae91 / Part G artifacts not edited)
 

@@ -2,6 +2,8 @@
 
 ## DM2
 - pass_criteria_changed: False
+- old_point_count: 2
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: EXPAND: full numeric grid per Hatterene COMMON_JOINT cell in derived_keys.dm_outputs.dm2. Locked fixture attacker = Adamant Life Orb Atk-32 ability Intimidate (confirmed
@@ -12,8 +14,14 @@
 - `p2` [tool-backed]: Expand the full numeric damage grid for every Hatterene COMMON_JOINT cell in derived_keys.dm_outputs.dm2.
 - `p3` [tool-backed]: Look up Hatterene item and ability (Incineroar usage calls optional). The Hatterene item stated or used must be Life Orb, or faithful to the get_usage_items result received.
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`, `t1.p2`
+- `p2` → `t1.p1`, `t1.p3`
+
 ## DM6
 - pass_criteria_changed: False
+- old_point_count: 6
+- new_point_count: 7
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: ASSUME-STATE. Gallade-Mega Inner Focus + Galladite
@@ -23,13 +31,27 @@
 - `p5`: numbers with no stated attacker conditions → false claim
 - `p6`: −1 or second case → false. Not a spread move. dm_outputs.dm6
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: Key: Gallade-Mega top joint+Galladite+Inner Focus
-- `p2`: Incineroar top joint+item+ability. Neither side fully stated by user → usage lookups for both, then calc_damage. No Intimidate second case.
+### New t1 (rewrite=True)
+- `p1` [tool-backed]: ASSUME-STATE: Gallade-Mega with Inner Focus and Galladite.
+- `p2` [tool-backed]: Attacker nature/SP/item from the top Showdown joint (Jolly Spe-32 / Atk-32, Galladite, COMMON_JOINT[0]).
+- `p3` [tool-backed]: Move is Close Combat (Fighting 2.0× into Fire/Dark Incineroar). Single case at Atk stage 0 (no Intimidate drop).
+- `p4` [tool-backed]: Key damage range is 270–318 (guaranteed OHKO).
+- `p5`: Arm must state attacker nature/SP/item matching the key; mismatch is not SERVED.
+- `p6`: Numbers with no stated attacker conditions are a false claim.
+- `p7`: A −1 range or a second (Intimidate) case is false. Not a spread move.
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p2`, `t1.p3`, `t1.p4`, `t1.p5`
+- `p4` → `t1.p5`
+- `p5` → `t1.p6`
+- `p6` → `t1.p7`
 
 ## GS1
 - pass_criteria_changed: True
+- old_point_count: 7
+- new_point_count: 5
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: t1 SERVED modal (MIR/SB/Protect/Nasty Plot
@@ -51,6 +73,8 @@
 
 ## H15
 - pass_criteria_changed: False
+- old_point_count: 5
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Modest top joint SP={'hp': 32, 'atk': 0, 'def': 0, 'spa': 32, 'spd': 2, 'spe': 0} chaos_weight pct≈8876.7
@@ -65,23 +89,41 @@
 - `p3`: Verdict: Modest default is SERVED when the basis is stated (only retained joint; Timid is not retained) and the speed tradeoff is mentioned.
 - `p4`: Conditional Timid is OK only with a named key benchmark. 'Timid is better' with no benchmark or a fabricated Timid joint is false.
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p1`, `t1.p2`
+- `p3` → `t1.p3`
+- `p4` → `t1.p4`
+- `p5` → `t1.p4`
+
 ## H18b
 - pass_criteria_changed: False
+- old_point_count: 2
+- new_point_count: 7
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Binary checklist H18b: t1 establishes definition (no re-ask at t2)
 - `p2`: t2 Sinistcha fails top-joint SP rule — supply passing set (lookup/synth), state differs from usual + exists to satisfy 32-SP rule, offer usual set (not a mutation), constraint kept. Incineroar top joint passes — not the fail case.
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: Binary checklist H18b: t1 establishes definition (no re-ask at t2)
-- `p2`: t2 Sinistcha fails top-joint SP rule — supply passing set (lookup/synth), state differs from usual + exists to satisfy 32-SP rule, offer usual set (not a mutation), constraint kept. Incineroar top joint passes — not the fail case.
+### New t1 (rewrite=True)
+- `p1`: Establish the hyper-offense definition (every locked/drafted slot has 32 SP in Atk or SpA).
+- `p2`: Do not re-ask for the definition on later turns.
 
 ### New t2 (rewrite=True)
-- `p1`: Per-turn key for H18b t2; see acceptance binary checklist.
+- `p1` [tool-backed]: Sinistcha's top joint fails the 32-SP Atk/SpA rule.
+- `p2` [tool-backed]: Supply a passing set (usage lookup or synthesis) that satisfies the 32-SP rule.
+- `p3`: State that the passing set differs from the usual Sinistcha set and exists to satisfy the constraint.
+- `p4`: Offer the usual set as well (offer only — not a mutation).
+- `p5`: Keep the hyper-offense constraint. Incineroar's top joint passes and is not the fail case.
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`, `t1.p2`
+- `p2` → `t2.p1`, `t2.p2`, `t2.p3`, `t2.p4`, `t2.p5`
 
 ## H6
 - pass_criteria_changed: True
+- old_point_count: 3
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: unordered `{Incineroar,Garchomp,Sneasler,Gholdengo,Raichu}`
@@ -94,17 +136,22 @@
 
 ## H8
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: **No** (Item Clause)
 - `p2`: **no-mutation check**
 
 ### New t1 (rewrite=True)
-- `p1`: Outcome: Item Clause → No; no mutation.
-- `p2` [tool-backed]: Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.
+- `p1`: Outcome: Item Clause → No.
+- `p2`: No mutation.
+- `p3` [tool-backed]: Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.
 
 ## HC1
 - pass_criteria_changed: True
+- old_point_count: 5
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Snapshot: no legal Water∧Fire species
@@ -120,6 +167,8 @@
 
 ## HC2
 - pass_criteria_changed: True
+- old_point_count: 4
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Separate conflicting requests
@@ -128,10 +177,15 @@
 - `p4`: no state change until user picks
 
 ### New t1 (rewrite=True)
-- `p1`: Separate conflicting requests; ask the user to resolve; no guess; no state change until the user picks.
+- `p1`: Treat the turn as separate conflicting requests.
+- `p2`: Ask the user to resolve which constraint wins.
+- `p3`: Do not guess which constraint to keep.
+- `p4`: No state change until the user picks.
 
 ## HN2b
 - pass_criteria_changed: False
+- old_point_count: 5
+- new_point_count: 5
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Full forward grid in derived_keys.hn2b_forward_grid (COMMON_SPEED distinct
@@ -140,13 +194,24 @@
 - `p4`: control HN2 (156>149 at max)
 - `p5`: pair not pooled
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: COMMON_SPEED cells via get_common_speeds
-- `p2`: get_speed for own lines. Abilities not needed for Spe.
+### New t1 (rewrite=True)
+- `p1` [tool-backed]: Full forward grid from derived_keys.hn2b_forward_grid (COMMON_SPEED distinct cells).
+- `p2`: Scarf lines: two only.
+- `p3`: Tailwind extras are included in the grid.
+- `p4` [tool-backed]: Control HN2: Annihilape outspeeds Gholdengo at max (156 > 149).
+- `p5`: Pair is not pooled with HN2.
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`
+- `p4` → `t1.p4`
+- `p5` → `t1.p5`
 
 ## HN3
 - pass_criteria_changed: False
+- old_point_count: 3
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: COMMON_ITEM (ingame): Life Orb 42.4, Glimmoranite 28.0, Focus Sash 26.9 (cum≥90% at 3, cum 97.3)
@@ -154,10 +219,19 @@
 - `p3`: label in-game
 
 ### New t1 (rewrite=True)
-- `p1` [tool-backed]: COMMON_ITEM (ingame): Life Orb 42.4, Glimmoranite 28.0, Focus Sash 26.9; cum≥90% cutoff rules unchanged; label in-game.
+- `p1` [tool-backed]: COMMON_ITEM (ingame): Life Orb 42.4, Glimmoranite 28.0, Focus Sash 26.9 (cum≥90% at 3, cum 97.3).
+- `p2`: 'nothing' counts toward slots and the 90% cutoff when present.
+- `p3`: Label the source as in-game.
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`
 
 ## HP3
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Refuse illegal mutation
@@ -169,6 +243,8 @@
 
 ## HU2
 - pass_criteria_changed: True
+- old_point_count: 4
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: EXPLICIT CONTROL paired with HU2b
@@ -182,6 +258,8 @@
 
 ## HU2b
 - pass_criteria_changed: False
+- old_point_count: 6
+- new_point_count: 5
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Paired with HU2 (in-game lineage top10
@@ -198,8 +276,18 @@
 - `p4`: Mark max_speed role and share as in HN2b; use core_non_max for outspeeds_any.
 - `p5`: UNREACHABLE at current rungs: get_meta_threats returns the in-game ladder list, not the Showdown ≥4.52% set. A pass would require stating which threat set was used once a matching tool exists.
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p1`, `t1.p2`
+- `p3` → `t1.p2`
+- `p4` → `t1.p2`, `t1.p3`
+- `p5` → `t1.p4`
+- `p6` → `t1.p4`
+
 ## HU3
 - pass_criteria_changed: False
+- old_point_count: 4
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Option list 3–5 Fire
@@ -208,11 +296,21 @@
 - `p4`: slot unchanged until selection
 
 ### New t1 (rewrite=True)
-- `p1` [tool-backed]: Option list of bulky Fire types for slot 3 (3–5); each option has a bulk reason.
-- `p2`: Ask which; slot unchanged until selection.
+- `p1` [tool-backed]: Option list of 3–5 bulky Fire types for slot 3.
+- `p2`: Each option has a bulk reason.
+- `p3`: Ask which option to take.
+- `p4`: Slot unchanged until selection.
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`
+- `p4` → `t1.p4`
 
 ## IC1
 - pass_criteria_changed: False
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: t1 SERVED Leftovers (Psychic Seed+Rocky Helmet excluded by Item Clause). t2 MUTATION-OK Sitrus Berry with read-back
@@ -224,8 +322,14 @@
 ### New t2 (rewrite=True)
 - `p1` [tool-backed]: MUTATION-OK different item (e.g. Sitrus) with read-back; Leftovers released. Trap: Seed/Helmet.
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`, `t2.p1`
+- `p2` → `t2.p1`
+
 ## IS1
 - pass_criteria_changed: True
+- old_point_count: 4
+- new_point_count: 8
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: See derived_keys.is1_min_spe: per Dragapult cell, bare + Scarf outcomes
@@ -245,6 +349,8 @@
 
 ## IS2
 - pass_criteria_changed: True
+- old_point_count: 4
+- new_point_count: 6
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: PARTIAL+ASSUME-STATE. derived_keys.is2_min_spe: Dragapult COMMON_SPEED 213/194/190 at Scarf+1
@@ -262,6 +368,8 @@
 
 ## IS3
 - pass_criteria_changed: True
+- old_point_count: 6
+- new_point_count: 7
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: 4-part min-SP
@@ -282,6 +390,8 @@
 
 ## IS4
 - pass_criteria_changed: True
+- old_point_count: 7
+- new_point_count: 6
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Prompt requires Mega
@@ -293,12 +403,17 @@
 - `p7`: never 'not recommended'
 
 ### New t1 (rewrite=True)
-- `p1`: State the Mega Alakazam target cell (Timid Spe-32) or a max-speed assumption.
-- `p2` [tool-backed]: State that Pincurchin's max Spe under Scarf + Tailwind (219) does not outspeed Mega Alakazam Timid-32 (222); unreachable even under Scarf + Tailwind. No invented Spe SP.
-- `p3`: Never say 'not recommended'.
+- `p1`: The prompt requires Mega Alakazam (not base).
+- `p2`: State the Mega Alakazam target cell (Timid Spe-32) or a max-speed assumption.
+- `p3` [tool-backed]: Pincurchin's max Spe under Scarf + Tailwind is 219, below Mega Alakazam Timid-32 (222); unreachable even under Scarf + Tailwind.
+- `p4`: Pincurchin has no Spe-boosting move that changes this reachability.
+- `p5`: State unreachable (no invented Spe SP that claims to outspeed the max cell).
+- `p6`: Never say 'not recommended'.
 
 ## IX1
 - pass_criteria_changed: False
+- old_point_count: 4
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Fake Out priority 3 > Follow Me 2 (and Rage Powder same class)
@@ -312,9 +427,17 @@
 - `p2`: FAIL if recommends Follow Me/Rage Powder as counter
 - `p3`: PASS = Fake Out outprioritizes redirect or valid non-redirect counters
 - `p4`: assume counter=redirect|block
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`
+- `p4` → `t1.p4`
 
 ## IX5
 - pass_criteria_changed: False
+- old_point_count: 5
+- new_point_count: 5
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Assume punish=blocked|reflected|boosted
@@ -330,9 +453,18 @@
 - `p3`: separate buckets
 - `p4`: verify holders vs legality
 - `p5`: set-scoring
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`
+- `p4` → `t1.p4`
+- `p5` → `t1.p5`
 
 ## IX7
 - pass_criteria_changed: False
+- old_point_count: 4
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: safe=no damage: Flying / Levitate / Telepathy / Earth Eater
@@ -347,8 +479,16 @@
 - `p3`: resist≠safe unless definition says so
 - `p4`: set matches stated definition
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`
+- `p4` → `t1.p4`
+
 ## MM1
 - pass_criteria_changed: True
+- old_point_count: 3
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Build with Salamencite
@@ -356,10 +496,14 @@
 - `p3`: offer keep stone or base form+Leftovers (form change = offer only). Stone map from Showdown items.ts (standalone). legality.py has no mega-stone check — open arm tool item. derived_keys.row_g_h_salamence_mega
 
 ### New t1 (rewrite=True)
-- `p1`: Build with Salamencite; state a mega cannot hold another item; offer keep stone or base form + Leftovers (form change = offer only).
+- `p1` [tool-backed]: Build Salamence holding Salamencite.
+- `p2`: State that a mega cannot hold another item.
+- `p3`: Offer keep-stone or base form + Leftovers (form change is offer-only).
 
 ## MM2
 - pass_criteria_changed: True
+- old_point_count: 3
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Refuse: stone is required mega item
@@ -367,10 +511,14 @@
 - `p3`: form change offer only. derived_keys.row_g_h_salamence_mega
 
 ### New t1 (rewrite=True)
-- `p1`: Refuse: the mega stone is the required mega item; draft unchanged; form-change offer only.
+- `p1`: Refuse: the mega stone is the required mega item.
+- `p2`: Draft unchanged.
+- `p3`: Form-change offer only.
 
 ## MR1
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Refuse illegal species
@@ -382,6 +530,8 @@
 
 ## MR2
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Refuse illegal item
@@ -393,16 +543,21 @@
 
 ## MR3
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Species Clause
 - `p2`: state unchanged
 
 ### New t1 (rewrite=True)
-- `p1`: Species Clause; state unchanged
+- `p1` [tool-backed]: Species Clause applies (second Incineroar).
+- `p2`: State unchanged after the refusal.
 
 ## MR4
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Item Clause
@@ -415,46 +570,64 @@
 
 ## MR5
 - pass_criteria_changed: False
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: refuse/ask
 - `p2`: state unchanged
 
 ### New t1 (rewrite=True)
-- `p1`: Request text is the registered errata: 'Lock into slot 2'. Refuse or ask; state unchanged (occupancy).
+- `p1`: Refuse or ask (occupied slot).
+- `p2`: State unchanged.
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
 
 ## MR6
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: empty unlock refuse
 - `p2`: state unchanged
 
 ### New t1 (rewrite=True)
-- `p1`: Accept either a no-op (nothing to unlock) or an explicit refusal; state unchanged.
+- `p1`: Empty unlock: accept a no-op or an explicit refusal.
+- `p2`: State unchanged.
 
 ## MR7
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: nothing pending
 - `p2`: state unchanged
 
 ### New t1 (rewrite=True)
-- `p1`: nothing pending; state unchanged
+- `p1`: Nothing is pending to commit.
+- `p2`: State unchanged.
 
 ## MR8
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: illegal
 - `p2`: state unchanged
 
 ### New t1 (rewrite=True)
-- `p1`: illegal; state unchanged
+- `p1` [tool-backed]: Refuse the illegal species (Koraidon).
+- `p2`: State unchanged.
 
 ## MS1
 - pass_criteria_changed: False
+- old_point_count: 1
+- new_point_count: 1
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `acceptance`: Read-back: slot2 species=Garchomp locked=true
@@ -463,8 +636,13 @@
 - (no intended pass-criteria change; structure-only or unchanged)
 - `acceptance`: Read-back: slot2 species=Garchomp locked=true
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `acceptance` → `t1.acceptance`
+
 ## MS2
 - pass_criteria_changed: True
+- old_point_count: 1
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `acceptance`: Read-back: slot1 unlocked / empty
@@ -476,6 +654,8 @@
 
 ## MS5
 - pass_criteria_changed: True
+- old_point_count: 5
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: MUTATION-OK with conflict audit: apply archetype + read-back, then audit locked slots
@@ -492,6 +672,8 @@
 
 ## MS8
 - pass_criteria_changed: False
+- old_point_count: 1
+- new_point_count: 1
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `acceptance`: Read-back Pelipper s1 locked
@@ -500,8 +682,13 @@
 - (no intended pass-criteria change; structure-only or unchanged)
 - `acceptance`: Read-back Pelipper s1 locked
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `acceptance` → `t1.acceptance`
+
 ## MT1
 - pass_criteria_changed: True
+- old_point_count: 1
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `acceptance`: Both constraints in t3 read-back
@@ -517,6 +704,8 @@
 
 ## MT2
 - pass_criteria_changed: True
+- old_point_count: 4
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: t2 unordered `{Charizard,Garchomp,Sneasler}`
@@ -536,6 +725,8 @@
 
 ## MT3
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 6
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Binary checklist MT3 (Fire required
@@ -555,6 +746,8 @@
 
 ## MT5
 - pass_criteria_changed: True
+- old_point_count: 1
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `acceptance`: Archetype string in t3 read-back
@@ -570,6 +763,8 @@
 
 ## MT6
 - pass_criteria_changed: True
+- old_point_count: 4
+- new_point_count: 5
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: t1 = HC1 behavior (unsatisfiable as written
@@ -590,6 +785,8 @@
 
 ## MU1
 - pass_criteria_changed: False
+- old_point_count: 5
+- new_point_count: 5
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: NO-MUTATION
@@ -598,12 +795,24 @@
 - `p4`: no lock/commit. Required claim: Item Clause blocks both holding Choice Scarf (Garchomp/Jolteon/Choice Scarf legal in pin). Other claims scored if made
 - `p5`: variants must be legal.
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: NO-MUTATION; claims scored; state unchanged; no lock/commit. Required claim: Item Clause blocks both holding Choice Scarf (Garchomp/Jolteon/Choice Scarf legal in pin). Other claims scored if made; variants must be legal.
+### New t1 (rewrite=True)
+- `p1`: NO-MUTATION class.
+- `p2`: Claims are scored.
+- `p3`: State unchanged; no lock or commit.
+- `p4`: Required claim: Item Clause blocks both holding Choice Scarf (Garchomp / Jolteon / Choice Scarf legal in the pin).
+- `p5`: Other claims scored if made; variants must be legal.
+
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`
+- `p4` → `t1.p3`, `t1.p4`
+- `p5` → `t1.p5`
 
 ## MU2
 - pass_criteria_changed: False
+- old_point_count: 3
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: NO-MUTATION
@@ -616,8 +825,15 @@
 - `p2`: claims scored. Any species named as Water must be Water and legal
 - `p3`: mechanical statements match typing/calc. Fixture: slot 2 open + locked team/item for non-trivial clause checks.
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`
+
 ## MU4
 - pass_criteria_changed: True
+- old_point_count: 4
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: NO-MUTATION
@@ -626,10 +842,15 @@
 - `p4`: bare yes/no = fail. Fixture: Pelipper unlocked + interacting locked slot.
 
 ### New t1 (rewrite=True)
-- `p1`: NO-MUTATION; claims scored. Yes/no/conditional with ≥1 tool-backed reason (Drizzle + explicit ability, usage, legality/clauses, state); each reason scored; bare yes/no = fail. Fixture: Pelipper unlocked + interacting locked slot.
+- `p1`: NO-MUTATION class.
+- `p2` [tool-backed]: Answer yes / no / conditional with at least one tool-backed reason (Drizzle + explicit ability, usage, legality/clauses, or state).
+- `p3`: Each reason is scored.
+- `p4`: Bare yes/no without a tool-backed reason fails.
 
 ## MU6
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: No reset tool
@@ -642,16 +863,21 @@
 
 ## MU8
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: No archetype/lock tools
 - `p2`: state unchanged
 
 ### New t1 (rewrite=True)
-- `p1`: No archetype/lock tools; state unchanged
+- `p1`: No archetype or lock write tools are used.
+- `p2`: State unchanged.
 
 ## MV3
 - pass_criteria_changed: True
+- old_point_count: 1
+- new_point_count: 6
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `acceptance`: Required: Rock Slide targets all adjacent foes (both opponents in doubles). Required caveat: accuracy 90% (gen9_accuracy 4eeb96ea…) so either/both can avoid. 'always hits both'/'can't miss' = false. Targeting correct with no accuracy = not SERVED. Optional: each target rolls accuracy separately (scored if made). 0.75 damage claim dropped (unverified). derived_keys.mv3_rock_slide
@@ -666,6 +892,8 @@
 
 ## MW3
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Ask slot
@@ -677,6 +905,8 @@
 
 ## OL4
 - pass_criteria_changed: True
+- old_point_count: 3
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: **not** deterministic bind
@@ -690,6 +920,8 @@
 
 ## OL5
 - pass_criteria_changed: False
+- old_point_count: 1
+- new_point_count: 1
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `acceptance`: Bound Garchomp
@@ -698,8 +930,13 @@
 - (no intended pass-criteria change; structure-only or unchanged)
 - `acceptance`: Bound Garchomp
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `acceptance` → `t1.acceptance`
+
 ## OL6
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Ask
@@ -711,6 +948,8 @@
 
 ## OL7a
 - pass_criteria_changed: False
+- old_point_count: 1
+- new_point_count: 1
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `acceptance`: Verifiably faster=Jolteon (Spe 200)
@@ -719,8 +958,13 @@
 - (no intended pass-criteria change; structure-only or unchanged)
 - `acceptance`: Verifiably faster=Jolteon (Spe 200)
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `acceptance` → `t1.acceptance`
+
 ## OL9
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Ask
@@ -732,27 +976,35 @@
 
 ## Q10
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 2
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Explains empty unlock
 - `p2`: no mutation
 
 ### New t1 (rewrite=True)
-- `p1`: Explains empty unlock; no mutation.
+- `p1`: Explains empty unlock.
+- `p2`: No mutation.
 
 ## Q9
 - pass_criteria_changed: True
+- old_point_count: 2
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: **No** (Species Clause)
 - `p2`: no mutation
 
 ### New t1 (rewrite=True)
-- `p1`: Outcome: Species Clause → No; no mutation.
-- `p2` [tool-backed]: Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.
+- `p1`: Outcome: Species Clause → No.
+- `p2`: No mutation.
+- `p3` [tool-backed]: Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.
 
 ## RB1
 - pass_criteria_changed: True
+- old_point_count: 6
+- new_point_count: 3
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: MUTATION-OK with stated consequence: apply+read-back
@@ -769,6 +1021,8 @@
 
 ## TB1
 - pass_criteria_changed: False
+- old_point_count: 3
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: SERVED with stated correction: build as asked but state Charcoal has no effect (no legal damaging Fire move
@@ -781,8 +1035,15 @@
 - `p3`: Offer other items. Silent acceptance of Charcoal with no correction fails.
 - `p4`: Type-boost table is standalone from pinned items (derived_keys.row_e_charcoal_sinistcha).
 
+### Mapping (old → new) — required when pass_criteria unchanged
+- `p1` → `t1.p1`, `t1.p2`
+- `p2` → `t1.p2`
+- `p3` → `t1.p3`, `t1.p4`
+
 ## TB2
 - pass_criteria_changed: True
+- old_point_count: 4
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: MUTATION-OK with stated consequence: apply swap+read-back
@@ -795,4 +1056,8 @@
 - `p2` [tool-backed]: Swap Flare Blitz for Darkest Lariat (legal per check_learnset); apply and read back.
 - `p3`: State that Charcoal no longer boosts (consequence / type-boost vs remaining damaging moves).
 - `p4`: Offer keep or swap item; no silent item change.
+
+## Unchanged pass criteria with fewer new points than old
+- H15: new=4 < old=5; map=p1→['t1.p1']; p2→['t1.p1', 't1.p2']; p3→['t1.p3']; p4→['t1.p4']; p5→['t1.p4']
+- HU2b: new=5 < old=6; map=p1→['t1.p1']; p2→['t1.p1', 't1.p2']; p3→['t1.p2']; p4→['t1.p2', 't1.p3']; p5→['t1.p4']; p6→['t1.p4']
 

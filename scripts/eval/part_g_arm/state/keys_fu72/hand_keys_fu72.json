@@ -186,18 +186,36 @@
       "points": [
         {
           "id": "p1",
-          "text": "State the Mega Alakazam target cell (Timid Spe-32) or a max-speed assumption.",
+          "text": "The prompt requires Mega Alakazam (not base).",
           "tool_backed": false,
           "conditional": false
         },
         {
           "id": "p2",
-          "text": "State that Pincurchin's max Spe under Scarf + Tailwind (219) does not outspeed Mega Alakazam Timid-32 (222); unreachable even under Scarf + Tailwind. No invented Spe SP.",
-          "tool_backed": true,
+          "text": "State the Mega Alakazam target cell (Timid Spe-32) or a max-speed assumption.",
+          "tool_backed": false,
           "conditional": false
         },
         {
           "id": "p3",
+          "text": "Pincurchin's max Spe under Scarf + Tailwind is 219, below Mega Alakazam Timid-32 (222); unreachable even under Scarf + Tailwind.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Pincurchin has no Spe-boosting move that changes this reachability.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "State unreachable (no invented Spe SP that claims to outspeed the max cell).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p6",
           "text": "Never say 'not recommended'.",
           "tool_backed": false,
           "conditional": false
@@ -210,7 +228,7 @@
       "expected_tools_ordered": "get_speed|solve_spread",
       "optional_tools": "get_common_speeds",
       "alternative_path": "",
-      "notes": "FU72 IS4: no minimum parts; unreachable point only. Offline max stack 219 (errata G7)."
+      "notes": "FU72 IS4: 4-part min-SP removed; no Spe-boosting move restored. Offline max stack 219 (errata G7)."
     },
     "MR1__t1": {
       "row_id": "MR1",
@@ -265,48 +283,6 @@
       "optional_tools": "set_slot",
       "alternative_path": "",
       "notes": "FU72 Rule B refusal. illegal item (Choice Specs on Hatterene)"
-    },
-    "MR3__t1": {
-      "row_id": "MR3",
-      "turn": 1,
-      "request_text": "Lock Incineroar in slot 2",
-      "points": [
-        {
-          "id": "p1",
-          "text": "Species Clause; state unchanged",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": true,
-      "pass_criteria_changed": true,
-      "unreachable_reason": null,
-      "flags_required": [],
-      "expected_tools_ordered": "read_team",
-      "optional_tools": "set_slot;describe",
-      "alternative_path": "set_slot;describe",
-      "notes": "FU72: optional tools moved to alternative_path in CSV only."
-    },
-    "MR8__t1": {
-      "row_id": "MR8",
-      "turn": 1,
-      "request_text": "Lock Koraidon",
-      "points": [
-        {
-          "id": "p1",
-          "text": "illegal; state unchanged",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": true,
-      "pass_criteria_changed": true,
-      "unreachable_reason": null,
-      "flags_required": [],
-      "expected_tools_ordered": "check_species_legal",
-      "optional_tools": "set_slot",
-      "alternative_path": "set_slot",
-      "notes": "FU72: optional tools moved to alternative_path in CSV only."
     },
     "HP3__t1": {
       "row_id": "HP3",
@@ -489,19 +465,31 @@
       "points": [
         {
           "id": "p1",
-          "text": "Build with Salamencite; state a mega cannot hold another item; offer keep stone or base form + Leftovers (form change = offer only).",
+          "text": "Build Salamence holding Salamencite.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State that a mega cannot hold another item.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Offer keep-stone or base form + Leftovers (form change is offer-only).",
           "tool_backed": false,
           "conditional": false
         }
       ],
       "rewrite": true,
       "pass_criteria_changed": true,
-      "unreachable_reason": "partial: describe alt added; featured path may be unreachable at rung",
+      "unreachable_reason": null,
       "flags_required": [],
-      "expected_tools_ordered": "set_slot;describe",
+      "expected_tools_ordered": "describe",
       "optional_tools": "",
       "alternative_path": "no_lookup_needed|describe",
-      "notes": "FU72: no_lookup_needed or validator refusal accepted as alternative to describe."
+      "notes": "FU72: no_lookup_needed or validator refusal accepted as alternative to describe (CSV)."
     },
     "H8__t1": {
       "row_id": "H8",
@@ -510,12 +498,18 @@
       "points": [
         {
           "id": "p1",
-          "text": "Outcome: Item Clause \u2192 No; no mutation.",
+          "text": "Outcome: Item Clause \u2192 No.",
           "tool_backed": false,
           "conditional": false
         },
         {
           "id": "p2",
+          "text": "No mutation.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
           "text": "Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.",
           "tool_backed": true,
           "conditional": false
@@ -537,12 +531,18 @@
       "points": [
         {
           "id": "p1",
-          "text": "Outcome: Species Clause \u2192 No; no mutation.",
+          "text": "Outcome: Species Clause \u2192 No.",
           "tool_backed": false,
           "conditional": false
         },
         {
           "id": "p2",
+          "text": "No mutation.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
           "text": "Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.",
           "tool_backed": true,
           "conditional": false
@@ -564,7 +564,19 @@
       "points": [
         {
           "id": "p1",
-          "text": "Refuse: the mega stone is the required mega item; draft unchanged; form-change offer only.",
+          "text": "Refuse: the mega stone is the required mega item.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Draft unchanged.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Form-change offer only.",
           "tool_backed": false,
           "conditional": false
         }
@@ -580,27 +592,6 @@
       "alternative_path": "",
       "notes": "FU72 MM2: expected_tools includes read_team; sticky may shift refuse reason to lock."
     },
-    "MR7__t1": {
-      "row_id": "MR7",
-      "turn": 1,
-      "request_text": "Commit this build",
-      "points": [
-        {
-          "id": "p1",
-          "text": "nothing pending; state unchanged",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": true,
-      "pass_criteria_changed": true,
-      "unreachable_reason": null,
-      "flags_required": [],
-      "expected_tools_ordered": "commit_slot|confirm_build",
-      "optional_tools": "",
-      "alternative_path": "",
-      "notes": "FU72: optional tools moved to alternative_path in CSV only."
-    },
     "MU1__t1": {
       "row_id": "MU1",
       "turn": 1,
@@ -608,19 +599,43 @@
       "points": [
         {
           "id": "p1",
-          "text": "NO-MUTATION; claims scored; state unchanged; no lock/commit. Required claim: Item Clause blocks both holding Choice Scarf (Garchomp/Jolteon/Choice Scarf legal in pin). Other claims scored if made; variants must be legal.",
+          "text": "NO-MUTATION class.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Claims are scored.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "State unchanged; no lock or commit.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Required claim: Item Clause blocks both holding Choice Scarf (Garchomp / Jolteon / Choice Scarf legal in the pin).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "Other claims scored if made; variants must be legal.",
           "tool_backed": false,
           "conditional": false
         }
       ],
-      "rewrite": false,
+      "rewrite": true,
       "pass_criteria_changed": false,
       "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "no_lookup_needed",
       "optional_tools": "check_hypothetical",
       "alternative_path": "describe|check_hypothetical",
-      "notes": "FU72: MU1 key text unchanged (tool fixed in #387)."
+      "notes": "FU72: MU1 meaning split; pass criteria unchanged (tool fixed in #387)."
     },
     "MU4__t1": {
       "row_id": "MU4",
@@ -629,7 +644,25 @@
       "points": [
         {
           "id": "p1",
-          "text": "NO-MUTATION; claims scored. Yes/no/conditional with \u22651 tool-backed reason (Drizzle + explicit ability, usage, legality/clauses, state); each reason scored; bare yes/no = fail. Fixture: Pelipper unlocked + interacting locked slot.",
+          "text": "NO-MUTATION class.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Answer yes / no / conditional with at least one tool-backed reason (Drizzle + explicit ability, usage, legality/clauses, or state).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Each reason is scored.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Bare yes/no without a tool-backed reason fails.",
           "tool_backed": false,
           "conditional": false
         }
@@ -641,7 +674,115 @@
       "expected_tools_ordered": "check_hypothetical",
       "optional_tools": "read_team;get_abilities;get_usage_teammates",
       "alternative_path": "read_team;get_abilities;get_usage_teammates",
-      "notes": "FU72: optional tools moved to alternative_path in CSV only."
+      "notes": ""
+    },
+    "MR3__t1": {
+      "row_id": "MR3",
+      "turn": 1,
+      "request_text": "Lock Incineroar in slot 2",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Species Clause applies (second Incineroar).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State unchanged after the refusal.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_team",
+      "optional_tools": "set_slot;describe",
+      "alternative_path": "set_slot;describe",
+      "notes": "FU72 Rule B; optional tools in CSV alternative_path only."
+    },
+    "MR6__t1": {
+      "row_id": "MR6",
+      "turn": 1,
+      "request_text": "Unlock slot 2",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Empty unlock: accept a no-op or an explicit refusal.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State unchanged.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "unlock_slot",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MR7__t1": {
+      "row_id": "MR7",
+      "turn": 1,
+      "request_text": "Commit this build",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Nothing is pending to commit.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State unchanged.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "commit_slot|confirm_build",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MR8__t1": {
+      "row_id": "MR8",
+      "turn": 1,
+      "request_text": "Lock Koraidon",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Refuse the illegal species (Koraidon).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State unchanged.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": true,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "check_species_legal",
+      "optional_tools": "set_slot",
+      "alternative_path": "set_slot",
+      "notes": ""
     },
     "MU8__t1": {
       "row_id": "MU8",
@@ -650,7 +791,13 @@
       "points": [
         {
           "id": "p1",
-          "text": "No archetype/lock tools; state unchanged",
+          "text": "No archetype or lock write tools are used.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State unchanged.",
           "tool_backed": false,
           "conditional": false
         }
@@ -662,7 +809,7 @@
       "expected_tools_ordered": "no_lookup_needed",
       "optional_tools": "read_team;read_archetype;find_species;get_usage_teammates;get_usage_stats;check_learnset",
       "alternative_path": "read_team;read_archetype;find_species;get_usage_teammates;get_usage_stats;check_learnset",
-      "notes": "FU72: optional tools moved to alternative_path in CSV only."
+      "notes": ""
     },
     "MU2__t1": {
       "row_id": "MU2",
@@ -704,7 +851,13 @@
       "points": [
         {
           "id": "p1",
-          "text": "Explains empty unlock; no mutation.",
+          "text": "Explains empty unlock.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "No mutation.",
           "tool_backed": false,
           "conditional": false
         }
@@ -913,27 +1066,6 @@
       "alternative_path": "",
       "notes": ""
     },
-    "MR6__t1": {
-      "row_id": "MR6",
-      "turn": 1,
-      "request_text": "Unlock slot 2",
-      "points": [
-        {
-          "id": "p1",
-          "text": "Accept either a no-op (nothing to unlock) or an explicit refusal; state unchanged.",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": true,
-      "pass_criteria_changed": true,
-      "unreachable_reason": null,
-      "flags_required": [],
-      "expected_tools_ordered": "unlock_slot",
-      "optional_tools": "",
-      "alternative_path": "",
-      "notes": ""
-    },
     "MR5__t1": {
       "row_id": "MR5",
       "turn": 1,
@@ -941,7 +1073,13 @@
       "points": [
         {
           "id": "p1",
-          "text": "Request text is the registered errata: 'Lock into slot 2'. Refuse or ask; state unchanged (occupancy).",
+          "text": "Refuse or ask (occupied slot).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State unchanged.",
           "tool_backed": false,
           "conditional": false
         }
@@ -953,7 +1091,7 @@
       "expected_tools_ordered": "read_team",
       "optional_tools": "set_slot",
       "alternative_path": "",
-      "notes": "MR5b remains the clean occupancy test with a named species."
+      "notes": "MR5b remains the clean occupancy test with a named species. Registered request text is not a rubric point."
     },
     "OL4__t1": {
       "row_id": "OL4",
@@ -1314,7 +1452,7 @@
       ],
       "rewrite": true,
       "pass_criteria_changed": true,
-      "unreachable_reason": "partial: t2 set ok; lock_fields gaps at low rungs if any",
+      "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "set_slot;lock_fields",
       "optional_tools": "read_team",
@@ -1370,7 +1508,25 @@
       "points": [
         {
           "id": "p1",
-          "text": "Separate conflicting requests; ask the user to resolve; no guess; no state change until the user picks.",
+          "text": "Treat the turn as separate conflicting requests.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Ask the user to resolve which constraint wins.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Do not guess which constraint to keep.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "No state change until the user picks.",
           "tool_backed": false,
           "conditional": false
         }
@@ -1631,8 +1787,20 @@
       "points": [
         {
           "id": "p1",
-          "text": "COMMON_ITEM (ingame): Life Orb 42.4, Glimmoranite 28.0, Focus Sash 26.9; cum\u226590% cutoff rules unchanged; label in-game.",
+          "text": "COMMON_ITEM (ingame): Life Orb 42.4, Glimmoranite 28.0, Focus Sash 26.9 (cum\u226590% at 3, cum 97.3).",
           "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "'nothing' counts toward slots and the 90% cutoff when present.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Label the source as in-game.",
+          "tool_backed": false,
           "conditional": false
         }
       ],
@@ -1643,7 +1811,7 @@
       "expected_tools_ordered": "get_usage_items",
       "optional_tools": "",
       "alternative_path": "",
-      "notes": "Rebuilt from pin; percentages match prior key text."
+      "notes": "Rebuilt from pin; percentages match prior key text; nothing/cum rules restored."
     },
     "HU3__t1": {
       "row_id": "HU3",
@@ -1652,13 +1820,25 @@
       "points": [
         {
           "id": "p1",
-          "text": "Option list of bulky Fire types for slot 3 (3\u20135); each option has a bulk reason.",
+          "text": "Option list of 3\u20135 bulky Fire types for slot 3.",
           "tool_backed": true,
           "conditional": false
         },
         {
           "id": "p2",
-          "text": "Ask which; slot unchanged until selection.",
+          "text": "Each option has a bulk reason.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Ask which option to take.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Slot unchanged until selection.",
           "tool_backed": false,
           "conditional": false
         }
@@ -1671,6 +1851,108 @@
       "optional_tools": "get_usage_teammates;get_usage_stats;check_learnset",
       "alternative_path": "",
       "notes": ""
+    },
+    "DM6__t1": {
+      "row_id": "DM6",
+      "turn": 1,
+      "request_text": "How much does Mega Gallade's Close Combat do into Incineroar?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "ASSUME-STATE: Gallade-Mega with Inner Focus and Galladite.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Attacker nature/SP/item from the top Showdown joint (Jolly Spe-32 / Atk-32, Galladite, COMMON_JOINT[0]).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Move is Close Combat (Fighting 2.0\u00d7 into Fire/Dark Incineroar). Single case at Atk stage 0 (no Intimidate drop).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Key damage range is 270\u2013318 (guaranteed OHKO).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "Arm must state attacker nature/SP/item matching the key; mismatch is not SERVED.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p6",
+          "text": "Numbers with no stated attacker conditions are a false claim.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p7",
+          "text": "A \u22121 range or a second (Intimidate) case is false. Not a spread move.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "Restored from part3_request_set_v4.md DM6 acceptance (was truncated via CSV notes ';'-split)."
+    },
+    "HN2b__t1": {
+      "row_id": "HN2b",
+      "turn": 1,
+      "request_text": "Does Annihilape outspeed Gholdengo?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Full forward grid from derived_keys.hn2b_forward_grid (COMMON_SPEED distinct cells).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Scarf lines: two only.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Tailwind extras are included in the grid.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Control HN2: Annihilape outspeeds Gholdengo at max (156 > 149).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "Pair is not pooled with HN2.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_common_speeds;get_speed",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "Restored from part3 HN2b acceptance; CSV notes were incomplete."
     },
     "IC1__t1": {
       "row_id": "IC1",
@@ -1798,6 +2080,78 @@
       "alternative_path": "get_featured_builds;check_learnset;set_slot;describe",
       "notes": "FU72: rewritten to stop ';'-fragment splits of the acceptance cell."
     },
+    "H18b__t1": {
+      "row_id": "H18b",
+      "turn": 1,
+      "request_text": "Hyper offense, no weather \u2014 continue from seeded slots.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Establish the hyper-offense definition (every locked/drafted slot has 32 SP in Atk or SpA).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Do not re-ask for the definition on later turns.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "t2 Sinistcha fail-case needs a usage/synth passing set under the hyper_offense_32 constraint; get_featured_builds is unbound and no other tool returns that passing set at current rungs",
+      "flags_required": [],
+      "expected_tools_ordered": "add_constraint",
+      "optional_tools": "change_archetype;read_team",
+      "alternative_path": "",
+      "notes": "FU72: t1 is definition-only; t2 content moved to t2."
+    },
+    "H18b__t2": {
+      "row_id": "H18b",
+      "turn": 2,
+      "request_text": "Add Sinistcha.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Sinistcha's top joint fails the 32-SP Atk/SpA rule.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Supply a passing set (usage lookup or synthesis) that satisfies the 32-SP rule.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "State that the passing set differs from the usual Sinistcha set and exists to satisfy the constraint.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Offer the usual set as well (offer only \u2014 not a mutation).",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "Keep the hyper-offense constraint. Incineroar's top joint passes and is not the fail case.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "t2 Sinistcha fail-case needs a usage/synth passing set under the hyper_offense_32 constraint; get_featured_builds is unbound and no other tool returns that passing set at current rungs",
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_spreads",
+      "optional_tools": "solve_spread;read_constraints;get_abilities;get_usage_items;get_usage_stats;check_species_legal",
+      "alternative_path": "get_featured_builds",
+      "notes": "FU72: t2 owns the Sinistcha fail-case content formerly bundled into t1."
+    },
     "IX1__t1": {
       "row_id": "IX1",
       "turn": 1,
@@ -1921,33 +2275,6 @@
       "alternative_path": "",
       "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
     },
-    "H18b__t1": {
-      "row_id": "H18b",
-      "turn": 1,
-      "request_text": "Hyper offense, no weather \u2014 continue from seeded slots.",
-      "points": [
-        {
-          "id": "p1",
-          "text": "Binary checklist H18b: t1 establishes definition (no re-ask at t2)",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "t2 Sinistcha fails top-joint SP rule \u2014 supply passing set (lookup/synth), state differs from usual + exists to satisfy 32-SP rule, offer usual set (not a mutation), constraint kept. Incineroar top joint passes \u2014 not the fail case.",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": false,
-      "pass_criteria_changed": false,
-      "unreachable_reason": "tool-gap / judgment fixture path; mark unreachable where no equivalent at rung",
-      "flags_required": [],
-      "expected_tools_ordered": "add_constraint",
-      "optional_tools": "change_archetype;read_team",
-      "alternative_path": "",
-      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
-    },
     "MS1__t1": {
       "row_id": "MS1",
       "turn": 1,
@@ -1989,81 +2316,6 @@
       "optional_tools": "read_team",
       "alternative_path": "",
       "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
-    },
-    "DM6__t1": {
-      "row_id": "DM6",
-      "turn": 1,
-      "request_text": "How much does Mega Gallade's Close Combat do into Incineroar?",
-      "points": [
-        {
-          "id": "p1",
-          "text": "Key: Gallade-Mega top joint+Galladite+Inner Focus",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "Incineroar top joint+item+ability. Neither side fully stated by user \u2192 usage lookups for both, then calc_damage. No Intimidate second case.",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": false,
-      "pass_criteria_changed": false,
-      "unreachable_reason": null,
-      "flags_required": [],
-      "expected_tools_ordered": "get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
-      "optional_tools": "",
-      "alternative_path": "",
-      "notes": "FU72 first-pass mechanical split (no wording change)."
-    },
-    "HN2b__t1": {
-      "row_id": "HN2b",
-      "turn": 1,
-      "request_text": "Does Annihilape outspeed Gholdengo?",
-      "points": [
-        {
-          "id": "p1",
-          "text": "COMMON_SPEED cells via get_common_speeds",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "get_speed for own lines. Abilities not needed for Spe.",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": false,
-      "pass_criteria_changed": false,
-      "unreachable_reason": null,
-      "flags_required": [],
-      "expected_tools_ordered": "get_common_speeds;get_speed",
-      "optional_tools": "",
-      "alternative_path": "",
-      "notes": "FU72 first-pass mechanical split (no wording change)."
-    },
-    "H18b__t2": {
-      "row_id": "H18b",
-      "turn": 2,
-      "request_text": "Add Sinistcha.",
-      "points": [
-        {
-          "id": "p1",
-          "text": "Per-turn key for H18b t2; see acceptance binary checklist.",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": true,
-      "pass_criteria_changed": false,
-      "unreachable_reason": "tool-gap / judgment fixture path; mark unreachable where no equivalent at rung",
-      "flags_required": [],
-      "expected_tools_ordered": "get_usage_spreads",
-      "optional_tools": "solve_spread;read_constraints;get_abilities;get_usage_items;get_usage_stats;check_species_legal",
-      "alternative_path": "get_featured_builds",
-      "notes": "Points per turn, not the same set on every turn."
     }
   },
   "ambiguous_splits": [
@@ -2090,18 +2342,6 @@
       "turn": 1,
       "reason": "semicolon split on unrewritten unreachable key",
       "acceptance": "safe=no damage: Flying / Levitate / Telepathy / Earth Eater; examples+counts with source label; resist\u2260safe unless definition says so; set matches stated definition"
-    },
-    {
-      "row": "H18b",
-      "turn": 1,
-      "reason": "semicolon split on unrewritten unreachable key",
-      "acceptance": "Binary checklist H18b: t1 establishes definition (no re-ask at t2); t2 Sinistcha fails top-joint SP rule \u2014 supply passing set (lookup/synth), state differs from usual + exists to satisfy 32-SP rule, offer usual set (not a mutation), constraint kept. Incineroar top joint passes \u2014 not the fail case."
-    },
-    {
-      "row": "HN2b",
-      "turn": 1,
-      "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
-      "source_preview": "COMMON_SPEED cells via get_common_speeds; get_speed for own lines. Abilities not needed for Spe."
     }
   ],
   "request_text_overrides": {
@@ -2115,5 +2355,260 @@
     "MT1__t1": "limit slot 1 to Water only",
     "HU3__t1": "Give me some bulky Fire type options for slot 3",
     "TB2__t1": "Swap Flare Blitz for Darkest Lariat."
-  }
+  },
+  "old_point_maps": {
+    "DM2": {
+      "p1": [
+        "t1.p1",
+        "t1.p2"
+      ],
+      "p2": [
+        "t1.p1",
+        "t1.p3"
+      ]
+    },
+    "DM6": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p2",
+        "t1.p3",
+        "t1.p4",
+        "t1.p5"
+      ],
+      "p4": [
+        "t1.p5"
+      ],
+      "p5": [
+        "t1.p6"
+      ],
+      "p6": [
+        "t1.p7"
+      ]
+    },
+    "H15": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p1",
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ],
+      "p4": [
+        "t1.p4"
+      ],
+      "p5": [
+        "t1.p4"
+      ]
+    },
+    "H18b": {
+      "p1": [
+        "t1.p1",
+        "t1.p2"
+      ],
+      "p2": [
+        "t2.p1",
+        "t2.p2",
+        "t2.p3",
+        "t2.p4",
+        "t2.p5"
+      ]
+    },
+    "HN2b": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ],
+      "p4": [
+        "t1.p4"
+      ],
+      "p5": [
+        "t1.p5"
+      ]
+    },
+    "HN3": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ]
+    },
+    "HU2b": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p1",
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p2"
+      ],
+      "p4": [
+        "t1.p2",
+        "t1.p3"
+      ],
+      "p5": [
+        "t1.p4"
+      ],
+      "p6": [
+        "t1.p4"
+      ]
+    },
+    "HU3": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ],
+      "p4": [
+        "t1.p4"
+      ]
+    },
+    "IC1": {
+      "p1": [
+        "t1.p1",
+        "t2.p1"
+      ],
+      "p2": [
+        "t2.p1"
+      ]
+    },
+    "IX1": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ],
+      "p4": [
+        "t1.p4"
+      ]
+    },
+    "IX5": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ],
+      "p4": [
+        "t1.p4"
+      ],
+      "p5": [
+        "t1.p5"
+      ]
+    },
+    "IX7": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ],
+      "p4": [
+        "t1.p4"
+      ]
+    },
+    "MR5": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ]
+    },
+    "MS1": {
+      "acceptance": [
+        "t1.acceptance"
+      ]
+    },
+    "MS8": {
+      "acceptance": [
+        "t1.acceptance"
+      ]
+    },
+    "MU1": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ],
+      "p4": [
+        "t1.p3",
+        "t1.p4"
+      ],
+      "p5": [
+        "t1.p5"
+      ]
+    },
+    "MU2": {
+      "p1": [
+        "t1.p1"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3"
+      ]
+    },
+    "OL5": {
+      "acceptance": [
+        "t1.acceptance"
+      ]
+    },
+    "OL7a": {
+      "acceptance": [
+        "t1.acceptance"
+      ]
+    },
+    "TB1": {
+      "p1": [
+        "t1.p1",
+        "t1.p2"
+      ],
+      "p2": [
+        "t1.p2"
+      ],
+      "p3": [
+        "t1.p3",
+        "t1.p4"
+      ]
+    }
+  },
+  "old_point_map_failures": []
 }

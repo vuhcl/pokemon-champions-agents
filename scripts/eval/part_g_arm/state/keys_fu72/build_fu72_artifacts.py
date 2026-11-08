@@ -521,24 +521,25 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
 
     # --- IS4 ---
     is4_pts = [
-        _point("p1", "State the Mega Alakazam target cell (Timid Spe-32) or a max-speed assumption.", tool_backed=False),
+        _point("p1", "The prompt requires Mega Alakazam (not base).", tool_backed=False),
+        _point("p2", "State the Mega Alakazam target cell (Timid Spe-32) or a max-speed assumption.", tool_backed=False),
         _point(
-            "p2",
-            f"State that Pincurchin's max Spe under Scarf + Tailwind ({is_min['IS4']['pincurchin_max_scarf_tw_timid']}) does not outspeed Mega Alakazam Timid-32 ({is_min['IS4']['alakazam_mega_timid_32']}); unreachable even under Scarf + Tailwind. No invented Spe SP.",
+            "p3",
+            f"Pincurchin's max Spe under Scarf + Tailwind is {is_min['IS4']['pincurchin_max_scarf_tw_timid']}, below Mega Alakazam Timid-32 ({is_min['IS4']['alakazam_mega_timid_32']}); unreachable even under Scarf + Tailwind.",
             tool_backed=True,
         ),
-        _point("p3", "Never say 'not recommended'.", tool_backed=False),
+        _point("p4", "Pincurchin has no Spe-boosting move that changes this reachability.", tool_backed=False),
+        _point("p5", "State unreachable (no invented Spe SP that claims to outspeed the max cell).", tool_backed=False),
+        _point("p6", "Never say 'not recommended'.", tool_backed=False),
     ]
     add_turn("IS4", 1, points=is4_pts, rewrite=True, pass_criteria_changed=True,
              tools={"expected": "get_speed|solve_spread", "optional": "get_common_speeds"},
-             notes="FU72 IS4: no minimum parts; unreachable point only. Offline max stack 219 (errata G7).")
+             notes="FU72 IS4: 4-part min-SP removed; no Spe-boosting move restored. Offline max stack 219 (errata G7).")
 
-    # --- Refusal Rule B rows ---
+    # --- Refusal Rule B rows (MR3/MR8 resolved below with meaning splits) ---
     for rid, prompt_note in [
         ("MR1", "illegal species"),
         ("MR2", "illegal item (Choice Specs on Hatterene)"),
-        ("MR3", "Species Clause"),
-        ("MR8", "illegal mutation"),
         ("HP3", "illegal mutation"),
     ]:
         add_turn(
@@ -618,17 +619,19 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         notes="FU72: Darkest Lariat replaces illegal Knock Off; moveset unlocked in seed.",
     )
 
-    # MM1
+    # MM1 — one point per distinct behavior; describe alt in CSV only.
     add_turn(
         "MM1",
         1,
         points=[
-            _point("p1", "Build with Salamencite; state a mega cannot hold another item; offer keep stone or base form + Leftovers (form change = offer only).", tool_backed=False),
+            _point("p1", "Build Salamence holding Salamencite.", tool_backed=True),
+            _point("p2", "State that a mega cannot hold another item.", tool_backed=False),
+            _point("p3", "Offer keep-stone or base form + Leftovers (form change is offer-only).", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=True,
-        tools={"alt": "no_lookup_needed|describe"},
-        notes="FU72: no_lookup_needed or validator refusal accepted as alternative to describe.",
+        tools={"expected": "describe", "alt": "no_lookup_needed|describe"},
+        notes="FU72: no_lookup_needed or validator refusal accepted as alternative to describe (CSV).",
     )
 
     # H8 Q9 — describe required, no no_lookup_needed
@@ -637,20 +640,23 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
             rid,
             1,
             points=[
-                _point("p1", f"Outcome: {claim}; no mutation.", tool_backed=False),
-                _point("p2", "Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.", tool_backed=True),
+                _point("p1", f"Outcome: {claim}.", tool_backed=False),
+                _point("p2", "No mutation.", tool_backed=False),
+                _point("p3", "Required step: describe (or equivalent rules lookup). no_lookup_needed is NOT an alternative; a correct answer from memory can pass outcome and fail the required step.", tool_backed=True),
             ],
             rewrite=True,
             pass_criteria_changed=True,
             tools={"expected": "describe", "alt": ""},
         )
 
-    # MM2: read_team required lives in the tools CSV, not in rubric prose.
+    # MM2 — refuse / draft unchanged / form-change offer; read_team in CSV.
     add_turn(
         "MM2",
         1,
         points=[
-            _point("p1", "Refuse: the mega stone is the required mega item; draft unchanged; form-change offer only.", tool_backed=False),
+            _point("p1", "Refuse: the mega stone is the required mega item.", tool_backed=False),
+            _point("p2", "Draft unchanged.", tool_backed=False),
+            _point("p3", "Form-change offer only.", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=True,
@@ -659,28 +665,104 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         notes="FU72 MM2: expected_tools includes read_team; sticky may shift refuse reason to lock.",
     )
 
-    # Optional tools listed as alternative_path in the CSV only (not as rubric points).
-    for rid in ["MR3", "MR7", "MR8", "MU1", "MU4", "MU8"]:
+    def _csv_tools(rid: str) -> dict[str, str]:
         base = csv_by.get((rid, 1), {})
         opt = (base.get("optional_tools") or "").strip()
         exp = (base.get("expected_tools_ordered") or "").strip()
         alt = (base.get("alternative_path") or "").strip()
         if opt and opt not in alt:
             alt = "|".join(x for x in [alt, opt] if x)
-        acc = (rows.get(rid) or {}).get("acceptance") or ""
-        add_turn(
-            rid,
-            1,
-            points=[_point("p1", acc, tool_backed=False)],
-            rewrite=rid not in ("MU1",),
-            pass_criteria_changed=False if rid == "MU1" else True,
-            tools={"expected": exp, "optional": opt, "alt": alt},
-            notes=(
-                "FU72: MU1 key text unchanged (tool fixed in #387)."
-                if rid == "MU1"
-                else "FU72: optional tools moved to alternative_path in CSV only."
-            ),
-        )
+        return {"expected": exp, "optional": opt, "alt": alt}
+
+    # MU1 — unchanged pass criteria; meaning split (tool fixed in #387).
+    add_turn(
+        "MU1",
+        1,
+        points=[
+            _point("p1", "NO-MUTATION class.", tool_backed=False),
+            _point("p2", "Claims are scored.", tool_backed=False),
+            _point("p3", "State unchanged; no lock or commit.", tool_backed=False),
+            _point("p4", "Required claim: Item Clause blocks both holding Choice Scarf (Garchomp / Jolteon / Choice Scarf legal in the pin).", tool_backed=False),
+            _point("p5", "Other claims scored if made; variants must be legal.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        tools=_csv_tools("MU1"),
+        notes="FU72: MU1 meaning split; pass criteria unchanged (tool fixed in #387).",
+    )
+
+    # MU4
+    add_turn(
+        "MU4",
+        1,
+        points=[
+            _point("p1", "NO-MUTATION class.", tool_backed=False),
+            _point("p2", "Answer yes / no / conditional with at least one tool-backed reason (Drizzle + explicit ability, usage, legality/clauses, or state).", tool_backed=True),
+            _point("p3", "Each reason is scored.", tool_backed=False),
+            _point("p4", "Bare yes/no without a tool-backed reason fails.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        tools=_csv_tools("MU4"),
+    )
+
+    # MR3 / MR6 / MR7 / MR8 / MU8 — Rule B / refuse rows with resolved behaviors.
+    add_turn(
+        "MR3",
+        1,
+        points=[
+            _point("p1", "Species Clause applies (second Incineroar).", tool_backed=True),
+            _point("p2", "State unchanged after the refusal.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        tools=_csv_tools("MR3"),
+        notes="FU72 Rule B; optional tools in CSV alternative_path only.",
+    )
+    add_turn(
+        "MR6",
+        1,
+        points=[
+            _point("p1", "Empty unlock: accept a no-op or an explicit refusal.", tool_backed=False),
+            _point("p2", "State unchanged.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        tools=_csv_tools("MR6"),
+    )
+    add_turn(
+        "MR7",
+        1,
+        points=[
+            _point("p1", "Nothing is pending to commit.", tool_backed=False),
+            _point("p2", "State unchanged.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        tools=_csv_tools("MR7"),
+    )
+    add_turn(
+        "MR8",
+        1,
+        points=[
+            _point("p1", "Refuse the illegal species (Koraidon).", tool_backed=True),
+            _point("p2", "State unchanged.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        tools=_csv_tools("MR8"),
+    )
+    add_turn(
+        "MU8",
+        1,
+        points=[
+            _point("p1", "No archetype or lock write tools are used.", tool_backed=False),
+            _point("p2", "State unchanged.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        tools=_csv_tools("MU8"),
+    )
 
     # MU2 unchanged explicitly
     if "MU2" in rows:
@@ -697,7 +779,8 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         "Q10",
         1,
         points=[
-            _point("p1", "Explains empty unlock; no mutation.", tool_backed=False),
+            _point("p1", "Explains empty unlock.", tool_backed=False),
+            _point("p2", "No mutation.", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=True,
@@ -784,28 +867,18 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         tools={"expected": "no_lookup_needed", "optional": "read_team"},
     )
 
-    # MR6 no-op or refusal
-    add_turn(
-        "MR6",
-        1,
-        points=[
-            _point("p1", "Accept either a no-op (nothing to unlock) or an explicit refusal; state unchanged.", tool_backed=False),
-        ],
-        rewrite=True,
-        pass_criteria_changed=True,
-    )
-
-    # MR5
+    # MR5 — request text lives in request_text / CSV only, not in points.
     add_turn(
         "MR5",
         1,
         points=[
-            _point("p1", "Request text is the registered errata: 'Lock into slot 2'. Refuse or ask; state unchanged (occupancy).", tool_backed=False),
+            _point("p1", "Refuse or ask (occupied slot).", tool_backed=False),
+            _point("p2", "State unchanged.", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=False,
         request_text="Lock into slot 2",
-        notes="MR5b remains the clean occupancy test with a named species.",
+        notes="MR5b remains the clean occupancy test with a named species. Registered request text is not a rubric point.",
     )
 
     # ASK rows
@@ -964,7 +1037,10 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         "HC2",
         1,
         points=[
-            _point("p1", "Separate conflicting requests; ask the user to resolve; no guess; no state change until the user picks.", tool_backed=False),
+            _point("p1", "Treat the turn as separate conflicting requests.", tool_backed=False),
+            _point("p2", "Ask the user to resolve which constraint wins.", tool_backed=False),
+            _point("p3", "Do not guess which constraint to keep.", tool_backed=False),
+            _point("p4", "No state change until the user picks.", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=True,
@@ -1085,8 +1161,9 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         request_text="Use Choice Scarf.",
     )
 
-    # HN3 — percents unchanged
+    # HN3 — percents unchanged; restore 'nothing' / cumulative content.
     hn3 = usage["HN3_common_items"]
+    cum = sum(float(i["pct"]) for i in hn3)
     add_turn(
         "HN3",
         1,
@@ -1095,26 +1172,70 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
                 "p1",
                 "COMMON_ITEM (ingame): "
                 + ", ".join(f"{i['name']} {i['pct']}" for i in hn3)
-                + "; cum≥90% cutoff rules unchanged; label in-game.",
+                + f" (cum≥90% at {len(hn3)}, cum {cum:.1f}).",
                 tool_backed=True,
             ),
+            _point("p2", "'nothing' counts toward slots and the 90% cutoff when present.", tool_backed=False),
+            _point("p3", "Label the source as in-game.", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=False,
-        notes="Rebuilt from pin; percentages match prior key text.",
+        notes="Rebuilt from pin; percentages match prior key text; nothing/cum rules restored.",
     )
 
-    # HU3 reword
+    # HU3 reword — one point per behavior.
     add_turn(
         "HU3",
         1,
         points=[
-            _point("p1", "Option list of bulky Fire types for slot 3 (3–5); each option has a bulk reason.", tool_backed=True),
-            _point("p2", "Ask which; slot unchanged until selection.", tool_backed=False),
+            _point("p1", "Option list of 3–5 bulky Fire types for slot 3.", tool_backed=True),
+            _point("p2", "Each option has a bulk reason.", tool_backed=False),
+            _point("p3", "Ask which option to take.", tool_backed=False),
+            _point("p4", "Slot unchanged until selection.", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=False,
         request_text="Give me some bulky Fire type options for slot 3",
+    )
+
+    # DM6 — restore full acceptance (Close Combat, 270–318, false-claim rules).
+    add_turn(
+        "DM6",
+        1,
+        points=[
+            _point("p1", "ASSUME-STATE: Gallade-Mega with Inner Focus and Galladite.", tool_backed=True),
+            _point("p2", "Attacker nature/SP/item from the top Showdown joint (Jolly Spe-32 / Atk-32, Galladite, COMMON_JOINT[0]).", tool_backed=True),
+            _point("p3", "Move is Close Combat (Fighting 2.0× into Fire/Dark Incineroar). Single case at Atk stage 0 (no Intimidate drop).", tool_backed=True),
+            _point("p4", "Key damage range is 270–318 (guaranteed OHKO).", tool_backed=True),
+            _point("p5", "Arm must state attacker nature/SP/item matching the key; mismatch is not SERVED.", tool_backed=False),
+            _point("p6", "Numbers with no stated attacker conditions are a false claim.", tool_backed=False),
+            _point("p7", "A −1 range or a second (Intimidate) case is false. Not a spread move.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        tools={
+            "expected": "get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
+            "optional": "",
+            "alt": "",
+        },
+        notes="Restored from part3_request_set_v4.md DM6 acceptance (was truncated via CSV notes ';'-split).",
+    )
+
+    # HN2b — restore forward-grid / control content (not the truncated CSV notes).
+    add_turn(
+        "HN2b",
+        1,
+        points=[
+            _point("p1", "Full forward grid from derived_keys.hn2b_forward_grid (COMMON_SPEED distinct cells).", tool_backed=True),
+            _point("p2", "Scarf lines: two only.", tool_backed=False),
+            _point("p3", "Tailwind extras are included in the grid.", tool_backed=False),
+            _point("p4", "Control HN2: Annihilape outspeeds Gholdengo at max (156 > 149).", tool_backed=True),
+            _point("p5", "Pair is not pooled with HN2.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        tools={"expected": "get_common_speeds;get_speed", "optional": "", "alt": ""},
+        notes="Restored from part3 HN2b acceptance; CSV notes were incomplete.",
     )
 
     # IC1 — mark unreachable where featured path missing; keep structure
@@ -1175,23 +1296,62 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         notes="FU72: rewritten to stop ';'-fragment splits of the acceptance cell.",
     )
 
-    # Unreachable tool-gap rows (keys not frozen as gradable)
+    # H18b — t1 definition only; t2 Sinistcha fail-case (content moved out of t1).
+    h18b_unreachable = (
+        "t2 Sinistcha fail-case needs a usage/synth passing set under the hyper_offense_32 "
+        "constraint; get_featured_builds is unbound and no other tool returns that passing set "
+        "at current rungs"
+    )
+    add_turn(
+        "H18b",
+        1,
+        points=[
+            _point("p1", "Establish the hyper-offense definition (every locked/drafted slot has 32 SP in Atk or SpA).", tool_backed=False),
+            _point("p2", "Do not re-ask for the definition on later turns.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        unreachable=h18b_unreachable,
+        notes="FU72: t1 is definition-only; t2 content moved to t2.",
+    )
+    add_turn(
+        "H18b",
+        2,
+        points=[
+            _point("p1", "Sinistcha's top joint fails the 32-SP Atk/SpA rule.", tool_backed=True),
+            _point("p2", "Supply a passing set (usage lookup or synthesis) that satisfies the 32-SP rule.", tool_backed=True),
+            _point("p3", "State that the passing set differs from the usual Sinistcha set and exists to satisfy the constraint.", tool_backed=False),
+            _point("p4", "Offer the usual set as well (offer only — not a mutation).", tool_backed=False),
+            _point("p5", "Keep the hyper-offense constraint. Incineroar's top joint passes and is not the fail case.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        unreachable=h18b_unreachable,
+        notes="FU72: t2 owns the Sinistcha fail-case content formerly bundled into t1.",
+    )
+
+    # Unreachable tool-gap rows (MM1/MT2 removed — alternatives exist).
     unreachable_specs = {
         "IX1": "#367/#368 effect/priority lookup not shipped",
         "IX5": "#367 effect lookup not shipped",
         "IX7": "#368 type-effectiveness / safe-set lookup not shipped",
         "HU2b": "get_meta_threats returns in-game list, not Showdown ≥4.52% set the key assumes",
-        "H18b": "tool-gap / judgment fixture path; mark unreachable where no equivalent at rung",
-        "MM1": "partial: describe alt added; featured path may be unreachable at rung",
+        "H18b": h18b_unreachable,
         "TB1": "get_featured_builds unreachable; synthesis+check_learnset+describe alt listed",
         "MS1": "lock_fields below rung 4",
         "MS8": "lock_fields below rung 4",
-        "MT2": "partial: t2 set ok; lock_fields gaps at low rungs if any",
         "GS1": "get_featured_builds unreachable; synthesis alt listed on t1",
     }
+    # Clear stale unreachable marks on rows that now have alternatives.
+    for rid in ("MM1", "MT2"):
+        for key, t in list(turns.items()):
+            if t["row_id"] == rid:
+                t["unreachable_reason"] = None
     for rid, reason in unreachable_specs.items():
         if f"{rid}__t1" in turns:
-            turns[f"{rid}__t1"]["unreachable_reason"] = turns[f"{rid}__t1"].get("unreachable_reason") or reason
+            turns[f"{rid}__t1"]["unreachable_reason"] = reason
+            if f"{rid}__t2" in turns and rid == "H18b":
+                turns[f"{rid}__t2"]["unreachable_reason"] = reason
         elif rid in rows:
             acc = rows[rid]["acceptance"]
             pts, amb = _split_semicolon(acc)
@@ -1212,8 +1372,9 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         key = f"{rid}__t{turn}"
         if key in turns and turns[key].get("rewrite"):
             continue
+        if key in turns:
+            continue
         acc = rows.get(rid, {}).get("acceptance") or ""
-        # For multi-turn, acceptance is whole-row; flag and attach per-turn note from CSV
         csv_note = (csv_by.get((rid, turn)) or {}).get("notes") or ""
         source = csv_note if csv_note.strip() else acc
         pts, amb = _split_semicolon(source)
@@ -1226,30 +1387,14 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
                     "source_preview": source[:240],
                 }
             )
-        if key not in turns:
-            add_turn(
-                rid,
-                turn,
-                points=[{"id": p["id"], "text": p["text"], "tool_backed": False, "conditional": False} for p in pts],
-                rewrite=False,
-                pass_criteria_changed=False,
-                notes="FU72 first-pass mechanical split (no wording change).",
-            )
-
-    # H18b multi-turn structure note
-    if "H18b" in rows:
-        for t in (1, 2):
-            key = f"H18b__t{t}"
-            if key not in turns:
-                add_turn(
-                    "H18b",
-                    t,
-                    points=[_point("p1", f"Per-turn key for H18b t{t}; see acceptance binary checklist.", tool_backed=False)],
-                    rewrite=True,
-                    pass_criteria_changed=False,
-                    unreachable=unreachable_specs["H18b"],
-                    notes="Points per turn, not the same set on every turn.",
-                )
+        add_turn(
+            rid,
+            turn,
+            points=[{"id": p["id"], "text": p["text"], "tool_backed": False, "conditional": False} for p in pts],
+            rewrite=False,
+            pass_criteria_changed=False,
+            notes="FU72 first-pass mechanical split (no wording change).",
+        )
 
     return {
         "schema": "part_g_arm_hand_keys_fu72_v1",
@@ -1294,11 +1439,124 @@ def build_csv_rev4(hand: dict[str, Any]) -> Path:
     return dest
 
 
-def build_point_diff(hand: dict[str, Any]) -> str:
+# Explicit old→new maps for rows with no intended pass-criteria change.
+# Values are new point refs: "tN.pM". An unmapped old point fails the build.
+OLD_POINT_MAPS: dict[str, dict[str, list[str]]] = {
+    "MU1": {
+        "p1": ["t1.p1"],
+        "p2": ["t1.p2"],
+        "p3": ["t1.p3"],
+        "p4": ["t1.p3", "t1.p4"],
+        "p5": ["t1.p5"],
+    },
+    "MR5": {"p1": ["t1.p1"], "p2": ["t1.p2"]},
+    "HU3": {"p1": ["t1.p1"], "p2": ["t1.p2"], "p3": ["t1.p3"], "p4": ["t1.p4"]},
+    "HN3": {"p1": ["t1.p1"], "p2": ["t1.p2"], "p3": ["t1.p3"]},
+    "HN2b": {
+        "p1": ["t1.p1"],
+        "p2": ["t1.p2"],
+        "p3": ["t1.p3"],
+        "p4": ["t1.p4"],
+        "p5": ["t1.p5"],
+    },
+    "DM6": {
+        "p1": ["t1.p1"],
+        "p2": ["t1.p2"],
+        "p3": ["t1.p2", "t1.p3", "t1.p4", "t1.p5"],
+        "p4": ["t1.p5"],
+        "p5": ["t1.p6"],
+        "p6": ["t1.p7"],
+    },
+    "DM2": {"p1": ["t1.p1", "t1.p2"], "p2": ["t1.p1", "t1.p3"]},
+    "H15": {
+        "p1": ["t1.p1"],
+        "p2": ["t1.p1", "t1.p2"],
+        "p3": ["t1.p3"],
+        "p4": ["t1.p4"],
+        "p5": ["t1.p4"],
+    },
+    "H18b": {
+        "p1": ["t1.p1", "t1.p2"],
+        "p2": ["t2.p1", "t2.p2", "t2.p3", "t2.p4", "t2.p5"],
+    },
+    "IC1": {"p1": ["t1.p1", "t2.p1"], "p2": ["t2.p1"]},
+    "HU2b": {
+        "p1": ["t1.p1"],
+        "p2": ["t1.p1", "t1.p2"],
+        "p3": ["t1.p2"],
+        "p4": ["t1.p2", "t1.p3"],
+        "p5": ["t1.p4"],
+        "p6": ["t1.p4"],
+    },
+    "TB1": {
+        "p1": ["t1.p1", "t1.p2"],
+        "p2": ["t1.p2"],
+        "p3": ["t1.p3", "t1.p4"],
+    },
+}
+
+
+def _new_point_refs(turns_for_row: list[dict[str, Any]]) -> set[str]:
+    refs: set[str] = set()
+    for t in turns_for_row:
+        for p in t["points"]:
+            refs.add(f"t{t['turn']}.{p['id']}")
+    return refs
+
+
+def build_old_point_maps(hand: dict[str, Any], rows: dict[str, Any]) -> dict[str, Any]:
+    """For every row with no intended pass-criteria change, map each old point → new refs."""
+    maps: dict[str, dict[str, list[str]]] = {}
+    failures: list[str] = []
+    by_row: dict[str, list[dict[str, Any]]] = {}
+    for t in hand["turns"].values():
+        by_row.setdefault(t["row_id"], []).append(t)
+    for rid, turns_for_row in sorted(by_row.items()):
+        turns_for_row = sorted(turns_for_row, key=lambda x: x["turn"])
+        if any(t["pass_criteria_changed"] for t in turns_for_row):
+            continue
+        old = rows.get(rid, {}).get("acceptance") or ""
+        old_pts, _ = _split_semicolon(old)
+        explicit = OLD_POINT_MAPS.get(rid)
+        if explicit is None:
+            # Identity only when every turn is unre rewritten and point ids match old.
+            if all(not t["rewrite"] for t in turns_for_row) and len(turns_for_row) == 1:
+                new_ids = {p["id"] for p in turns_for_row[0]["points"]}
+                old_ids = {p["id"] for p in old_pts}
+                if old_ids <= new_ids:
+                    explicit = {p["id"]: [f"t1.{p['id']}"] for p in old_pts}
+                else:
+                    failures.append(f"{rid}: no OLD_POINT_MAPS entry and identity ids do not match")
+                    continue
+            else:
+                failures.append(f"{rid}: pass_criteria unchanged but no OLD_POINT_MAPS entry")
+                continue
+        new_refs = _new_point_refs(turns_for_row)
+        row_map: dict[str, list[str]] = {}
+        for p in old_pts:
+            targets = explicit.get(p["id"])
+            if not targets:
+                failures.append(f"{rid}: old {p['id']} unmapped ({p['text'][:80]})")
+                continue
+            missing = [r for r in targets if r not in new_refs]
+            if missing:
+                failures.append(f"{rid}: old {p['id']} maps to missing refs {missing}")
+            row_map[p["id"]] = list(targets)
+        maps[rid] = row_map
+    return {"maps": maps, "failures": failures}
+
+
+def build_point_diff(hand: dict[str, Any], mapping_doc: dict[str, Any]) -> str:
     import check_request_set as c
 
     rows = {r["id"]: r for r in c.parse_rows((V4 / "part3_request_set_v4.md").read_text())}
     lines = ["# FU72 point diff (old acceptance ';'-split ↔ new structured points)", ""]
+    if mapping_doc.get("failures"):
+        lines.append("## Mapping check FAILURES")
+        for f in mapping_doc["failures"]:
+            lines.append(f"- {f}")
+        lines.append("")
+    lost: list[str] = []
     seen_rows = sorted({t["row_id"] for t in hand["turns"].values()})
     for rid in seen_rows:
         old = rows.get(rid, {}).get("acceptance") or ""
@@ -1308,8 +1566,12 @@ def build_point_diff(hand: dict[str, Any]) -> str:
             key=lambda x: x["turn"],
         )
         changed = any(t["pass_criteria_changed"] for t in new_turns)
+        new_count = sum(len(t["points"]) for t in new_turns)
+        old_count = len(old_pts)
         lines.append(f"## {rid}")
         lines.append(f"- pass_criteria_changed: {changed}")
+        lines.append(f"- old_point_count: {old_count}")
+        lines.append(f"- new_point_count: {new_count}")
         lines.append("")
         lines.append("### Old (mechanical ';'-split of request-set acceptance)")
         for p in old_pts:
@@ -1324,6 +1586,28 @@ def build_point_diff(hand: dict[str, Any]) -> str:
                 tb = " [tool-backed]" if p.get("tool_backed") else ""
                 lines.append(f"- `{p['id']}`{cond}{tb}: {p['text']}")
             lines.append("")
+        if not changed:
+            row_map = (mapping_doc.get("maps") or {}).get(rid) or {}
+            lines.append("### Mapping (old → new) — required when pass_criteria unchanged")
+            for p in old_pts:
+                targets = row_map.get(p["id"])
+                if targets:
+                    lines.append(f"- `{p['id']}` → {', '.join(f'`{x}`' for x in targets)}")
+                else:
+                    lines.append(f"- `{p['id']}` → **UNMAPPED**")
+            lines.append("")
+            if new_count < old_count:
+                lost.append(
+                    f"{rid}: new={new_count} < old={old_count}; map="
+                    + "; ".join(f"{k}→{v}" for k, v in sorted(row_map.items()))
+                )
+    lines.append("## Unchanged pass criteria with fewer new points than old")
+    if lost:
+        for item in lost:
+            lines.append(f"- {item}")
+    else:
+        lines.append("- (none)")
+    lines.append("")
     return "\n".join(lines) + "\n"
 
 
@@ -1515,6 +1799,12 @@ def main() -> None:
     (OUT / "usage_rebuild_fu72.json").write_text(json.dumps(usage, indent=2) + "\n")
     write_seeds(usage)
     hand = build_hand_keys(is_min, usage)
+    import check_request_set as c
+
+    rows = {r["id"]: r for r in c.parse_rows((V4 / "part3_request_set_v4.md").read_text())}
+    mapping_doc = build_old_point_maps(hand, rows)
+    hand["old_point_maps"] = mapping_doc["maps"]
+    hand["old_point_map_failures"] = mapping_doc["failures"]
     (OUT / "hand_keys_fu72.json").write_text(json.dumps(hand, indent=2) + "\n")
     (OUT / "ambiguous_splits_fu72.md").write_text(
         "# FU72 ambiguous splits\n\n"
@@ -1524,7 +1814,12 @@ def main() -> None:
         )
         + ("\n" if hand["ambiguous_splits"] else "_None flagged beyond per-turn notes._\n")
     )
-    (OUT / "point_diff_fu72.md").write_text(build_point_diff(hand))
+    (OUT / "point_diff_fu72.md").write_text(build_point_diff(hand, mapping_doc))
+    (OUT / "old_point_maps_fu72.json").write_text(json.dumps(mapping_doc, indent=2) + "\n")
+    if mapping_doc["failures"]:
+        raise SystemExit(
+            "old→new point mapping failures:\n" + "\n".join(mapping_doc["failures"])
+        )
     build_csv_rev4(hand)
     legal = legality_report()
     (OUT / "legality_report_fu72.json").write_text(json.dumps(legal, indent=2) + "\n")
