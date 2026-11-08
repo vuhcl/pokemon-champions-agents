@@ -1,7 +1,5 @@
 # FU72 ambiguous splits
 
-- **MU2 t1**: semicolon split ambiguous
-  - preview: `NO-MUTATION; claims scored. Any species named as Water must be Water and legal; mechanical statements match typing/calc. Fixture: slot 2 open + locked team/item for non-trivial clause checks.`
 - **IX1 t1**: semicolon split on unrewritten unreachable key
   - preview: `Fake Out priority 3 > Follow Me 2 (and Rage Powder same class); FAIL if recommends Follow Me/Rage Powder as counter; PASS = Fake Out outprioritizes redirect or valid non-redirect counters; assume coun`
 - **IX5 t1**: semicolon split on unrewritten unreachable key

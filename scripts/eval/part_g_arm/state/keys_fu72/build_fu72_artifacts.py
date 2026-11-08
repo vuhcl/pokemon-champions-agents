@@ -193,7 +193,12 @@ def rebuild_usage_sets() -> dict[str, Any]:
     gh = species["gholdengo"]
     modal_spread = gh["top_spreads"][0]
     modal = {
-        "definition": "top joint = first top_spreads entry on re-pinned ingame blob (highest pct)",
+        "definition": (
+            "Reference only (not required by the GS1 key): first top_spreads entry on the "
+            "re-pinned ingame blob (highest pct). In-game nature is rank-paired with the "
+            "spread, not an observed joint."
+        ),
+        "key_requirement": "not required by the key",
         "item": gh["common_items"][0]["name"],
         "ability": gh["common_abilities"][0]["name"],
         "nature": modal_spread["nature"],
@@ -764,15 +769,22 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         tools=_csv_tools("MU8"),
     )
 
-    # MU2 unchanged explicitly
-    if "MU2" in rows:
-        acc = rows["MU2"]["acceptance"]
-        pts, amb = _split_semicolon(acc)
-        add_turn("MU2", 1, points=[{"id": p["id"], "text": p["text"], "tool_backed": False, "conditional": False} for p in pts],
-                 rewrite=False, pass_criteria_changed=False,
-                 notes="FU72: keys UNCHANGED (hypothetical tool fixed in #387).")
-        if amb:
-            ambiguous.append({"row": "MU2", "turn": 1, "reason": "semicolon split ambiguous", "acceptance": acc})
+    # MU2: meaning split only; pass criteria unchanged (hypothetical tool fixed in #387).
+    add_turn(
+        "MU2",
+        1,
+        points=[
+            _point("p1", "No team mutation.", tool_backed=False),
+            _point("p2", "Any species the arm names as Water is Water and legal.", tool_backed=False),
+            _point("p3", "Mechanical statements match typing and calc.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        notes=(
+            "Fixture: slot 2 open + locked team/item for non-trivial clause checks. "
+            "Pass criteria unchanged (hypothetical tool fixed in #387)."
+        ),
+    )
 
     # Q10: read_team alternative lives in the CSV only.
     add_turn(
@@ -1131,14 +1143,20 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         notes=f"Rebuilt. Old set included Golisopod (not in current top-10).",
     )
 
-    modal = usage["GS1_modal_gholdengo"]
     add_turn(
         "GS1",
         1,
         points=[
             _point(
                 "p1",
-                f"SERVED build: either the modal top joint ({modal['moves']}, {modal['item']}, {modal['nature']}, spread pct {modal['spread_pct']}) or any usage-backed build that states its source.",
+                "Complete, legal Gholdengo build (item, ability, nature, SP spread, four moves), "
+                "tool-backed: each field comes from a tool result in the turn (usage tools, "
+                "check_learnset and legality checks, or the synthesis path through set_slot). "
+                "Any such build passes. Stating a source is not a separate requirement of this "
+                "point; if the reply cites a usage figure, the usual labeling rule applies "
+                "(Showdown is never called in-game). If the reply pairs a nature with an "
+                "in-game spread, it must not present that pairing as a measured joint "
+                "(get_usage_spreads rank-pairs nature with spread).",
                 tool_backed=True,
             ),
             _point("p2", "Draft via set_slot (or featured path); no lock_fields unless asked.", tool_backed=True),
@@ -1146,7 +1164,11 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         rewrite=True,
         pass_criteria_changed=True,
         tools={"expected": "get_usage_items;get_usage_spreads;get_usage_stats;set_slot", "optional": "get_move_static", "alt": "get_featured_builds;set_slot"},
-        notes="Modal = top joint of re-pinned blob. Reachable via synthesis (get_usage_*+set_slot) at tool_fields/wrapper; B11.",
+        notes=(
+            "pass_criteria_changed: modal/top-joint requirement removed (Vu 2026-11-07); "
+            "any tool-backed legal build passes. GS1_modal_gholdengo in usage_rebuild is "
+            "reference only. Reachable via synthesis at tool_fields/wrapper; B11."
+        ),
     )
     add_turn(
         "GS1",
@@ -1458,6 +1480,11 @@ OLD_POINT_MAPS: dict[str, dict[str, list[str]]] = {
         "p3": ["t1.p3"],
         "p4": ["t1.p3", "t1.p4"],
         "p5": ["t1.p5"],
+    },
+    "MU2": {
+        "p1": ["t1.p1"],
+        "p2": ["t1.p2"],
+        "p3": ["t1.p3"],
     },
     "MR5": {"p1": ["t1.p1"], "p2": ["t1.p2"]},
     "HU3": {"p1": ["t1.p1"], "p2": ["t1.p2"], "p3": ["t1.p3"], "p4": ["t1.p4"]},

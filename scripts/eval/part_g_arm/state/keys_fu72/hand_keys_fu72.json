@@ -818,31 +818,31 @@
       "points": [
         {
           "id": "p1",
-          "text": "NO-MUTATION",
+          "text": "No team mutation.",
           "tool_backed": false,
           "conditional": false
         },
         {
           "id": "p2",
-          "text": "claims scored. Any species named as Water must be Water and legal",
+          "text": "Any species the arm names as Water is Water and legal.",
           "tool_backed": false,
           "conditional": false
         },
         {
           "id": "p3",
-          "text": "mechanical statements match typing/calc. Fixture: slot 2 open + locked team/item for non-trivial clause checks.",
+          "text": "Mechanical statements match typing and calc.",
           "tool_backed": false,
           "conditional": false
         }
       ],
-      "rewrite": false,
+      "rewrite": true,
       "pass_criteria_changed": false,
       "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "no_lookup_needed",
       "optional_tools": "read_team;find_species;get_usage_teammates;get_usage_stats;check_learnset",
       "alternative_path": "",
-      "notes": "FU72: keys UNCHANGED (hypothetical tool fixed in #387)."
+      "notes": "Fixture: slot 2 open + locked team/item for non-trivial clause checks. Pass criteria unchanged (hypothetical tool fixed in #387)."
     },
     "Q10__t1": {
       "row_id": "Q10",
@@ -1727,7 +1727,7 @@
       "points": [
         {
           "id": "p1",
-          "text": "SERVED build: either the modal top joint (['Make It Rain', 'Shadow Ball', 'Protect', 'Nasty Plot'], Life Orb, Modest, spread pct 20.0) or any usage-backed build that states its source.",
+          "text": "Complete, legal Gholdengo build (item, ability, nature, SP spread, four moves), tool-backed: each field comes from a tool result in the turn (usage tools, check_learnset and legality checks, or the synthesis path through set_slot). Any such build passes. Stating a source is not a separate requirement of this point; if the reply cites a usage figure, the usual labeling rule applies (Showdown is never called in-game). If the reply pairs a nature with an in-game spread, it must not present that pairing as a measured joint (get_usage_spreads rank-pairs nature with spread).",
           "tool_backed": true,
           "conditional": false
         },
@@ -1745,7 +1745,7 @@
       "expected_tools_ordered": "get_usage_items;get_usage_spreads;get_usage_stats;set_slot",
       "optional_tools": "get_move_static",
       "alternative_path": "get_featured_builds;set_slot",
-      "notes": "Modal = top joint of re-pinned blob. Reachable via synthesis (get_usage_*+set_slot) at tool_fields/wrapper; B11."
+      "notes": "pass_criteria_changed: modal/top-joint requirement removed (Vu 2026-11-07); any tool-backed legal build passes. GS1_modal_gholdengo in usage_rebuild is reference only. Reachable via synthesis at tool_fields/wrapper; B11."
     },
     "GS1__t2": {
       "row_id": "GS1",
@@ -2313,12 +2313,6 @@
     }
   },
   "ambiguous_splits": [
-    {
-      "row": "MU2",
-      "turn": 1,
-      "reason": "semicolon split ambiguous",
-      "acceptance": "NO-MUTATION; claims scored. Any species named as Water must be Water and legal; mechanical statements match typing/calc. Fixture: slot 2 open + locked team/item for non-trivial clause checks."
-    },
     {
       "row": "IX1",
       "turn": 1,

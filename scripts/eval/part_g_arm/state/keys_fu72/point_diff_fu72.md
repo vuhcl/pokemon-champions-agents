@@ -63,7 +63,7 @@
 - `p7`: no refusal. Part 0 choice-lock hand rule (no blob field). derived_keys.row_c_gholdengo_scarf
 
 ### New t1 (rewrite=True)
-- `p1` [tool-backed]: SERVED build: either the modal top joint (['Make It Rain', 'Shadow Ball', 'Protect', 'Nasty Plot'], Life Orb, Modest, spread pct 20.0) or any usage-backed build that states its source.
+- `p1` [tool-backed]: Complete, legal Gholdengo build (item, ability, nature, SP spread, four moves), tool-backed: each field comes from a tool result in the turn (usage tools, check_learnset and legality checks, or the synthesis path through set_slot). Any such build passes. Stating a source is not a separate requirement of this point; if the reply cites a usage figure, the usual labeling rule applies (Showdown is never called in-game). If the reply pairs a nature with an in-game spread, it must not present that pairing as a measured joint (get_usage_spreads rank-pairs nature with spread).
 - `p2` [tool-backed]: Draft via set_slot (or featured path); no lock_fields unless asked.
 
 ### New t2 (rewrite=True)
@@ -810,11 +810,10 @@
 - `p2`: claims scored. Any species named as Water must be Water and legal
 - `p3`: mechanical statements match typing/calc. Fixture: slot 2 open + locked team/item for non-trivial clause checks.
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: NO-MUTATION
-- `p2`: claims scored. Any species named as Water must be Water and legal
-- `p3`: mechanical statements match typing/calc. Fixture: slot 2 open + locked team/item for non-trivial clause checks.
+### New t1 (rewrite=True)
+- `p1`: No team mutation.
+- `p2`: Any species the arm names as Water is Water and legal.
+- `p3`: Mechanical statements match typing and calc.
 
 ### Mapping (old → new) — required when pass_criteria unchanged
 - `p1` → `t1.p1`

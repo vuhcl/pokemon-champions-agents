@@ -1,16 +1,16 @@
 {
   "schema": "part_g_arm_keys_fu72_manifest_v1",
-  "key_hash": "3300a1f0379367cdfe32086033f846271036a19e2e06da7f479ddd1cf1a21800",
+  "key_hash": "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02",
   "files": {
-    "scripts/eval/part_g_arm/state/keys_fu72/ambiguous_splits_fu72.md": "411300da6f9d5e5c225e2bf6f7122d2a4c97a53dbe4544e7c1bf1b139b9d1e76",
+    "scripts/eval/part_g_arm/state/keys_fu72/ambiguous_splits_fu72.md": "07e59eaef78e942063b0aaead37cee9c107532da59410786d358a9328498bc14",
     "scripts/eval/part_g_arm/state/keys_fu72/disagreements_fu72.md": "2b6025828fa0a5803c7b01954e5f0e56d3024361a745857016c4556868dc20b3",
-    "scripts/eval/part_g_arm/state/keys_fu72/expected_tools_rev4_2026-11-07.csv": "231d9d07d119b9e0992ba11133b1b279b75058bb2c4bf2c03a6f925e28eea478",
-    "scripts/eval/part_g_arm/state/keys_fu72/hand_keys_fu72.json": "061ec3f91509809b8fce802bdc6ff059f30d80df980273b7a07ffcdd88d0faa2",
+    "scripts/eval/part_g_arm/state/keys_fu72/expected_tools_rev4_2026-11-07.csv": "ec08d4d6de93444ac9819f278b9bf2a6686263ceb2f304df293eca018bee90bc",
+    "scripts/eval/part_g_arm/state/keys_fu72/hand_keys_fu72.json": "7244e16251f0b6ef2bd462e44ba528972c6ba9985f1fcc99a0eaf03e13fe6343",
     "scripts/eval/part_g_arm/state/keys_fu72/is_minima_fu72.json": "aa764e1139e4134bf6e7cf35d98fa85070ae41c7314ad8a685570c63b6f6da59",
     "scripts/eval/part_g_arm/state/keys_fu72/legality_report_fu72.json": "804be5431503ac74b08c36a992e142b9109f9e3d8d993f4eeb92061bffa78d21",
     "scripts/eval/part_g_arm/state/keys_fu72/legality_report_fu72.md": "3adff8ccfe956f17f1ea67a3ec2c6114632f400d7af153c00e7552bc21d9af89",
     "scripts/eval/part_g_arm/state/keys_fu72/old_point_maps_fu72.json": "9b10b8e918225b8de305b6e5d1770662e5233775b37576edf86b41894f3d4dbb",
-    "scripts/eval/part_g_arm/state/keys_fu72/point_diff_fu72.md": "525787a1a6776821a172d3e315bcd2c55867a4443a03c109d49f017aef54259f",
+    "scripts/eval/part_g_arm/state/keys_fu72/point_diff_fu72.md": "140af8ee066783298fe5add69c92e4572e2f240a63d7d2527ef1e059f52dcae7",
     "scripts/eval/part_g_arm/state/keys_fu72/request_text_overrides_fu72.json": "a0a49dfd1533697dce0dfb071333a51eedb64bc92bfd2fb7de08a7887709454a",
     "scripts/eval/part_g_arm/state/keys_fu72/seeds/SEED_INDEX.json": "c33f0c4a4e42fc8caa160467588ea16bc7dc3339467dd0289fedf4bfe8aa6af8",
     "scripts/eval/part_g_arm/state/keys_fu72/seeds/dm2_seed.v1.json": "8a2d0061080ca7c0691f717cf798ea81b6c7eed062d1710d2785ade887a51c25",
@@ -23,8 +23,8 @@
     "scripts/eval/part_g_arm/state/keys_fu72/seeds/rb1_lucario_megaz_calmmind.v1.json": "b1e35aaf051854967fee7f553987b345d49174a827668783bd0f51655a57e615",
     "scripts/eval/part_g_arm/state/keys_fu72/seeds/tb2_incineroar_charcoal_darkest_lariat.v1.json": "b7173c3e501f727ac8a4ac7a46c553feca43e0983b6ed9a2baf9fbcb35406052",
     "scripts/eval/part_g_arm/state/keys_fu72/unreachable_fu72.md": "9e1d5933b88c32da8bcf039e190b34dde863b637929edef72d6004169ccc1ade",
-    "scripts/eval/part_g_arm/state/keys_fu72/usage_rebuild_fu72.json": "f7490e587f519ffbf45a19cffba9d6114a20dc95aafc5040af8df889bb459b32",
-    "scripts/eval/part_g_arm/state/keys_fu72/KEYS_MANIFEST_FU72.json": "548e5130070d0c37e8bd242d6744b8a085a9d2a2f4adcca52cef9f439c8399ed"
+    "scripts/eval/part_g_arm/state/keys_fu72/usage_rebuild_fu72.json": "95365f21dfb2591c1d7d4dea404a946fac8bfdddaeba5425d38c00e7f98abbf6",
+    "scripts/eval/part_g_arm/state/keys_fu72/KEYS_MANIFEST_FU72.json": "e215c90736de069d9bad4d7ce0aaaf2794118e4c50fd97c843bb76e7a7f89983"
   },
   "old_hashes_unchanged": {
     "expected_tools_rev3_2026-11-02.csv": "fde4e93dc69075efff4c8e9195804919ed085429de1a665906b1979fb42bc7b6",

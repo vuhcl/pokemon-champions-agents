@@ -42,7 +42,8 @@
   ],
   "MT2_note": "worksheet: MT2 t2 matched; no change to the three-name set",
   "GS1_modal_gholdengo": {
-    "definition": "top joint = first top_spreads entry on re-pinned ingame blob (highest pct)",
+    "definition": "Reference only (not required by the GS1 key): first top_spreads entry on the re-pinned ingame blob (highest pct). In-game nature is rank-paired with the spread, not an observed joint.",
+    "key_requirement": "not required by the key",
     "item": "Life Orb",
     "ability": "Good as Gold",
     "nature": "Modest",
