@@ -243,6 +243,20 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         from scripts.eval.part_g_arm.state.describe_tool import describe
 
         return state, describe(args.get("kind"), args.get("name"))
+    if name in {"find_by_effect", "get_type_effectiveness"}:
+        from scripts.eval.part_g_arm.state.tools import ix_tools_v1_enabled
+        from scripts.eval.part_g_arm.state import ix_tools as ix
+
+        if not ix_tools_v1_enabled():
+            return state, {"status": "error", "message": f"{name} requires ix_tools_v1"}
+        if name == "find_by_effect":
+            return state, ix.find_by_effect(
+                args.get("kind"), flag=args.get("flag"), keyword=args.get("keyword")
+            )
+        return state, ix.get_type_effectiveness(
+            attack_type=args.get("attack_type"),
+            defend_type=args.get("defend_type"),
+        )
     if name in {
         "get_usage_spreads",
         "get_common_speeds",

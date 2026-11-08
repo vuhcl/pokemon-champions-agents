@@ -38,6 +38,10 @@ CORE: frozenset[str] = frozenset(
         "get_move_static",
         "check_learnset",
         "find_species",
+        # FU73 / #367+#368 — present in live schemas only when ix_tools_v1 is on
+        # (filter_to_live_schemas drops them when the flag is off).
+        "find_by_effect",
+        "get_type_effectiveness",
     }
 )
 USAGE: frozenset[str] = frozenset(
