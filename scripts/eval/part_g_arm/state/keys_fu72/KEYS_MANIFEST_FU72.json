@@ -1,6 +1,6 @@
 {
   "schema": "part_g_arm_keys_fu72_manifest_v1",
-  "key_hash": "54e9db2e60a261aa2f6ac5bfafd819667a8883e55ae893e4157b6162b6c88403",
+  "key_hash": "3300a1f0379367cdfe32086033f846271036a19e2e06da7f479ddd1cf1a21800",
   "files": {
     "scripts/eval/part_g_arm/state/keys_fu72/ambiguous_splits_fu72.md": "411300da6f9d5e5c225e2bf6f7122d2a4c97a53dbe4544e7c1bf1b139b9d1e76",
     "scripts/eval/part_g_arm/state/keys_fu72/disagreements_fu72.md": "2b6025828fa0a5803c7b01954e5f0e56d3024361a745857016c4556868dc20b3",
@@ -24,8 +24,7 @@
     "scripts/eval/part_g_arm/state/keys_fu72/seeds/tb2_incineroar_charcoal_darkest_lariat.v1.json": "b7173c3e501f727ac8a4ac7a46c553feca43e0983b6ed9a2baf9fbcb35406052",
     "scripts/eval/part_g_arm/state/keys_fu72/unreachable_fu72.md": "9e1d5933b88c32da8bcf039e190b34dde863b637929edef72d6004169ccc1ade",
     "scripts/eval/part_g_arm/state/keys_fu72/usage_rebuild_fu72.json": "f7490e587f519ffbf45a19cffba9d6114a20dc95aafc5040af8df889bb459b32",
-    "scripts/eval/part_g_arm/state/keys_fu72/worksheet_2026-11-07.md": "246b6d4fba8b2ea5362353ebac68a08f9e8bc46cd2bec15c44cc979f82141480",
-    "scripts/eval/part_g_arm/state/keys_fu72/KEYS_MANIFEST_FU72.json": "fa32cde9532d554dbbc218e4ae23063cd65a327d9f77718d9c465ec40338c22f"
+    "scripts/eval/part_g_arm/state/keys_fu72/KEYS_MANIFEST_FU72.json": "548e5130070d0c37e8bd242d6744b8a085a9d2a2f4adcca52cef9f439c8399ed"
   },
   "old_hashes_unchanged": {
     "expected_tools_rev3_2026-11-02.csv": "fde4e93dc69075efff4c8e9195804919ed085429de1a665906b1979fb42bc7b6",
