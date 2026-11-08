@@ -563,7 +563,14 @@ def run_turn(
                 entry["replace"] = bool(args.get("replace") or False)
             entry["result_status"] = tool_call_result_status(entry)
             calls.append(entry)
-            messages.append(ToolMessage(dumps(recorded), tool_call_id=call["id"]))
+            from scripts.eval.part_g_arm.state.guard_exec import model_facing_tool_result
+
+            messages.append(
+                ToolMessage(
+                    dumps(model_facing_tool_result(recorded)),
+                    tool_call_id=call["id"],
+                )
+            )
             if turn_ctx is not None and turn_ctx.get("cap_hit"):
                 errors.append("tool_call_cap")
                 break

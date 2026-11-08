@@ -38,5 +38,6 @@ testpaths = [
     "scripts/eval/part_g_arm/state/test_harness_start_state_fu70.py",
     "scripts/eval/part_g_arm/state/test_ix_facts_fu74_drift.py",
     "scripts/eval/part_g_arm/state/test_fu74_revised_arm.py",
+    "scripts/eval/part_g_arm/state/test_fu74_parser_prompt_cut.py",
 ]
 pythonpath = [".", "tests/recommender"]

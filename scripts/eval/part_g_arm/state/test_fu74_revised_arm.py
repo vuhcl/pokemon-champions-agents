@@ -217,4 +217,4 @@ def test_parser_v2_prompt_exists_and_differs():
     v1 = (HERE / "prompt_guard_parser.md").read_text(encoding="utf-8")
     v2 = (HERE / "prompt_guard_parser_v2.md").read_text(encoding="utf-8")
     assert v1 != v2
-    assert "illegal or refused write is still WRITE" in v2
+    assert "write the guard may refuse is still WRITE" in v2

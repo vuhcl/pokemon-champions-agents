@@ -1,6 +1,6 @@
 # Report 74 — revised arm wiring + IX key cut (DEV)
 
-Branch stack: PR A `#394` (`fu74-ix-key-cut`) → PR B (`fu74-revised-arm`). No arm run, no grading.
+Branch stack: PR A `#394` (`fu74-ix-key-cut`) → PR B (`fu74-revised-arm`). No arm run, no grading. Vu runs parser-eval locally.
 
 ## Discovery findings (carried)
 
@@ -10,12 +10,12 @@ See chat Discovery. Summary: keys_fu72/fu74 were unwired; `set_ix_tools_v1` had 
 
 | Item | Done |
 |---|---|
-| 2 IX key cut (`keys_fu74/`) | PR A (+ review fixes: IX7 item check, keyword notes, no manifest self-hash) |
+| 2 IX key cut (`keys_fu74/`) | PR A (+ review fixes) |
 | 3 `--keys fu74` | scorer CSV rev5, hand-audit points replace errata, overrides + seeds, pin_hashes |
-| 4 `--ix-tools-v1`, `--revised-arm` | wired; profile forces guard rung 6; resolved flags recorded |
-| 5 `--prompt-cut` | new `prompt_guard_cut.md` + refusal rewrite; FU69 literal drops = no-ops |
-| 6 `--parser-v2` | new `prompt_guard_parser_v2.md`; live agreement **not measured** (no arm/LLM run) |
-| 7 tests + this report | isolation extended; `test_fu74_revised_arm.py` on pytest path |
+| 4 `--ix-tools-v1`, `--revised-arm` | wired; profile forces guard rung 6 |
+| 5 `--prompt-cut` | `prompt_guard_cut.md` + refusal rewrite; FU69 literal drops = no-ops |
+| 6 `--parser-v2` | rewritten abstract prompt; 4-gram overlap test; parser-eval CLI for Vu |
+| 7 tests + this report | isolation + wiring + parser/prompt-cut tests |
 
 ## Flag table
 
@@ -28,65 +28,83 @@ See chat Discovery. Summary: keys_fu72/fu74 were unwired; `set_ix_tools_v1` had 
 | `prompt_cut` | off | needs `--guard`; selects `prompt_guard_cut.md` |
 | `parser_v2` | off | needs `--guard`; selects `prompt_guard_parser_v2.md` |
 | `--keys` | `committed` | `fu74` = overrides + seeds + rev5 + hand keys |
-| `--revised-arm` | off | enables guard + sticky + unlock_keeps + tool_fixes_v2 + ix_tools_v1 + keys fu74 + prompt_cut + parser_v2 |
-
-`--prompt-cut` / `--parser-v2` alone without guard → clear `SystemExit`.
+| `--revised-arm` | off | guard + sticky + unlock_keeps + tool_fixes_v2 + ix_tools_v1 + keys fu74 + prompt_cut + parser_v2 |
 
 ## Prompt cut (DEV-tuned)
 
-**FU69 literal hunt:** “state only read-back state”, per-kind rejection names, and `set_slot` moves-replacement text appear only in `report_72.md` prose — **not** in any prompt the arm loads, and not on an unmerged branch searched from main. Those drops are **no-ops**; nothing invented.
+**FU69 literal hunt:** drops are **no-ops** (literals only in `report_72` prose).
 
-**Actual cut** (`prompt_guard.md` → `prompt_guard_cut.md`):
+**Accepted cut:** unlock keeps values / `clear_slot` wipes with `replace`; class-naming removed from delta; “Do not name internal tool names”; Spe/damage assumptions kept.
 
-- `unlock_slot` wipe sentence → keeps values; `clear_slot` wipes with `replace`
-- `_GUARD_DELTA` “naming the class” → refused without naming class; ask for missing detail
-- Keep: do not invent; Spe/damage assumptions; added “Do not name internal tool names to the user”
+**`clear_slot` under profile:** bound in `combined_specs` when draft + `unlock_keeps_values` (tested). Prompt documents `unlock_slot(slot)` and `clear_slot(slot, replace?)`.
 
-### Refusal strings (`guard_exec.py`)
+**#389 note:** refusal string’s “or confirmation to clear” may interact with #389 (explicit unlock confirmation). Not tuned for #389 in this follow-up.
 
-**(b) is new behavior, not a keep.**
+### Refusal: what the model actually sees
 
-| | Text |
-|---|---|
-| **Old** | `Refused {name}: not allowed for request class {cls}. Do not retry this call; answer from tools already returned or ask.` |
-| **New** (`--prompt-cut`) | `That action was refused for this request. Do not retry it. Answer from what the tools already returned, or ask the user for the missing detail (which slot, which species, or confirmation to clear).` |
+Harness sends `ToolMessage(dumps(model_facing_tool_result(recorded)))`. Transcript `entry["result"]` keeps the **full** patch for the run log.
 
-**What the arm loses in the user-visible string:** the refused tool name and the request class label. Structured fields `tool`, `class`, `reason` on the refusal result are unchanged so the arm can still learn what was blocked.
+**(b) was half-done before this review fix** — `tool` / `class` / `reason` still reached the model in the JSON body. **Now under `--prompt-cut` they are stripped from the model-facing payload** and kept only in the run log.
+
+**Legacy model-facing (flag off), exact:**
+
+```json
+{"args":{"slot":2,"species":"Incineroar"},"class":"ASK","guard_blocked":true,"message":"Refused set_slot: not allowed for request class ASK. Do not retry this call; answer from tools already returned or ask.","reason":"tool not in allowed set for class ASK","status":"refused","tool":"set_slot"}
+```
+
+**Prompt-cut model-facing, exact:**
+
+```json
+{"args":{"slot":2,"species":"Incineroar"},"guard_blocked":true,"message":"That action was refused for this request. Do not retry it. Answer from what the tools already returned, or ask the user for the missing detail (which slot, which species, or confirmation to clear).","status":"refused"}
+```
+
+**Prompt-cut run-log (full result, not sent as ToolMessage body), exact:**
+
+```json
+{"args":{"slot":2,"species":"Incineroar"},"class":"ASK","guard_blocked":true,"message":"That action was refused for this request. Do not retry it. Answer from what the tools already returned, or ask the user for the missing detail (which slot, which species, or confirmation to clear).","reason":"tool not in allowed set for class ASK","status":"refused","tool":"set_slot"}
+```
+
+Note: the AIMessage still names the tool in the tool_call (`name: set_slot`); only the **result** payload is sanitized. Args may still contain species/slot values.
 
 ## Parser v2 (DEV)
 
-- New file `prompt_guard_parser_v2.md` (committed `prompt_guard_parser.md` untouched when flag off).
-- Clarifies: illegal/refused writes still WRITE; clear slot numbers → WRITE; conflicting dual constraints still WRITE; bare “slot I mentioned” → ASK; option lists without a named lock → LOOKUP.
-- **No graded-turn text** in prompt, examples, or `dev_guard_parser_labels.json`.
-- **Agreement numbers:** not computed this follow-up (no live LLM / no arm run). Scaffolding only. Label any future numbers DEV. When measured, report original-text vs fu74-override text for the 32 turns (override-affected: HC1, MT1, MT6, MR2, MR3, MR5, MW3, HU3, TB2, … from `request_text_overrides_fu72.json`).
+- Rewritten: abstract rules only; invented examples (Azumarill / Empoleon / Electric / Grass+Steel) with **zero 4-gram overlap** vs graded turns (original + overrides). Test enforced.
+- Kept abstractly: refused write still WRITE; conflicting stated constraints still WRITE; no-antecedent slot → ASK; options with clear target, no placement → LOOKUP.
+- New DEV labels: `dev_guard_parser_labels_fu74.json` (≥15 rows), same overlap test.
+- **Do not freeze** until Vu runs eval and accepts the prompt.
+
+### Parser-eval (Vu runs)
+
+```bash
+uv run python -m scripts.eval.part_g_arm.state.parser_eval --parser-eval \
+  --model qwen3.5:latest --out /tmp/parser_eval_fu74.json
+```
+
+Scores **v1 and v2** on: (a) A6 + fu74 DEV labels, (b) 32 turns original + fu74 played text, (c) all CSV turns vs key class. Prints agreement, confusion, every v2≠key turn. All numbers **DEV**.
 
 ## Key hashes
 
 | Pin | Hash |
 |---|---|
-| keys_fu72 `key_hash` (unchanged) | `246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02` |
+| keys_fu72 `key_hash` | `246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02` |
 | keys_fu74 `key_hash` | `38785fcb77d171088f8a3a17d8ca9d6b1ec4ace90cf0cea584a6b0b565205f47` |
 | combined `revised_key_hash` | `d11cea9849ce10bbfc095678d58b3b947f965471812c1a1c2e36d88d48fa325c` |
-| derived_keys (unchanged) | `bba5787ce95f9e0b615ce679d8622ca6b1d7709e2cc8e73dc493cda7b88354b2` |
-| claim battery (unchanged) | `e7492a6811f057f1e84ccac821c1249eb29a3fad1f25eec6f9a0e613b776f4b0` |
-| false_legal (unchanged) | `3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec` |
-
-`KEYS_MANIFEST_FU74.json` is **not** self-hashed (`manifest_self_hashed: false`).
-
-Under `--keys fu74`, fu74 IX turns **replace** fu72 stubs (no point merge). Errata acceptance rewrites are skipped for rows that have hand-key points.
+| derived_keys | `bba5787ce95f9e0b615ce679d8622ca6b1d7709e2cc8e73dc493cda7b88354b2` |
+| claim battery | `e7492a6811f057f1e84ccac821c1249eb29a3fad1f25eec6f9a0e613b776f4b0` |
+| false_legal | `3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec` |
 
 ## Could not do
 
-- Live parser-v2 agreement on 32 / 118 turns (needs model; out of scope).
-- Arm run / grade.
-- Judge / WRITE-bundle / uncertain-forces / #391 / #389 / calc #310.
+- Live parser agreement numbers (Vu runs `parser_eval` locally).
+- Arm run / grade; #389 / #391 / judge / uncertain / #310.
 
 ## Tests
 
 ```
 uv run pytest scripts/eval/part_g_arm/state/test_ix_facts_fu74_drift.py \
   scripts/eval/part_g_arm/state/test_fu74_revised_arm.py \
+  scripts/eval/part_g_arm/state/test_fu74_parser_prompt_cut.py \
   tests/recommender/test_cli_layer_arm_isolation.py -q
 ```
 
-**20 passed** (drift 3 + revised-arm 16 + isolation 1). Isolation golden hashes unchanged (flag-off = a393ae91).
+**25 passed.** Isolation golden unchanged (flag-off = a393ae91).

@@ -1,0 +1,22 @@
+{
+  "note": "FU74 DEV parser labels. Wording and species are disjoint from every graded request-set turn (original + request_text_overrides_fu72). Checked by 4-gram overlap test.",
+  "rows": [
+    {"id": "fu74-dev-constraint-electric", "text": "Restrict the third slot to Electric-type species only.", "class": "WRITE", "action": "constraint", "start": "empty"},
+    {"id": "fu74-dev-place-azumarill", "text": "Place Azumarill into the fourth slot.", "class": "WRITE", "action": "set_slot", "start": "empty"},
+    {"id": "fu74-dev-dual-constraint", "text": "Make every member Grass, and also make every member Steel.", "class": "WRITE", "action": "constraint", "start": "empty"},
+    {"id": "fu74-dev-slot-no-antecedent", "text": "Put it where I pointed earlier.", "class": "ASK", "start": "empty"},
+    {"id": "fu74-dev-options-electric", "text": "Show me bulky Electric candidates for the next open slot.", "class": "LOOKUP", "start": "empty"},
+    {"id": "fu74-dev-learnset", "text": "Does Empoleon learn Hydro Pump?", "class": "LOOKUP", "start": "empty"},
+    {"id": "fu74-dev-typing", "text": "What types does Empoleon have?", "class": "LOOKUP", "start": "empty"},
+    {"id": "fu74-dev-hyp-item", "text": "What if Empoleon held Assault Vest?", "class": "HYPOTHETICAL", "start": "empty"},
+    {"id": "fu74-dev-hyp-clause", "text": "What if Empoleon and Toxicroak both held Assault Vest?", "class": "HYPOTHETICAL", "start": "empty"},
+    {"id": "fu74-dev-read-rejected", "text": "List rejected species for this session.", "class": "READ_STATE", "start": "empty"},
+    {"id": "fu74-dev-reset", "text": "Reset the whole team.", "class": "WRITE", "action": "reset", "start": "empty"},
+    {"id": "fu74-dev-unlock-fields", "text": "Unlock every field on slot 4.", "class": "WRITE", "action": "unlock_fields", "start": "empty"},
+    {"id": "fu74-dev-confirm-valued", "text": "Confirm the valued attributes on slot 4.", "class": "WRITE", "action": "lock_fields", "start": "one_locked"},
+    {"id": "fu74-dev-refuse-circuit", "text": "Which format will win the next regional circuit?", "class": "READ_ONLY_REFUSE", "start": "empty"},
+    {"id": "fu74-dev-refuse-export", "text": "Export this roster to my handheld.", "class": "READ_ONLY_REFUSE", "start": "empty"},
+    {"id": "fu74-dev-draft-quagsire", "text": "Draft Quagsire in slot 5 holding Leftovers with Recover.", "class": "WRITE", "action": "set_slot", "start": "empty"},
+    {"id": "fu74-dev-bare-proceed", "text": "Bare word: proceed.", "class": "ASK", "start": "empty"}
+  ]
+}

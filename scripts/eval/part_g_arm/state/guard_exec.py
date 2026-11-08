@@ -35,6 +35,25 @@ def _refusal_message(*, name: str, cls: str) -> str:
     return REFUSAL_MESSAGE_LEGACY.format(name=name, cls=cls)
 
 
+def model_facing_tool_result(result: Mapping[str, Any]) -> dict[str, Any]:
+    """Payload serialized into ToolMessage for the model.
+
+    Under --prompt-cut, strip tool name and class (and reasons that quote them)
+    from guard refusals so (b) is complete in the model-facing channel. The run
+    log / transcript entry keeps the full result separately.
+    """
+    from scripts.eval.part_g_arm.state.tools import prompt_cut_enabled
+
+    out = dict(result)
+    if not prompt_cut_enabled() or not out.get("guard_blocked"):
+        return out
+    out.pop("tool", None)
+    out.pop("class", None)
+    # reason historically embeds the class label; drop it from the model view.
+    out.pop("reason", None)
+    return out
+
+
 def _replace_flag(name: str, args: Mapping[str, Any]) -> bool:
     if name == "set_slot":
         if bool(args.get("replace")):
