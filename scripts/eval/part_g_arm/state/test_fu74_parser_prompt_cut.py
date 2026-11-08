@@ -68,6 +68,25 @@ def test_parser_v2_prompt_no_graded_4gram_overlap():
     assert overlapping_4grams(text) == set()
 
 
+def test_parser_eval_marks_state_dependent_turns():
+    from scripts.eval.part_g_arm.state.parser_eval import (
+        STATE_DEPENDENT_NOT_MEASURED,
+        _resolve_parser_state,
+        _state_report,
+    )
+
+    assert ("MT2", 3) in STATE_DEPENDENT_NOT_MEASURED
+    assert ("MT6", 3) in STATE_DEPENDENT_NOT_MEASURED
+    st, asked, meta = _resolve_parser_state("MT2", 3)
+    assert st is None and meta["state_dependent_not_measured"] is True
+    # OL pending fixtures are measurable (same loader as the runner).
+    st2, asked2, meta2 = _resolve_parser_state("OL2b", 1)
+    assert st2 is not None
+    rep = _state_report(st2, asked2, meta2)
+    assert rep["pending_kind"] == "candidate_selection"
+    assert rep["state_dependent_not_measured"] is False
+
+
 def test_fu74_dev_labels_no_graded_4gram_overlap():
     doc = json.loads(DEV_FU74.read_text(encoding="utf-8"))
     assert len(doc["rows"]) >= 15

@@ -218,3 +218,10 @@ def test_parser_v2_prompt_exists_and_differs():
     v2 = (HERE / "prompt_guard_parser_v2.md").read_text(encoding="utf-8")
     assert v1 != v2
     assert "write the guard may refuse is still WRITE" in v2
+    # Committed v1 build-anchor line restored verbatim (not graded-turn tuning).
+    anchor = (
+        '- "Give me a X build" / "Put Y in slot N" / "Add a constraint…" '
+        "→ WRITE (set_slot or constraint), not LOOKUP."
+    )
+    assert anchor in v1 and anchor in v2
+    assert "points at a prior mention" in v2

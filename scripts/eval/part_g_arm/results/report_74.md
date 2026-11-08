@@ -66,22 +66,25 @@ Harness sends `ToolMessage(dumps(model_facing_tool_result(recorded)))`. Transcri
 
 Note: the AIMessage still names the tool in the tool_call (`name: set_slot`); only the **result** payload is sanitized. Args may still contain species/slot values.
 
-## Parser v2 (DEV)
+## Parser v2 (DEV) — round 2
 
-- Rewritten: abstract rules only; invented examples (Azumarill / Empoleon / Electric / Grass+Steel) with **zero 4-gram overlap** vs graded turns (original + overrides). Test enforced.
-- Kept abstractly: refused write still WRITE; conflicting stated constraints still WRITE; no-antecedent slot → ASK; options with clear target, no placement → LOOKUP.
-- New DEV labels: `dev_guard_parser_labels_fu74.json` (≥15 rows), same overlap test.
-- **Do not freeze** until Vu runs eval and accepts the prompt.
+Prior DEV result (empty-team eval): v2 tied v1 at 84/118; fixed 6 / broke 6. **Do not freeze.**
 
-### Parser-eval (Vu runs)
+Round-2 prompt changes (class definitions + committed v1 line only; no graded-turn wording):
+1. Restored v1 build anchor verbatim: `"Give me a X build" / "Put Y in slot N" / "Add a constraint…" → WRITE (set_slot or constraint), not LOOKUP.`
+2. Narrowed antecedent rule: ASK only when a referent points at a prior mention **and** that mention is absent from the state summary — not short field/move writes.
+3. Invented examples kept (in-sample; labeled in eval splits).
+
+### Parser-eval state fidelity
+
+Eval now passes the same start builders as the runner (`resolve_start_state` + `prepare_start_state_for_guard`) and prints per-turn: pending_kind, asked_action, slots, constraints. OL2b/OL5/OL7a/OL8 load pending `candidate_selection` fixtures (measurable). **MT2 t3** and **MT6 t3** are mid-trajectory with empty start loaders → marked `state_dependent_not_measured`, excluded from headline, listed separately.
 
 ```bash
 uv run python -m scripts.eval.part_g_arm.state.parser_eval --parser-eval \
-  --model qwen3.5:latest --out /tmp/parser_eval_fu74.json
+  --model qwen3.5:latest --keys fu74 --out /tmp/parser_eval_fu74.json
 ```
 
-Scores **v1 and v2** on: (a) A6 + fu74 DEV labels, (b) 32 turns original + fu74 played text, (c) all CSV turns vs key class. Prints agreement, confusion, every v2≠key turn. All numbers **DEV**.
-
+Prints v1+v2 agreement, gains/regressions v1→v2, state-dependent table, and DEV agreement **with and without** the five in-prompt example rows. All numbers **DEV**. Do not freeze v2 from this run alone.
 ## Key hashes
 
 | Pin | Hash |
