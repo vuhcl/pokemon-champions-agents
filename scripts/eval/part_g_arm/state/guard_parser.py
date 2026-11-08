@@ -10,6 +10,13 @@ from typing import Any, Mapping
 
 HERE = Path(__file__).resolve().parent
 PARSER_PROMPT_PATH = HERE / "prompt_guard_parser.md"
+PARSER_PROMPT_V2_PATH = HERE / "prompt_guard_parser_v2.md"
+
+
+def _active_parser_prompt_path() -> Path:
+    from scripts.eval.part_g_arm.state.tools import parser_v2_enabled
+
+    return PARSER_PROMPT_V2_PATH if parser_v2_enabled() else PARSER_PROMPT_PATH
 
 _ATTR_NAMES = (
     "role",
@@ -23,7 +30,7 @@ _ATTR_NAMES = (
 
 
 def parser_prompt_sha256() -> str:
-    return hashlib.sha256(PARSER_PROMPT_PATH.read_bytes()).hexdigest()
+    return hashlib.sha256(_active_parser_prompt_path().read_bytes()).hexdigest()
 
 
 def compact_state_summary(
@@ -133,7 +140,7 @@ def parse_user_turn(
     from langchain_core.messages import HumanMessage, SystemMessage
 
     summary = compact_state_summary(state, pending_asked=pending_asked)
-    system = PARSER_PROMPT_PATH.read_text(encoding="utf-8")
+    system = _active_parser_prompt_path().read_text(encoding="utf-8")
     human = (
         f"User message:\n{user_text}\n\n"
         f"State summary (JSON):\n{json.dumps(summary, sort_keys=True)}\n"

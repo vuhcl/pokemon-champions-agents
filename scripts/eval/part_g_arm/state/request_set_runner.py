@@ -68,6 +68,10 @@ DEFAULT_RUN_FLAGS: dict[str, bool] = {
     "unlock_keeps_values": False,
     # FU70: tool_fixes_v2 bundle. Default off = a393ae91 tool outputs.
     "tool_fixes_v2": False,
+    # FU74: ix_tools_v1 + prompt/parser cuts. Default off.
+    "ix_tools_v1": False,
+    "prompt_cut": False,
+    "parser_v2": False,
 }
 
 # Fixed BEFORE any covered run (Part 4). No silent retry.
@@ -93,7 +97,11 @@ def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def pin_hashes(*, additions_file: Path | None = None) -> dict[str, str]:
+def pin_hashes(
+    *,
+    additions_file: Path | None = None,
+    key_set: str = "committed",
+) -> dict[str, str]:
     """Content hashes for pins the run record must name."""
     out: dict[str, str] = {
         "prompt_sha256": FROZEN_PROMPT_SHA256,
@@ -101,7 +109,12 @@ def pin_hashes(*, additions_file: Path | None = None) -> dict[str, str]:
         "derived_keys_sha256": _sha256_file(V4 / "key_artifacts" / "derived_keys.json"),
         "covered_list_sha256": _sha256_file(HERE / "covered_list.json"),
         "errata_sha256": _sha256_file(HERE / "errata.json"),
+        "key_set": key_set,
     }
+    if key_set == "fu74":
+        from scripts.eval.part_g_arm.state.revised_keys import pin_hashes_for_key_set
+
+        out.update(pin_hashes_for_key_set("fu74"))
     joint = HERE / "LAST_JOINT_COVERAGE.md"
     if joint.is_file():
         out["joint_coverage_note_sha256"] = _sha256_file(joint)
@@ -119,6 +132,8 @@ WRAPPER_PROMPT_FILE = "state/prompt_wrapper.md"
 DRAFT_PROMPT_FILE = "state/prompt_draft.md"
 # Prompt variant when --guard is on (draft text + refusal/ask sentences).
 GUARD_PROMPT_FILE = "state/prompt_guard.md"
+# FU74 --prompt-cut: guard prompt with unlock/clear wording + no class-naming delta.
+GUARD_PROMPT_CUT_FILE = "state/prompt_guard_cut.md"
 
 
 def assert_frozen_prompt(
@@ -133,7 +148,10 @@ def assert_frozen_prompt(
     got = cfg.prompt_hash()
     if got == FROZEN_PROMPT_SHA256:
         return
-    if allow_guard_prompt and cfg.prompt_file == GUARD_PROMPT_FILE:
+    if allow_guard_prompt and cfg.prompt_file in {
+        GUARD_PROMPT_FILE,
+        GUARD_PROMPT_CUT_FILE,
+    }:
         print(
             f"guard prompt: {got} (frozen PRE-RS-ARM remains {FROZEN_PROMPT_SHA256})",
             file=sys.stderr,
@@ -290,6 +308,7 @@ def build_run_parameters(
     *,
     run_flags: dict[str, bool] | None = None,
     additions_file: Path | None = None,
+    key_set: str = "committed",
 ) -> dict[str, Any]:
     flags = {**DEFAULT_RUN_FLAGS, **(run_flags or {})}
     specs = combined_specs(
@@ -310,11 +329,13 @@ def build_run_parameters(
         "seed": FIXED_RUN_SETTINGS["seed"],
         "prompt_sha256": cfg.prompt_hash(),
         "frozen_prompt_sha256": FROZEN_PROMPT_SHA256,
+        "key_set": key_set,
+        "run_flags": dict(flags),
         "tool_set": [s["function"]["name"] for s in specs],
         "tool_schema_sha256": hashlib.sha256(
             json.dumps(specs, sort_keys=True).encode()
         ).hexdigest(),
-        "pin_hashes": pin_hashes(additions_file=additions_file),
+        "pin_hashes": pin_hashes(additions_file=additions_file, key_set=key_set),
         "arm_side_adaptations": {
             "select_option_source_default": RUN_PARAMS["select_option_source_default"],
             "primitive_pending_tools": RUN_PARAMS["primitive_tools"],
@@ -393,6 +414,7 @@ def run_batch(
     role: str | None = None,
     run_flags: dict[str, bool] | None = None,
     additions_file: Path | None = None,
+    key_set: str = "committed",
     supervisor: Any = None,
     skip_calc_preflight: bool = False,
     calc_client: CalcClient | None = None,
@@ -424,7 +446,11 @@ def run_batch(
         preflight = run_preflight(client)
         if not preflight.get("ok"):
             record = build_run_parameters(
-                cfg, facts, run_flags=flags, additions_file=additions_file
+                cfg,
+                facts,
+                run_flags=flags,
+                additions_file=additions_file,
+                key_set=key_set,
             )
             record["preflight"] = preflight
             record["halt"] = {
@@ -611,7 +637,11 @@ def run_batch(
 
     transcript = [by_id[rid] for rid in wanted if rid in by_id]
     record = build_run_parameters(
-        cfg, facts, run_flags=flags, additions_file=additions_file
+        cfg,
+        facts,
+        run_flags=flags,
+        additions_file=additions_file,
+        key_set=key_set,
     )
     if run_id is not None:
         record["run_id"] = run_id
@@ -774,6 +804,35 @@ def main(argv: list[str] | None = None) -> int:
             "archetype case / pending_flags / calc_damage / hypothetical; default off)"
         ),
     )
+    parser.add_argument(
+        "--ix-tools-v1",
+        action="store_true",
+        help="FU74: bind find_by_effect + get_type_effectiveness (default off)",
+    )
+    parser.add_argument(
+        "--prompt-cut",
+        action="store_true",
+        help="FU74: use prompt_guard_cut.md + refusal wording without tool/class names (needs --guard)",
+    )
+    parser.add_argument(
+        "--parser-v2",
+        action="store_true",
+        help="FU74: use prompt_guard_parser_v2.md (needs --guard)",
+    )
+    parser.add_argument(
+        "--keys",
+        choices=("committed", "fu74"),
+        default="committed",
+        help="key set for scoring texts/seeds (default committed = a393ae91)",
+    )
+    parser.add_argument(
+        "--revised-arm",
+        action="store_true",
+        help=(
+            "FU74 profile: guard rung 6 + sticky_locks + unlock_keeps_values + "
+            "tool_fixes_v2 + ix_tools_v1 + --keys fu74 + --prompt-cut + --parser-v2"
+        ),
+    )
     args = parser.parse_args(argv)
     run_flags = {
         "tool_fields": bool(args.tool_fields),
@@ -784,9 +843,26 @@ def main(argv: list[str] | None = None) -> int:
         "sticky_locks": bool(args.sticky_locks),
         "unlock_keeps_values": bool(args.unlock_keeps_values),
         "tool_fixes_v2": bool(args.tool_fixes_v2),
+        "ix_tools_v1": bool(args.ix_tools_v1),
+        "prompt_cut": bool(args.prompt_cut),
+        "parser_v2": bool(args.parser_v2),
     }
+    key_set = str(args.keys)
+    if args.revised_arm:
+        run_flags.update(
+            {
+                "guard": True,
+                "sticky_locks": True,
+                "unlock_keeps_values": True,
+                "tool_fixes_v2": True,
+                "ix_tools_v1": True,
+                "prompt_cut": True,
+                "parser_v2": True,
+            }
+        )
+        key_set = "fu74"
     # Ladder is cumulative: judge → guard → draft → wrapper → tool_fields.
-    # sticky_locks / unlock_keeps_values / tool_fixes_v2 are independent revision flags.
+    # sticky_locks / unlock_keeps_values / tool_fixes_v2 / ix_tools_v1 are independent.
     if run_flags["judge"]:
         run_flags["guard"] = True
     if run_flags["guard"]:
@@ -794,16 +870,24 @@ def main(argv: list[str] | None = None) -> int:
     if run_flags["draft"]:
         run_flags["wrapper"] = True
         run_flags["tool_fields"] = True
+    if (run_flags["prompt_cut"] or run_flags["parser_v2"]) and not run_flags["guard"]:
+        raise SystemExit(
+            "--prompt-cut and --parser-v2 require the guard rung (--guard or --revised-arm)"
+        )
 
     covered = load_covered_ids()
     if args.list_covered:
         print("\n".join(sorted(covered)))
         return 0
 
+    from scripts.eval.part_g_arm.state.revised_keys import set_key_set
     from scripts.eval.part_g_arm.state.tools import (
         set_draft,
         set_guard,
+        set_ix_tools_v1,
         set_judge,
+        set_parser_v2,
+        set_prompt_cut,
         set_sticky_locks,
         set_tool_fields,
         set_tool_fixes_v2,
@@ -811,6 +895,7 @@ def main(argv: list[str] | None = None) -> int:
         set_wrapper,
     )
 
+    set_key_set(key_set)
     set_tool_fields(bool(run_flags["tool_fields"]))
     set_wrapper(bool(run_flags["wrapper"]))
     set_draft(bool(run_flags["draft"]))
@@ -819,7 +904,12 @@ def main(argv: list[str] | None = None) -> int:
     set_sticky_locks(bool(run_flags["sticky_locks"]))
     set_unlock_keeps_values(bool(run_flags["unlock_keeps_values"]))
     set_tool_fixes_v2(bool(run_flags["tool_fixes_v2"]))
-    if run_flags["guard"]:
+    set_ix_tools_v1(bool(run_flags["ix_tools_v1"]))
+    set_prompt_cut(bool(run_flags["prompt_cut"]))
+    set_parser_v2(bool(run_flags["parser_v2"]))
+    if run_flags["guard"] and run_flags["prompt_cut"]:
+        prompt_file = GUARD_PROMPT_CUT_FILE
+    elif run_flags["guard"]:
         prompt_file = GUARD_PROMPT_FILE
     elif run_flags["draft"]:
         prompt_file = DRAFT_PROMPT_FILE
@@ -1000,6 +1090,7 @@ def main(argv: list[str] | None = None) -> int:
         role=role,
         run_flags=run_flags,
         additions_file=additions_file,
+        key_set=key_set,
         supervisor=supervisor,
         calc_client=arm.calc,
     )

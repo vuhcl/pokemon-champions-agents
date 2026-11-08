@@ -198,8 +198,12 @@ def build_sections_from_transcript(
         raw_acc = acceptance_by_id.get(rid, "")
         from scripts.eval.part_g_arm.state.errata_read import acceptance_with_key_overrides
 
-        acc = acceptance_with_key_overrides(rid, raw_acc)
-        base_points = points_by_id.get(rid) or split_acceptance_points(acc)
+        # FU74: structured hand-key points replace errata acceptance rewrites for that row.
+        if rid in points_by_id:
+            base_points = points_by_id[rid]
+        else:
+            acc = acceptance_with_key_overrides(rid, raw_acc)
+            base_points = split_acceptance_points(acc)
         points = _points_with_set_errata(rid, base_points)
         key_text = _key_text_with_errata(rid, raw_acc)
         for i, turn in enumerate(turns, start=1):
@@ -366,11 +370,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run2-transcript", type=Path, default=None)
     parser.add_argument("--run3-transcript", type=Path, default=None)
     parser.add_argument("--title", default="State arm hand audit")
+    parser.add_argument(
+        "--keys",
+        choices=("committed", "fu74"),
+        default="committed",
+        help="committed=part3+errata; fu74=hand_keys_fu72∪fu74 (replaces errata for those rows)",
+    )
     args = parser.parse_args(argv)
 
     acceptance: dict[str, str] = {}
     if args.acceptance_json and args.acceptance_json.is_file():
         acceptance = json.loads(args.acceptance_json.read_text(encoding="utf-8"))
+    points_by_id: dict[str, list[dict[str, str]]] = {}
+    if args.keys == "fu74":
+        from scripts.eval.part_g_arm.state.revised_keys import points_by_row_id
+
+        points_by_id = points_by_row_id("fu74")
 
     if args.diff_json:
         differ = json.loads(args.diff_json.read_text(encoding="utf-8"))
@@ -388,7 +403,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.ids:
             ids = set(json.loads(args.ids.read_text(encoding="utf-8"))["ids"])
         sections = build_sections_from_transcript(
-            transcript, acceptance_by_id=acceptance, ids=ids
+            transcript,
+            acceptance_by_id=acceptance,
+            points_by_id=points_by_id,
+            ids=ids,
         )
 
     meta = write_form(sections, args.out, title=args.title)

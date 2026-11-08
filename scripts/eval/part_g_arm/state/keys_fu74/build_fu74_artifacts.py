@@ -295,15 +295,26 @@ def build_hand_keys() -> dict[str, Any]:
 
 
 def build_rev5_csv(hand: dict[str, Any]) -> str:
-    """rev4 with IX rows updated from hand keys; unreachable cleared."""
+    """rev4 with IX rows updated from hand keys; unreachable cleared.
+
+    Also applies keys_fu72 request_text_overrides to user_turn_text so played
+    text under --keys fu74 matches the key-side CSV (FU74 text-consistency).
+    """
     by_id = {k.split("__")[0]: v for k, v in hand["turns"].items()}
+    overrides = json.loads(
+        (FU72 / "request_text_overrides_fu72.json").read_text(encoding="utf-8")
+    )
     rows_out: list[dict[str, str]] = []
     with REV4.open(encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         fieldnames = list(reader.fieldnames or [])
         for row in reader:
             rid = row["row_id"]
-            if rid in by_id:
+            turn = int(row["turn"])
+            ov_key = f"{rid}__t{turn}"
+            if ov_key in overrides:
+                row = {**row, "user_turn_text": overrides[ov_key]}
+            if rid in by_id and turn == 1:
                 t = by_id[rid]
                 pts = " || ".join(f"{p['id']}: {p['text']}" for p in t["points"])
                 note = (

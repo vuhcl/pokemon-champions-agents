@@ -19,6 +19,16 @@ from typing import Any, Mapping, Sequence
 HERE = Path(__file__).resolve().parent
 DEFAULT_CSV = HERE / "expected_tools_fu16" / "expected_tools_rev3_2026-11-02.csv"
 
+
+def resolve_expected_tools_csv(run_record: Mapping[str, Any] | None = None) -> Path:
+    """Pick rev3 (committed) or rev5 (fu74) from the run record's key_set."""
+    from scripts.eval.part_g_arm.state.revised_keys import expected_tools_csv
+
+    ks = "committed"
+    if isinstance(run_record, Mapping):
+        ks = str(run_record.get("key_set") or (run_record.get("pin_hashes") or {}).get("key_set") or "committed")
+    return expected_tools_csv(ks)
+
 WRITE_TOOLS = frozenset(
     {
         "set_slot",
@@ -191,6 +201,9 @@ def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
             "sticky_locks",
             "unlock_keeps_values",
             "tool_fixes_v2",
+            "ix_tools_v1",
+            "prompt_cut",
+            "parser_v2",
         )
     ):
         return {
@@ -202,6 +215,9 @@ def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
             "sticky_locks": bool(nested.get("sticky_locks")),
             "unlock_keeps_values": bool(nested.get("unlock_keeps_values")),
             "tool_fixes_v2": bool(nested.get("tool_fixes_v2")),
+            "ix_tools_v1": bool(nested.get("ix_tools_v1")),
+            "prompt_cut": bool(nested.get("prompt_cut")),
+            "parser_v2": bool(nested.get("parser_v2")),
         }
     # Legacy run 1: PRE-RS-ARM schema, no ladder flags.
     return {
@@ -213,6 +229,9 @@ def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
         "sticky_locks": False,
         "unlock_keeps_values": False,
         "tool_fixes_v2": False,
+        "ix_tools_v1": False,
+        "prompt_cut": False,
+        "parser_v2": False,
     }
 
 
@@ -1100,7 +1119,10 @@ def main(argv: list[str] | None = None) -> int:
 
     transcript = json.loads((run_dir / "transcript.json").read_text(encoding="utf-8"))
     run_record = json.loads((run_dir / "run_record.json").read_text(encoding="utf-8"))
-    csv_rows = load_csv_rows(args.csv)
+    csv_path = args.csv
+    if csv_path == DEFAULT_CSV:
+        csv_path = resolve_expected_tools_csv(run_record)
+    csv_rows = load_csv_rows(csv_path)
     scores, summary, path_absent = score_run(
         transcript=transcript, run_record=run_record, csv_rows=csv_rows
     )

@@ -23,6 +23,8 @@ from scripts.eval.part_g_arm.state.tools import (
     reset_team_state,
     set_draft,
     set_ix_tools_v1,
+    set_parser_v2,
+    set_prompt_cut,
     set_tool_fields,
     set_tool_fixes_v2,
     set_wrapper,
@@ -35,6 +37,8 @@ GOLDEN = Path(__file__).parent / "fixtures" / "arm_wrapper_outputs_fu71.json"
 def _all_flags_off() -> None:
     set_tool_fixes_v2(False)
     set_ix_tools_v1(False)
+    set_prompt_cut(False)
+    set_parser_v2(False)
     set_tool_fields(False)
     set_wrapper(False)
     set_draft(False)
