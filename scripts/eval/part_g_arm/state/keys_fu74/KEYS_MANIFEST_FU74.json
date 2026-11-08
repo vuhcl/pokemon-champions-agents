@@ -1,0 +1,26 @@
+{
+  "schema": "part_g_arm_keys_fu74_manifest_v1",
+  "key_hash": "a85d5f3cbb8101f89d5a2566f76ab8da92f2273860932bc535a0bd12c38aa024",
+  "keys_fu72_key_hash": "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02",
+  "keys_fu72_manifest_sha256": "252049193d72e2c471716cfc3cae956ff9316e1fd1ae60790af1b8087a4e57dc",
+  "revised_key_hash": "1fd4d3ce443cf39f3e4a6a7f7c6cf3ad907ca99c98b75ec10142d586b60e495a",
+  "files": {
+    "scripts/eval/part_g_arm/state/keys_fu74/expected_tools_rev5_2026-11-07.csv": "134add5af5edcae0ef5be320977a3121f40a5126cb57d1c649b3a15e87f3ddc0",
+    "scripts/eval/part_g_arm/state/keys_fu74/hand_keys_fu74.json": "b8cf3bc81c719e3366078e9f834404b13b24f96737f34432ecfeea56b924c408",
+    "scripts/eval/part_g_arm/state/keys_fu74/ix_facts_fu74.json": "36b4b0bc345a906cd7eeef8425080339482b259c0ea008575ba71bd9ba54fa4e",
+    "scripts/eval/part_g_arm/state/keys_fu74/legality_report_fu74.json": "ca0566512d003600f0031296982d6a2f1ad6b3e3847c901fc84e1a6b2094d7b9",
+    "scripts/eval/part_g_arm/state/keys_fu74/legality_report_fu74.md": "b6c4d49a97e6935d40393e5f69f7bb570f812a76612708994e0320f6b89cf003",
+    "scripts/eval/part_g_arm/state/keys_fu74/point_diff_fu74.md": "3b2dc71eb39d40fd49eb9b6f560e93dbdbbbd2574e4746b248fe13984685964d",
+    "scripts/eval/part_g_arm/state/keys_fu74/KEYS_MANIFEST_FU74.json": "de9dd9f1c8129f7d49007a2a1c4766f921ba9f0a5ee5d977439f5d1fcca9d85a"
+  },
+  "generator": "scripts/eval/part_g_arm/state/keys_fu74/build_fu74_artifacts.py",
+  "old_hashes_unchanged": {
+    "expected_tools_rev3_2026-11-02.csv": "fde4e93dc69075efff4c8e9195804919ed085429de1a665906b1979fb42bc7b6",
+    "part3_request_set_v4.md": "98c3bd0249c0ac5626be7688d9767d20e08b2c5b2341f3ed9f6ada0ee68c3cae",
+    "derived_keys.json": "bba5787ce95f9e0b615ce679d8622ca6b1d7709e2cc8e73dc493cda7b88354b2",
+    "FROZEN_MANIFEST_ARM_V2.json": "ddee025fc609433fa6267dfc58baf6d22e5a62640bd63eeaa738f41160108117",
+    "claim_battery_v4.json": "e7492a6811f057f1e84ccac821c1249eb29a3fad1f25eec6f9a0e613b776f4b0",
+    "keys_fu72_key_hash": "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02"
+  },
+  "note": "IX1/IX5/IX7 cut only. keys_fu72 contents unchanged. revised_key_hash combines fu72 key_hash + fu74 key_hash."
+}

@@ -36,5 +36,6 @@ testpaths = [
     # rest of scripts/eval/part_g_arm/state is not pulled into the default suite.
     "scripts/eval/part_g_arm/state/test_tool_fixes_v2.py",
     "scripts/eval/part_g_arm/state/test_harness_start_state_fu70.py",
+    "scripts/eval/part_g_arm/state/test_ix_facts_fu74_drift.py",
 ]
 pythonpath = [".", "tests/recommender"]
