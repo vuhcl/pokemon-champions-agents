@@ -1740,12 +1740,12 @@
       ],
       "rewrite": true,
       "pass_criteria_changed": true,
-      "unreachable_reason": "get_featured_builds unreachable; synthesis alt listed on t1",
+      "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "get_usage_items;get_usage_spreads;get_usage_stats;set_slot",
       "optional_tools": "get_move_static",
       "alternative_path": "get_featured_builds;set_slot",
-      "notes": "Modal = top joint of re-pinned blob. get_featured_builds unreachable at current rungs \u2192 synthesis alt listed."
+      "notes": "Modal = top joint of re-pinned blob. Reachable via synthesis (get_usage_*+set_slot) at tool_fields/wrapper; B11."
     },
     "GS1__t2": {
       "row_id": "GS1",
@@ -1968,12 +1968,12 @@
       ],
       "rewrite": true,
       "pass_criteria_changed": false,
-      "unreachable_reason": "get_featured_builds not bound at current rungs; synthesis path is the alternative",
+      "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "read_team;get_usage_items;get_usage_stats;set_slot",
       "optional_tools": "",
       "alternative_path": "get_usage_items;get_usage_spreads;get_usage_stats;set_slot",
-      "notes": ""
+      "notes": "Reachable via synthesis alt (worksheet B11); get_featured_builds unbound but not required."
     },
     "IC1__t2": {
       "row_id": "IC1",
@@ -2034,7 +2034,7 @@
       ],
       "rewrite": true,
       "pass_criteria_changed": false,
-      "unreachable_reason": "get_meta_threats returns in-game list, not Showdown \u22654.52% set the key assumes",
+      "unreachable_reason": "get_meta_threats returns in-game list, not Showdown \u22654.52% set the key assumes (no equivalent path at current rungs)",
       "flags_required": [],
       "expected_tools_ordered": "get_meta_threats;get_speed",
       "optional_tools": "",
@@ -2073,12 +2073,12 @@
       ],
       "rewrite": true,
       "pass_criteria_changed": false,
-      "unreachable_reason": "get_featured_builds unreachable; synthesis+check_learnset+describe alt listed",
+      "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "check_learnset;set_slot;describe",
       "optional_tools": "get_usage_items",
       "alternative_path": "get_featured_builds;check_learnset;set_slot;describe",
-      "notes": "FU72: rewritten to stop ';'-fragment splits of the acceptance cell."
+      "notes": "FU72: rewritten to stop ';'-fragment splits. Reachable via synthesis+check_learnset+describe (B11)."
     },
     "H18b__t1": {
       "row_id": "H18b",
@@ -2100,12 +2100,12 @@
       ],
       "rewrite": true,
       "pass_criteria_changed": false,
-      "unreachable_reason": "t2 Sinistcha fail-case needs a usage/synth passing set under the hyper_offense_32 constraint; get_featured_builds is unbound and no other tool returns that passing set at current rungs",
+      "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "add_constraint",
       "optional_tools": "change_archetype;read_team",
       "alternative_path": "",
-      "notes": "FU72: t1 is definition-only; t2 content moved to t2."
+      "notes": "FU72: t1 is definition-only; t2 content moved to t2. Reachable without get_featured_builds (B11)."
     },
     "H18b__t2": {
       "row_id": "H18b",
@@ -2145,12 +2145,12 @@
       ],
       "rewrite": true,
       "pass_criteria_changed": false,
-      "unreachable_reason": "t2 Sinistcha fail-case needs a usage/synth passing set under the hyper_offense_32 constraint; get_featured_builds is unbound and no other tool returns that passing set at current rungs",
+      "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "get_usage_spreads",
       "optional_tools": "solve_spread;read_constraints;get_abilities;get_usage_items;get_usage_stats;check_species_legal",
       "alternative_path": "get_featured_builds",
-      "notes": "FU72: t2 owns the Sinistcha fail-case content formerly bundled into t1."
+      "notes": "FU72: t2 owns the Sinistcha fail-case; usage/synth alt (B11)."
     },
     "IX1__t1": {
       "row_id": "IX1",
@@ -2184,7 +2184,7 @@
       ],
       "rewrite": false,
       "pass_criteria_changed": false,
-      "unreachable_reason": "#367/#368 effect/priority lookup not shipped",
+      "unreachable_reason": "pending key cut (find_by_effect shipped in #393 / ix_tools_v1)",
       "flags_required": [],
       "expected_tools_ordered": "get_move_static",
       "optional_tools": "",
@@ -2229,7 +2229,7 @@
       ],
       "rewrite": false,
       "pass_criteria_changed": false,
-      "unreachable_reason": "#367 effect lookup not shipped",
+      "unreachable_reason": "pending key cut (find_by_effect shipped in #393 / ix_tools_v1)",
       "flags_required": [],
       "expected_tools_ordered": "find_species",
       "optional_tools": "get_abilities",
@@ -2268,7 +2268,7 @@
       ],
       "rewrite": false,
       "pass_criteria_changed": false,
-      "unreachable_reason": "#368 type-effectiveness / safe-set lookup not shipped",
+      "unreachable_reason": "pending key cut (get_type_effectiveness + find_by_effect shipped in #393 / ix_tools_v1)",
       "flags_required": [],
       "expected_tools_ordered": "find_species",
       "optional_tools": "",
@@ -2289,7 +2289,7 @@
       ],
       "rewrite": false,
       "pass_criteria_changed": false,
-      "unreachable_reason": "lock_fields below rung 4",
+      "unreachable_reason": "lock_fields below rung 4 (no equivalent path below draft+lock_fields)",
       "flags_required": [],
       "expected_tools_ordered": "set_slot;lock_fields",
       "optional_tools": "read_team",
@@ -2310,7 +2310,7 @@
       ],
       "rewrite": false,
       "pass_criteria_changed": false,
-      "unreachable_reason": "lock_fields below rung 4",
+      "unreachable_reason": "lock_fields below rung 4 (no equivalent path below draft+lock_fields)",
       "flags_required": [],
       "expected_tools_ordered": "set_slot;lock_fields",
       "optional_tools": "read_team",

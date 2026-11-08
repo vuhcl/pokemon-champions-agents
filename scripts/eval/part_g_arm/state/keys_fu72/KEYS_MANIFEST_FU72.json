@@ -1,11 +1,11 @@
 {
   "schema": "part_g_arm_keys_fu72_manifest_v1",
-  "key_hash": "51b4226155f543d32546648d9c8e4a3e255559c81ac7fade83d466769d814581",
+  "key_hash": "cc4669610ba9dd980cd93c5efa4717e452995821ffda590935acae02bcad5252",
   "files": {
     "scripts/eval/part_g_arm/state/keys_fu72/ambiguous_splits_fu72.md": "411300da6f9d5e5c225e2bf6f7122d2a4c97a53dbe4544e7c1bf1b139b9d1e76",
     "scripts/eval/part_g_arm/state/keys_fu72/disagreements_fu72.md": "2b6025828fa0a5803c7b01954e5f0e56d3024361a745857016c4556868dc20b3",
-    "scripts/eval/part_g_arm/state/keys_fu72/expected_tools_rev4_2026-11-07.csv": "ad7b54384ef9f89323facc1c2ad7b713c14c6bd140e3447f424d5d7799949dec",
-    "scripts/eval/part_g_arm/state/keys_fu72/hand_keys_fu72.json": "b11c826340826d52fefe85baaa2837ef1c8313d5b1370d64661fb3c1db84393e",
+    "scripts/eval/part_g_arm/state/keys_fu72/expected_tools_rev4_2026-11-07.csv": "c5dd3a0b1d8fce30d9daff1f5ffe0e3ec83699a9b2dd846e70a0ff316fbf14df",
+    "scripts/eval/part_g_arm/state/keys_fu72/hand_keys_fu72.json": "43c76814584211dd2cd808035b013129cd21948fac8d96586eca2ca0498867e3",
     "scripts/eval/part_g_arm/state/keys_fu72/is_minima_fu72.json": "aa764e1139e4134bf6e7cf35d98fa85070ae41c7314ad8a685570c63b6f6da59",
     "scripts/eval/part_g_arm/state/keys_fu72/legality_report_fu72.json": "804be5431503ac74b08c36a992e142b9109f9e3d8d993f4eeb92061bffa78d21",
     "scripts/eval/part_g_arm/state/keys_fu72/legality_report_fu72.md": "3adff8ccfe956f17f1ea67a3ec2c6114632f400d7af153c00e7552bc21d9af89",
@@ -22,10 +22,10 @@
     "scripts/eval/part_g_arm/state/keys_fu72/seeds/mw2_seed.v1.json": "9ee60f71ac410e0ef5d8e46502715391f9fff07878c4c1413fd9716a6a7297b4",
     "scripts/eval/part_g_arm/state/keys_fu72/seeds/rb1_lucario_megaz_calmmind.v1.json": "b1e35aaf051854967fee7f553987b345d49174a827668783bd0f51655a57e615",
     "scripts/eval/part_g_arm/state/keys_fu72/seeds/tb2_incineroar_charcoal_darkest_lariat.v1.json": "b7173c3e501f727ac8a4ac7a46c553feca43e0983b6ed9a2baf9fbcb35406052",
-    "scripts/eval/part_g_arm/state/keys_fu72/unreachable_fu72.md": "7b9963a41166f44ee964a37c854c80c9507740738953363258a8698a3731a96e",
+    "scripts/eval/part_g_arm/state/keys_fu72/unreachable_fu72.md": "954177b2658e30070df4b7a6993802509f00cf367372f381c364d931ad552f16",
     "scripts/eval/part_g_arm/state/keys_fu72/usage_rebuild_fu72.json": "f7490e587f519ffbf45a19cffba9d6114a20dc95aafc5040af8df889bb459b32",
     "scripts/eval/part_g_arm/state/keys_fu72/worksheet_2026-11-07.md": "5b4d8f365e8b2afc5580e8a1d0d23c3b53473e8b665eb57cfbc0049ed4113d3b",
-    "scripts/eval/part_g_arm/state/keys_fu72/KEYS_MANIFEST_FU72.json": "1d875ec4296bf742c3f59ad4b3588be1e8e76a63ec2eb09cf78344d7338f0614"
+    "scripts/eval/part_g_arm/state/keys_fu72/KEYS_MANIFEST_FU72.json": "7cd6fc20f6914040ae8f6945e9d7efde8e4ad68d3a16637f88b617a521fcec60"
   },
   "old_hashes_unchanged": {
     "expected_tools_rev3_2026-11-02.csv": "fde4e93dc69075efff4c8e9195804919ed085429de1a665906b1979fb42bc7b6",

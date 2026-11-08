@@ -1146,7 +1146,7 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         rewrite=True,
         pass_criteria_changed=True,
         tools={"expected": "get_usage_items;get_usage_spreads;get_usage_stats;set_slot", "optional": "get_move_static", "alt": "get_featured_builds;set_slot"},
-        notes="Modal = top joint of re-pinned blob. get_featured_builds unreachable at current rungs → synthesis alt listed.",
+        notes="Modal = top joint of re-pinned blob. Reachable via synthesis (get_usage_*+set_slot) at tool_fields/wrapper; B11.",
     )
     add_turn(
         "GS1",
@@ -1247,8 +1247,8 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         ],
         rewrite=True,
         pass_criteria_changed=False,
-        unreachable="get_featured_builds not bound at current rungs; synthesis path is the alternative",
         tools={"alt": "get_usage_items;get_usage_spreads;get_usage_stats;set_slot"},
+        notes="Reachable via synthesis alt (worksheet B11); get_featured_builds unbound but not required.",
     )
     add_turn(
         "IC1",
@@ -1287,21 +1287,16 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         ],
         rewrite=True,
         pass_criteria_changed=False,
-        unreachable="get_featured_builds unreachable; synthesis+check_learnset+describe alt listed",
         tools={
             "expected": "check_learnset;set_slot;describe",
             "optional": "get_usage_items",
             "alt": "get_featured_builds;check_learnset;set_slot;describe",
         },
-        notes="FU72: rewritten to stop ';'-fragment splits of the acceptance cell.",
+        notes="FU72: rewritten to stop ';'-fragment splits. Reachable via synthesis+check_learnset+describe (B11).",
     )
 
     # H18b — t1 definition only; t2 Sinistcha fail-case (content moved out of t1).
-    h18b_unreachable = (
-        "t2 Sinistcha fail-case needs a usage/synth passing set under the hyper_offense_32 "
-        "constraint; get_featured_builds is unbound and no other tool returns that passing set "
-        "at current rungs"
-    )
+    # Reachable: usage/synth path for a 32-SP passing set (worksheet B11); not marked unreachable.
     add_turn(
         "H18b",
         1,
@@ -1311,8 +1306,7 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         ],
         rewrite=True,
         pass_criteria_changed=False,
-        unreachable=h18b_unreachable,
-        notes="FU72: t1 is definition-only; t2 content moved to t2.",
+        notes="FU72: t1 is definition-only; t2 content moved to t2. Reachable without get_featured_builds (B11).",
     )
     add_turn(
         "H18b",
@@ -1326,32 +1320,28 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         ],
         rewrite=True,
         pass_criteria_changed=False,
-        unreachable=h18b_unreachable,
-        notes="FU72: t2 owns the Sinistcha fail-case content formerly bundled into t1.",
+        notes="FU72: t2 owns the Sinistcha fail-case; usage/synth alt (B11).",
     )
 
-    # Unreachable tool-gap rows (MM1/MT2 removed — alternatives exist).
+    # Unreachable list: keep only rows with no equivalent path at the graded rung.
+    # GS1/IC1/TB1/H18b/MM1/MT2 have registered alts (worksheet B11) — not listed.
+    # IX1/IX5/IX7 tools shipped (#393); keys pending a separate cut.
     unreachable_specs = {
-        "IX1": "#367/#368 effect/priority lookup not shipped",
-        "IX5": "#367 effect lookup not shipped",
-        "IX7": "#368 type-effectiveness / safe-set lookup not shipped",
-        "HU2b": "get_meta_threats returns in-game list, not Showdown ≥4.52% set the key assumes",
-        "H18b": h18b_unreachable,
-        "TB1": "get_featured_builds unreachable; synthesis+check_learnset+describe alt listed",
-        "MS1": "lock_fields below rung 4",
-        "MS8": "lock_fields below rung 4",
-        "GS1": "get_featured_builds unreachable; synthesis alt listed on t1",
+        "IX1": "pending key cut (find_by_effect shipped in #393 / ix_tools_v1)",
+        "IX5": "pending key cut (find_by_effect shipped in #393 / ix_tools_v1)",
+        "IX7": "pending key cut (get_type_effectiveness + find_by_effect shipped in #393 / ix_tools_v1)",
+        "HU2b": "get_meta_threats returns in-game list, not Showdown ≥4.52% set the key assumes (no equivalent path at current rungs)",
+        "MS1": "lock_fields below rung 4 (no equivalent path below draft+lock_fields)",
+        "MS8": "lock_fields below rung 4 (no equivalent path below draft+lock_fields)",
     }
     # Clear stale unreachable marks on rows that now have alternatives.
-    for rid in ("MM1", "MT2"):
+    for rid in ("MM1", "MT2", "GS1", "IC1", "TB1", "H18b"):
         for key, t in list(turns.items()):
             if t["row_id"] == rid:
                 t["unreachable_reason"] = None
     for rid, reason in unreachable_specs.items():
         if f"{rid}__t1" in turns:
             turns[f"{rid}__t1"]["unreachable_reason"] = reason
-            if f"{rid}__t2" in turns and rid == "H18b":
-                turns[f"{rid}__t2"]["unreachable_reason"] = reason
         elif rid in rows:
             acc = rows[rid]["acceptance"]
             pts, amb = _split_semicolon(acc)

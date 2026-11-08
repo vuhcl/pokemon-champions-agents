@@ -19,7 +19,11 @@ Source of truth: `key_cut_worksheet_2026-11-07.md` (copied under `state/keys_fu7
 | Manifest + key hash | `state/keys_fu72/KEYS_MANIFEST_FU72.json` |
 | Builder | `state/keys_fu72/build_fu72_artifacts.py` |
 
-**key_hash:** `51b4226155f543d32546648d9c8e4a3e255559c81ac7fade83d466769d814581` (see `KEYS_MANIFEST_FU72.json`).
+**key_hash:** `cc4669610ba9dd980cd93c5efa4717e452995821ffda590935acae02bcad5252` (see `KEYS_MANIFEST_FU72.json`).
+
+### Post-#393 rebase (main @ 118db45 / tip f84d852)
+- Rebased `fu72-key-cut` onto main after IX tools merge. Isolation golden + legality report still pass (no key-content edits in the rebase step).
+- Unreachable list trimmed (worksheet B11): removed GS1, IC1, TB1, H18b (alts exist); MM1/MT2 still out. IX1/IX5/IX7 reason → **pending key cut** (tools shipped). Remains: HU2b, MS1, MS8, IX1, IX5, IX7 — see `unreachable_fu72.md`.
 
 ### Follow-up review fixes (same PR)
 - **(6)** TB2 seed: `U-turn` → `Throat Chop` (Incineroar cannot learn U-turn). Legality report now runs `check_set` / learnset over every species, item, and move in every `keys_fu72/seeds/` file.
@@ -68,7 +72,7 @@ Recorded in the manifest `old_hashes_unchanged` for:
 - **OL4 / OL6 / OL9 / MW3**: Named ambiguities; OL4 draft-confirm ok / lock not; OL9 multi-select or ask.
 - **MU6**: Expected `reset_team` explanation in points (no call).
 - **MR6**: No-op or refusal accepted.
-- **IX1 / IX5 / IX7**: Unreachable until #367/#368; keys not frozen as gradable.
+- **IX1 / IX5 / IX7**: Tools shipped (#393); keys pending a separate IX cut (`unreachable_fu72.md`: pending key cut).
 
 ## Legality
 
@@ -76,7 +80,29 @@ Recorded in the manifest `old_hashes_unchanged` for:
 
 ## Unreachable (not graded as arm misses)
 
-See `unreachable_fu72.md` — featured-builds / lock_fields / meta-threats Showdown set / #367/#368 rows.
+See `unreachable_fu72.md`.
+
+**Removed (reachable via registered alt — worksheet B11):**
+
+| Row | Why reachable |
+|---|---|
+| GS1 | Synthesis path `get_usage_items;get_usage_spreads;get_usage_stats;set_slot` at tool_fields/wrapper (alt to unbound `get_featured_builds`) |
+| IC1 | Same synthesis alt at tool_fields/wrapper |
+| TB1 | Expected `check_learnset;set_slot;describe` (+ optional usage items); featured path only an alt |
+| H18b t1/t2 | Usage lookup / synthesis for a 32-SP passing set (B11); featured not required |
+| MM1 | Still out (alts: `no_lookup_needed` / describe / validator) — confirmed |
+| MT2 | Still out (t2 set matched; no lock_fields gap forcing unreachable) — confirmed |
+
+**Remains:**
+
+| Row | Reason |
+|---|---|
+| HU2b | `get_meta_threats` returns in-game list, not Showdown ≥4.52% set; no equivalent path |
+| MS1 | `lock_fields` below rung 4; no equivalent path |
+| MS8 | `lock_fields` below rung 4; no equivalent path |
+| IX1 | pending key cut (`find_by_effect` shipped #393) |
+| IX5 | pending key cut (`find_by_effect` shipped #393) |
+| IX7 | pending key cut (`get_type_effectiveness` + `find_by_effect` shipped #393) |
 
 ## Ambiguous splits
 
