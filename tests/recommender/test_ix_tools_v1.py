@@ -93,6 +93,38 @@ def test_matched_by_both_when_flag_and_keyword_agree():
     assert by.get("Dragon Darts") == "description" or "Dragon Darts" in by
 
 
+def test_ground_keyword_distinguishes_levitate_from_sand_force():
+    r = ix.find_by_effect("ability", keyword="Ground")
+    by_name = {m["name"]: m for m in r["matches"]}
+    assert "Levitate" in by_name and "Sand Force" in by_name
+    lev, sand = by_name["Levitate"], by_name["Sand Force"]
+    assert lev["matched_span"].casefold() == "ground"
+    assert sand["matched_span"].casefold() == "ground"
+    # Window / description must let the arm tell immunity from a Ground boost
+    # without a follow-up describe call.
+    lev_text = f"{lev.get('matched_window', '')} {lev.get('description', '')}".casefold()
+    sand_text = f"{sand.get('matched_window', '')} {sand.get('description', '')}".casefold()
+    assert "immune" in lev_text
+    assert "immune" not in sand_text or "sandstorm" in sand_text
+    assert "1.3" in sand_text or "power" in sand_text
+    assert lev.get("matched_window") != sand.get("matched_window")
+
+
+def test_allies_keyword_returns_telepathy_with_description():
+    r = ix.find_by_effect("ability", keyword="allies")
+    tele = next(m for m in r["matches"] if m["name"] == "Telepathy")
+    assert "allies" in (tele.get("matched_window") or "").casefold()
+    assert "allies" in (tele.get("description") or "").casefold()
+    assert "damage" in (tele.get("description") or "").casefold()
+
+
+def test_flag_matches_include_full_description():
+    r = ix.find_by_effect("move", flag="redirection")
+    for m in r["matches"]:
+        assert m["matched_by"] in ("flag", "both")
+        assert isinstance(m.get("description"), str) and len(m["description"]) > 20
+
+
 # --- #368 acceptance 1–2 ---
 
 

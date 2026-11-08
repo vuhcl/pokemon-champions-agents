@@ -79,8 +79,10 @@ FIND_BY_EFFECT_SPEC = _spec(
     "find_by_effect",
     "Find moves, items, or abilities by curated functional flag and/or keyword over "
     "Showdown description text (not in-game). kind is required; supply flag and/or "
-    "keyword. Returns matching names with matched_by (flag|description|both), count, "
-    "and source labels. Flag-first ranking. Word-boundary keyword match.",
+    "keyword. Returns matching names with matched_by (flag|description|both), a ~12-word "
+    "matched_window around the keyword span (description/both), and full description "
+    "text for flag/both matches, plus count and source labels. Flag-first ranking. "
+    "Word-boundary keyword match.",
     kind={"type": "string", "enum": ["move", "item", "ability"]},
     flag={"type": "string", "optional": True},
     keyword={"type": "string", "optional": True},
@@ -195,6 +197,50 @@ def _desc_corpus(kind: str) -> list[tuple[str, str, str, dict[str, Any]]]:
     return []
 
 
+def _window_around(text: str, start: int, end: int, *, words: int = 12) -> str:
+    """~`words` tokens centered on the match (whole string if shorter)."""
+    tokens = text.split()
+    if not tokens:
+        return ""
+    # Map char offset → token index via a cumulative scan on the original text.
+    idx = 0
+    positions: list[tuple[int, int]] = []
+    for tok in tokens:
+        at = text.find(tok, idx)
+        if at < 0:
+            at = idx
+        positions.append((at, at + len(tok)))
+        idx = at + len(tok)
+    center = 0
+    for i, (a, b) in enumerate(positions):
+        if a <= start < b or a < end <= b or (start <= a and b <= end):
+            center = i
+            break
+        if a >= start:
+            center = i
+            break
+    half = max(words // 2, 1)
+    lo = max(0, center - half)
+    hi = min(len(tokens), lo + words)
+    lo = max(0, hi - words)
+    return " ".join(tokens[lo:hi])
+
+
+def _full_description(kind: str, mid: str) -> str:
+    if kind == "move":
+        entry = (_move_desc_doc().get("by_id") or {}).get(mid) or {}
+        return " ".join(
+            x for x in (entry.get("shortDesc"), entry.get("desc")) if isinstance(x, str)
+        ).strip()
+    if kind == "item":
+        entry = (_item_desc_doc().get("by_id") or {}).get(mid) or {}
+        return " ".join(
+            x for x in (entry.get("shortDesc"), entry.get("desc")) if isinstance(x, str)
+        ).strip()
+    entry = (_ability_doc().get("abilities") or {}).get(mid) or {}
+    return str(entry.get("description") or "").strip()
+
+
 def _keyword_hits(kind: str, keyword: str) -> dict[str, dict[str, Any]]:
     pat = _word_boundary_re(keyword)
     out: dict[str, dict[str, Any]] = {}
@@ -205,6 +251,8 @@ def _keyword_hits(kind: str, keyword: str) -> dict[str, dict[str, Any]]:
         out[mid] = {
             "name": name,
             "matched_span": m.group(0),
+            "matched_window": _window_around(text, m.start(), m.end()),
+            "description": text.strip(),
             "source": src,
         }
     return out
@@ -250,14 +298,17 @@ def find_by_effect(
         for mid, name in sorted(flag_ids.items(), key=lambda x: x[1].casefold()):
             seen.add(mid)
             by = "both" if mid in kw_hits else "flag"
+            full = _full_description(str(kind), mid)
             row: dict[str, Any] = {
                 "id": mid,
                 "name": name,
                 "matched_by": by,
                 "flag": resolved,
+                "description": full,
             }
             if mid in kw_hits:
                 row["matched_span"] = kw_hits[mid]["matched_span"]
+                row["matched_window"] = kw_hits[mid]["matched_window"]
             matches.append(row)
     for mid, hit in sorted(kw_hits.items(), key=lambda x: x[1]["name"].casefold()):
         if mid in seen:
@@ -268,6 +319,10 @@ def find_by_effect(
                 "name": hit["name"],
                 "matched_by": "description",
                 "matched_span": hit["matched_span"],
+                "matched_window": hit["matched_window"],
+                # Keyword-only: window is the primary snippet; keep full text so
+                # the arm can distinguish immunity vs boost without a follow-up describe.
+                "description": hit["description"],
                 **({"flag": resolved} if resolved else {}),
             }
         )

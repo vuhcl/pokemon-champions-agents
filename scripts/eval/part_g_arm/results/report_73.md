@@ -38,6 +38,8 @@ Branch `fu73-ix-tools` from main. Flag `ix_tools_v1` default **off**. No frozen 
 
 `matched_by`: `flag` \| `description` \| `both`. Flag-first ranking. Word-boundary keyword. Aliases in `FLAG_ALIASES` (e.g. drag → phazing).
 
+Each match carries text the arm can use without a follow-up `describe`: keyword hits include `matched_span`, a ~12-word `matched_window`, and full `description`; flag / both hits always include full `description` (plus window/span when a keyword also hit).
+
 ## #368
 
 - New tool `get_type_effectiveness` (not a `get_typing` extension).
@@ -59,8 +61,10 @@ No other request-set rows are required to call these tools today; any “what re
 
 | Surface | Tools | Tokens | Δ vs flag-off same surface |
 |---|---:|---:|---:|
-| All ladder flags off | 34 → 36 | 3767 → 4016 | +249 |
-| `tool_fields+wrapper+draft` (guard surface) | 41 → 43 | 4902 → 5151 | +249 |
+| All ladder flags off | 34 → 36 | 3767 → 4041 | +274 |
+| `tool_fields+wrapper+draft` (guard surface) | 41 → 43 | 4902 → 5176 | +274 |
+
+(+25 vs the first FU73 cut: schema text now documents `matched_window` / full `description` on matches.)
 
 New configuration beside registered rungs — not part of them.
 
