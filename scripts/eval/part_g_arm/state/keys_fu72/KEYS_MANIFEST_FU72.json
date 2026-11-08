@@ -1,0 +1,42 @@
+{
+  "schema": "part_g_arm_keys_fu72_manifest_v1",
+  "key_hash": "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02",
+  "files": {
+    "scripts/eval/part_g_arm/state/keys_fu72/ambiguous_splits_fu72.md": "07e59eaef78e942063b0aaead37cee9c107532da59410786d358a9328498bc14",
+    "scripts/eval/part_g_arm/state/keys_fu72/disagreements_fu72.md": "2b6025828fa0a5803c7b01954e5f0e56d3024361a745857016c4556868dc20b3",
+    "scripts/eval/part_g_arm/state/keys_fu72/expected_tools_rev4_2026-11-07.csv": "ec08d4d6de93444ac9819f278b9bf2a6686263ceb2f304df293eca018bee90bc",
+    "scripts/eval/part_g_arm/state/keys_fu72/hand_keys_fu72.json": "7244e16251f0b6ef2bd462e44ba528972c6ba9985f1fcc99a0eaf03e13fe6343",
+    "scripts/eval/part_g_arm/state/keys_fu72/is_minima_fu72.json": "aa764e1139e4134bf6e7cf35d98fa85070ae41c7314ad8a685570c63b6f6da59",
+    "scripts/eval/part_g_arm/state/keys_fu72/legality_report_fu72.json": "804be5431503ac74b08c36a992e142b9109f9e3d8d993f4eeb92061bffa78d21",
+    "scripts/eval/part_g_arm/state/keys_fu72/legality_report_fu72.md": "3adff8ccfe956f17f1ea67a3ec2c6114632f400d7af153c00e7552bc21d9af89",
+    "scripts/eval/part_g_arm/state/keys_fu72/old_point_maps_fu72.json": "9b10b8e918225b8de305b6e5d1770662e5233775b37576edf86b41894f3d4dbb",
+    "scripts/eval/part_g_arm/state/keys_fu72/point_diff_fu72.md": "140af8ee066783298fe5add69c92e4572e2f240a63d7d2527ef1e059f52dcae7",
+    "scripts/eval/part_g_arm/state/keys_fu72/request_text_overrides_fu72.json": "a0a49dfd1533697dce0dfb071333a51eedb64bc92bfd2fb7de08a7887709454a",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/SEED_INDEX.json": "c33f0c4a4e42fc8caa160467588ea16bc7dc3339467dd0289fedf4bfe8aa6af8",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/dm2_seed.v1.json": "8a2d0061080ca7c0691f717cf798ea81b6c7eed062d1710d2785ade887a51c25",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/h18b_seed.v1.json": "7f19621ddaf669101fc2e9c0f366b2f7a6d0ef880398fd86e04842e0a4168a55",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/mr3_seed.v1.json": "cbcaac28773078f9172453167ce7f27c360e2b877b60b000f5581b5ee53b7d77",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/mr4_incineroar_garchomp_item_unlocked.v1.json": "cbf6c55040c074a8198191f8d8fe196cc3d84cfdddee37a314eb5da302882ced",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/ms2_seed.v1.json": "76679428d38aa5afc1c09fc80f72dd0cf8b45b7ec5a5b00e24ce36d2fd4b4221",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/ms3_seed.v1.json": "e4657b472f533a704dfb282698adfa7c4ce55e43b676148486ddf5f8944e2236",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/mw2_seed.v1.json": "9ee60f71ac410e0ef5d8e46502715391f9fff07878c4c1413fd9716a6a7297b4",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/rb1_lucario_megaz_calmmind.v1.json": "b1e35aaf051854967fee7f553987b345d49174a827668783bd0f51655a57e615",
+    "scripts/eval/part_g_arm/state/keys_fu72/seeds/tb2_incineroar_charcoal_darkest_lariat.v1.json": "b7173c3e501f727ac8a4ac7a46c553feca43e0983b6ed9a2baf9fbcb35406052",
+    "scripts/eval/part_g_arm/state/keys_fu72/unreachable_fu72.md": "9e1d5933b88c32da8bcf039e190b34dde863b637929edef72d6004169ccc1ade",
+    "scripts/eval/part_g_arm/state/keys_fu72/usage_rebuild_fu72.json": "95365f21dfb2591c1d7d4dea404a946fac8bfdddaeba5425d38c00e7f98abbf6",
+    "scripts/eval/part_g_arm/state/keys_fu72/KEYS_MANIFEST_FU72.json": "e215c90736de069d9bad4d7ce0aaaf2794118e4c50fd97c843bb76e7a7f89983"
+  },
+  "old_hashes_unchanged": {
+    "expected_tools_rev3_2026-11-02.csv": "fde4e93dc69075efff4c8e9195804919ed085429de1a665906b1979fb42bc7b6",
+    "part3_request_set_v4.md": "98c3bd0249c0ac5626be7688d9767d20e08b2c5b2341f3ed9f6ada0ee68c3cae",
+    "derived_keys.json": "bba5787ce95f9e0b615ce679d8622ca6b1d7709e2cc8e73dc493cda7b88354b2",
+    "FROZEN_MANIFEST_ARM_V2.json": "ddee025fc609433fa6267dfc58baf6d22e5a62640bd63eeaa738f41160108117",
+    "claim_battery_v4.json": "e7492a6811f057f1e84ccac821c1249eb29a3fad1f25eec6f9a0e613b776f4b0"
+  },
+  "config": {
+    "sticky_locks": true,
+    "unlock_keeps_values": true,
+    "tool_fixes_v2": true
+  },
+  "note": "New versioned keys only. a393ae91 frozen artifacts not edited."
+}

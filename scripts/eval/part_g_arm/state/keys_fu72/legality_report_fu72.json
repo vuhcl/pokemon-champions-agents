@@ -1,0 +1,412 @@
+{
+  "species": {
+    "Alakazam-Mega": {
+      "ok": true
+    },
+    "Annihilape": {
+      "ok": true
+    },
+    "Basculegion": {
+      "ok": true
+    },
+    "Charizard": {
+      "ok": true
+    },
+    "Corviknight": {
+      "ok": true
+    },
+    "Dragapult": {
+      "ok": true
+    },
+    "Garchomp": {
+      "ok": true
+    },
+    "Gholdengo": {
+      "ok": true
+    },
+    "Glimmora": {
+      "ok": true
+    },
+    "Golisopod": {
+      "ok": true
+    },
+    "Hatterene": {
+      "ok": true
+    },
+    "Incineroar": {
+      "ok": true
+    },
+    "Indeedee-F": {
+      "ok": true
+    },
+    "Jolteon": {
+      "ok": true
+    },
+    "Kingambit": {
+      "ok": true
+    },
+    "Lucario": {
+      "ok": true
+    },
+    "Lucario-Mega-Z": {
+      "ok": true
+    },
+    "Pelipper": {
+      "ok": true
+    },
+    "Pincurchin": {
+      "ok": true
+    },
+    "Primarina": {
+      "ok": true
+    },
+    "Raichu": {
+      "ok": true
+    },
+    "Rillaboom": {
+      "ok": true
+    },
+    "Salamence": {
+      "ok": true
+    },
+    "Sinistcha": {
+      "ok": true
+    },
+    "Slowbro": {
+      "ok": true
+    },
+    "Sneasler": {
+      "ok": true
+    },
+    "Toxapex": {
+      "ok": true
+    },
+    "Whimsicott": {
+      "ok": true
+    }
+  },
+  "items": {
+    "Charcoal": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Choice Scarf": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Choice Specs": {
+      "ok": false,
+      "expected_illegal": true,
+      "note": "illegal held item; named by refusal-row keys only"
+    },
+    "Focus Sash": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Galladite": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Glimmoranite": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Leftovers": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Life Orb": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Lucarionite Z": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Miracle Seed": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Psychic Seed": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Rocky Helmet": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Salamencite": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Sitrus Berry": {
+      "ok": true,
+      "expected_illegal": false
+    },
+    "Wide Lens": {
+      "ok": true,
+      "expected_illegal": false
+    }
+  },
+  "moves": {
+    "Aura Sphere": {
+      "named_in_seeds": true,
+      "learns_on_Lucario-Mega-Z": true
+    },
+    "Calm Mind": {
+      "named_in_seeds": true,
+      "learns_on_Lucario-Mega-Z": true
+    },
+    "Darkest Lariat": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    },
+    "Dragon Claw": {
+      "named_in_seeds": true,
+      "learns_on_Garchomp": true
+    },
+    "Earthquake": {
+      "named_in_seeds": true,
+      "learns_on_Garchomp": true
+    },
+    "Fake Out": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    },
+    "Flare Blitz": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    },
+    "Flash Cannon": {
+      "named_in_seeds": true,
+      "learns_on_Lucario-Mega-Z": true
+    },
+    "Parting Shot": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    },
+    "Protect": {
+      "named_in_seeds": true,
+      "learns_on_Garchomp": true
+    },
+    "Rock Slide": {
+      "named_in_seeds": true,
+      "learns_on_Garchomp": true
+    },
+    "Throat Chop": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    }
+  },
+  "seed_check_set": [
+    {
+      "seed": "dm2_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mr3_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mr4_incineroar_garchomp_item_unlocked.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mr4_incineroar_garchomp_item_unlocked.v1.json",
+      "species": "Garchomp",
+      "item": "Life Orb",
+      "moves": [
+        "Dragon Claw",
+        "Rock Slide",
+        "Earthquake",
+        "Protect"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "ms2_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "ms3_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "ms3_seed.v1.json",
+      "species": "Garchomp",
+      "item": "Life Orb",
+      "moves": [
+        "Dragon Claw",
+        "Rock Slide",
+        "Earthquake",
+        "Protect"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mw2_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mw2_seed.v1.json",
+      "species": "Garchomp",
+      "item": "Life Orb",
+      "moves": [
+        "Dragon Claw",
+        "Rock Slide",
+        "Earthquake",
+        "Protect"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "rb1_lucario_megaz_calmmind.v1.json",
+      "species": "Lucario-Mega-Z",
+      "item": "Lucarionite Z",
+      "moves": [
+        "Aura Sphere",
+        "Flash Cannon",
+        "Calm Mind"
+      ],
+      "ok": true,
+      "failures": [],
+      "incomplete_moveset": true
+    },
+    {
+      "seed": "tb2_incineroar_charcoal_darkest_lariat.v1.json",
+      "species": "Incineroar",
+      "item": "Charcoal",
+      "moves": [
+        "Flare Blitz",
+        "Fake Out",
+        "Throat Chop",
+        "Parting Shot"
+      ],
+      "ok": true,
+      "failures": []
+    }
+  ],
+  "failures": [],
+  "learnset_pairs": [
+    {
+      "species": "Incineroar",
+      "move": "Darkest Lariat",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Incineroar",
+      "move": "Knock Off",
+      "learns": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "species": "Incineroar",
+      "move": "Flare Blitz",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Incineroar",
+      "move": "Throat Chop",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Incineroar",
+      "move": "U-turn",
+      "learns": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "species": "Lucario",
+      "move": "Nasty Plot",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Lucario",
+      "move": "Calm Mind",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Gholdengo",
+      "move": "Make It Rain",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Gholdengo",
+      "move": "Nasty Plot",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    }
+  ]
+}

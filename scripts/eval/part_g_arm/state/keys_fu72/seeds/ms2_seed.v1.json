@@ -1,0 +1,30 @@
+{
+  "row": "MS2",
+  "flags": {
+    "sticky_locks": true,
+    "unlock_keeps_values": true,
+    "tool_fixes_v2": true
+  },
+  "note": "unlock_keeps_values: values stay, locks cleared",
+  "primary": {
+    "species": "Incineroar",
+    "item": "Sitrus Berry",
+    "ability": "Intimidate",
+    "nature": "Careful",
+    "moves": [
+      "Fake Out",
+      "Flare Blitz",
+      "Parting Shot",
+      "Darkest Lariat"
+    ],
+    "evs": {
+      "hp": 32,
+      "atk": 0,
+      "def": 14,
+      "spa": 0,
+      "spd": 20,
+      "spe": 0
+    },
+    "source": "featured_or_common_set (ingame first, else Showdown merge)"
+  }
+}

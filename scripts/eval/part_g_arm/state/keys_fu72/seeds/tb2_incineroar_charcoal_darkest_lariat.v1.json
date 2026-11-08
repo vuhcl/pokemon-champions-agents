@@ -1,0 +1,46 @@
+{
+  "row": "TB2",
+  "note": "FU72: Knock Off and U-turn are not in Incineroar's Champions learnset. Seed uses Throat Chop; request swaps Flare Blitz for Darkest Lariat. Charcoal + Flare Blitz as sole damaging Fire move preserved for the consequence. moveset unlocked under sticky_locks (MR4 item-unlock parallel).",
+  "flags": {
+    "sticky_locks": true,
+    "tool_fixes_v2": true
+  },
+  "request_text": "Swap Flare Blitz for Darkest Lariat.",
+  "slots": [
+    {
+      "user_slot": 1,
+      "species": "Incineroar",
+      "item": "Charcoal",
+      "ability": "Intimidate",
+      "nature": "Adamant",
+      "moves": [
+        "Flare Blitz",
+        "Fake Out",
+        "Throat Chop",
+        "Parting Shot"
+      ],
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "locks": {
+        "species": true,
+        "ability": true,
+        "item": true,
+        "moveset": false,
+        "nature": true,
+        "spread": true
+      }
+    }
+  ],
+  "check_learnset": {
+    "species": "Incineroar",
+    "move": "Darkest Lariat",
+    "learns": true
+  },
+  "check_set_ok": true
+}

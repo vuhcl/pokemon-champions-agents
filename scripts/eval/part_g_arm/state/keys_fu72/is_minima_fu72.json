@@ -1,0 +1,193 @@
+{
+  "method": "offline scan of final_spe_after_mods / champions Spe over Spe SP 0..32 (same formula as get_speed path); not solve_spread",
+  "dragapult_cells": [
+    213,
+    194,
+    190
+  ],
+  "IS1": {
+    "cells": [
+      213,
+      194,
+      190
+    ],
+    "own_base_spe": 102,
+    "per_cell": {
+      "213": {
+        "neutral": {
+          "bare": {
+            "min_sp": null,
+            "spe_at_32": 154,
+            "reachable": false
+          },
+          "scarf": {
+            "min_sp": 21,
+            "spe_at_min": 214,
+            "reachable": true
+          },
+          "scarf_tw": {
+            "min_sp": 0,
+            "spe_at_min": 366,
+            "reachable": true
+          }
+        },
+        "beneficial": {
+          "bare": {
+            "min_sp": null,
+            "spe_at_32": 169,
+            "reachable": false
+          },
+          "scarf": {
+            "min_sp": 8,
+            "spe_at_min": 214,
+            "reachable": true
+          },
+          "scarf_tw": {
+            "min_sp": 0,
+            "spe_at_min": 402,
+            "reachable": true
+          }
+        }
+      },
+      "194": {
+        "neutral": {
+          "bare": {
+            "min_sp": null,
+            "spe_at_32": 154,
+            "reachable": false
+          },
+          "scarf": {
+            "min_sp": 8,
+            "spe_at_min": 195,
+            "reachable": true
+          },
+          "scarf_tw": {
+            "min_sp": 0,
+            "spe_at_min": 366,
+            "reachable": true
+          }
+        },
+        "beneficial": {
+          "bare": {
+            "min_sp": null,
+            "spe_at_32": 169,
+            "reachable": false
+          },
+          "scarf": {
+            "min_sp": 0,
+            "spe_at_min": 201,
+            "reachable": true
+          },
+          "scarf_tw": {
+            "min_sp": 0,
+            "spe_at_min": 402,
+            "reachable": true
+          }
+        }
+      },
+      "190": {
+        "neutral": {
+          "bare": {
+            "min_sp": null,
+            "spe_at_32": 154,
+            "reachable": false
+          },
+          "scarf": {
+            "min_sp": 6,
+            "spe_at_min": 192,
+            "reachable": true
+          },
+          "scarf_tw": {
+            "min_sp": 0,
+            "spe_at_min": 366,
+            "reachable": true
+          }
+        },
+        "beneficial": {
+          "bare": {
+            "min_sp": null,
+            "spe_at_32": 169,
+            "reachable": false
+          },
+          "scarf": {
+            "min_sp": 0,
+            "spe_at_min": 201,
+            "reachable": true
+          },
+          "scarf_tw": {
+            "min_sp": 0,
+            "spe_at_min": 402,
+            "reachable": true
+          }
+        }
+      }
+    }
+  },
+  "IS2": {
+    "cells": [
+      213,
+      194,
+      190
+    ],
+    "own_base_spe": 78,
+    "nature": "Jolly",
+    "budget_R": 24,
+    "per_cell": {
+      "213": {
+        "min_sp": 32,
+        "spe_at_min": 214,
+        "reachable": true,
+        "fits_R24": false,
+        "shortfall": 8
+      },
+      "194": {
+        "min_sp": 21,
+        "spe_at_min": 195,
+        "reachable": true,
+        "fits_R24": true,
+        "shortfall": null
+      },
+      "190": {
+        "min_sp": 19,
+        "spe_at_min": 192,
+        "reachable": true,
+        "fits_R24": true,
+        "shortfall": null
+      }
+    }
+  },
+  "IS3": {
+    "max_cell": 213,
+    "own_base_spe": 30,
+    "max_stack_scarf_tw_timid": 270,
+    "neutral_serious_scarf_tw": {
+      "min_sp": 22,
+      "spe_at_min": 216,
+      "reachable": true
+    },
+    "beneficial_timid_scarf_tw": {
+      "min_sp": 16,
+      "spe_at_min": 216,
+      "reachable": true
+    },
+    "scarf_alone_serious": {
+      "min_sp": null,
+      "spe_at_32": 123,
+      "reachable": false
+    },
+    "scarf_alone_timid": {
+      "min_sp": null,
+      "spe_at_32": 135,
+      "reachable": false
+    },
+    "recorded_scarf_on_slowbro": false,
+    "slowbro_common_items_note": "no Choice Scarf in retained COMMON_ITEM list"
+  },
+  "IS4": {
+    "own_base_spe": 15,
+    "alakazam_mega_timid_32": 222,
+    "pincurchin_max_scarf_tw_timid": 219,
+    "unreachable_even_scarf_tw": true,
+    "max_stack": 219
+  }
+}
