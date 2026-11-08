@@ -46,6 +46,7 @@ READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
     "check_hypothetical", "read_pending", "read_rejected", "read_constraints",
     "read_archetype", "solve_spread", "check_learnset", "find_species",
     "describe",
+    "find_by_effect", "get_type_effectiveness",
     "get_usage_spreads", "get_common_speeds", "get_meta_threats", "get_usage_stats",
 }
 
@@ -68,6 +69,8 @@ _UNLOCK_KEEPS_VALUES: bool = False
 # Arm v2 revision (FU70): tool_fixes_v2 bundle (#369/#384/#372/#364/#370/#371/
 # calc_damage / hypothetical). Default off = a393ae91 tool outputs.
 _TOOL_FIXES_V2: bool = False
+# FU73 / #367+#368: find_by_effect + get_type_effectiveness. Default off.
+_IX_TOOLS_V1: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -144,6 +147,15 @@ def set_tool_fixes_v2(enabled: bool) -> None:
 
 def tool_fixes_v2_enabled() -> bool:
     return _TOOL_FIXES_V2
+
+
+def set_ix_tools_v1(enabled: bool) -> None:
+    global _IX_TOOLS_V1
+    _IX_TOOLS_V1 = bool(enabled)
+
+
+def ix_tools_v1_enabled() -> bool:
+    return _IX_TOOLS_V1
 
 
 _WRITE_SLOT_ATTRS = (
@@ -524,6 +536,10 @@ def combined_specs(
             lookups.append({**spec, "function": fn})
         else:
             lookups.append(spec)
+    if ix_tools_v1_enabled():
+        from scripts.eval.part_g_arm.state.ix_tools import IX_TOOL_SPECS
+
+        lookups = [*lookups, *IX_TOOL_SPECS]
     state_specs = list(STATE_TOOL_SPECS)
     if on:
         # find_species description: results already legal; truncated means incomplete.

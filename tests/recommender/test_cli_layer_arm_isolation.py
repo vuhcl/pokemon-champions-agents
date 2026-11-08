@@ -1,8 +1,7 @@
-"""FU71: CLI-layer changes (classify_input gates, format_turn read-back) must not move arm tool output.
+"""FU71/FU73: flag-off arm surface must not move vs main.
 
-The golden file was captured from main before the FU71 change; this test replays the same
-calls and compares the sha256 of each repr (so byte for byte). Regenerate only on purpose
-from main's tool code (not a feature branch):
+Golden hashes were captured from main (not a feature branch). Regenerate only on purpose
+from main's tool code:
 ``python -c "from tests.recommender.test_cli_layer_arm_isolation import write_golden; write_golden()"``.
 """
 
@@ -16,11 +15,15 @@ from scripts.eval.part_g_arm.state.fixtures import empty_team, one_locked_slot
 from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
 from scripts.eval.part_g_arm.state.set_slot_tool import set_slot
 from scripts.eval.part_g_arm.state.tools import (
+    combined_specs,
     commit_slot,
     confirm_build,
     edit_slot_field,
     lock_slot,
     reset_team_state,
+    set_draft,
+    set_ix_tools_v1,
+    set_tool_fields,
     set_tool_fixes_v2,
     set_wrapper,
     unlock_slot,
@@ -29,10 +32,17 @@ from scripts.eval.part_g_arm.state.tools import (
 GOLDEN = Path(__file__).parent / "fixtures" / "arm_wrapper_outputs_fu71.json"
 
 
-def _probe() -> dict[str, str]:
-    # Flag-off must match main / a393ae91 shapes (no FU70 ok/read-back extras).
+def _all_flags_off() -> None:
     set_tool_fixes_v2(False)
+    set_ix_tools_v1(False)
+    set_tool_fields(False)
     set_wrapper(False)
+    set_draft(False)
+
+
+def _probe() -> dict[str, str]:
+    # Flag-off must match main / a393ae91 shapes (no FU70/FU73 extras).
+    _all_flags_off()
     locked = one_locked_slot("Venusaur", 1)
     full = build_fully_locked_slot("Incineroar", user_slot=1)
     locked_for_edit, _ = lock_slot(empty_team(), 1, "Venusaur")
@@ -46,6 +56,11 @@ def _probe() -> dict[str, str]:
             )
         finally:
             set_wrapper(False)
+            set_ix_tools_v1(False)
+
+    def _schema():
+        _all_flags_off()
+        return combined_specs()
 
     calls = {
         "lock_slot_2": lambda: lock_slot(empty_team(), 2, "Venusaur"),
@@ -64,6 +79,8 @@ def _probe() -> dict[str, str]:
         "reset_empty": lambda: reset_team_state(empty_team()),
         "commit_idle": lambda: commit_slot(empty_team()),
         "confirm_idle": lambda: confirm_build(empty_team()),
+        # FU73: schema must stay byte-identical when ix_tools_v1 is off.
+        "combined_specs_flag_off": _schema,
     }
     return {name: hashlib.sha256(repr(call()).encode()).hexdigest() for name, call in calls.items()}
 
