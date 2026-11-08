@@ -19,7 +19,13 @@ Source of truth: `key_cut_worksheet_2026-11-07.md` (copied under `state/keys_fu7
 | Manifest + key hash | `state/keys_fu72/KEYS_MANIFEST_FU72.json` |
 | Builder | `state/keys_fu72/build_fu72_artifacts.py` |
 
-**key_hash:** `da150c89ad50d2904a0bcf5ac5624d8fb04f1012246934e6d41ea4707a9e0666` (see `KEYS_MANIFEST_FU72.json`).
+**key_hash:** `b111be0dc4fab94e331530cb1d649782073513588209c9ab9685f72ff26cb720` (see `KEYS_MANIFEST_FU72.json`).
+
+### Follow-up review fixes (same PR)
+- **(6)** TB2 seed: `U-turn` → `Throat Chop` (Incineroar cannot learn U-turn). Legality report now runs `check_set` / learnset over every species, item, and move in every `keys_fu72/seeds/` file.
+- **(7)** Removed writer-note rubric points (optional-path lines on MR3/MR7/MR8/MU4, MM2 “read_team required” prose, MT5 t2 / MT1 t2 placeholders, DM2 “DRAFT, Vu to confirm”). Alternatives stay in the tools CSV `alternative_path` / `expected_tools_ordered` only.
+- **(8)** Restored H15, MS5, MV3, DM2 from `part3_request_set_v4.md` acceptance (plus DM2 CSV content check). Those cells were the source of truth; the first cut had truncated them via CSV `notes` `;`-splits.
+- **(9)** HU2b and TB1 rewritten as explicit point lists (no fragment splits on `;` inside the acceptance).
 
 ## Old hashes (unchanged — frozen a393ae91 / Part G artifacts not edited)
 

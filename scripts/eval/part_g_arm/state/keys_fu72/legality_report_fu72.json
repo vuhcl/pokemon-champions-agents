@@ -48,6 +48,9 @@
     "Lucario": {
       "ok": true
     },
+    "Lucario-Mega-Z": {
+      "ok": true
+    },
     "Pelipper": {
       "ok": true
     },
@@ -116,6 +119,10 @@
       "ok": true,
       "expected_illegal": false
     },
+    "Lucarionite Z": {
+      "ok": true,
+      "expected_illegal": false
+    },
     "Miracle Seed": {
       "ok": true,
       "expected_illegal": false
@@ -141,7 +148,201 @@
       "expected_illegal": false
     }
   },
-  "moves": {},
+  "moves": {
+    "Aura Sphere": {
+      "named_in_seeds": true,
+      "learns_on_Lucario-Mega-Z": true
+    },
+    "Calm Mind": {
+      "named_in_seeds": true,
+      "learns_on_Lucario-Mega-Z": true
+    },
+    "Darkest Lariat": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    },
+    "Dragon Claw": {
+      "named_in_seeds": true,
+      "learns_on_Garchomp": true
+    },
+    "Earthquake": {
+      "named_in_seeds": true,
+      "learns_on_Garchomp": true
+    },
+    "Fake Out": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    },
+    "Flare Blitz": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    },
+    "Flash Cannon": {
+      "named_in_seeds": true,
+      "learns_on_Lucario-Mega-Z": true
+    },
+    "Parting Shot": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    },
+    "Protect": {
+      "named_in_seeds": true,
+      "learns_on_Garchomp": true
+    },
+    "Rock Slide": {
+      "named_in_seeds": true,
+      "learns_on_Garchomp": true
+    },
+    "Throat Chop": {
+      "named_in_seeds": true,
+      "learns_on_Incineroar": true
+    }
+  },
+  "seed_check_set": [
+    {
+      "seed": "dm2_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mr3_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mr4_incineroar_garchomp_item_unlocked.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mr4_incineroar_garchomp_item_unlocked.v1.json",
+      "species": "Garchomp",
+      "item": "Life Orb",
+      "moves": [
+        "Dragon Claw",
+        "Rock Slide",
+        "Earthquake",
+        "Protect"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "ms2_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "ms3_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "ms3_seed.v1.json",
+      "species": "Garchomp",
+      "item": "Life Orb",
+      "moves": [
+        "Dragon Claw",
+        "Rock Slide",
+        "Earthquake",
+        "Protect"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mw2_seed.v1.json",
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Darkest Lariat"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "mw2_seed.v1.json",
+      "species": "Garchomp",
+      "item": "Life Orb",
+      "moves": [
+        "Dragon Claw",
+        "Rock Slide",
+        "Earthquake",
+        "Protect"
+      ],
+      "ok": true,
+      "failures": []
+    },
+    {
+      "seed": "rb1_lucario_megaz_calmmind.v1.json",
+      "species": "Lucario-Mega-Z",
+      "item": "Lucarionite Z",
+      "moves": [
+        "Aura Sphere",
+        "Flash Cannon",
+        "Calm Mind"
+      ],
+      "ok": true,
+      "failures": [],
+      "incomplete_moveset": true
+    },
+    {
+      "seed": "tb2_incineroar_charcoal_darkest_lariat.v1.json",
+      "species": "Incineroar",
+      "item": "Charcoal",
+      "moves": [
+        "Flare Blitz",
+        "Fake Out",
+        "Throat Chop",
+        "Parting Shot"
+      ],
+      "ok": true,
+      "failures": []
+    }
+  ],
   "failures": [],
   "learnset_pairs": [
     {
@@ -163,6 +364,20 @@
       "move": "Flare Blitz",
       "learns": true,
       "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Incineroar",
+      "move": "Throat Chop",
+      "learns": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "species": "Incineroar",
+      "move": "U-turn",
+      "learns": false,
+      "expected": false,
       "ok": true
     },
     {

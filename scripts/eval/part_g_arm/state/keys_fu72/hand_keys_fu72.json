@@ -276,12 +276,6 @@
           "text": "Species Clause; state unchanged",
           "tool_backed": false,
           "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
-          "tool_backed": false,
-          "conditional": false
         }
       ],
       "rewrite": true,
@@ -291,7 +285,7 @@
       "expected_tools_ordered": "read_team",
       "optional_tools": "set_slot;describe",
       "alternative_path": "set_slot;describe",
-      "notes": "FU72: list optional tool as alternative_path."
+      "notes": "FU72: optional tools moved to alternative_path in CSV only."
     },
     "MR8__t1": {
       "row_id": "MR8",
@@ -303,12 +297,6 @@
           "text": "illegal; state unchanged",
           "tool_backed": false,
           "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
-          "tool_backed": false,
-          "conditional": false
         }
       ],
       "rewrite": true,
@@ -318,7 +306,7 @@
       "expected_tools_ordered": "check_species_legal",
       "optional_tools": "set_slot",
       "alternative_path": "set_slot",
-      "notes": "FU72: list optional tool as alternative_path."
+      "notes": "FU72: optional tools moved to alternative_path in CSV only."
     },
     "HP3__t1": {
       "row_id": "HP3",
@@ -576,13 +564,7 @@
       "points": [
         {
           "id": "p1",
-          "text": "read_team required (name the locked mega / stone referent), or the request must name the referent.",
-          "tool_backed": true,
-          "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "Refuse: stone is the required mega item; draft unchanged; form-change offer only.",
+          "text": "Refuse: the mega stone is the required mega item; draft unchanged; form-change offer only.",
           "tool_backed": false,
           "conditional": false
         }
@@ -596,7 +578,7 @@
       "expected_tools_ordered": "read_team",
       "optional_tools": "",
       "alternative_path": "",
-      "notes": "FU72 MM2: read_team required; sticky may shift refuse reason to lock."
+      "notes": "FU72 MM2: expected_tools includes read_team; sticky may shift refuse reason to lock."
     },
     "MR7__t1": {
       "row_id": "MR7",
@@ -608,12 +590,6 @@
           "text": "nothing pending; state unchanged",
           "tool_backed": false,
           "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
-          "tool_backed": false,
-          "conditional": false
         }
       ],
       "rewrite": true,
@@ -623,7 +599,7 @@
       "expected_tools_ordered": "commit_slot|confirm_build",
       "optional_tools": "",
       "alternative_path": "",
-      "notes": "FU72: list optional tool as alternative_path."
+      "notes": "FU72: optional tools moved to alternative_path in CSV only."
     },
     "MU1__t1": {
       "row_id": "MU1",
@@ -656,12 +632,6 @@
           "text": "NO-MUTATION; claims scored. Yes/no/conditional with \u22651 tool-backed reason (Drizzle + explicit ability, usage, legality/clauses, state); each reason scored; bare yes/no = fail. Fixture: Pelipper unlocked + interacting locked slot.",
           "tool_backed": false,
           "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
-          "tool_backed": false,
-          "conditional": false
         }
       ],
       "rewrite": true,
@@ -671,7 +641,7 @@
       "expected_tools_ordered": "check_hypothetical",
       "optional_tools": "read_team;get_abilities;get_usage_teammates",
       "alternative_path": "read_team;get_abilities;get_usage_teammates",
-      "notes": "FU72: list optional tool as alternative_path."
+      "notes": "FU72: optional tools moved to alternative_path in CSV only."
     },
     "MU8__t1": {
       "row_id": "MU8",
@@ -683,12 +653,6 @@
           "text": "No archetype/lock tools; state unchanged",
           "tool_backed": false,
           "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "An optional tool call is an alternative path: it does not also require every expected tool.",
-          "tool_backed": false,
-          "conditional": false
         }
       ],
       "rewrite": true,
@@ -698,7 +662,7 @@
       "expected_tools_ordered": "no_lookup_needed",
       "optional_tools": "read_team;read_archetype;find_species;get_usage_teammates;get_usage_stats;check_learnset",
       "alternative_path": "read_team;read_archetype;find_species;get_usage_teammates;get_usage_stats;check_learnset",
-      "notes": "FU72: list optional tool as alternative_path."
+      "notes": "FU72: optional tools moved to alternative_path in CSV only."
     },
     "MU2__t1": {
       "row_id": "MU2",
@@ -743,12 +707,6 @@
           "text": "Explains empty unlock; no mutation.",
           "tool_backed": false,
           "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "read_team is an accepted alternative path when used to explain the empty unlock.",
-          "tool_backed": true,
-          "conditional": false
         }
       ],
       "rewrite": true,
@@ -767,14 +725,38 @@
       "points": [
         {
           "id": "p1",
-          "text": "Required: Rock Slide targets all adjacent foes (both opponents in doubles).",
+          "text": "Rock Slide targets all adjacent foes (both opponents in doubles).",
           "tool_backed": true,
           "conditional": false
         },
         {
           "id": "p2",
-          "text": "Required caveat: accuracy 90% (relaxed from stricter prior wording), so either or both can miss.",
+          "text": "Required caveat: accuracy 90% (gen9_accuracy pin), so either or both can miss.",
           "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Claims that it always hits both, or cannot miss, are false.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Targeting correct with no accuracy caveat is not SERVED.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "Optional (scored if made): each target rolls accuracy separately.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p6",
+          "text": "A 0.75 damage claim is dropped (unverified).",
+          "tool_backed": false,
           "conditional": false
         }
       ],
@@ -785,7 +767,7 @@
       "expected_tools_ordered": "get_move_static",
       "optional_tools": "",
       "alternative_path": "",
-      "notes": ""
+      "notes": "Restored from part3_request_set_v4.md MV3 acceptance; accuracy caveat relaxed to 90% per worksheet."
     },
     "MS5__t1": {
       "row_id": "MS5",
@@ -794,19 +776,25 @@
       "points": [
         {
           "id": "p1",
-          "text": "Apply archetype change and read back.",
+          "text": "MUTATION-OK: apply the rain-offense archetype and read it back.",
           "tool_backed": true,
           "conditional": false
         },
         {
           "id": "p2",
-          "text": "Audit locked slots; 'flagged' means the conflicts field on the change_archetype result (e.g. control Pelipper).",
+          "text": "Audit locked slots and report each conflict with a reason. Required conflicts: Drought (non-rain weather ability) and Solar Beam (rain-reduced).",
           "tool_backed": false,
           "conditional": false
         },
         {
           "id": "p3",
-          "text": "Do not edit locked slots; offers only.",
+          "text": "Control Pelipper is not flagged. 'Flagged' means an entry in the change_archetype conflicts field.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Both required conflict flags must appear. Locked slots stay unchanged; offered replacements must be legal.",
           "tool_backed": false,
           "conditional": false
         }
@@ -818,7 +806,79 @@
       "expected_tools_ordered": "change_archetype",
       "optional_tools": "",
       "alternative_path": "",
-      "notes": ""
+      "notes": "Restored from part3 acceptance; conflicts-field meaning from worksheet A."
+    },
+    "DM2__t1": {
+      "row_id": "DM2",
+      "turn": 1,
+      "request_text": "With my locked Incineroar, does Flare Blitz KO Hatterene across common Hatterene spreads?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Use the locked attacker from read_team: Adamant Life Orb Atk-32 Intimidate (not the DM1 pin top-item attacker).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Expand the full numeric damage grid for every Hatterene COMMON_JOINT cell in derived_keys.dm_outputs.dm2.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Look up Hatterene item and ability (Incineroar usage calls optional). The Hatterene item stated or used must be Life Orb, or faithful to the get_usage_items result received.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_team;get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "Restored from part3 DM2 acceptance + rev3 CSV content check; writer placeholders removed."
+    },
+    "H15__t1": {
+      "row_id": "H15",
+      "turn": 1,
+      "request_text": "Is Modest or Timid better on Primarina?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Modest top joint SP is hp32/atk0/def0/spa32/spd2/spe0 with chaos_weight \u22488876.7; label chaos_weight as weight, not percent (presenting it as % is false).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "Spe under the stated SP: Modest 80, Timid hypothetical 88 (benchmarks in derived_keys.h15_primarina.benchmarks).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Verdict: Modest default is SERVED when the basis is stated (only retained joint; Timid is not retained) and the speed tradeoff is mentioned.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Conditional Timid is OK only with a named key benchmark. 'Timid is better' with no benchmark or a fabricated Timid joint is false.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "get_usage_spreads;get_speed",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "Restored from part3_request_set_v4.md H15 acceptance (lives there; was lost to CSV note ';'-split)."
     },
     "MU6__t1": {
       "row_id": "MU6",
@@ -1352,7 +1412,7 @@
       "points": [
         {
           "id": "p1",
-          "text": "Second constraint recorded as the turn requires; both constraints appear in a later read-back.",
+          "text": "Record the additional no-Intimidate constraint.",
           "tool_backed": true,
           "conditional": false
         }
@@ -1366,6 +1426,27 @@
       "alternative_path": "",
       "notes": ""
     },
+    "MT1__t3": {
+      "row_id": "MT1",
+      "turn": 3,
+      "request_text": "What constraints are active?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Read-back shows both constraints active (Water-only on slot 1, and no Intimidate).",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_constraints",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": ""
+    },
     "MT5__t1": {
       "row_id": "MT5",
       "turn": 1,
@@ -1373,7 +1454,7 @@
       "points": [
         {
           "id": "p1",
-          "text": "Record/apply the archetype change asked in t1.",
+          "text": "Apply the rain-offense archetype as asked.",
           "tool_backed": true,
           "conditional": false
         }
@@ -1394,8 +1475,8 @@
       "points": [
         {
           "id": "p1",
-          "text": "Continue archetype / follow-up for t2; not overall not_applicable.",
-          "tool_backed": false,
+          "text": "Offer a rain-setter candidate for the open slot (tool-backed species or build suggestion).",
+          "tool_backed": true,
           "conditional": false
         }
       ],
@@ -1405,6 +1486,27 @@
       "flags_required": [],
       "expected_tools_ordered": "find_species",
       "optional_tools": "get_usage_teammates;get_usage_stats;check_learnset",
+      "alternative_path": "",
+      "notes": ""
+    },
+    "MT5__t3": {
+      "row_id": "MT5",
+      "turn": 3,
+      "request_text": "Read back archetype.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Read-back includes the rain-offense archetype string.",
+          "tool_backed": true,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": null,
+      "flags_required": [],
+      "expected_tools_ordered": "read_archetype",
+      "optional_tools": "",
       "alternative_path": "",
       "notes": ""
     },
@@ -1612,6 +1714,90 @@
       "alternative_path": "",
       "notes": ""
     },
+    "HU2b__t1": {
+      "row_id": "HU2b",
+      "turn": 1,
+      "request_text": "Does Pelipper with max speed investment outspeed anyone among top meta threats?",
+      "points": [
+        {
+          "id": "p1",
+          "text": "Paired with HU2 (in-game lineage top-10); not pooled with HU2.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "ASSUME-STATE: threats are the shared Showdown per-form set at \u22654.52% usage (showdown_threats_ge_452, n=36). Megas are separate ThreatCandidates (for example Salamence-Mega, not base Salamence).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Pelipper max Spe is Timid Spe-32 = 128.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Mark max_speed role and share as in HN2b; use core_non_max for outspeeds_any.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p5",
+          "text": "UNREACHABLE at current rungs: get_meta_threats returns the in-game ladder list, not the Showdown \u22654.52% set. A pass would require stating which threat set was used once a matching tool exists.",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "get_meta_threats returns in-game list, not Showdown \u22654.52% set the key assumes",
+      "flags_required": [],
+      "expected_tools_ordered": "get_meta_threats;get_speed",
+      "optional_tools": "",
+      "alternative_path": "",
+      "notes": "FU72: rewritten to stop ';'-fragment splits of the acceptance cell."
+    },
+    "TB1__t1": {
+      "row_id": "TB1",
+      "turn": 1,
+      "request_text": "Give me a Sinistcha build holding Charcoal.",
+      "points": [
+        {
+          "id": "p1",
+          "text": "SERVED: draft a Sinistcha build holding Charcoal as asked.",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p2",
+          "text": "State that Charcoal has no effect because Sinistcha has no legal damaging Fire move (Status moves such as Will-O-Wisp do not count).",
+          "tool_backed": true,
+          "conditional": false
+        },
+        {
+          "id": "p3",
+          "text": "Offer other items. Silent acceptance of Charcoal with no correction fails.",
+          "tool_backed": false,
+          "conditional": false
+        },
+        {
+          "id": "p4",
+          "text": "Type-boost table is standalone from pinned items (derived_keys.row_e_charcoal_sinistcha).",
+          "tool_backed": false,
+          "conditional": false
+        }
+      ],
+      "rewrite": true,
+      "pass_criteria_changed": false,
+      "unreachable_reason": "get_featured_builds unreachable; synthesis+check_learnset+describe alt listed",
+      "flags_required": [],
+      "expected_tools_ordered": "check_learnset;set_slot;describe",
+      "optional_tools": "get_usage_items",
+      "alternative_path": "get_featured_builds;check_learnset;set_slot;describe",
+      "notes": "FU72: rewritten to stop ';'-fragment splits of the acceptance cell."
+    },
     "IX1__t1": {
       "row_id": "IX1",
       "turn": 1,
@@ -1735,57 +1921,6 @@
       "alternative_path": "",
       "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
     },
-    "HU2b__t1": {
-      "row_id": "HU2b",
-      "turn": 1,
-      "request_text": "Does Pelipper with max speed investment outspeed anyone among top meta threats?",
-      "points": [
-        {
-          "id": "p1",
-          "text": "Paired with HU2 (in-game lineage top10",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "not pooled). ASSUME-STATE: threats = shared Showdown per-form set \u22654.52% (showdown_threats_ge_452",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p3",
-          "text": "n=36",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p4",
-          "text": "megas are separate ThreatCandidates \u2014 e.g. Salamence-Mega not base). max Spe=Timid Spe-32 (128)",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p5",
-          "text": "max_speed role+share as HN2b",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p6",
-          "text": "core_non_max for outspeeds_any",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": false,
-      "pass_criteria_changed": false,
-      "unreachable_reason": "get_meta_threats returns in-game list, not Showdown \u22654.52% set the key assumes",
-      "flags_required": [],
-      "expected_tools_ordered": "get_meta_threats;get_speed",
-      "optional_tools": "",
-      "alternative_path": "",
-      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
-    },
     "H18b__t1": {
       "row_id": "H18b",
       "turn": 1,
@@ -1811,39 +1946,6 @@
       "expected_tools_ordered": "add_constraint",
       "optional_tools": "change_archetype;read_team",
       "alternative_path": "",
-      "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
-    },
-    "TB1__t1": {
-      "row_id": "TB1",
-      "turn": 1,
-      "request_text": "Give me a Sinistcha build holding Charcoal.",
-      "points": [
-        {
-          "id": "p1",
-          "text": "SERVED with stated correction: build as asked but state Charcoal has no effect (no legal damaging Fire move",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "Status like Will-O-Wisp does not count)",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p3",
-          "text": "offer other items. Silent acceptance = fail. Type-boost table standalone from pinned items. derived_keys.row_e_charcoal_sinistcha",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": false,
-      "pass_criteria_changed": false,
-      "unreachable_reason": "get_featured_builds unreachable; synthesis+check_learnset+describe alt listed",
-      "flags_required": [],
-      "expected_tools_ordered": "check_learnset;set_slot;describe",
-      "optional_tools": "get_usage_items",
-      "alternative_path": "get_featured_builds;check_learnset;set_slot;describe",
       "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
     },
     "MS1__t1": {
@@ -1888,33 +1990,6 @@
       "alternative_path": "",
       "notes": "FU72: marked unreachable until required tools exist; not graded as arm miss."
     },
-    "DM2__t1": {
-      "row_id": "DM2",
-      "turn": 1,
-      "request_text": "With my locked Incineroar, does Flare Blitz KO Hatterene across common Hatterene spreads?",
-      "points": [
-        {
-          "id": "p1",
-          "text": "Key: locked attacker from read_team (Adamant Life Orb Intimidate)",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "Hatterene COMMON_JOINT cells (3) via get_usage_spreads, item and ability for Hatterene only. Incineroar usage calls optional. DRAFT, Vu to confirm. Content check: the Hatterene item the arm states/uses must match the key (Life Orb) or be faithful to the get_usage_items result it received.",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": false,
-      "pass_criteria_changed": false,
-      "unreachable_reason": null,
-      "flags_required": [],
-      "expected_tools_ordered": "read_team;get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
-      "optional_tools": "",
-      "alternative_path": "",
-      "notes": "FU72 first-pass mechanical split (no wording change)."
-    },
     "DM6__t1": {
       "row_id": "DM6",
       "turn": 1,
@@ -1938,39 +2013,6 @@
       "unreachable_reason": null,
       "flags_required": [],
       "expected_tools_ordered": "get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
-      "optional_tools": "",
-      "alternative_path": "",
-      "notes": "FU72 first-pass mechanical split (no wording change)."
-    },
-    "H15__t1": {
-      "row_id": "H15",
-      "turn": 1,
-      "request_text": "Is Modest or Timid better on Primarina?",
-      "points": [
-        {
-          "id": "p1",
-          "text": "Modest top joint from spreads",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p2",
-          "text": "Spe under stated SP for Modest and Timid (two get_speed). Timid joint absent \u2014 no second spreads read. Listed once",
-          "tool_backed": false,
-          "conditional": false
-        },
-        {
-          "id": "p3",
-          "text": "the key involves 2 get_speed readings (extra calls are marked redundant/misused, not required). [rev2 per Vu]",
-          "tool_backed": false,
-          "conditional": false
-        }
-      ],
-      "rewrite": false,
-      "pass_criteria_changed": false,
-      "unreachable_reason": null,
-      "flags_required": [],
-      "expected_tools_ordered": "get_usage_spreads;get_speed",
       "optional_tools": "",
       "alternative_path": "",
       "notes": "FU72 first-pass mechanical split (no wording change)."
@@ -2050,46 +2092,16 @@
       "acceptance": "safe=no damage: Flying / Levitate / Telepathy / Earth Eater; examples+counts with source label; resist\u2260safe unless definition says so; set matches stated definition"
     },
     {
-      "row": "HU2b",
-      "turn": 1,
-      "reason": "semicolon split on unrewritten unreachable key",
-      "acceptance": "Paired with HU2 (in-game lineage top10; not pooled). ASSUME-STATE: threats = shared Showdown per-form set \u22654.52% (showdown_threats_ge_452; n=36; megas are separate ThreatCandidates \u2014 e.g. Salamence-Mega not base). max Spe=Timid Spe-32 (128); max_speed role+share as HN2b; core_non_max for outspeeds_any"
-    },
-    {
       "row": "H18b",
       "turn": 1,
       "reason": "semicolon split on unrewritten unreachable key",
       "acceptance": "Binary checklist H18b: t1 establishes definition (no re-ask at t2); t2 Sinistcha fails top-joint SP rule \u2014 supply passing set (lookup/synth), state differs from usual + exists to satisfy 32-SP rule, offer usual set (not a mutation), constraint kept. Incineroar top joint passes \u2014 not the fail case."
     },
     {
-      "row": "TB1",
-      "turn": 1,
-      "reason": "semicolon split on unrewritten unreachable key",
-      "acceptance": "SERVED with stated correction: build as asked but state Charcoal has no effect (no legal damaging Fire move; Status like Will-O-Wisp does not count); offer other items. Silent acceptance = fail. Type-boost table standalone from pinned items. derived_keys.row_e_charcoal_sinistcha"
-    },
-    {
-      "row": "H15",
-      "turn": 1,
-      "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
-      "source_preview": "Modest top joint from spreads; Spe under stated SP for Modest and Timid (two get_speed). Timid joint absent \u2014 no second spreads read. Listed once; the key involves 2 get_speed readings (extra calls are marked redundant/misused, not required"
-    },
-    {
       "row": "HN2b",
       "turn": 1,
       "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
       "source_preview": "COMMON_SPEED cells via get_common_speeds; get_speed for own lines. Abilities not needed for Spe."
-    },
-    {
-      "row": "HU2b",
-      "turn": 1,
-      "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
-      "source_preview": "Key assumes the Showdown >=4.52% threat set. get_meta_threats(n) returns the in-game ladder list with Showdown forme expand, not that set, so the arm cannot produce the key set from any current tool. Expected list is the closest available p"
-    },
-    {
-      "row": "TB1",
-      "turn": 1,
-      "reason": "bad-split turn: mechanical ';'-split on shared row acceptance or terse CSV notes; needs human review of point boundaries",
-      "source_preview": "Sinistcha+Charcoal build with no-effect correction. check_learnset (no damaging Fire move) and describe (Charcoal item text) required; set_slot drafts. Confirm with Cursor that describe returns item description text. Override WRITE. [rev1]"
     }
   ],
   "request_text_overrides": {

@@ -7,10 +7,10 @@
 - `p1`: EXPAND: full numeric grid per Hatterene COMMON_JOINT cell in derived_keys.dm_outputs.dm2. Locked fixture attacker = Adamant Life Orb Atk-32 ability Intimidate (confirmed
 - `p2`: not the DM1 pin top-item attacker).
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: Key: locked attacker from read_team (Adamant Life Orb Intimidate)
-- `p2`: Hatterene COMMON_JOINT cells (3) via get_usage_spreads, item and ability for Hatterene only. Incineroar usage calls optional. DRAFT, Vu to confirm. Content check: the Hatterene item the arm states/uses must match the key (Life Orb) or be faithful to the get_usage_items result it received.
+### New t1 (rewrite=True)
+- `p1` [tool-backed]: Use the locked attacker from read_team: Adamant Life Orb Atk-32 Intimidate (not the DM1 pin top-item attacker).
+- `p2` [tool-backed]: Expand the full numeric damage grid for every Hatterene COMMON_JOINT cell in derived_keys.dm_outputs.dm2.
+- `p3` [tool-backed]: Look up Hatterene item and ability (Incineroar usage calls optional). The Hatterene item stated or used must be Life Orb, or faithful to the get_usage_items result received.
 
 ## DM6
 - pass_criteria_changed: False
@@ -59,11 +59,11 @@
 - `p4`: conditional Timid OK with named key benchmark
 - `p5`: 'Timid is better' with no benchmark / fabricated Timid joint = false.
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: Modest top joint from spreads
-- `p2`: Spe under stated SP for Modest and Timid (two get_speed). Timid joint absent — no second spreads read. Listed once
-- `p3`: the key involves 2 get_speed readings (extra calls are marked redundant/misused, not required). [rev2 per Vu]
+### New t1 (rewrite=True)
+- `p1` [tool-backed]: Modest top joint SP is hp32/atk0/def0/spa32/spd2/spe0 with chaos_weight ≈8876.7; label chaos_weight as weight, not percent (presenting it as % is false).
+- `p2` [tool-backed]: Spe under the stated SP: Modest 80, Timid hypothetical 88 (benchmarks in derived_keys.h15_primarina.benchmarks).
+- `p3`: Verdict: Modest default is SERVED when the basis is stated (only retained joint; Timid is not retained) and the speed tradeoff is mentioned.
+- `p4`: Conditional Timid is OK only with a named key benchmark. 'Timid is better' with no benchmark or a fabricated Timid joint is false.
 
 ## H18b
 - pass_criteria_changed: False
@@ -191,14 +191,12 @@
 - `p5`: max_speed role+share as HN2b
 - `p6`: core_non_max for outspeeds_any
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: Paired with HU2 (in-game lineage top10
-- `p2`: not pooled). ASSUME-STATE: threats = shared Showdown per-form set ≥4.52% (showdown_threats_ge_452
-- `p3`: n=36
-- `p4`: megas are separate ThreatCandidates — e.g. Salamence-Mega not base). max Spe=Timid Spe-32 (128)
-- `p5`: max_speed role+share as HN2b
-- `p6`: core_non_max for outspeeds_any
+### New t1 (rewrite=True)
+- `p1`: Paired with HU2 (in-game lineage top-10); not pooled with HU2.
+- `p2` [tool-backed]: ASSUME-STATE: threats are the shared Showdown per-form set at ≥4.52% usage (showdown_threats_ge_452, n=36). Megas are separate ThreatCandidates (for example Salamence-Mega, not base Salamence).
+- `p3` [tool-backed]: Pelipper max Spe is Timid Spe-32 = 128.
+- `p4`: Mark max_speed role and share as in HN2b; use core_non_max for outspeeds_any.
+- `p5`: UNREACHABLE at current rungs: get_meta_threats returns the in-game ladder list, not the Showdown ≥4.52% set. A pass would require stating which threat set was used once a matching tool exists.
 
 ## HU3
 - pass_criteria_changed: False
@@ -369,8 +367,7 @@
 - `p3`: form change offer only. derived_keys.row_g_h_salamence_mega
 
 ### New t1 (rewrite=True)
-- `p1` [tool-backed]: read_team required (name the locked mega / stone referent), or the request must name the referent.
-- `p2`: Refuse: stone is the required mega item; draft unchanged; form-change offer only.
+- `p1`: Refuse: the mega stone is the required mega item; draft unchanged; form-change offer only.
 
 ## MR1
 - pass_criteria_changed: True
@@ -403,7 +400,6 @@
 
 ### New t1 (rewrite=True)
 - `p1`: Species Clause; state unchanged
-- `p2`: An optional tool call is an alternative path: it does not also require every expected tool.
 
 ## MR4
 - pass_criteria_changed: True
@@ -446,7 +442,6 @@
 
 ### New t1 (rewrite=True)
 - `p1`: nothing pending; state unchanged
-- `p2`: An optional tool call is an alternative path: it does not also require every expected tool.
 
 ## MR8
 - pass_criteria_changed: True
@@ -457,7 +452,6 @@
 
 ### New t1 (rewrite=True)
 - `p1`: illegal; state unchanged
-- `p2`: An optional tool call is an alternative path: it does not also require every expected tool.
 
 ## MS1
 - pass_criteria_changed: False
@@ -491,9 +485,10 @@
 - `p5`: offered replacements legal. Fixture: Charizard-Mega-Y + Charizardite Y + Solar Beam + control.
 
 ### New t1 (rewrite=True)
-- `p1` [tool-backed]: Apply archetype change and read back.
-- `p2`: Audit locked slots; 'flagged' means the conflicts field on the change_archetype result (e.g. control Pelipper).
-- `p3`: Do not edit locked slots; offers only.
+- `p1` [tool-backed]: MUTATION-OK: apply the rain-offense archetype and read it back.
+- `p2`: Audit locked slots and report each conflict with a reason. Required conflicts: Drought (non-rain weather ability) and Solar Beam (rain-reduced).
+- `p3`: Control Pelipper is not flagged. 'Flagged' means an entry in the change_archetype conflicts field.
+- `p4`: Both required conflict flags must appear. Locked slots stay unchanged; offered replacements must be legal.
 
 ## MS8
 - pass_criteria_changed: False
@@ -515,7 +510,10 @@
 - `p1` [tool-backed]: Record a Water-only constraint on slot 1.
 
 ### New t2 (rewrite=True)
-- `p1` [tool-backed]: Second constraint recorded as the turn requires; both constraints appear in a later read-back.
+- `p1` [tool-backed]: Record the additional no-Intimidate constraint.
+
+### New t3 (rewrite=True)
+- `p1` [tool-backed]: Read-back shows both constraints active (Water-only on slot 1, and no Intimidate).
 
 ## MT2
 - pass_criteria_changed: True
@@ -562,10 +560,13 @@
 - `acceptance`: Archetype string in t3 read-back
 
 ### New t1 (rewrite=True)
-- `p1` [tool-backed]: Record/apply the archetype change asked in t1.
+- `p1` [tool-backed]: Apply the rain-offense archetype as asked.
 
 ### New t2 (rewrite=True)
-- `p1`: Continue archetype / follow-up for t2; not overall not_applicable.
+- `p1` [tool-backed]: Offer a rain-setter candidate for the open slot (tool-backed species or build suggestion).
+
+### New t3 (rewrite=True)
+- `p1` [tool-backed]: Read-back includes the rain-offense archetype string.
 
 ## MT6
 - pass_criteria_changed: True
@@ -626,7 +627,6 @@
 
 ### New t1 (rewrite=True)
 - `p1`: NO-MUTATION; claims scored. Yes/no/conditional with ≥1 tool-backed reason (Drizzle + explicit ability, usage, legality/clauses, state); each reason scored; bare yes/no = fail. Fixture: Pelipper unlocked + interacting locked slot.
-- `p2`: An optional tool call is an alternative path: it does not also require every expected tool.
 
 ## MU6
 - pass_criteria_changed: True
@@ -649,7 +649,6 @@
 
 ### New t1 (rewrite=True)
 - `p1`: No archetype/lock tools; state unchanged
-- `p2`: An optional tool call is an alternative path: it does not also require every expected tool.
 
 ## MV3
 - pass_criteria_changed: True
@@ -658,8 +657,12 @@
 - `acceptance`: Required: Rock Slide targets all adjacent foes (both opponents in doubles). Required caveat: accuracy 90% (gen9_accuracy 4eeb96ea…) so either/both can avoid. 'always hits both'/'can't miss' = false. Targeting correct with no accuracy = not SERVED. Optional: each target rolls accuracy separately (scored if made). 0.75 damage claim dropped (unverified). derived_keys.mv3_rock_slide
 
 ### New t1 (rewrite=True)
-- `p1` [tool-backed]: Required: Rock Slide targets all adjacent foes (both opponents in doubles).
-- `p2` [tool-backed]: Required caveat: accuracy 90% (relaxed from stricter prior wording), so either or both can miss.
+- `p1` [tool-backed]: Rock Slide targets all adjacent foes (both opponents in doubles).
+- `p2` [tool-backed]: Required caveat: accuracy 90% (gen9_accuracy pin), so either or both can miss.
+- `p3`: Claims that it always hits both, or cannot miss, are false.
+- `p4`: Targeting correct with no accuracy caveat is not SERVED.
+- `p5`: Optional (scored if made): each target rolls accuracy separately.
+- `p6`: A 0.75 damage claim is dropped (unverified).
 
 ## MW3
 - pass_criteria_changed: True
@@ -736,7 +739,6 @@
 
 ### New t1 (rewrite=True)
 - `p1`: Explains empty unlock; no mutation.
-- `p2` [tool-backed]: read_team is an accepted alternative path when used to explain the empty unlock.
 
 ## Q9
 - pass_criteria_changed: True
@@ -773,11 +775,11 @@
 - `p2`: Status like Will-O-Wisp does not count)
 - `p3`: offer other items. Silent acceptance = fail. Type-boost table standalone from pinned items. derived_keys.row_e_charcoal_sinistcha
 
-### New t1 (rewrite=False)
-- (no intended pass-criteria change; structure-only or unchanged)
-- `p1`: SERVED with stated correction: build as asked but state Charcoal has no effect (no legal damaging Fire move
-- `p2`: Status like Will-O-Wisp does not count)
-- `p3`: offer other items. Silent acceptance = fail. Type-boost table standalone from pinned items. derived_keys.row_e_charcoal_sinistcha
+### New t1 (rewrite=True)
+- `p1` [tool-backed]: SERVED: draft a Sinistcha build holding Charcoal as asked.
+- `p2` [tool-backed]: State that Charcoal has no effect because Sinistcha has no legal damaging Fire move (Status moves such as Will-O-Wisp do not count).
+- `p3`: Offer other items. Silent acceptance of Charcoal with no correction fails.
+- `p4`: Type-boost table is standalone from pinned items (derived_keys.row_e_charcoal_sinistcha).
 
 ## TB2
 - pass_criteria_changed: True

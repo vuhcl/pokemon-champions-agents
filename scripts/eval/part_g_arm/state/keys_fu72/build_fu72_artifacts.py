@@ -303,10 +303,10 @@ def write_seeds(usage: dict[str, Any]) -> list[str]:
         {
             "row": "TB2",
             "note": (
-                "FU72: Knock Off is not in Incineroar's Champions learnset; request/fixture use "
-                "Darkest Lariat (check_learnset True). Charcoal + Flare Blitz as sole damaging Fire "
-                "move preserved for the consequence. moveset unlocked under sticky_locks so the "
-                "swap is not field_locked (same seed pattern as MR4 item unlock)."
+                "FU72: Knock Off and U-turn are not in Incineroar's Champions learnset. "
+                "Seed uses Throat Chop; request swaps Flare Blitz for Darkest Lariat. "
+                "Charcoal + Flare Blitz as sole damaging Fire move preserved for the consequence. "
+                "moveset unlocked under sticky_locks (MR4 item-unlock parallel)."
             ),
             "flags": {"sticky_locks": True, "tool_fixes_v2": True},
             "request_text": "Swap Flare Blitz for Darkest Lariat.",
@@ -317,7 +317,9 @@ def write_seeds(usage: dict[str, Any]) -> list[str]:
                     "item": "Charcoal",
                     "ability": "Intimidate",
                     "nature": "Adamant",
-                    "moves": ["Flare Blitz", "Fake Out", "U-turn", "Parting Shot"],
+                    # Throat Chop (not U-turn): Incineroar cannot learn U-turn in Champions.
+                    # Flare Blitz remains the sole damaging Fire move for the Charcoal consequence.
+                    "moves": ["Flare Blitz", "Fake Out", "Throat Chop", "Parting Shot"],
                     "evs": {"hp": 32, "atk": 32, "def": 0, "spa": 0, "spd": 2, "spe": 0},
                     "locks": {
                         "species": True,
@@ -330,6 +332,7 @@ def write_seeds(usage: dict[str, Any]) -> list[str]:
                 }
             ],
             "check_learnset": {"species": "Incineroar", "move": "Darkest Lariat", "learns": True},
+            "check_set_ok": True,
         },
     )
 
@@ -642,22 +645,21 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
             tools={"expected": "describe", "alt": ""},
         )
 
-    # MM2 read_team required + optional as alt
+    # MM2: read_team required lives in the tools CSV, not in rubric prose.
     add_turn(
         "MM2",
         1,
         points=[
-            _point("p1", "read_team required (name the locked mega / stone referent), or the request must name the referent.", tool_backed=True),
-            _point("p2", "Refuse: stone is the required mega item; draft unchanged; form-change offer only.", tool_backed=False),
+            _point("p1", "Refuse: the mega stone is the required mega item; draft unchanged; form-change offer only.", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=True,
         tools={"expected": "read_team", "optional": "", "alt": ""},
         flags=["sticky_locks"],
-        notes="FU72 MM2: read_team required; sticky may shift refuse reason to lock.",
+        notes="FU72 MM2: expected_tools includes read_team; sticky may shift refuse reason to lock.",
     )
 
-    # Optional-as-alternative theme
+    # Optional tools listed as alternative_path in the CSV only (not as rubric points).
     for rid in ["MR3", "MR7", "MR8", "MU1", "MU4", "MU8"]:
         base = csv_by.get((rid, 1), {})
         opt = (base.get("optional_tools") or "").strip()
@@ -665,26 +667,18 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         alt = (base.get("alternative_path") or "").strip()
         if opt and opt not in alt:
             alt = "|".join(x for x in [alt, opt] if x)
-        pts = [
-            _point("p1", (rows.get(rid) or {}).get("acceptance") or "See acceptance.", tool_backed=False),
-            _point("p2", "An optional tool call is an alternative path: it does not also require every expected tool.", tool_backed=False),
-        ]
-        if rid in ("MU1", "MU2"):
-            # MU1/MU2 keys UNCHANGED per worksheet B8 — only wire optional-as-alt if already in A theme
-            pass
+        acc = (rows.get(rid) or {}).get("acceptance") or ""
         add_turn(
             rid,
             1,
-            points=pts if rid not in ("MU1",) else [
-                _point("p1", rows["MU1"]["acceptance"], tool_backed=False),
-            ],
+            points=[_point("p1", acc, tool_backed=False)],
             rewrite=rid not in ("MU1",),
-            pass_criteria_changed=rid not in ("MU1",),
+            pass_criteria_changed=False if rid == "MU1" else True,
             tools={"expected": exp, "optional": opt, "alt": alt},
             notes=(
                 "FU72: MU1 key text unchanged (tool fixed in #387)."
                 if rid == "MU1"
-                else "FU72: list optional tool as alternative_path."
+                else "FU72: optional tools moved to alternative_path in CSV only."
             ),
         )
 
@@ -698,40 +692,82 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         if amb:
             ambiguous.append({"row": "MU2", "turn": 1, "reason": "semicolon split ambiguous", "acceptance": acc})
 
-    # Q10 MV3
+    # Q10: read_team alternative lives in the CSV only.
     add_turn(
         "Q10",
         1,
         points=[
             _point("p1", "Explains empty unlock; no mutation.", tool_backed=False),
-            _point("p2", "read_team is an accepted alternative path when used to explain the empty unlock.", tool_backed=True),
         ],
         rewrite=True,
         pass_criteria_changed=True,
         tools={"alt": "read_team"},
     )
+    # MV3: restore full acceptance content (accuracy 90% caveat; false claims).
     add_turn(
         "MV3",
         1,
         points=[
-            _point("p1", "Required: Rock Slide targets all adjacent foes (both opponents in doubles).", tool_backed=True),
-            _point("p2", "Required caveat: accuracy 90% (relaxed from stricter prior wording), so either or both can miss.", tool_backed=True),
+            _point("p1", "Rock Slide targets all adjacent foes (both opponents in doubles).", tool_backed=True),
+            _point("p2", "Required caveat: accuracy 90% (gen9_accuracy pin), so either or both can miss.", tool_backed=True),
+            _point("p3", "Claims that it always hits both, or cannot miss, are false.", tool_backed=False),
+            _point("p4", "Targeting correct with no accuracy caveat is not SERVED.", tool_backed=False),
+            _point("p5", "Optional (scored if made): each target rolls accuracy separately.", tool_backed=False),
+            _point("p6", "A 0.75 damage claim is dropped (unverified).", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=True,
+        notes="Restored from part3_request_set_v4.md MV3 acceptance; accuracy caveat relaxed to 90% per worksheet.",
     )
 
-    # MS5 conflicts field
+    # MS5: restore full conflict content; "flagged" = conflicts field.
     add_turn(
         "MS5",
         1,
         points=[
-            _point("p1", "Apply archetype change and read back.", tool_backed=True),
-            _point("p2", "Audit locked slots; 'flagged' means the conflicts field on the change_archetype result (e.g. control Pelipper).", tool_backed=False),
-            _point("p3", "Do not edit locked slots; offers only.", tool_backed=False),
+            _point("p1", "MUTATION-OK: apply the rain-offense archetype and read it back.", tool_backed=True),
+            _point("p2", "Audit locked slots and report each conflict with a reason. Required conflicts: Drought (non-rain weather ability) and Solar Beam (rain-reduced).", tool_backed=False),
+            _point("p3", "Control Pelipper is not flagged. 'Flagged' means an entry in the change_archetype conflicts field.", tool_backed=False),
+            _point("p4", "Both required conflict flags must appear. Locked slots stay unchanged; offered replacements must be legal.", tool_backed=False),
         ],
         rewrite=True,
         pass_criteria_changed=True,
+        notes="Restored from part3 acceptance; conflicts-field meaning from worksheet A.",
+    )
+
+    # DM2: restore acceptance + CSV content check (no DRAFT / Vu placeholders).
+    add_turn(
+        "DM2",
+        1,
+        points=[
+            _point("p1", "Use the locked attacker from read_team: Adamant Life Orb Atk-32 Intimidate (not the DM1 pin top-item attacker).", tool_backed=True),
+            _point("p2", "Expand the full numeric damage grid for every Hatterene COMMON_JOINT cell in derived_keys.dm_outputs.dm2.", tool_backed=True),
+            _point("p3", "Look up Hatterene item and ability (Incineroar usage calls optional). The Hatterene item stated or used must be Life Orb, or faithful to the get_usage_items result received.", tool_backed=True),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        tools={
+            "expected": "read_team;get_usage_spreads;get_usage_items;get_usage_stats;calc_damage",
+            "optional": "",
+            "alt": "",
+        },
+        notes="Restored from part3 DM2 acceptance + rev3 CSV content check; writer placeholders removed.",
+    )
+
+    # H15: restore full acceptance (not the truncated CSV ';'-split).
+    add_turn(
+        "H15",
+        1,
+        points=[
+            _point("p1", "Modest top joint SP is hp32/atk0/def0/spa32/spd2/spe0 with chaos_weight ≈8876.7; label chaos_weight as weight, not percent (presenting it as % is false).", tool_backed=True),
+            _point("p2", "Spe under the stated SP: Modest 80, Timid hypothetical 88 (benchmarks in derived_keys.h15_primarina.benchmarks).", tool_backed=True),
+            _point("p3", "Verdict: Modest default is SERVED when the basis is stated (only retained joint; Timid is not retained) and the speed tradeoff is mentioned.", tool_backed=False),
+            _point("p4", "Conditional Timid is OK only with a named key benchmark. 'Timid is better' with no benchmark or a fabricated Timid joint is false.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        tools={"expected": "get_usage_spreads;get_speed", "optional": "", "alt": ""},
+        notes="Restored from part3_request_set_v4.md H15 acceptance (lives there; was lost to CSV note ';'-split).",
     )
 
     # MU6 reset explanation
@@ -934,20 +970,64 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         pass_criteria_changed=True,
         request_text="No weather.",
     )
-    add_turn("MT1", 1, points=[_point("p1", "Record a Water-only constraint on slot 1.", tool_backed=True)],
-             rewrite=True, pass_criteria_changed=True, request_text="limit slot 1 to Water only")
-    # MT1 t2 — need prompt
-    mt1_turns = []
-    import re
-    raw = rows["MT1"]["prompt"]
-    parts = [p.strip(" .") for p in re.split(r"\(t\d+\)\s*", raw) if p.strip()]
-    add_turn("MT1", 2, points=[_point("p1", "Second constraint recorded as the turn requires; both constraints appear in a later read-back.", tool_backed=True)],
-             rewrite=True, pass_criteria_changed=True,
-             request_text=parts[1] if len(parts) > 1 else "")
-    add_turn("MT5", 1, points=[_point("p1", "Record/apply the archetype change asked in t1.", tool_backed=True)],
-             rewrite=True, pass_criteria_changed=True)
-    add_turn("MT5", 2, points=[_point("p1", "Continue archetype / follow-up for t2; not overall not_applicable.", tool_backed=False)],
-             rewrite=True, pass_criteria_changed=True)
+    add_turn(
+        "MT1",
+        1,
+        points=[_point("p1", "Record a Water-only constraint on slot 1.", tool_backed=True)],
+        rewrite=True,
+        pass_criteria_changed=True,
+        request_text="limit slot 1 to Water only",
+    )
+    add_turn(
+        "MT1",
+        2,
+        points=[
+            _point("p1", "Record the additional no-Intimidate constraint.", tool_backed=True),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        request_text="Also no Intimidate",
+    )
+    add_turn(
+        "MT1",
+        3,
+        points=[
+            _point("p1", "Read-back shows both constraints active (Water-only on slot 1, and no Intimidate).", tool_backed=True),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        request_text="What constraints are active?",
+    )
+    add_turn(
+        "MT5",
+        1,
+        points=[
+            _point("p1", "Apply the rain-offense archetype as asked.", tool_backed=True),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        request_text="Archetype rain offense.",
+    )
+    add_turn(
+        "MT5",
+        2,
+        points=[
+            _point("p1", "Offer a rain-setter candidate for the open slot (tool-backed species or build suggestion).", tool_backed=True),
+        ],
+        rewrite=True,
+        pass_criteria_changed=True,
+        request_text="Rain setter candidate?",
+    )
+    add_turn(
+        "MT5",
+        3,
+        points=[
+            _point("p1", "Read-back includes the rain-offense archetype string.", tool_backed=True),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        request_text="Read back archetype.",
+    )
 
     # H6 HU2 GS1 rebuilds
     h6_set = usage["H6_top5_partners_rillaboom"]
@@ -1056,6 +1136,43 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         rewrite=True,
         pass_criteria_changed=False,
         request_text="Give me a different item.",
+    )
+
+    # HU2b / TB1: explicit points (no ';'-fragment splits).
+    add_turn(
+        "HU2b",
+        1,
+        points=[
+            _point("p1", "Paired with HU2 (in-game lineage top-10); not pooled with HU2.", tool_backed=False),
+            _point("p2", "ASSUME-STATE: threats are the shared Showdown per-form set at ≥4.52% usage (showdown_threats_ge_452, n=36). Megas are separate ThreatCandidates (for example Salamence-Mega, not base Salamence).", tool_backed=True),
+            _point("p3", "Pelipper max Spe is Timid Spe-32 = 128.", tool_backed=True),
+            _point("p4", "Mark max_speed role and share as in HN2b; use core_non_max for outspeeds_any.", tool_backed=False),
+            _point("p5", "UNREACHABLE at current rungs: get_meta_threats returns the in-game ladder list, not the Showdown ≥4.52% set. A pass would require stating which threat set was used once a matching tool exists.", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        unreachable="get_meta_threats returns in-game list, not Showdown ≥4.52% set the key assumes",
+        tools={"expected": "get_meta_threats;get_speed", "optional": "", "alt": ""},
+        notes="FU72: rewritten to stop ';'-fragment splits of the acceptance cell.",
+    )
+    add_turn(
+        "TB1",
+        1,
+        points=[
+            _point("p1", "SERVED: draft a Sinistcha build holding Charcoal as asked.", tool_backed=True),
+            _point("p2", "State that Charcoal has no effect because Sinistcha has no legal damaging Fire move (Status moves such as Will-O-Wisp do not count).", tool_backed=True),
+            _point("p3", "Offer other items. Silent acceptance of Charcoal with no correction fails.", tool_backed=False),
+            _point("p4", "Type-boost table is standalone from pinned items (derived_keys.row_e_charcoal_sinistcha).", tool_backed=False),
+        ],
+        rewrite=True,
+        pass_criteria_changed=False,
+        unreachable="get_featured_builds unreachable; synthesis+check_learnset+describe alt listed",
+        tools={
+            "expected": "check_learnset;set_slot;describe",
+            "optional": "get_usage_items",
+            "alt": "get_featured_builds;check_learnset;set_slot;describe",
+        },
+        notes="FU72: rewritten to stop ';'-fragment splits of the acceptance cell.",
     )
 
     # Unreachable tool-gap rows (keys not frozen as gradable)
@@ -1210,32 +1327,123 @@ def build_point_diff(hand: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _walk_seed_entities(doc: Any, *, species: set[str], items: set[str], moves: set[str]) -> None:
+    """Collect species / item / move names from seed JSON (slots, payload, nested)."""
+    if isinstance(doc, dict):
+        sp = doc.get("species")
+        if isinstance(sp, str) and sp.strip():
+            species.add(sp.strip())
+        it = doc.get("item")
+        if isinstance(it, str) and it.strip():
+            items.add(it.strip())
+        mv = doc.get("moves")
+        if isinstance(mv, (list, tuple)):
+            for m in mv:
+                if isinstance(m, str) and m.strip():
+                    moves.add(m.strip())
+        for v in doc.values():
+            _walk_seed_entities(v, species=species, items=items, moves=moves)
+    elif isinstance(doc, list):
+        for v in doc:
+            _walk_seed_entities(v, species=species, items=items, moves=moves)
+
+
 def legality_report() -> dict[str, Any]:
     from scripts.eval.part_g_arm.state.fixtures import empty_team
     from scripts.eval.part_g_arm.state.tools import check_learnset
-    from recommender.legality import is_item_legal, is_species_legal, load_snapshot
+    from recommender.legality import check_set, is_item_legal, is_species_legal, load_snapshot
 
     snap = load_snapshot()
     st = empty_team()
-    species = {
+    species: set[str] = {
         "Garchomp", "Dragapult", "Basculegion", "Slowbro", "Pincurchin", "Alakazam-Mega",
         "Incineroar", "Hatterene", "Gholdengo", "Rillaboom", "Sneasler", "Raichu", "Kingambit",
         "Pelipper", "Whimsicott", "Charizard", "Lucario", "Sinistcha", "Corviknight",
         "Salamence", "Jolteon", "Glimmora", "Primarina", "Annihilape", "Golisopod",
         "Indeedee-F", "Toxapex",
     }
-    items = {
+    items: set[str] = {
         "Choice Scarf", "Choice Specs", "Life Orb", "Sitrus Berry", "Leftovers", "Charcoal",
         "Salamencite", "Galladite", "Glimmoranite", "Focus Sash", "Miracle Seed",
         "Psychic Seed", "Rocky Helmet", "Wide Lens",
     }
-    out: dict[str, Any] = {"species": {}, "items": {}, "moves": {}, "failures": []}
+    moves: set[str] = set()
+    seed_slots: list[dict[str, Any]] = []
+
+    seeds_dir = OUT / "seeds"
+    for path in sorted(seeds_dir.glob("*.json")):
+        if path.name == "SEED_INDEX.json":
+            continue
+        doc = json.loads(path.read_text())
+        _walk_seed_entities(doc, species=species, items=items, moves=moves)
+        def _record_set(seed_name: str, block: dict[str, Any]) -> None:
+            sp, it, mv = block.get("species"), block.get("item"), block.get("moves")
+            ab = block.get("ability")
+            if not isinstance(sp, str):
+                return
+            if isinstance(mv, list) and len(mv) == 4:
+                leg = check_set(sp, list(mv), it if isinstance(it, str) else None, ability=ab)
+                seed_slots.append(
+                    {
+                        "seed": seed_name,
+                        "species": sp,
+                        "item": it,
+                        "moves": list(mv),
+                        "ok": bool(leg.ok),
+                        "failures": [f"{f.kind}:{f.element}" for f in (leg.failures or [])],
+                    }
+                )
+            elif isinstance(mv, list) and mv:
+                # Incomplete moveset (e.g. RB1 fixture): still require every listed move to be learnable.
+                fails = []
+                for m in mv:
+                    if not isinstance(m, str):
+                        continue
+                    r = check_learnset(st, sp, m)
+                    if not r.get("learns"):
+                        fails.append(f"learnset:{m}")
+                if isinstance(it, str) and it.strip() and not is_item_legal(snap, it):
+                    fails.append(f"item:{it}")
+                if not is_species_legal(snap, sp):
+                    fails.append(f"species:{sp}")
+                seed_slots.append(
+                    {
+                        "seed": seed_name,
+                        "species": sp,
+                        "item": it,
+                        "moves": list(mv),
+                        "ok": not fails,
+                        "failures": fails,
+                        "incomplete_moveset": True,
+                    }
+                )
+
+        for slot in doc.get("slots") or []:
+            if isinstance(slot, dict):
+                _record_set(path.name, slot)
+        payload = doc.get("payload")
+        if isinstance(payload, dict):
+            _record_set(path.name, payload)
+            for slot in payload.get("slots") or []:
+                if isinstance(slot, dict):
+                    _record_set(path.name, slot)
+        for key in ("primary", "secondary"):
+            block = doc.get(key)
+            if isinstance(block, dict):
+                _record_set(path.name, block)
+
+    out: dict[str, Any] = {
+        "species": {},
+        "items": {},
+        "moves": {},
+        "seed_check_set": seed_slots,
+        "failures": [],
+    }
     for sp in sorted(species):
         ok = bool(is_species_legal(snap, sp))
         out["species"][sp] = {"ok": ok}
         if not ok:
             out["failures"].append(f"species {sp}")
-    # Named in refusal keys on purpose (Champions bans Specs/Band as held items).
     expected_illegal_items = {"Choice Specs", "Choice Band"}
     for it in sorted(items):
         ok = bool(is_item_legal(snap, it))
@@ -1247,10 +1455,27 @@ def legality_report() -> dict[str, Any]:
             out["failures"].append(f"item {it}")
         elif not ok:
             out["items"][it]["note"] = "illegal held item; named by refusal-row keys only"
+    # Every move named in any seed: must be learnable by at least one seed species that lists it,
+    # and must exist in the snapshot. Per-slot check_set is the freeze gate.
+    for mv in sorted(moves):
+        out["moves"][mv] = {"named_in_seeds": True}
+    for entry in seed_slots:
+        if not entry["ok"]:
+            out["failures"].append(
+                f"check_set {entry['seed']} {entry['species']}: {', '.join(entry['failures']) or 'failed'}"
+            )
+        for mv in entry["moves"]:
+            r = check_learnset(st, entry["species"], mv)
+            learns = bool(r.get("learns"))
+            out["moves"].setdefault(mv, {})[f"learns_on_{entry['species']}"] = learns
+            if not learns:
+                out["failures"].append(f"learnset {entry['species']}/{mv} in seed {entry['seed']}")
     pairs = [
         ("Incineroar", "Darkest Lariat", True),
         ("Incineroar", "Knock Off", False),
         ("Incineroar", "Flare Blitz", True),
+        ("Incineroar", "Throat Chop", True),
+        ("Incineroar", "U-turn", False),
         ("Lucario", "Nasty Plot", True),
         ("Lucario", "Calm Mind", True),
         ("Gholdengo", "Make It Rain", True),
@@ -1303,10 +1528,21 @@ def main() -> None:
     build_csv_rev4(hand)
     legal = legality_report()
     (OUT / "legality_report_fu72.json").write_text(json.dumps(legal, indent=2) + "\n")
+    seed_lines = "\n".join(
+        f"- `{e['seed']}` {e['species']} @ {e['item']}: ok={e['ok']}"
+        + (f" failures={e['failures']}" if e["failures"] else "")
+        for e in legal.get("seed_check_set") or []
+    )
     (OUT / "legality_report_fu72.md").write_text(
         "# FU72 legality report\n\n"
         + (f"**FAILURES:** {legal['failures']}\n\n" if legal["failures"] else "**No failures.**\n\n")
-        + "## Learnset pairs\n"
+        + "## Seed check_set (every slot / payload / primary+secondary)\n"
+        + (seed_lines or "_none_")
+        + "\n\n## Species / items named in keys or seeds\n"
+        + f"- species checked: {len(legal['species'])}\n"
+        + f"- items checked: {len(legal['items'])}\n"
+        + f"- moves named in seeds: {len(legal['moves'])}\n"
+        + "\n## Learnset pairs\n"
         + "\n".join(
             f"- {p['species']} / {p['move']}: learns={p['learns']} expected={p['expected']} ok={p['ok']}"
             for p in legal["learnset_pairs"]
