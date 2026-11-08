@@ -1259,22 +1259,43 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         request_text="Give me a different item.",
     )
 
-    # HU2b / TB1: explicit points (no ';'-fragment splits).
+    # HU2b: gradable on the in-game get_meta_threats list (worksheet A, Vu 2026-11-07).
+    # Offline Spe: Timid Spe-32 Pelipper = final_spe_after_mods → 128 (regenerated, not copied).
     add_turn(
         "HU2b",
         1,
         points=[
-            _point("p1", "Paired with HU2 (in-game lineage top-10); not pooled with HU2.", tool_backed=False),
-            _point("p2", "ASSUME-STATE: threats are the shared Showdown per-form set at ≥4.52% usage (showdown_threats_ge_452, n=36). Megas are separate ThreatCandidates (for example Salamence-Mega, not base Salamence).", tool_backed=True),
-            _point("p3", "Pelipper max Spe is Timid Spe-32 = 128.", tool_backed=True),
-            _point("p4", "Mark max_speed role and share as in HN2b; use core_non_max for outspeeds_any.", tool_backed=False),
-            _point("p5", "UNREACHABLE at current rungs: get_meta_threats returns the in-game ladder list, not the Showdown ≥4.52% set. A pass would require stating which threat set was used once a matching tool exists.", tool_backed=False),
+            _point(
+                "p1",
+                "The arm picks N for get_meta_threats and states it. Any N is accepted when the stated N matches the call.",
+                tool_backed=True,
+            ),
+            _point(
+                "p2",
+                "The threat set reasoned over is exactly the list that call returns for that N, labeled as the in-game list. Naming a threat not in the returned list fails.",
+                tool_backed=True,
+            ),
+            _point(
+                "p3",
+                "Pelipper's max Spe is Timid Spe-32 = 128 (from get_speed).",
+                tool_backed=True,
+            ),
+            _point(
+                "p4",
+                "List which threats in the returned list Pelipper outspeeds at max Spe (and which it does not), each against that threat's Spe from a tool. Megas are separate entries where the list has them. Keep the HN2b convention: mark max_speed role and share; use core_non_max for outspeeds_any.",
+                tool_backed=True,
+            ),
         ],
         rewrite=True,
-        pass_criteria_changed=False,
-        unreachable="get_meta_threats returns in-game list, not Showdown ≥4.52% set the key assumes",
+        pass_criteria_changed=True,
+        request_text="Does Pelipper with max speed investment outspeed anyone among top meta threats?",
         tools={"expected": "get_meta_threats;get_speed", "optional": "", "alt": ""},
-        notes="FU72: rewritten to stop ';'-fragment splits of the acceptance cell.",
+        notes=(
+            "Control paired with HU2 (both now use the in-game list; the pair no longer "
+            "compares in-game vs Showdown lineages). Not a scored point. "
+            "pass_criteria_changed: threat set is the get_meta_threats in-game list for chosen N, "
+            "not Showdown ≥4.52%."
+        ),
     )
     add_turn(
         "TB1",
@@ -1330,12 +1351,11 @@ def build_hand_keys(is_min: dict[str, Any], usage: dict[str, Any]) -> dict[str, 
         "IX1": "pending key cut (find_by_effect shipped in #393 / ix_tools_v1)",
         "IX5": "pending key cut (find_by_effect shipped in #393 / ix_tools_v1)",
         "IX7": "pending key cut (get_type_effectiveness + find_by_effect shipped in #393 / ix_tools_v1)",
-        "HU2b": "get_meta_threats returns in-game list, not Showdown ≥4.52% set the key assumes (no equivalent path at current rungs)",
         "MS1": "lock_fields below rung 4 (no equivalent path below draft+lock_fields)",
         "MS8": "lock_fields below rung 4 (no equivalent path below draft+lock_fields)",
     }
-    # Clear stale unreachable marks on rows that now have alternatives.
-    for rid in ("MM1", "MT2", "GS1", "IC1", "TB1", "H18b"):
+    # Clear stale unreachable marks on rows that now have alternatives / are gradable.
+    for rid in ("MM1", "MT2", "GS1", "IC1", "TB1", "H18b", "HU2b"):
         for key, t in list(turns.items()):
             if t["row_id"] == rid:
                 t["unreachable_reason"] = None
@@ -1470,14 +1490,6 @@ OLD_POINT_MAPS: dict[str, dict[str, list[str]]] = {
         "p2": ["t2.p1", "t2.p2", "t2.p3", "t2.p4", "t2.p5"],
     },
     "IC1": {"p1": ["t1.p1", "t2.p1"], "p2": ["t2.p1"]},
-    "HU2b": {
-        "p1": ["t1.p1"],
-        "p2": ["t1.p1", "t1.p2"],
-        "p3": ["t1.p2"],
-        "p4": ["t1.p2", "t1.p3"],
-        "p5": ["t1.p4"],
-        "p6": ["t1.p4"],
-    },
     "TB1": {
         "p1": ["t1.p1", "t1.p2"],
         "p2": ["t1.p2"],

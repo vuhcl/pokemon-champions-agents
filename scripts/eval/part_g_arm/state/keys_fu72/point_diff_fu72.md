@@ -257,9 +257,9 @@
 - `p2`: Label in-game source.
 
 ## HU2b
-- pass_criteria_changed: False
+- pass_criteria_changed: True
 - old_point_count: 6
-- new_point_count: 5
+- new_point_count: 4
 
 ### Old (mechanical ';'-split of request-set acceptance)
 - `p1`: Paired with HU2 (in-game lineage top10
@@ -270,19 +270,10 @@
 - `p6`: core_non_max for outspeeds_any
 
 ### New t1 (rewrite=True)
-- `p1`: Paired with HU2 (in-game lineage top-10); not pooled with HU2.
-- `p2` [tool-backed]: ASSUME-STATE: threats are the shared Showdown per-form set at ≥4.52% usage (showdown_threats_ge_452, n=36). Megas are separate ThreatCandidates (for example Salamence-Mega, not base Salamence).
-- `p3` [tool-backed]: Pelipper max Spe is Timid Spe-32 = 128.
-- `p4`: Mark max_speed role and share as in HN2b; use core_non_max for outspeeds_any.
-- `p5`: UNREACHABLE at current rungs: get_meta_threats returns the in-game ladder list, not the Showdown ≥4.52% set. A pass would require stating which threat set was used once a matching tool exists.
-
-### Mapping (old → new) — required when pass_criteria unchanged
-- `p1` → `t1.p1`
-- `p2` → `t1.p1`, `t1.p2`
-- `p3` → `t1.p2`
-- `p4` → `t1.p2`, `t1.p3`
-- `p5` → `t1.p4`
-- `p6` → `t1.p4`
+- `p1` [tool-backed]: The arm picks N for get_meta_threats and states it. Any N is accepted when the stated N matches the call.
+- `p2` [tool-backed]: The threat set reasoned over is exactly the list that call returns for that N, labeled as the in-game list. Naming a threat not in the returned list fails.
+- `p3` [tool-backed]: Pelipper's max Spe is Timid Spe-32 = 128 (from get_speed).
+- `p4` [tool-backed]: List which threats in the returned list Pelipper outspeeds at max Spe (and which it does not), each against that threat's Spe from a tool. Megas are separate entries where the list has them. Keep the HN2b convention: mark max_speed role and share; use core_non_max for outspeeds_any.
 
 ## HU3
 - pass_criteria_changed: False
@@ -1059,5 +1050,4 @@
 
 ## Unchanged pass criteria with fewer new points than old
 - H15: new=4 < old=5; map=p1→['t1.p1']; p2→['t1.p1', 't1.p2']; p3→['t1.p3']; p4→['t1.p4']; p5→['t1.p4']
-- HU2b: new=5 < old=6; map=p1→['t1.p1']; p2→['t1.p1', 't1.p2']; p3→['t1.p2']; p4→['t1.p2', 't1.p3']; p5→['t1.p4']; p6→['t1.p4']
 

@@ -19,7 +19,7 @@ Source of truth: `key_cut_worksheet_2026-11-07.md` (copied under `state/keys_fu7
 | Manifest + key hash | `state/keys_fu72/KEYS_MANIFEST_FU72.json` |
 | Builder | `state/keys_fu72/build_fu72_artifacts.py` |
 
-**key_hash:** `cc4669610ba9dd980cd93c5efa4717e452995821ffda590935acae02bcad5252` (see `KEYS_MANIFEST_FU72.json`).
+**key_hash:** `54e9db2e60a261aa2f6ac5bfafd819667a8883e55ae893e4157b6162b6c88403` (see `KEYS_MANIFEST_FU72.json`).
 
 ### Post-#393 rebase (main @ 118db45 / tip f84d852)
 - Rebased `fu72-key-cut` onto main after IX tools merge. Isolation golden + legality report still pass (no key-content edits in the rebase step).
@@ -97,12 +97,13 @@ See `unreachable_fu72.md`.
 
 | Row | Reason |
 |---|---|
-| HU2b | `get_meta_threats` returns in-game list, not Showdown ≥4.52% set; no equivalent path |
 | MS1 | `lock_fields` below rung 4; no equivalent path |
 | MS8 | `lock_fields` below rung 4; no equivalent path |
 | IX1 | pending key cut (`find_by_effect` shipped #393) |
 | IX5 | pending key cut (`find_by_effect` shipped #393) |
 | IX7 | pending key cut (`get_type_effectiveness` + `find_by_effect` shipped #393) |
+
+**HU2b recut (after unreachable pass):** gradable on in-game `get_meta_threats` for chosen N; Showdown ≥4.52% assumption dropped (`pass_criteria_changed: true`). Pelipper Timid Spe-32 = 128 regenerated offline. Pairing note in `notes` only.
 
 ## Ambiguous splits
 
