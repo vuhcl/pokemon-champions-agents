@@ -75,6 +75,8 @@ _IX_TOOLS_V1: bool = False
 _PROMPT_CUT: bool = False
 # FU74: prompt_guard_parser_v2.md. Default off.
 _PARSER_V2: bool = False
+# FU75: expose pending_options in parser state summary + prompt_guard_parser_po.md. Default off.
+_PARSER_PENDING_OPTIONS: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -178,6 +180,15 @@ def set_parser_v2(enabled: bool) -> None:
 
 def parser_v2_enabled() -> bool:
     return _PARSER_V2
+
+
+def set_parser_pending_options(enabled: bool) -> None:
+    global _PARSER_PENDING_OPTIONS
+    _PARSER_PENDING_OPTIONS = bool(enabled)
+
+
+def parser_pending_options_enabled() -> bool:
+    return _PARSER_PENDING_OPTIONS
 
 
 _WRITE_SLOT_ATTRS = (

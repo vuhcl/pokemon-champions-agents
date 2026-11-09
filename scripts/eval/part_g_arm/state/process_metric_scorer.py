@@ -204,6 +204,7 @@ def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
             "ix_tools_v1",
             "prompt_cut",
             "parser_v2",
+            "parser_pending_options",
         )
     ):
         return {
@@ -218,6 +219,7 @@ def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
             "ix_tools_v1": bool(nested.get("ix_tools_v1")),
             "prompt_cut": bool(nested.get("prompt_cut")),
             "parser_v2": bool(nested.get("parser_v2")),
+            "parser_pending_options": bool(nested.get("parser_pending_options")),
         }
     # Legacy run 1: PRE-RS-ARM schema, no ladder flags.
     return {
@@ -232,6 +234,7 @@ def flags_from_run_record(rec: Mapping[str, Any]) -> dict[str, bool]:
         "ix_tools_v1": False,
         "prompt_cut": False,
         "parser_v2": False,
+        "parser_pending_options": False,
     }
 
 

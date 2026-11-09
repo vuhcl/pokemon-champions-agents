@@ -72,9 +72,10 @@ DEFAULT_RUN_FLAGS: dict[str, bool] = {
     "ix_tools_v1": False,
     "prompt_cut": False,
     "parser_v2": False,
+    "parser_pending_options": False,
 }
 
-# --revised-arm profile (FU74 close-out). parser_v2 tried; not adopted — stays opt-in.
+# --revised-arm profile. parser_v2 tried/not adopted; parser_pending_options on (FU75).
 REVISED_ARM_PROFILE_FLAGS: dict[str, bool] = {
     "guard": True,
     "sticky_locks": True,
@@ -82,6 +83,7 @@ REVISED_ARM_PROFILE_FLAGS: dict[str, bool] = {
     "tool_fixes_v2": True,
     "ix_tools_v1": True,
     "prompt_cut": True,
+    "parser_pending_options": True,
 }
 
 # Fixed BEFORE any covered run (Part 4). No silent retry.
@@ -827,7 +829,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--parser-v2",
         action="store_true",
-        help="FU74: use prompt_guard_parser_v2.md (needs --guard)",
+        help="FU74: use prompt_guard_parser_v2.md (needs --guard); tried, not in --revised-arm",
+    )
+    parser.add_argument(
+        "--parser-pending-options",
+        action="store_true",
+        help=(
+            "FU75: include pending_options in the parser state summary and use "
+            "prompt_guard_parser_po.md (needs --guard); on under --revised-arm"
+        ),
     )
     parser.add_argument(
         "--keys",
@@ -839,9 +849,9 @@ def main(argv: list[str] | None = None) -> int:
         "--revised-arm",
         action="store_true",
         help=(
-            "FU74 profile: guard rung 6 + sticky_locks + unlock_keeps_values + "
-            "tool_fixes_v2 + ix_tools_v1 + --keys fu74 + --prompt-cut "
-            "(does not enable --parser-v2; that stays opt-in)"
+            "FU74/75 profile: guard rung 6 + sticky_locks + unlock_keeps_values + "
+            "tool_fixes_v2 + ix_tools_v1 + --keys fu74 + --prompt-cut + "
+            "--parser-pending-options (does not enable --parser-v2)"
         ),
     )
     args = parser.parse_args(argv)
@@ -857,6 +867,7 @@ def main(argv: list[str] | None = None) -> int:
         "ix_tools_v1": bool(args.ix_tools_v1),
         "prompt_cut": bool(args.prompt_cut),
         "parser_v2": bool(args.parser_v2),
+        "parser_pending_options": bool(args.parser_pending_options),
     }
     key_set = str(args.keys)
     if args.revised_arm:
@@ -872,9 +883,14 @@ def main(argv: list[str] | None = None) -> int:
     if run_flags["draft"]:
         run_flags["wrapper"] = True
         run_flags["tool_fields"] = True
-    if (run_flags["prompt_cut"] or run_flags["parser_v2"]) and not run_flags["guard"]:
+    if (
+        run_flags["prompt_cut"]
+        or run_flags["parser_v2"]
+        or run_flags["parser_pending_options"]
+    ) and not run_flags["guard"]:
         raise SystemExit(
-            "--prompt-cut and --parser-v2 require the guard rung (--guard or --revised-arm)"
+            "--prompt-cut, --parser-v2, and --parser-pending-options require the "
+            "guard rung (--guard or --revised-arm)"
         )
 
     covered = load_covered_ids()
@@ -888,6 +904,7 @@ def main(argv: list[str] | None = None) -> int:
         set_guard,
         set_ix_tools_v1,
         set_judge,
+        set_parser_pending_options,
         set_parser_v2,
         set_prompt_cut,
         set_sticky_locks,
@@ -909,6 +926,7 @@ def main(argv: list[str] | None = None) -> int:
     set_ix_tools_v1(bool(run_flags["ix_tools_v1"]))
     set_prompt_cut(bool(run_flags["prompt_cut"]))
     set_parser_v2(bool(run_flags["parser_v2"]))
+    set_parser_pending_options(bool(run_flags["parser_pending_options"]))
     if run_flags["guard"] and run_flags["prompt_cut"]:
         prompt_file = GUARD_PROMPT_CUT_FILE
     elif run_flags["guard"]:

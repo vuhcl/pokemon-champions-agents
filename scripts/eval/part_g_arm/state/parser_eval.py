@@ -179,18 +179,24 @@ def _parse_one(
     llm: Any,
     text: str,
     *,
-    parser_v2: bool,
+    mode: str,
     state: dict[str, Any],
     pending_asked: dict[str, Any] | None,
 ) -> dict[str, Any]:
+    """mode: 'v1' | 'v2' | 'pending_options' (committed prompt + pending_options flag)."""
     from scripts.eval.part_g_arm.state.guard_parser import parse_user_turn
-    from scripts.eval.part_g_arm.state.tools import set_parser_v2
+    from scripts.eval.part_g_arm.state.tools import (
+        set_parser_pending_options,
+        set_parser_v2,
+    )
 
-    set_parser_v2(parser_v2)
+    set_parser_v2(mode == "v2")
+    set_parser_pending_options(mode == "pending_options")
     try:
         return parse_user_turn(llm, text, state, pending_asked=pending_asked)
     finally:
         set_parser_v2(False)
+        set_parser_pending_options(False)
 
 
 def _primary_class(rec: dict[str, Any]) -> str:
@@ -204,8 +210,11 @@ def _state_report(
     state: dict[str, Any] | None,
     pending_asked: dict[str, Any] | None,
     meta: dict[str, Any],
+    *,
+    with_pending_options: bool = False,
 ) -> dict[str, Any]:
     from scripts.eval.part_g_arm.state.guard_parser import compact_state_summary
+    from scripts.eval.part_g_arm.state.tools import set_parser_pending_options
 
     if state is None:
         return {
@@ -213,8 +222,12 @@ def _state_report(
             "reason": meta.get("reason"),
             "source": meta.get("source"),
         }
-    summary = compact_state_summary(state, pending_asked=pending_asked)
-    return {
+    set_parser_pending_options(with_pending_options)
+    try:
+        summary = compact_state_summary(state, pending_asked=pending_asked)
+    finally:
+        set_parser_pending_options(False)
+    rep = {
         "state_dependent_not_measured": False,
         "source": meta.get("source"),
         "pending_kind": summary.get("pending_kind"),
@@ -224,14 +237,29 @@ def _state_report(
         "slots": summary.get("slots"),
         "pending_fingerprint_matches": summary.get("pending_fingerprint_matches"),
     }
+    if "pending_options" in summary:
+        rep["pending_options"] = summary["pending_options"]
+    return rep
 
 
 def _score_pair(
     rows: list[dict[str, Any]],
     *,
     llm: Any,
+    compare: str = "v1_v2",
 ) -> dict[str, Any]:
-    """Score v1 and v2 on the same rows; skip state-dependent; report gains/regressions."""
+    """Score a baseline vs treatment on the same rows.
+
+    compare='v1_v2' → committed vs parser_v2.
+    compare='v1_pending_options' → committed (flag off) vs pending_options (FU75).
+    """
+    if compare == "v1_pending_options":
+        base_mode, treat_mode = "v1", "pending_options"
+        base_key, treat_key = "v1", "pending_options"
+    else:
+        base_mode, treat_mode = "v1", "v2"
+        base_key, treat_key = "v1", "v2"
+
     measured: list[dict[str, Any]] = []
     state_dependent: list[dict[str, Any]] = []
     per_turn: list[dict[str, Any]] = []
@@ -245,11 +273,21 @@ def _score_pair(
         if row.get("dev"):
             state, pending_asked = _dev_start_state(str(row.get("start") or "empty"))
             meta = {"source": f"dev:{row.get('start') or 'empty'}", "row_id": rid, "turn": turn}
-            state_rep = _state_report(state, pending_asked, meta)
+            state_rep = _state_report(
+                state,
+                pending_asked,
+                meta,
+                with_pending_options=(compare == "v1_pending_options"),
+            )
         else:
             row_id = str(row.get("row_id") or str(rid).split("__")[0])
             state, pending_asked, meta = _resolve_parser_state(row_id, turn)
-            state_rep = _state_report(state, pending_asked, meta)
+            state_rep = _state_report(
+                state,
+                pending_asked,
+                meta,
+                with_pending_options=(compare == "v1_pending_options"),
+            )
 
         if state_rep.get("state_dependent_not_measured"):
             state_dependent.append(
@@ -265,24 +303,27 @@ def _score_pair(
             continue
 
         assert state is not None
-        v1 = _parse_one(llm, text, parser_v2=False, state=state, pending_asked=pending_asked)
-        # Fresh copy so v2 cannot see mutations (parser is read-only, but be safe).
+        base = _parse_one(
+            llm, text, mode=base_mode, state=state, pending_asked=pending_asked
+        )
         state2 = deepcopy(state)
-        v2 = _parse_one(llm, text, parser_v2=True, state=state2, pending_asked=pending_asked)
-        g1 = _primary_class(v1)
-        g2 = _primary_class(v2)
+        treat = _parse_one(
+            llm, text, mode=treat_mode, state=state2, pending_asked=pending_asked
+        )
+        g1 = _primary_class(base)
+        g2 = _primary_class(treat)
         entry = {
             "id": row.get("id"),
             "row_id": row.get("row_id"),
             "turn": turn,
             "text": text,
             "key": want,
-            "v1": g1,
-            "v2": g2,
-            "v1_ok": g1 == want,
-            "v2_ok": g2 == want,
-            "uncertain_v1": v1.get("uncertain"),
-            "uncertain_v2": v2.get("uncertain"),
+            base_key: g1,
+            treat_key: g2,
+            f"{base_key}_ok": g1 == want,
+            f"{treat_key}_ok": g2 == want,
+            f"uncertain_{base_key}": base.get("uncertain"),
+            f"uncertain_{treat_key}": treat.get("uncertain"),
             "state": state_rep,
             "in_prompt_example": row.get("id") in IN_PROMPT_EXAMPLE_IDS,
         }
@@ -330,16 +371,62 @@ def _score_pair(
 
     gains = [e for e in measured if e["delta"] == "gain"]
     regressions = [e for e in measured if e["delta"] == "regression"]
+    gain_key = f"gains_{base_key}_to_{treat_key}"
+    reg_key = f"regressions_{base_key}_to_{treat_key}"
     return {
         "label": "DEV",
-        "v1": _pack("v1", "v1"),
-        "v2": _pack("v2", "v2"),
+        "compare": compare,
+        base_key: _pack(base_key, base_key),
+        treat_key: _pack(treat_key, treat_key),
+        gain_key: [
+            {
+                "id": e["id"],
+                "key": e["key"],
+                base_key: e[base_key],
+                treat_key: e[treat_key],
+                "text": e["text"],
+            }
+            for e in gains
+        ],
+        reg_key: [
+            {
+                "id": e["id"],
+                "key": e["key"],
+                base_key: e[base_key],
+                treat_key: e[treat_key],
+                "text": e["text"],
+            }
+            for e in regressions
+        ],
+        # Aliases so existing v1/v2 printers keep working when compare=v1_v2.
         "gains_v1_to_v2": [
-            {"id": e["id"], "key": e["key"], "v1": e["v1"], "v2": e["v2"], "text": e["text"]}
+            {"id": e["id"], "key": e["key"], "v1": e[base_key], "v2": e[treat_key], "text": e["text"]}
+            for e in gains
+        ]
+        if compare == "v1_v2"
+        else [
+            {
+                "id": e["id"],
+                "key": e["key"],
+                "v1": e[base_key],
+                "pending_options": e[treat_key],
+                "text": e["text"],
+            }
             for e in gains
         ],
         "regressions_v1_to_v2": [
-            {"id": e["id"], "key": e["key"], "v1": e["v1"], "v2": e["v2"], "text": e["text"]}
+            {"id": e["id"], "key": e["key"], "v1": e[base_key], "v2": e[treat_key], "text": e["text"]}
+            for e in regressions
+        ]
+        if compare == "v1_v2"
+        else [
+            {
+                "id": e["id"],
+                "key": e["key"],
+                "v1": e[base_key],
+                "pending_options": e[treat_key],
+                "text": e["text"],
+            }
             for e in regressions
         ],
         "per_turn": per_turn,
@@ -440,11 +527,22 @@ def main(argv: list[str] | None = None) -> int:
         default="committed",
         help="start-state key set (fu74 loads keys_fu72 seeds when applicable)",
     )
+    p.add_argument(
+        "--parser-pending-options",
+        action="store_true",
+        help=(
+            "FU75: compare committed parser (flag off) vs pending_options "
+            "(prompt_guard_parser_po.md + options in summary), not v2"
+        ),
+    )
     args = p.parse_args(argv)
 
     from scripts.eval.part_g_arm.state.revised_keys import set_key_set
 
     set_key_set(args.keys)
+    compare = "v1_pending_options" if args.parser_pending_options else "v1_v2"
+    treat_tag = "pending_options" if compare == "v1_pending_options" else "v2"
+    ok_treat = f"{treat_tag}_ok"
 
     sets = build_sets()
     wanted = [s.strip() for s in args.sets.split(",") if s.strip()]
@@ -453,6 +551,7 @@ def main(argv: list[str] | None = None) -> int:
         "label": "DEV",
         "model": args.model,
         "keys": args.keys,
+        "compare": compare,
         "note": (
             "Parser-only eval. No arm run. Agreement numbers are DEV. "
             "Headline excludes state_dependent_not_measured turns; those are listed separately. "
@@ -464,14 +563,14 @@ def main(argv: list[str] | None = None) -> int:
 
     for name in wanted:
         rows = sets[name]
-        print(f"== {name} n={len(rows)} (DEV) ==", file=sys.stderr)
-        scored = _score_pair(rows, llm=llm)
+        print(f"== {name} n={len(rows)} compare={compare} (DEV) ==", file=sys.stderr)
+        scored = _score_pair(rows, llm=llm, compare=compare)
         report["results"][name] = scored
         print(
             f"  measured={scored['n_measured']} state_dependent={scored['n_state_dependent']}",
             file=sys.stderr,
         )
-        for tag in ("v1", "v2"):
+        for tag in ("v1", treat_tag):
             s = scored[tag]
             print(
                 f"  {tag}: agree={s['agree']}/{s['n']} ({s['agreement']:.3f}) DEV  "
@@ -484,21 +583,46 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         for e in scored["gains_v1_to_v2"]:
+            right = e.get("v2", e.get("pending_options"))
             print(
-                f"    GAIN {e['id']}: key={e['key']} v1={e['v1']}→v2={e['v2']}",
+                f"    GAIN {e['id']}: key={e['key']} v1={e['v1']}→{treat_tag}={right}",
                 file=sys.stderr,
             )
         for e in scored["regressions_v1_to_v2"]:
+            right = e.get("v2", e.get("pending_options"))
             print(
-                f"    REGRESS {e['id']}: key={e['key']} v1={e['v1']}→v2={e['v2']}",
+                f"    REGRESS {e['id']}: key={e['key']} v1={e['v1']}→{treat_tag}={right}",
                 file=sys.stderr,
             )
+        if name == "all_csv" and compare == "v1_pending_options":
+            ol = [
+                e
+                for e in scored["per_turn"]
+                if e.get("row_id") in {"OL2b", "OL5", "OL7a", "OL8"}
+            ]
+            report["ol_turns"] = [
+                {
+                    "id": e["id"],
+                    "key": e["key"],
+                    "v1": e["v1"],
+                    "pending_options": e["pending_options"],
+                    "text": e["text"],
+                    "state": e["state"],
+                }
+                for e in ol
+            ]
+            print("  == OL turns ==", file=sys.stderr)
+            for e in ol:
+                print(
+                    f"    {e['id']}: key={e['key']} v1={e['v1']} "
+                    f"pending_options={e['pending_options']} text={e['text']!r}",
+                    file=sys.stderr,
+                )
         if name == "disagree_32_fu74":
             differ = [r["id"] for r in rows if r.get("text_differs")]
             report["disagree_32_text_differs"] = differ
             print(f"  text differs under fu74: {differ}", file=sys.stderr)
         if name == "dev":
-            # Agreement with and without the five in-prompt example rows.
             measured = scored["per_turn"]
             with_ex = measured
             without = [e for e in measured if not e.get("in_prompt_example")]
@@ -508,17 +632,17 @@ def main(argv: list[str] | None = None) -> int:
             ):
                 n = len(subset)
                 a1 = sum(1 for e in subset if e["v1_ok"])
-                a2 = sum(1 for e in subset if e["v2_ok"])
+                a2 = sum(1 for e in subset if e.get(ok_treat))
                 report.setdefault("dev_splits", {})[label] = {
                     "n": n,
                     "v1_agree": a1,
                     "v1_agreement": (a1 / n) if n else 0.0,
-                    "v2_agree": a2,
-                    "v2_agreement": (a2 / n) if n else 0.0,
+                    f"{treat_tag}_agree": a2,
+                    f"{treat_tag}_agreement": (a2 / n) if n else 0.0,
                     "label": "DEV",
                 }
                 print(
-                    f"  {label}: v1={a1}/{n} v2={a2}/{n} DEV",
+                    f"  {label}: v1={a1}/{n} {treat_tag}={a2}/{n} DEV",
                     file=sys.stderr,
                 )
 

@@ -11,12 +11,21 @@ from typing import Any, Mapping
 HERE = Path(__file__).resolve().parent
 PARSER_PROMPT_PATH = HERE / "prompt_guard_parser.md"
 PARSER_PROMPT_V2_PATH = HERE / "prompt_guard_parser_v2.md"
+PARSER_PROMPT_PO_PATH = HERE / "prompt_guard_parser_po.md"
 
 
 def _active_parser_prompt_path() -> Path:
-    from scripts.eval.part_g_arm.state.tools import parser_v2_enabled
+    from scripts.eval.part_g_arm.state.tools import (
+        parser_pending_options_enabled,
+        parser_v2_enabled,
+    )
 
-    return PARSER_PROMPT_V2_PATH if parser_v2_enabled() else PARSER_PROMPT_PATH
+    # FU75: pending-options prompt is committed v1 + one sentence (not v2).
+    if parser_pending_options_enabled():
+        return PARSER_PROMPT_PO_PATH
+    if parser_v2_enabled():
+        return PARSER_PROMPT_V2_PATH
+    return PARSER_PROMPT_PATH
 
 _ATTR_NAMES = (
     "role",
@@ -39,6 +48,10 @@ def compact_state_summary(
     pending_asked: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     from scripts.eval.part_g_arm.state.guard_allowed import pending_fingerprint_matches
+    from scripts.eval.part_g_arm.state.tools import (
+        parser_pending_options_enabled,
+        read_pending,
+    )
 
     slots_out: list[dict[str, Any]] = []
     for i, slot in enumerate(state.get("team_draft") or []):
@@ -62,7 +75,7 @@ def compact_state_summary(
         for c in constraints
         if (getattr(c, "still_active", True) if not isinstance(c, dict) else c.get("still_active", True))
     )
-    return {
+    out: dict[str, Any] = {
         "slots": slots_out,
         "pending_kind": pending_kind,
         "pending_fingerprint_matches": bool(
@@ -72,6 +85,13 @@ def compact_state_summary(
         "constraint_count_active": active_n,
         "constraint_count_total": len(constraints),
     }
+    # FU75: same store + labels as select_option / read_pending (pending_presentation).
+    if parser_pending_options_enabled():
+        out["pending_options"] = [
+            {"index": row["number"], "label": row["label"]}
+            for row in read_pending(dict(state)).get("options") or []
+        ]
+    return out
 
 
 _PARSER_SCHEMA: dict[str, Any] = {

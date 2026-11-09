@@ -26,9 +26,11 @@ from scripts.eval.part_g_arm.state.revised_keys import (
 )
 from scripts.eval.part_g_arm.state.request_set_rows import turns_for_row
 from scripts.eval.part_g_arm.state.tools import (
+    parser_pending_options_enabled,
     parser_v2_enabled,
     prompt_cut_enabled,
     set_ix_tools_v1,
+    set_parser_pending_options,
     set_parser_v2,
     set_prompt_cut,
     ix_tools_v1_enabled,
@@ -43,11 +45,13 @@ def _reset_flags():
     set_ix_tools_v1(False)
     set_prompt_cut(False)
     set_parser_v2(False)
+    set_parser_pending_options(False)
     yield
     set_key_set("committed")
     set_ix_tools_v1(False)
     set_prompt_cut(False)
     set_parser_v2(False)
+    set_parser_pending_options(False)
 
 
 def test_merged_keys_replace_ix_not_merge_points():
@@ -147,6 +151,7 @@ def test_refusal_message_prompt_cut():
 def test_prompt_cut_and_parser_v2_flags_default_off():
     assert prompt_cut_enabled() is False
     assert parser_v2_enabled() is False
+    assert parser_pending_options_enabled() is False
     assert ix_tools_v1_enabled() is False
 
 
@@ -176,16 +181,18 @@ def test_default_run_flags_include_fu74_offs():
     assert DEFAULT_RUN_FLAGS["ix_tools_v1"] is False
     assert DEFAULT_RUN_FLAGS["prompt_cut"] is False
     assert DEFAULT_RUN_FLAGS["parser_v2"] is False
+    assert DEFAULT_RUN_FLAGS["parser_pending_options"] is False
 
 
 def test_revised_arm_profile_leaves_parser_v2_off():
-    """Resolved run_flags under --revised-arm: committed parser; parser_v2 stays false."""
+    """Resolved run_flags under --revised-arm: parser_v2 off; pending_options on (FU75)."""
     from scripts.eval.part_g_arm.state.request_set_runner import (
         DEFAULT_RUN_FLAGS,
         REVISED_ARM_PROFILE_FLAGS,
     )
 
     assert "parser_v2" not in REVISED_ARM_PROFILE_FLAGS
+    assert REVISED_ARM_PROFILE_FLAGS["parser_pending_options"] is True
     resolved = {**DEFAULT_RUN_FLAGS, **REVISED_ARM_PROFILE_FLAGS}
     assert resolved["guard"] is True
     assert resolved["sticky_locks"] is True
@@ -193,6 +200,7 @@ def test_revised_arm_profile_leaves_parser_v2_off():
     assert resolved["tool_fixes_v2"] is True
     assert resolved["ix_tools_v1"] is True
     assert resolved["prompt_cut"] is True
+    assert resolved["parser_pending_options"] is True
     assert resolved["parser_v2"] is False
 
 
