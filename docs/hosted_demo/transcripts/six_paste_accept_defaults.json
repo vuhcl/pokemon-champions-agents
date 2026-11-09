@@ -1,0 +1,22 @@
+{
+  "name": "six_paste_then_accept_defaults",
+  "measured": "2026-11-04",
+  "how": "compile_graph, MemorySaver, fake bootstrap parser in six_schema mode for the first user message, then yes/yes. No propose patch. Discovery left on.",
+  "state_turn_at_six_locked": 13,
+  "user_messages": 13,
+  "rows": [
+    {"user": "SIX", "pending_before": "bootstrap_intake", "turn": 1, "pending": "candidate_selection", "locked": 0, "options": ["Pelipper", "Rillaboom", "Incineroar"]},
+    {"user": "yes", "pending_before": "candidate_selection", "turn": 2, "pending": "full_build_confirmation", "locked": 0, "provisional": "Pelipper"},
+    {"user": "yes", "pending_before": "full_build_confirmation", "turn": 3, "pending": "candidate_selection", "locked": 1, "species": ["Pelipper"]},
+    {"user": "yes", "pending_before": "candidate_selection", "turn": 4, "pending": "full_build_confirmation", "locked": 1, "provisional": "Goodra"},
+    {"user": "yes", "pending_before": "full_build_confirmation", "turn": 5, "pending": "candidate_selection", "locked": 2, "species": ["Pelipper", "Goodra"]},
+    {"user": "yes", "pending_before": "candidate_selection", "turn": 6, "pending": "full_build_confirmation", "locked": 2, "provisional": "Excadrill-Mega"},
+    {"user": "yes", "pending_before": "full_build_confirmation", "turn": 7, "pending": "candidate_selection", "locked": 3, "species": ["Pelipper", "Goodra", "Excadrill-Mega"]},
+    {"user": "yes", "pending_before": "candidate_selection", "turn": 8, "pending": "full_build_confirmation", "locked": 3, "provisional": "Basculegion"},
+    {"user": "yes", "pending_before": "full_build_confirmation", "turn": 9, "pending": "candidate_selection", "locked": 4, "species": ["Pelipper", "Goodra", "Excadrill-Mega", "Basculegion"]},
+    {"user": "yes", "pending_before": "candidate_selection", "turn": 10, "pending": "full_build_confirmation", "locked": 4, "provisional": "Sylveon"},
+    {"user": "yes", "pending_before": "full_build_confirmation", "turn": 11, "pending": "candidate_selection", "locked": 5, "species": ["Pelipper", "Goodra", "Excadrill-Mega", "Basculegion", "Sylveon"]},
+    {"user": "yes", "pending_before": "candidate_selection", "turn": 12, "pending": "full_build_confirmation", "locked": 5, "provisional": "Floette-Eternal"},
+    {"user": "yes", "pending_before": "full_build_confirmation", "turn": 13, "pending": null, "locked": 6, "species": ["Pelipper", "Goodra", "Excadrill-Mega", "Basculegion", "Sylveon", "Floette-Eternal"]}
+  ]
+}

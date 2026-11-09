@@ -1,0 +1,42 @@
+{
+  "name": "status",
+  "measured": false,
+  "source": "Contract example. GET /session/{token}/status is the in-process record. stage is an authored label while working or queued, and null when idle. queued uses QUEUED_STAGE from recommender/stage_labels.py. The label is never a graph node name. Unknown token is 404. The graph was not invoked.",
+  "exchanges": [
+    {
+      "request": {"method": "GET", "path": "/session/{token}/status"},
+      "response": {
+        "status": 200,
+        "body": {"state": "working", "turn": 1, "stage": "Working…"}
+      }
+    },
+    {
+      "request": {"method": "GET", "path": "/session/{token}/status"},
+      "response": {
+        "status": 200,
+        "body": {"state": "idle", "turn": 1, "stage": null}
+      }
+    },
+    {
+      "request": {"method": "GET", "path": "/session/{token}/status"},
+      "response": {
+        "status": 200,
+        "body": {"state": "queued", "turn": 1, "stage": "Waiting for other players"}
+      }
+    },
+    {
+      "request": {"method": "GET", "path": "/session/{token}/status"},
+      "response": {
+        "status": 404,
+        "body": {
+          "error": {
+            "code": "session_not_found",
+            "message": "No session for that token.",
+            "retryable": false,
+            "counts_as_turn": false
+          }
+        }
+      }
+    }
+  ]
+}

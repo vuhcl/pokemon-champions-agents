@@ -1,0 +1,25 @@
+{
+  "name": "stale_turn",
+  "measured": false,
+  "source": "Contract example. The API does not exist yet. The graph was not invoked. 409 does not count a turn.",
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/message",
+        "body": {"text": "yes", "expected_turn": 0}
+      },
+      "response": {
+        "status": 409,
+        "body": {
+          "error": {
+            "code": "stale_turn",
+            "message": "This turn is already over. Reload the latest state and send again.",
+            "retryable": true,
+            "counts_as_turn": false
+          }
+        }
+      }
+    }
+  ]
+}
