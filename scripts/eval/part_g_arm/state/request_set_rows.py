@@ -58,7 +58,12 @@ def turns_for_row(row: dict[str, Any], state: dict[str, Any] | None) -> list[str
             "No, Toxapex is not Water/Poison",
         ]
     turns = parse_user_turns(row.get("prompt") or "")
-    return turns
+    from scripts.eval.part_g_arm.state.revised_keys import apply_turn_text_override, key_set
+
+    ks = key_set()
+    return [
+        apply_turn_text_override(str(rid), i, t, key_set=ks) for i, t in enumerate(turns)
+    ]
 
 
 # Explicit start seeds (Vu 2026-10-30). Checked before substring heuristics so
@@ -203,6 +208,15 @@ def resolve_start_state(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dic
         "error": None,
         "readback": None,
     }
+    from scripts.eval.part_g_arm.state.revised_keys import (
+        FU74_SEED_ROWS,
+        key_set,
+        load_fu74_seed_state,
+    )
+
+    if key_set() == "fu74" and rid in FU74_SEED_ROWS:
+        return load_fu74_seed_state(rid)
+
     explicit = _resolve_explicit_start(rid, meta)
     if explicit is not None:
         return explicit

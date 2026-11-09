@@ -1,0 +1,181 @@
+{
+  "schema": "part_g_arm_legality_report_fu74_v1",
+  "moves": {
+    "Baneful Bunker": {
+      "ok": true,
+      "in_static": true
+    },
+    "Detect": {
+      "ok": true,
+      "in_static": true
+    },
+    "Dragon Darts": {
+      "ok": true,
+      "in_static": true
+    },
+    "Earthquake": {
+      "ok": true,
+      "in_static": true
+    },
+    "Endure": {
+      "ok": true,
+      "in_static": true
+    },
+    "Fake Out": {
+      "ok": true,
+      "in_static": true
+    },
+    "Follow Me": {
+      "ok": true,
+      "in_static": true
+    },
+    "King's Shield": {
+      "ok": true,
+      "in_static": true
+    },
+    "Protect": {
+      "ok": true,
+      "in_static": true
+    },
+    "Quick Guard": {
+      "ok": true,
+      "in_static": true
+    },
+    "Rage Powder": {
+      "ok": true,
+      "in_static": true
+    },
+    "Snipe Shot": {
+      "ok": true,
+      "in_static": true
+    },
+    "Spiky Shield": {
+      "ok": true,
+      "in_static": true
+    }
+  },
+  "abilities": {
+    "Armor Tail": {
+      "ok": true
+    },
+    "Clear Body": {
+      "ok": true
+    },
+    "Competitive": {
+      "ok": true
+    },
+    "Contrary": {
+      "ok": true
+    },
+    "Dazzling": {
+      "ok": true
+    },
+    "Defiant": {
+      "ok": true
+    },
+    "Earth Eater": {
+      "ok": true
+    },
+    "Eelevate": {
+      "ok": true
+    },
+    "Friend Guard": {
+      "ok": true
+    },
+    "Full Metal Body": {
+      "ok": true
+    },
+    "Guard Dog": {
+      "ok": true
+    },
+    "Hyper Cutter": {
+      "ok": true
+    },
+    "Inner Focus": {
+      "ok": true
+    },
+    "Intimidate": {
+      "ok": true
+    },
+    "Levitate": {
+      "ok": true
+    },
+    "Mirror Armor": {
+      "ok": true
+    },
+    "Mycelium Might": {
+      "ok": true
+    },
+    "Oblivious": {
+      "ok": true
+    },
+    "Own Tempo": {
+      "ok": true
+    },
+    "Queenly Majesty": {
+      "ok": true
+    },
+    "Rattled": {
+      "ok": true
+    },
+    "Scrappy": {
+      "ok": true
+    },
+    "Stall": {
+      "ok": true
+    },
+    "Telepathy": {
+      "ok": true
+    },
+    "White Smoke": {
+      "ok": true
+    }
+  },
+  "items": {
+    "Air Balloon": {
+      "ok": true
+    },
+    "Iron Ball": {
+      "ok": true
+    },
+    "Shuca Berry": {
+      "ok": true
+    },
+    "Soft Sand": {
+      "ok": true
+    }
+  },
+  "types": {
+    "Bug": {
+      "ok": true
+    },
+    "Flying": {
+      "ok": true
+    },
+    "Ghost": {
+      "ok": true
+    },
+    "Grass": {
+      "ok": true
+    },
+    "Ground": {
+      "ok": true
+    },
+    "Normal": {
+      "ok": true
+    }
+  },
+  "species": {},
+  "facts_keyword_items_champions_legal": {
+    "Air Balloon": true,
+    "Earth Plate": false,
+    "Ground Gem": false,
+    "Ground Memory": false,
+    "Groundium Z": false,
+    "Iron Ball": true,
+    "Shuca Berry": true,
+    "Soft Sand": true
+  },
+  "failures": [],
+  "note": "IX keys name no fixed species holders; species map empty. Failures cover draft/key-named entities only. facts_keyword_items_champions_legal is informational for Ground-keyword hits."
+}

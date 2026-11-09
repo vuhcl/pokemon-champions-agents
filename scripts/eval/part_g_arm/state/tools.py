@@ -71,6 +71,12 @@ _UNLOCK_KEEPS_VALUES: bool = False
 _TOOL_FIXES_V2: bool = False
 # FU73 / #367+#368: find_by_effect + get_type_effectiveness. Default off.
 _IX_TOOLS_V1: bool = False
+# FU74: prompt_guard_cut.md + refusal wording without tool/class names. Default off.
+_PROMPT_CUT: bool = False
+# FU74: prompt_guard_parser_v2.md. Default off.
+_PARSER_V2: bool = False
+# FU75: expose pending_options in parser state summary + prompt_guard_parser_po.md. Default off.
+_PARSER_PENDING_OPTIONS: bool = False
 
 
 def set_tool_fields(enabled: bool) -> None:
@@ -156,6 +162,33 @@ def set_ix_tools_v1(enabled: bool) -> None:
 
 def ix_tools_v1_enabled() -> bool:
     return _IX_TOOLS_V1
+
+
+def set_prompt_cut(enabled: bool) -> None:
+    global _PROMPT_CUT
+    _PROMPT_CUT = bool(enabled)
+
+
+def prompt_cut_enabled() -> bool:
+    return _PROMPT_CUT
+
+
+def set_parser_v2(enabled: bool) -> None:
+    global _PARSER_V2
+    _PARSER_V2 = bool(enabled)
+
+
+def parser_v2_enabled() -> bool:
+    return _PARSER_V2
+
+
+def set_parser_pending_options(enabled: bool) -> None:
+    global _PARSER_PENDING_OPTIONS
+    _PARSER_PENDING_OPTIONS = bool(enabled)
+
+
+def parser_pending_options_enabled() -> bool:
+    return _PARSER_PENDING_OPTIONS
 
 
 _WRITE_SLOT_ATTRS = (

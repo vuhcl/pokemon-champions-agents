@@ -1,0 +1,99 @@
+{
+  "schema": "part_g_arm_ix_facts_fu74_v1",
+  "note": "Reference facts regenerated from pinned data via ix_tools_v1. Keys state predicates; this file is not a scored membership list.",
+  "redirection_flag_members": [
+    "Follow Me",
+    "Rage Powder"
+  ],
+  "protection_flag_members": [
+    "Baneful Bunker",
+    "Detect",
+    "Endure",
+    "King's Shield",
+    "Protect",
+    "Spiky Shield"
+  ],
+  "priorities": {
+    "Fake Out": 3,
+    "Follow Me": 2,
+    "Rage Powder": 2
+  },
+  "get_type_effectiveness_Ground": {
+    "no_damage": [
+      "Flying"
+    ],
+    "resisted": [
+      "Bug",
+      "Grass"
+    ]
+  },
+  "get_type_effectiveness_Normal": {
+    "no_damage": [
+      "Ghost"
+    ]
+  },
+  "intimidate_keyword_hits": {
+    "names": [
+      "Guard Dog",
+      "Inner Focus",
+      "Oblivious",
+      "Own Tempo",
+      "Rattled",
+      "Scrappy"
+    ],
+    "note": "Only abilities whose description contains \"Intimidate\". Misses abilities that react to the Attack drop (Defiant, Competitive, Mirror Armor, Clear Body, White Smoke, Full Metal Body, Hyper Cutter, Contrary, and so on). Not a membership set \u2014 IX5 p3 is judged from the ability's description via get_abilities or find_by_effect."
+  },
+  "priority_moves_keyword_hits": [
+    "Armor Tail",
+    "Dazzling",
+    "Mycelium Might",
+    "Queenly Majesty",
+    "Stall"
+  ],
+  "ground_keyword_ability_hits": {
+    "names": [
+      "Earth Eater",
+      "Eelevate",
+      "Levitate",
+      "Sand Force"
+    ],
+    "note": "Keyword hits include Sand Force, which is not a Ground immunity. Not a membership set \u2014 IX7 safety is judged by the zero-damage predicate."
+  },
+  "allies_keyword_ability_hits": [
+    "Armor Tail",
+    "Aroma Veil",
+    "Battery",
+    "Curious Medicine",
+    "Dazzling",
+    "Flower Gift",
+    "Friend Guard",
+    "Magician",
+    "Pastel Veil",
+    "Power Spot",
+    "Queenly Majesty",
+    "Steely Spirit",
+    "Sweet Veil",
+    "Telepathy",
+    "Victory Star"
+  ],
+  "ground_keyword_item_hits": [
+    "Air Balloon",
+    "Earth Plate",
+    "Ground Gem",
+    "Ground Memory",
+    "Groundium Z",
+    "Iron Ball",
+    "Shuca Berry",
+    "Soft Sand"
+  ],
+  "ground_immunity_ability_descriptions": {
+    "Earth Eater": "This Pokemon is immune to Ground-type moves and restores 1/4 of its maximum HP, rounded down, when hit by a Ground-type move.",
+    "Eelevate": "This Pokemon is immune to Ground-type attacks and the effects of Spikes, Toxic Spikes, Sticky Web, and the Arena Trap Ability. The effects of Gravity, Ingrain, Smack Down, Thousand Arrows, and Iron Ball nullify the immunity. Thousand Arrows can hit this Pokemon as if it did not have this Ability. This Pokemon's highest stat is raised by 1 stage if it attacks and knocks out another Pokemon. Stat stage changes are not considered. If multiple stats are tied, Attack, Defense, Special Attack, Special Defense, and Speed are prioritized in that order.",
+    "Levitate": "This Pokemon is immune to Ground-type attacks and the effects of Spikes, Toxic Spikes, Sticky Web, and the Arena Trap Ability. The effects of Gravity, Ingrain, Smack Down, Thousand Arrows, and Iron Ball nullify the immunity. Thousand Arrows can hit this Pokemon as if it did not have this Ability.",
+    "Telepathy": "This Pokemon does not take damage from attacks made by its allies."
+  },
+  "ground_immunity_item_descriptions": {
+    "Air Balloon": "Holder is immune to Ground-type attacks. Pops when holder is hit."
+  },
+  "priority_blocking_abilities_note": "Keyword hits include Mycelium Might and Stall; only Armor Tail, Dazzling, and Queenly Majesty stop an opposing priority move (key predicate; not a membership list)."
+}

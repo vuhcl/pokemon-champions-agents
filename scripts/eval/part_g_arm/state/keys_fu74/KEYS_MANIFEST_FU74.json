@@ -1,0 +1,26 @@
+{
+  "schema": "part_g_arm_keys_fu74_manifest_v1",
+  "key_hash": "38785fcb77d171088f8a3a17d8ca9d6b1ec4ace90cf0cea584a6b0b565205f47",
+  "keys_fu72_key_hash": "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02",
+  "keys_fu72_manifest_sha256": "252049193d72e2c471716cfc3cae956ff9316e1fd1ae60790af1b8087a4e57dc",
+  "revised_key_hash": "d11cea9849ce10bbfc095678d58b3b947f965471812c1a1c2e36d88d48fa325c",
+  "files": {
+    "scripts/eval/part_g_arm/state/keys_fu74/expected_tools_rev5_2026-11-07.csv": "1e6102a0e68bed26d71f48fbdb7293655acfe2c85b34d4319cfa99c9e28da701",
+    "scripts/eval/part_g_arm/state/keys_fu74/hand_keys_fu74.json": "46e4f0ddf94836b6735e218df6d408653ee0a025fe9a3a92e7c60de64c77299b",
+    "scripts/eval/part_g_arm/state/keys_fu74/ix_facts_fu74.json": "7643817d187e0864c1eab9c1cd3adcdf961abd2c054aace2869c274b740612e3",
+    "scripts/eval/part_g_arm/state/keys_fu74/legality_report_fu74.json": "ca0566512d003600f0031296982d6a2f1ad6b3e3847c901fc84e1a6b2094d7b9",
+    "scripts/eval/part_g_arm/state/keys_fu74/legality_report_fu74.md": "b6c4d49a97e6935d40393e5f69f7bb570f812a76612708994e0320f6b89cf003",
+    "scripts/eval/part_g_arm/state/keys_fu74/point_diff_fu74.md": "6190c7d40e676abdf7be5d9f3503edffac6eff1283bac24eace5b80a4a2d78e8"
+  },
+  "generator": "scripts/eval/part_g_arm/state/keys_fu74/build_fu74_artifacts.py",
+  "old_hashes_unchanged": {
+    "expected_tools_rev3_2026-11-02.csv": "fde4e93dc69075efff4c8e9195804919ed085429de1a665906b1979fb42bc7b6",
+    "part3_request_set_v4.md": "98c3bd0249c0ac5626be7688d9767d20e08b2c5b2341f3ed9f6ada0ee68c3cae",
+    "derived_keys.json": "bba5787ce95f9e0b615ce679d8622ca6b1d7709e2cc8e73dc493cda7b88354b2",
+    "FROZEN_MANIFEST_ARM_V2.json": "ddee025fc609433fa6267dfc58baf6d22e5a62640bd63eeaa738f41160108117",
+    "claim_battery_v4.json": "e7492a6811f057f1e84ccac821c1249eb29a3fad1f25eec6f9a0e613b776f4b0",
+    "keys_fu72_key_hash": "246e5a7daa194d42897e0ef2e89dcf470e9a9646ea232a077f42255949a0fa02"
+  },
+  "manifest_self_hashed": false,
+  "note": "IX1/IX5/IX7 cut only. keys_fu72 contents unchanged. revised_key_hash combines fu72 key_hash + fu74 key_hash. This manifest is not listed in files (not self-hashed)."
+}

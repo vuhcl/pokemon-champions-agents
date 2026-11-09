@@ -13,6 +13,46 @@ from scripts.eval.part_g_arm.state.guard_allowed import (
 
 MAX_TOOL_CALLS_PER_TURN = 16
 
+# a393ae91 / flag-off: names the tool and request class in the user-visible message.
+REFUSAL_MESSAGE_LEGACY = (
+    "Refused {name}: not allowed for request class {cls}. "
+    "Do not retry this call; answer from tools already returned or ask."
+)
+# FU74 --prompt-cut: no tool or class names in the user-visible string. Structured
+# fields (tool, class, reason) still teach the arm what was refused.
+REFUSAL_MESSAGE_PROMPT_CUT = (
+    "That action was refused for this request. Do not retry it. "
+    "Answer from what the tools already returned, or ask the user for the "
+    "missing detail (which slot, which species, or confirmation to clear)."
+)
+
+
+def _refusal_message(*, name: str, cls: str) -> str:
+    from scripts.eval.part_g_arm.state.tools import prompt_cut_enabled
+
+    if prompt_cut_enabled():
+        return REFUSAL_MESSAGE_PROMPT_CUT
+    return REFUSAL_MESSAGE_LEGACY.format(name=name, cls=cls)
+
+
+def model_facing_tool_result(result: Mapping[str, Any]) -> dict[str, Any]:
+    """Payload serialized into ToolMessage for the model.
+
+    Under --prompt-cut, strip tool name and class (and reasons that quote them)
+    from guard refusals so (b) is complete in the model-facing channel. The run
+    log / transcript entry keeps the full result separately.
+    """
+    from scripts.eval.part_g_arm.state.tools import prompt_cut_enabled
+
+    out = dict(result)
+    if not prompt_cut_enabled() or not out.get("guard_blocked"):
+        return out
+    out.pop("tool", None)
+    out.pop("class", None)
+    # reason historically embeds the class label; drop it from the model view.
+    out.pop("reason", None)
+    return out
+
 
 def _replace_flag(name: str, args: Mapping[str, Any]) -> bool:
     if name == "set_slot":
@@ -112,10 +152,7 @@ def check_call(
             "args": dict(args),
             "reason": f"tool not in allowed set for class {cls}",
             "class": cls,
-            "message": (
-                f"Refused {name}: not allowed for request class {cls}. "
-                "Do not retry this call; answer from tools already returned or ask."
-            ),
+            "message": _refusal_message(name=name, cls=cls),
         }
     if name == "select_option" and not pending_fingerprint_matches(state):
         return {
