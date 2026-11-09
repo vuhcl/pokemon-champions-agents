@@ -14,7 +14,7 @@ See chat Discovery. Summary: keys_fu72/fu74 were unwired; `set_ix_tools_v1` had 
 | 3 `--keys fu74` | scorer CSV rev5, hand-audit points replace errata, overrides + seeds, pin_hashes |
 | 4 `--ix-tools-v1`, `--revised-arm` | wired; profile forces guard rung 6 |
 | 5 `--prompt-cut` | `prompt_guard_cut.md` + refusal rewrite; FU69 literal drops = no-ops |
-| 6 `--parser-v2` | rewritten abstract prompt; 4-gram overlap test; parser-eval CLI for Vu |
+| 6 `--parser-v2` | tried (round 2: no net gain on 116); stays opt-in; profile does not enable it |
 | 7 tests + this report | isolation + wiring + parser/prompt-cut tests |
 
 ## Flag table
@@ -26,9 +26,9 @@ See chat Discovery. Summary: keys_fu72/fu74 were unwired; `set_ix_tools_v1` had 
 | `tool_fixes_v2` | off | unchanged |
 | `ix_tools_v1` | off | new CLI → `set_ix_tools_v1` |
 | `prompt_cut` | off | needs `--guard`; selects `prompt_guard_cut.md` |
-| `parser_v2` | off | needs `--guard`; selects `prompt_guard_parser_v2.md` |
+| `parser_v2` | off | opt-in only; needs `--guard`; selects `prompt_guard_parser_v2.md`. Tried; **not adopted** (no net gain on 116). |
 | `--keys` | `committed` | `fu74` = overrides + seeds + rev5 + hand keys |
-| `--revised-arm` | off | guard + sticky + unlock_keeps + tool_fixes_v2 + ix_tools_v1 + keys fu74 + prompt_cut + parser_v2 |
+| `--revised-arm` | off | guard + sticky + unlock_keeps + tool_fixes_v2 + ix_tools_v1 + keys fu74 + prompt_cut. Does **not** set `parser_v2` (resolved record: `parser_v2: false`). |
 
 ## Prompt cut (DEV-tuned)
 
@@ -66,25 +66,87 @@ Harness sends `ToolMessage(dumps(model_facing_tool_result(recorded)))`. Transcri
 
 Note: the AIMessage still names the tool in the tool_call (`name: set_slot`); only the **result** payload is sanitized. Args may still contain species/slot values.
 
-## Parser v2 (DEV) — round 2
+## Parser v2 (DEV) — close-out
 
-Prior DEV result (empty-team eval): v2 tied v1 at 84/118; fixed 6 / broke 6. **Do not freeze.**
+**Decision:** revised arm keeps the committed parser (`parser_v2: false` under `--revised-arm`). v2 stays as an optional `--parser-v2` flag (needs `--guard`). Prompt not edited further. Numbers from `parser_eval_fu74.json` (`--keys fu74`, model `qwen3.5:latest`). All **DEV**.
 
-Round-2 prompt changes (class definitions + committed v1 line only; no graded-turn wording):
-1. Restored v1 build anchor verbatim: `"Give me a X build" / "Put Y in slot N" / "Add a constraint…" → WRITE (set_slot or constraint), not LOOKUP.`
-2. Narrowed antecedent rule: ASK only when a referent points at a prior mention **and** that mention is absent from the state summary — not short field/move writes.
-3. Invented examples kept (in-sample; labeled in eval splits).
+### Headline (all CSV turns, MT2 t3 / MT6 t3 excluded)
 
-### Parser-eval state fidelity
+| Parser | Agree | n | Rate |
+|---|---|---|---|
+| v1 (committed) | 83 | 116 | 71.6% |
+| v2 | 82 | 116 | 70.7% |
 
-Eval now passes the same start builders as the runner (`resolve_start_state` + `prepare_start_state_for_guard`) and prints per-turn: pending_kind, asked_action, slots, constraints. OL2b/OL5/OL7a/OL8 load pending `candidate_selection` fixtures (measurable). **MT2 t3** and **MT6 t3** are mid-trajectory with empty start loaders → marked `state_dependent_not_measured`, excluded from headline, listed separately.
+**No net gain on the 116.** Gains 6 / regressions 7.
 
-```bash
-uv run python -m scripts.eval.part_g_arm.state.parser_eval --parser-eval \
-  --model qwen3.5:latest --keys fu74 --out /tmp/parser_eval_fu74.json
+**State-dependent, not measured (excluded):**
+- MT2 t3 — key `READ_STATE` — text `Confirm slot 1.`
+- MT6 t3 — key `READ_STATE` — text `Confirm constraints.`
+
+**Gains v1→v2 (all_csv):** H18b t1 (ASK→WRITE), HU3 t1 (WRITE→LOOKUP), MT3 t2 (WRITE→LOOKUP), MT6 t1 (ASK→WRITE), MT6 t2 (ASK→WRITE), SC2 t1 (WRITE→LOOKUP).
+
+**Regressions v1→v2 (all_csv):** GS1 t1 (WRITE→LOOKUP), HD1 t2 (LOOKUP→READ_ONLY_REFUSE), IC1 t1 (WRITE→LOOKUP), MM2 t1 (WRITE→ASK), MR5 t1 (WRITE→ASK), RB1 t1 (WRITE→ASK), TB1 t1 (WRITE→LOOKUP).
+
+### DEV labels (A6 + fu74)
+
+| Split | n | v1 | v2 |
+|---|---|---|---|
+| with 5 in-prompt example rows | 32 | 27/32 (84.4%) | 30/32 (93.8%) |
+| without those 5 | 27 | 23/27 (85.2%) | 25/27 (92.6%) |
+
+Dev gains (no regressions): `a6-refuse-ou-stall`, `fu74-dev-options-electric` (in-prompt), `fu74-dev-refuse-export`. Dev-row gains are partly in-sample.
+
+### Disagree-32
+
+| Text | v1 | v2 | gains | regressions |
+|---|---|---|---|---|
+| original | 16/32 (50.0%) | 19/32 (59.4%) | H18b t1, MT5 t2, MT6 t1, MT6 t2 | TB1 t1 |
+| fu74 played | 19/32 (59.4%) | 20/32 (62.5%) | H18b t1, MT5 t2 | TB1 t1 |
+
+v2 is **dev-tuned and not validated held-out**. Tried; not adopted.
+
+## OL input check (report only; no prompt edit)
+
+Under `--keys fu74`, eval uses the same start builders as the runner. For OL2b / OL5 / OL7a / OL8, fixtures set `pending_presentation.kind = candidate_selection` with options in state, but `compact_state_summary` only exposes `pending_kind` — **not** the option list — and `asked_action` is null (`_guard_pending_asked` unset on these starts).
+
+Parser results (both v1 and v2): OL2b / OL7a / OL8 → ASK; OL5 → PENDING_ANSWER. Key for all four: PENDING_ANSWER.
+
+### Exact human message sent to the parser
+
+Built in `guard_parser.parse_user_turn` as `User message:\n{text}\n\nState summary (JSON):\n{json.dumps(summary, sort_keys=True)}\n`.
+
+**OL2b** (`user_turn_text` = `` `2` ``):
+
+```
+User message:
+`2`
+
+State summary (JSON):
+{"asked_action": null, "constraint_count_active": 0, "constraint_count_total": 0, "pending_fingerprint_matches": true, "pending_kind": "candidate_selection", "slots": [{"attrs": {"ability": "empty", "item": "empty", "moveset": "empty", "nature": "empty", "role": "empty", "species": "empty", "spread": "empty"}, "slot": 1}, {"attrs": {"ability": "empty", "item": "empty", "moveset": "empty", "nature": "empty", "role": "empty", "species": "empty", "spread": "empty"}, "slot": 2}, {"attrs": {"ability": "empty", "item": "empty", "moveset": "empty", "nature": "empty", "role": "empty", "species": "empty", "spread": "empty"}, "slot": 3}, {"attrs": {"ability": "empty", "item": "empty", "moveset": "empty", "nature": "empty", "role": "empty", "species": "empty", "spread": "empty"}, "slot": 4}, {"attrs": {"ability": "empty", "item": "empty", "moveset": "empty", "nature": "empty", "role": "empty", "species": "empty", "spread": "empty"}, "slot": 5}, {"attrs": {"ability": "empty", "item": "empty", "moveset": "empty", "nature": "empty", "role": "empty", "species": "empty", "spread": "empty"}, "slot": 6}]}
 ```
 
-Prints v1+v2 agreement, gains/regressions v1→v2, state-dependent table, and DEV agreement **with and without** the five in-prompt example rows. All numbers **DEV**. Do not freeze v2 from this run alone.
+**OL5** (`` `yes` ``): same state JSON as OL2b (byte-identical summary); only the user line differs.
+
+**OL7a** (`` `the faster one` ``): same state JSON; only the user line differs.
+
+**OL8** (`` `neither` ``): same state JSON; only the user line differs.
+
+### Does the summary contain the pending option list?
+
+**No.** Fixtures hold options in `pending_presentation.options` (OL2b/OL7a/OL8: Garchomp, Incineroar, Jolteon; OL5: Garchomp only), but `compact_state_summary` drops them. Parser sees `pending_kind: candidate_selection` and `asked_action: null` only.
+
+### What differs for OL5?
+
+From the parser’s input: **only the user text** (`` `yes` `` vs `` `2` `` / `` `the faster one` `` / `` `neither` ``). State summaries are identical. The fixture differs (1 option vs 3), but that difference never reaches the parser. `` `yes` `` is an accept-style bare answer; the others need option contents (index / relative label / reject-all) that the summary omits.
+
+### Runner vs eval
+
+Same path. Arm runner (`harness.py` ~465–468) passes `state.get("_guard_pending_asked")` into `parse_user_turn` → `compact_state_summary`. On these OL starts that field is unset (`None`), same as parser-eval’s `_resolve_parser_state`. Runner does **not** pass more than the eval; neither injects options into the summary.
+
+### Proposed smallest follow-up (not implemented)
+
+Option list is missing from what the parser sees. Smallest fix: new **default-off** flag (own pin) that adds a compact `pending_options` list (e.g. species labels only) into `compact_state_summary` when `pending_presentation` has options — or stamp a `pending_asked` of `{action: select_option, …}` on CS fixtures in the caller. Not a one-line plumbing fix; left as a proposal only.
+
 ## Key hashes
 
 | Pin | Hash |
@@ -98,8 +160,8 @@ Prints v1+v2 agreement, gains/regressions v1→v2, state-dependent table, and DE
 
 ## Could not do
 
-- Live parser agreement numbers (Vu runs `parser_eval` locally).
 - Arm run / grade; #389 / #391 / judge / uncertain / #310.
+- Pending-options summary flag (proposed above; not implemented in this close-out).
 
 ## Tests
 
@@ -110,4 +172,4 @@ uv run pytest scripts/eval/part_g_arm/state/test_ix_facts_fu74_drift.py \
   tests/recommender/test_cli_layer_arm_isolation.py -q
 ```
 
-**25 passed.** Isolation golden unchanged (flag-off = a393ae91).
+**23 passed** (FU74 wiring + prompt-cut suite after close-out). Isolation golden unchanged (flag-off = a393ae91).

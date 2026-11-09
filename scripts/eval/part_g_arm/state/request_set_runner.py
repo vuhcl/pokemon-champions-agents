@@ -74,6 +74,16 @@ DEFAULT_RUN_FLAGS: dict[str, bool] = {
     "parser_v2": False,
 }
 
+# --revised-arm profile (FU74 close-out). parser_v2 tried; not adopted — stays opt-in.
+REVISED_ARM_PROFILE_FLAGS: dict[str, bool] = {
+    "guard": True,
+    "sticky_locks": True,
+    "unlock_keeps_values": True,
+    "tool_fixes_v2": True,
+    "ix_tools_v1": True,
+    "prompt_cut": True,
+}
+
 # Fixed BEFORE any covered run (Part 4). No silent retry.
 FAILURE_POLICY: dict[str, Any] = {
     "per_turn_timeout_s": 300.0,
@@ -830,7 +840,8 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help=(
             "FU74 profile: guard rung 6 + sticky_locks + unlock_keeps_values + "
-            "tool_fixes_v2 + ix_tools_v1 + --keys fu74 + --prompt-cut + --parser-v2"
+            "tool_fixes_v2 + ix_tools_v1 + --keys fu74 + --prompt-cut "
+            "(does not enable --parser-v2; that stays opt-in)"
         ),
     )
     args = parser.parse_args(argv)
@@ -849,17 +860,8 @@ def main(argv: list[str] | None = None) -> int:
     }
     key_set = str(args.keys)
     if args.revised_arm:
-        run_flags.update(
-            {
-                "guard": True,
-                "sticky_locks": True,
-                "unlock_keeps_values": True,
-                "tool_fixes_v2": True,
-                "ix_tools_v1": True,
-                "prompt_cut": True,
-                "parser_v2": True,
-            }
-        )
+        run_flags.update(REVISED_ARM_PROFILE_FLAGS)
+        # parser_v2 is intentionally not in the profile (tried, no net gain).
         key_set = "fu74"
     # Ladder is cumulative: judge → guard → draft → wrapper → tool_fields.
     # sticky_locks / unlock_keeps_values / tool_fixes_v2 / ix_tools_v1 are independent.

@@ -178,9 +178,28 @@ def test_default_run_flags_include_fu74_offs():
     assert DEFAULT_RUN_FLAGS["parser_v2"] is False
 
 
+def test_revised_arm_profile_leaves_parser_v2_off():
+    """Resolved run_flags under --revised-arm: committed parser; parser_v2 stays false."""
+    from scripts.eval.part_g_arm.state.request_set_runner import (
+        DEFAULT_RUN_FLAGS,
+        REVISED_ARM_PROFILE_FLAGS,
+    )
+
+    assert "parser_v2" not in REVISED_ARM_PROFILE_FLAGS
+    resolved = {**DEFAULT_RUN_FLAGS, **REVISED_ARM_PROFILE_FLAGS}
+    assert resolved["guard"] is True
+    assert resolved["sticky_locks"] is True
+    assert resolved["unlock_keeps_values"] is True
+    assert resolved["tool_fixes_v2"] is True
+    assert resolved["ix_tools_v1"] is True
+    assert resolved["prompt_cut"] is True
+    assert resolved["parser_v2"] is False
+
+
 def test_process_metric_flags_include_ix_tools():
     from scripts.eval.part_g_arm.state.process_metric_scorer import flags_from_run_record
 
+    # Individual --parser-v2 still records when set; profile does not force it.
     flags = flags_from_run_record(
         {
             "run_flags": {
@@ -194,13 +213,13 @@ def test_process_metric_flags_include_ix_tools():
                 "tool_fixes_v2": True,
                 "ix_tools_v1": True,
                 "prompt_cut": True,
-                "parser_v2": True,
+                "parser_v2": False,
             }
         }
     )
     assert flags["ix_tools_v1"] is True
     assert flags["prompt_cut"] is True
-    assert flags["parser_v2"] is True
+    assert flags["parser_v2"] is False
 
 
 def test_prompt_guard_cut_differs_from_guard():
