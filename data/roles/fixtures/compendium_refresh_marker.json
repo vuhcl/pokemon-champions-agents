@@ -1,6 +1,6 @@
 {
-  "last_check_at": "2026-11-03T21:56:05.571961Z",
-  "usage_munchstats_generated_at": "2026-10-21T00:46:19.000Z",
+  "last_check_at": "2026-11-17T00:26:27.978828Z",
+  "usage_munchstats_generated_at": "2026-11-07T17:46:08.000Z",
   "usage_path": "data/usage/champions-reg-mc.ingame_doubles.v1.json",
   "last_outcome": "pr_opened",
   "note": "B6 persist (#243\u2013#249 Task B + pre-existing drift). Critic cleared with attribution change_reasons."
