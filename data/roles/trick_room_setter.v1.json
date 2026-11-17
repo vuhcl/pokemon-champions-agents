@@ -1,7 +1,7 @@
 {
   "category": "trick_room_setter",
   "condition": "",
-  "built_at": "2026-10-20T20:06:34.284451+00:00",
+  "built_at": "2026-11-17T00:26:34.110866+00:00",
   "sub_criteria": {
     "kind": "trick_room_setter",
     "condition": "",
@@ -24,11 +24,10 @@
       "Chandelure-Mega",
       "Cofagrigus",
       "Espeon",
-      "Gourgeist",
-      "Gourgeist-Large",
       "Gourgeist-Super",
       "Hatterene",
       "Mimikyu",
+      "Polteageist",
       "Runerigus",
       "Sinistcha",
       "Slowking",
@@ -61,19 +60,19 @@
     "membership requires Trick Room set% \u2265 22.5 (self-protection and Showdown-discount do not waive the floor)",
     "membership requires bulk (HP+Def+SpD) \u2265 210, waived for one-hit absorption (Disguise / Ice Face)",
     "tiers grade self-provided cover of the shared Fake Out / Taunt exposure: ability flinch denial > Ghost Fake Out immunity or Taunt immunity > none",
-    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
-    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
-    "Showdown attribution (Chandelure/Chandelure-Mega): mega usage_pct=0.312 base=0.419; stone-heuristic fallback unused",
-    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
-    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
-    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
-    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
-    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
     "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.987 base=0.247; stone-heuristic fallback unused",
+    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
+    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
     "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused"
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
+    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Chandelure/Chandelure-Mega): mega usage_pct=0.312 base=0.419; stone-heuristic fallback unused",
+    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
+    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -506,7 +505,7 @@
         "execution": "bulk HP/Def/SpD=65/60/95; self-provided Taunt immunity \u2014 Magic Bounce (This Pokemon is unaffected by certain non-damaging moves directed at it and will instead use such moves against the o...)",
         "secondary_role": "Helping Hand, Light Screen, Reflect",
         "usage_proven": "True",
-        "usage_source": "champions",
+        "usage_source": "showdown",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "reinforce_class": "self_protection",
@@ -708,78 +707,6 @@
       "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "unprotected"
-    },
-    {
-      "species": "Gourgeist",
-      "species_id": "gourgeist",
-      "tier": "Good",
-      "delivery_class": "move_trick_room",
-      "mechanism": "Trick Room",
-      "criteria_notes": {
-        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
-        "execution": "bulk HP/Def/SpD=65/122/75; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
-        "secondary_role": "none observed in usage common_moves",
-        "usage_proven": "True",
-        "usage_source": "champions",
-        "verified_secondary": "False",
-        "excellent_secondary": "False",
-        "reinforce_class": "self_protection",
-        "self_protection": "ghost_fakeout_immunity",
-        "bulk": "262",
-        "attribution": "none"
-      },
-      "claimed_traits": [
-        {
-          "name": "Trick Room",
-          "criterion": "delivery",
-          "purpose_claimed": "invert turn order for the side"
-        },
-        {
-          "name": "Ghost typing",
-          "criterion": "execution",
-          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
-        }
-      ],
-      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
-      "change_reason": null,
-      "reinforce_class": "self_protection",
-      "excellence_basis": "ghost_fakeout_immunity"
-    },
-    {
-      "species": "Gourgeist-Large",
-      "species_id": "gourgeistlarge",
-      "tier": "Good",
-      "delivery_class": "move_trick_room",
-      "mechanism": "Trick Room",
-      "criteria_notes": {
-        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
-        "execution": "bulk HP/Def/SpD=75/122/75; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
-        "secondary_role": "none observed in usage common_moves",
-        "usage_proven": "True",
-        "usage_source": "champions",
-        "verified_secondary": "False",
-        "excellent_secondary": "False",
-        "reinforce_class": "self_protection",
-        "self_protection": "ghost_fakeout_immunity",
-        "bulk": "272",
-        "attribution": "none"
-      },
-      "claimed_traits": [
-        {
-          "name": "Trick Room",
-          "criterion": "delivery",
-          "purpose_claimed": "invert turn order for the side"
-        },
-        {
-          "name": "Ghost typing",
-          "criterion": "execution",
-          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
-        }
-      ],
-      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
-      "change_reason": null,
-      "reinforce_class": "self_protection",
-      "excellence_basis": "ghost_fakeout_immunity"
     },
     {
       "species": "Gourgeist-Super",
@@ -1344,6 +1271,52 @@
       "excellence_basis": "flinch_denial"
     },
     {
+      "species": "Polteageist",
+      "species_id": "polteageist",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=60/65/114; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "Light Screen, Reflect",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "239",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
       "species": "Reuniclus",
       "species_id": "reuniclus",
       "tier": "Acceptable",
@@ -1847,9 +1820,21 @@
       "change_reason": null
     },
     {
+      "species": "Gourgeist",
+      "species_id": "gourgeist",
+      "reason": "Trick Room learnset but Trick Room set% below 22.5 (Champions and Showdown usage data show no Trick Room on this species)",
+      "change_reason": "usage below 22.5% set% floor"
+    },
+    {
+      "species": "Gourgeist-Large",
+      "species_id": "gourgeistlarge",
+      "reason": "Trick Room learnset but Trick Room set% below 22.5",
+      "change_reason": "usage below 22.5% set% floor"
+    },
+    {
       "species": "Gourgeist-Small",
       "species_id": "gourgeistsmall",
-      "reason": "Trick Room learnset but Trick Room set% below 22.5",
+      "reason": "Trick Room learnset but Trick Room set% below 22.5 (Champions and Showdown usage data show no Trick Room on this species)",
       "change_reason": null
     },
     {
@@ -1891,12 +1876,6 @@
     {
       "species": "Mr. Mime",
       "species_id": "mrmime",
-      "reason": "Trick Room learnset but Trick Room set% below 22.5",
-      "change_reason": null
-    },
-    {
-      "species": "Polteageist",
-      "species_id": "polteageist",
       "reason": "Trick Room learnset but Trick Room set% below 22.5",
       "change_reason": null
     },

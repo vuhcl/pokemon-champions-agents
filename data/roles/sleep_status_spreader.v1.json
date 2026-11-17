@@ -1,7 +1,7 @@
 {
   "category": "sleep_status_spreader",
   "condition": "",
-  "built_at": "2026-10-20T20:06:34.287829+00:00",
+  "built_at": "2026-11-17T00:26:34.113107+00:00",
   "sub_criteria": {
     "kind": "sleep_status_spreader",
     "condition": "",
@@ -28,6 +28,7 @@
       "Musharna",
       "Ninetales",
       "Persian",
+      "Persian-Alola",
       "Politoed",
       "Roserade",
       "Skeledirge",
@@ -55,23 +56,23 @@
     "delivery availability: spore learners_in_pool=0 (catalog accuracy=100)",
     "spore reliability class ABSENT from current legal pool (ADR-019 entire-class gap)",
     "delivery availability: yawn learners_in_pool=47 (catalog accuracy=100)",
-    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
-    "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=3.625 base=0.387; stone-heuristic fallback unused",
-    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
-    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
-    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
-    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.059 base=0.015; stone-heuristic fallback unused",
     "Showdown attribution (Camerupt/Camerupt-Mega): mega usage_pct=2.233 base=0.010; stone-heuristic fallback unused",
+    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
     "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
-    "Showdown attribution (Pyroar/Pyroar-Mega): mega usage_pct=0.692 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=2.737 base=0.107; stone-heuristic fallback unused",
     "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
+    "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=3.625 base=0.387; stone-heuristic fallback unused",
+    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
     "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
     "Showdown attribution (Clefable/Clefable-Mega): mega usage_pct=0.148 base=0.897; stone-heuristic fallback unused",
-    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
-    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused"
+    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=2.737 base=0.107; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
+    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
+    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.059 base=0.015; stone-heuristic fallback unused",
+    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
+    "Showdown attribution (Pyroar/Pyroar-Mega): mega usage_pct=0.692 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -301,7 +302,7 @@
         "execution": "bare hypnosis; Spe 29 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=296 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
         "secondary_role": "Trick Room, Reflect, Light Screen, Thunder Wave",
         "usage_proven": "True",
-        "usage_source": "showdown",
+        "usage_source": "champions+showdown",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "pathway": "P3",
@@ -443,6 +444,50 @@
       "excellence_basis": "pushup_bare_hypnosis"
     },
     {
+      "species": "Persian-Alola",
+      "species_id": "persianalola",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p3",
+      "mechanism": "Hypnosis",
+      "criteria_notes": {
+        "delivery": "bare hypnosis",
+        "execution": "bare hypnosis; Spe 115 \u2265 100; bulk HP+Def+SpD=190 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Thunder Wave",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "pathway": "P3",
+        "pathway_rank": "3",
+        "effective_rank": "2",
+        "spore_absent_pushup": "True",
+        "primary_move": "hypnosis",
+        "spe_applies": "True",
+        "spe": "115",
+        "spe_ok": "True",
+        "speed_abilities": "none",
+        "eff_accuracy": "60",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Hypnosis",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Thunder Wave",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_bare_hypnosis"
+    },
+    {
       "species": "Politoed",
       "species_id": "politoed",
       "tier": "Acceptable",
@@ -541,7 +586,7 @@
         "execution": "bare sing; Spe 66 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=279 (miss-insurance; acc\u224855%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
         "secondary_role": "Will-O-Wisp, Encore",
         "usage_proven": "True",
-        "usage_source": "champions+showdown",
+        "usage_source": "showdown",
         "verified_secondary": "True",
         "excellent_secondary": "False",
         "pathway": "P3",
@@ -823,10 +868,10 @@
       "criteria_notes": {
         "delivery": "bare hypnosis",
         "execution": "bare hypnosis; Spe 77 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=198 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
-        "secondary_role": "none observed in usage common_moves",
+        "secondary_role": "Thunder Wave",
         "usage_proven": "True",
         "usage_source": "champions",
-        "verified_secondary": "False",
+        "verified_secondary": "True",
         "excellent_secondary": "False",
         "pathway": "P3",
         "pathway_rank": "3",
@@ -846,6 +891,11 @@
           "name": "Hypnosis",
           "criterion": "delivery",
           "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Thunder Wave",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
       "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True).",
@@ -1200,12 +1250,6 @@
       "species": "Oranguru",
       "species_id": "oranguru",
       "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
-      "change_reason": null
-    },
-    {
-      "species": "Persian-Alola",
-      "species_id": "persianalola",
-      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
       "change_reason": null
     },
     {
