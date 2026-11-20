@@ -1,0 +1,169 @@
+{
+  "placeholder": false,
+  "note": "Takuma Yamazaki's winning team from Worlds 2026 (replica code A4RBRNN9YE). Species, items, abilities, natures and moves come from the Limitless team page; spreads (stat points) were read in the game from the replica code. The event was played under Reg M-B; the legality block checks the team under the demo's Reg M-C snapshot.",
+  "source_url": "https://limitlessvgc.com/tournaments/437/teams",
+  "event": "World Championships 2026",
+  "player": "Takuma Yamazaki",
+  "regulation": {
+    "tag": "champions-reg-mc",
+    "letter": "C"
+  },
+  "members": [
+    {
+      "species": "Floette-Eternal",
+      "item": "Floettite",
+      "ability": "Flower Veil",
+      "moves": [
+        "Moonblast",
+        "Dazzling Gleam",
+        "Light of Ruin",
+        "Protect"
+      ],
+      "nature": "Timid",
+      "spread": {
+        "hp": 4,
+        "atk": 0,
+        "def": 8,
+        "spa": 32,
+        "spd": 0,
+        "spe": 22
+      }
+    },
+    {
+      "species": "Basculegion",
+      "item": "Life Orb",
+      "ability": "Adaptability",
+      "moves": [
+        "Wave Crash",
+        "Last Respects",
+        "Aqua Jet",
+        "Protect"
+      ],
+      "nature": "Adamant",
+      "spread": {
+        "hp": 4,
+        "atk": 18,
+        "def": 4,
+        "spa": 0,
+        "spd": 15,
+        "spe": 25
+      }
+    },
+    {
+      "species": "Kingambit",
+      "item": "Chople Berry",
+      "ability": "Defiant",
+      "moves": [
+        "Sucker Punch",
+        "Kowtow Cleave",
+        "Low Kick",
+        "Iron Head"
+      ],
+      "nature": "Adamant",
+      "spread": {
+        "hp": 32,
+        "atk": 15,
+        "def": 0,
+        "spa": 0,
+        "spd": 19,
+        "spe": 0
+      }
+    },
+    {
+      "species": "Dragonite",
+      "item": "Dragoninite",
+      "ability": "Multiscale",
+      "moves": [
+        "Dragon Pulse",
+        "Heat Wave",
+        "Extreme Speed",
+        "Protect"
+      ],
+      "nature": "Modest",
+      "spread": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      }
+    },
+    {
+      "species": "Garchomp",
+      "item": "Choice Scarf",
+      "ability": "Rough Skin",
+      "moves": [
+        "Dragon Claw",
+        "Stomping Tantrum",
+        "Earthquake",
+        "Rock Slide"
+      ],
+      "nature": "Adamant",
+      "spread": {
+        "hp": 10,
+        "atk": 20,
+        "def": 9,
+        "spa": 0,
+        "spd": 0,
+        "spe": 27
+      }
+    },
+    {
+      "species": "Sneasler",
+      "item": "Focus Sash",
+      "ability": "Poison Touch",
+      "moves": [
+        "Close Combat",
+        "Dire Claw",
+        "Fake Out",
+        "Feint"
+      ],
+      "nature": "Jolly",
+      "spread": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      }
+    }
+  ],
+  "legality": {
+    "snapshot": "data/legality/champions.v1.json",
+    "note": "Checked by hand against the snapshot (extracted_at 2026-10-05, Showdown 9fb3a5b, pre-pin): species legal, mega stones and held items legal (is_nonstandard null), abilities listed for the species, every move in the species learnset, six different items and species. This was NOT recommender.legality.check_set (the module could not be imported in the review environment). Regenerate with check_set against the re-pinned snapshot before launch.",
+    "members": [
+      {
+        "species": "Floette-Eternal",
+        "ok": true,
+        "failures": []
+      },
+      {
+        "species": "Basculegion",
+        "ok": true,
+        "failures": []
+      },
+      {
+        "species": "Kingambit",
+        "ok": true,
+        "failures": []
+      },
+      {
+        "species": "Dragonite",
+        "ok": true,
+        "failures": []
+      },
+      {
+        "species": "Garchomp",
+        "ok": true,
+        "failures": []
+      },
+      {
+        "species": "Sneasler",
+        "ok": true,
+        "failures": []
+      }
+    ]
+  }
+}

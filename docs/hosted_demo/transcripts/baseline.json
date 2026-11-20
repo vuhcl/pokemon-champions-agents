@@ -1,0 +1,153 @@
+{
+  "name": "baseline_one_locked_slot",
+  "source": "docs/hosted_demo/floor_run.py baseline, compile_graph + MemorySaver + fake parsers. Same three user texts as tests/recommender/test_cli_repl.py test_e2e_bootstrap_pick_confirm_restart. The featured-set double from that test was on for this run. Discovery was not patched: the locking yes also opens the next candidate_selection. The 201 target is the display card from targets/placeholder.not-a-real-target.json. It is a placeholder, not a real target, and it is not part of the measured floor.",
+  "turn_count_to_one_locked_slot": 3,
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session",
+        "body": {"provider": "anthropic", "model": "fake", "api_key": "<redacted>"}
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "session_token": "REDACTED-session-token-not-a-real-secret-value",
+          "target": {
+            "source_url": null,
+            "event": null,
+            "player": null,
+            "regulation": {"tag": "champions-reg-mc", "letter": "C"},
+            "members": [
+              {"species": "Pelipper", "item": "Damp Rock", "ability": "Drizzle", "moves": ["Hurricane", "U-turn", "Weather Ball", "Protect"]},
+              {"species": "Incineroar", "item": "Safety Goggles", "ability": "Intimidate", "moves": ["Fake Out", "Flare Blitz", "Parting Shot", "Snarl"]},
+              {"species": "Rillaboom", "item": "Assault Vest", "ability": "Grassy Surge", "moves": ["Grassy Glide", "Wood Hammer", "U-turn", "Fake Out"]},
+              {"species": "Amoonguss", "item": "Sitrus Berry", "ability": "Regenerator", "moves": ["Spore", "Rage Powder", "Pollen Puff", "Protect"]},
+              {"species": "Kingambit", "item": "Black Glasses", "ability": "Defiant", "moves": ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"]},
+              {"species": "Flutter Mane", "item": "Choice Specs", "ability": "Protosynthesis", "moves": ["Moonblast", "Shadow Ball", "Dazzling Gleam", "Protect"]}
+            ]
+          },
+          "state_view": {
+            "round": 1,
+            "turn": 0,
+            "max_len": null,
+            "prompt_text": "What direction or anchor would you like to start with, and which Pokémon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.",
+            "notices": [],
+            "pending_kind": "bootstrap_intake",
+            "options": [],
+            "slots": [
+              {"index": 1, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 2, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 3, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 4, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 5, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}},
+              {"index": 6, "locked": false, "fields": {"role": {"value": null, "locked": false}, "species": {"value": null, "locked": false}, "ability": {"value": null, "locked": false}, "item": {"value": null, "locked": false}, "moveset": {"value": null, "locked": false}, "spread": {"value": null, "locked": false}, "nature": {"value": null, "locked": false}}}
+            ],
+            "provisional_slot": null,
+            "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}}
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/message",
+        "headers": {"X-Session-Token": "<redacted>"},
+        "body": {"text": "Rain with Pelipper", "expected_turn": 0}
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "reply_text": "Choose the recommended starting direction or one of the strategically different alternatives.\n1. Pelipper — Rain Setter — rain_setter — support — compendium_backed, high confidence",
+          "turn": 1,
+          "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+          "state_view_partial": {
+            "round": 1,
+            "turn": 1,
+            "max_len": null,
+            "prompt_text": "Choose the recommended starting direction or one of the strategically different alternatives.",
+            "notices": [],
+            "pending_kind": "candidate_selection",
+            "options": [{"id": "1", "label": "Pelipper (Rain Setter)", "send_text": "1"}],
+            "provisional_slot": null,
+            "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+            "slots_locked_flags": [false, false, false, false, false, false]
+          }
+        }
+      },
+      "graph": {"pending_before": "bootstrap_intake", "turn_before": 0, "turn_after": 1, "slots_fully_locked": 0}
+    },
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/message",
+        "body": {"text": "yes", "expected_turn": 1}
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "reply_text": "Proposed build for Pelipper (rain_setter): Ability Drizzle, Item Sitrus Berry, Nature Modest, Moves Hurricane / U-turn / Weather Ball / Protect.",
+          "turn": 2,
+          "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+          "state_view_partial": {
+            "round": 1,
+            "turn": 2,
+            "max_len": null,
+            "prompt_text": null,
+            "notices": [],
+            "pending_kind": "full_build_confirmation",
+            "options": [
+              {"id": "accept", "label": "Accept this build", "send_text": "yes"},
+              {"id": "spread_nature:default", "label": "Recommended default", "send_text": "spread_nature:default"}
+            ],
+            "provisional_slot": {
+              "slot_index": 1,
+              "species": "Pelipper",
+              "ability": "Drizzle",
+              "item": "Sitrus Berry",
+              "moves": ["Hurricane", "U-turn", "Weather Ball", "Protect"],
+              "nature": "Modest",
+              "spread": {"hp": 4, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 30}
+            },
+            "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+            "slots_locked_flags": [false, false, false, false, false, false]
+          }
+        }
+      },
+      "graph": {"pending_before": "candidate_selection", "turn_before": 1, "turn_after": 2, "slots_fully_locked": 0, "provisional_species": "Pelipper"}
+    },
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/message",
+        "body": {"text": "yes", "expected_turn": 2}
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "reply_text": "1. Goodra 2. Blastoise 3. Swampert-Mega",
+          "turn": 3,
+          "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+          "state_view_partial": {
+            "round": 1,
+            "turn": 3,
+            "max_len": null,
+            "prompt_text": null,
+            "notices": [],
+            "pending_kind": "candidate_selection",
+            "options": [
+              {"id": "1", "label": "Goodra", "send_text": "1"},
+              {"id": "2", "label": "Blastoise", "send_text": "2"},
+              {"id": "3", "label": "Swampert-Mega", "send_text": "3"}
+            ],
+            "provisional_slot": null,
+            "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+            "slots_locked_flags": [true, false, false, false, false, false]
+          }
+        }
+      },
+      "graph": {"pending_before": "full_build_confirmation", "turn_before": 2, "turn_after": 3, "slots_fully_locked": 1, "slot_1_species": "Pelipper"}
+    }
+  ]
+}

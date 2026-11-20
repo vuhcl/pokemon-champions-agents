@@ -1,0 +1,88 @@
+{
+  "placeholder": true,
+  "note": "NOT A REAL TARGET. Invented so the file shape can be reviewed. No event, no player, no source page. Do not ship this as the demo target. Four of six members fail check_set. Do not read this file as a list of Champions-legal species. The check used data/legality/champions.v1.json meta.extracted_at 2026-10-05T04:58:45.430Z, Showdown commit 9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e. That extract is earlier than 2026-11-04, so it is the pre-pin snapshot.",
+  "source_url": null,
+  "event": null,
+  "player": null,
+  "regulation": {
+    "tag": "champions-reg-mc",
+    "letter": "C"
+  },
+  "members": [
+    {
+      "species": "Pelipper",
+      "item": "Damp Rock",
+      "ability": "Drizzle",
+      "moves": ["Hurricane", "U-turn", "Weather Ball", "Protect"]
+    },
+    {
+      "species": "Incineroar",
+      "item": "Safety Goggles",
+      "ability": "Intimidate",
+      "moves": ["Fake Out", "Flare Blitz", "Parting Shot", "Snarl"]
+    },
+    {
+      "species": "Rillaboom",
+      "item": "Assault Vest",
+      "ability": "Grassy Surge",
+      "moves": ["Grassy Glide", "Wood Hammer", "U-turn", "Fake Out"]
+    },
+    {
+      "species": "Amoonguss",
+      "item": "Sitrus Berry",
+      "ability": "Regenerator",
+      "moves": ["Spore", "Rage Powder", "Pollen Puff", "Protect"]
+    },
+    {
+      "species": "Kingambit",
+      "item": "Black Glasses",
+      "ability": "Defiant",
+      "moves": ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"]
+    },
+    {
+      "species": "Flutter Mane",
+      "item": "Choice Specs",
+      "ability": "Protosynthesis",
+      "moves": ["Moonblast", "Shadow Ball", "Dazzling Gleam", "Protect"]
+    }
+  ],
+  "legality": {
+    "snapshot": "data/legality/champions.v1.json",
+    "note": "Per member, recommender.legality.check_set with no team_draft, so Item Clause was not applied. Regulation on this file is the active tag in data/active_regulation.json as of 2026-11-04 (letter C). check_set does not take a regulation argument.",
+    "members": [
+      {"species": "Pelipper", "ok": true, "failures": []},
+      {
+        "species": "Incineroar",
+        "ok": false,
+        "failures": [
+          {"kind": "item", "element": "Safety Goggles", "detail": "item is_nonstandard or unknown"}
+        ]
+      },
+      {
+        "species": "Rillaboom",
+        "ok": false,
+        "failures": [
+          {"kind": "item", "element": "Assault Vest", "detail": "item is_nonstandard or unknown"}
+        ]
+      },
+      {
+        "species": "Amoonguss",
+        "ok": false,
+        "failures": [
+          {"kind": "species", "element": "Amoonguss", "detail": "illegal or banned species"},
+          {"kind": "learnset", "element": "Amoonguss", "detail": "no resolvable learnset"}
+        ]
+      },
+      {"species": "Kingambit", "ok": true, "failures": []},
+      {
+        "species": "Flutter Mane",
+        "ok": false,
+        "failures": [
+          {"kind": "species", "element": "Flutter Mane", "detail": "illegal or banned species"},
+          {"kind": "item", "element": "Choice Specs", "detail": "item is_nonstandard or unknown"},
+          {"kind": "learnset", "element": "Flutter Mane", "detail": "no resolvable learnset"}
+        ]
+      }
+    ]
+  }
+}

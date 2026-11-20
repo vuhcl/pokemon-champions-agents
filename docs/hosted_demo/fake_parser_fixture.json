@@ -1,0 +1,38 @@
+{
+  "description": "Responses a fake parser returns for stream 3. No model and no network. Keys are exact user_text. A text missing from both maps falls through to default. 'raises' makes the turn parser raise RuntimeError; parse_turn_intent catches that and the graph still increments turn.",
+  "bootstrap": {
+    "Rain with Pelipper": {
+      "direction_text": "Rain",
+      "anchor_text": "Pelipper",
+      "pool_entries": null,
+      "delegated": false,
+      "ownership_mode": null
+    },
+    "Pelipper @ Damp Rock, Drizzle, Hurricane / U-turn / Weather Ball / Protect; Incineroar @ Safety Goggles, Intimidate, Fake Out / Flare Blitz / Parting Shot / Snarl; Rillaboom @ Assault Vest, Grassy Surge, Grassy Glide / Wood Hammer / U-turn / Fake Out; Amoonguss @ Sitrus Berry, Regenerator, Spore / Rage Powder / Pollen Puff / Protect; Kingambit @ Black Glasses, Defiant, Kowtow Cleave / Sucker Punch / Iron Head / Protect; Flutter Mane @ Choice Specs, Protosynthesis, Moonblast / Shadow Ball / Dazzling Gleam / Protect": {
+      "direction_text": null,
+      "anchor_text": "Pelipper",
+      "pool_entries": ["Incineroar", "Rillaboom", "Amoonguss", "Kingambit", "Flutter Mane"],
+      "delegated": false,
+      "ownership_mode": null
+    }
+  },
+  "turn_intent": {
+    "Lock slot 2 as Incineroar. Lock slot 3 as Rillaboom. Lock slot 4 as Amoonguss. Lock slot 5 as Kingambit. Lock slot 6 as Flutter Mane.": {
+      "turn_intent": "lock",
+      "slot_index": 2,
+      "attr": "species",
+      "value": "Incineroar"
+    },
+    "Lock slot 1 Pelipper again.": {
+      "turn_intent": "lock",
+      "slot_index": 1,
+      "attr": "species",
+      "value": "Pelipper"
+    }
+  },
+  "raises": ["lock everything"],
+  "cannot_express": {
+    "several_lock_intents": "TurnIntentExtraction.turn_intent is one value and slot_index is one integer. locks[] is several attrs on that one slot. A list of intents fails model_validate.",
+    "full_builds_on_bootstrap": "BootstrapExtraction has direction_text, anchor_text, pool_entries, delegated, ownership_mode. extra=forbid. A builds key becomes a bootstrap parse error."
+  }
+}

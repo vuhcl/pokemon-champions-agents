@@ -1,0 +1,29 @@
+{
+  "name": "parser_fail",
+  "measured": true,
+  "source": "floor_run_output.json parser_fail_turn. The fake turn parser raised. parse_turn_intent caught it. The graph still incremented turn (D9).",
+  "exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "path": "/session/{token}/message",
+        "body": {"text": "lock everything", "expected_turn": 3}
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "reply_text": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+          "turn": 4,
+          "score": {"locked_only": {"members": null, "fields": null}, "include_unlocked": {"members": null, "fields": null}},
+          "state_view_partial": {
+            "round": 1,
+            "turn": 4,
+            "pending_kind": "candidate_selection",
+            "slots_locked_flags": [true, false, false, false, false, false]
+          }
+        }
+      },
+      "graph": {"pending_before": "candidate_selection", "turn_before": 3, "turn_after": 4, "slots_fully_locked": 1}
+    }
+  ]
+}
